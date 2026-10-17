@@ -1,8 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
-const pdfParse = require('pdf-parse');
-const mammoth = require('mammoth');
+let _pdfParse = null;
+function getPdfParser() {
+  if (!_pdfParse) {
+    try {
+      _pdfParse = require('pdf-parse');
+    } catch (e) {
+      console.warn('[Ingestao] Aviso ao carregar pdf-parse:', e.message);
+    }
+  }
+  return _pdfParse;
+}
+
+let _mammoth = null;
+function getMammoth() {
+  if (!_mammoth) {
+    try {
+      _mammoth = require('mammoth');
+    } catch (e) {
+      console.warn('[Ingestao] Aviso ao carregar mammoth:', e.message);
+    }
+  }
+  return _mammoth;
+}
 
 /**
  * Matriz de Normalização de Colunas por Sinônimos e Expressões Regulares
@@ -355,7 +376,12 @@ async function parsePdf(filePathOrBuffer, fileName = 'relatorio.pdf') {
     buffer = await fs.promises.readFile(filePathOrBuffer);
   }
 
-  const data = await pdfParse(buffer);
+  const pdfParser = getPdfParser();
+  if (!pdfParser) {
+    throw new Error('Módulo de leitura de PDF indisponível no momento.');
+  }
+
+  const data = await pdfParser(buffer);
   const rawText = data.text || '';
 
   // Verificação de PDF escaneado (sem OCR)
@@ -385,7 +411,12 @@ async function parseDocx(filePathOrBuffer, fileName = 'documento.docx') {
     buffer = await fs.promises.readFile(filePathOrBuffer);
   }
 
-  const result = await mammoth.extractRawText({ buffer });
+  const mammothLib = getMammoth();
+  if (!mammothLib) {
+    throw new Error('Módulo de leitura de DOCX indisponível no momento.');
+  }
+
+  const result = await mammothLib.extractRawText({ buffer });
   const rawText = result.value || '';
   const processos = chunkTextByCNJ(rawText, fileName, 'DOCX');
   return processos;
