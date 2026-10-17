@@ -470,11 +470,17 @@ async function processarArquivoIngestao(source, fileName) {
  */
 function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
   const cfg = JSON.parse(JSON.stringify(configAtual));
-  if (!cfg.processos) cfg.processos = { lista: [] };
-  if (!Array.isArray(cfg.processos.lista)) cfg.processos.lista = [];
+  let listaRef;
+  if (Array.isArray(cfg.processos)) {
+    listaRef = cfg.processos;
+  } else {
+    if (!cfg.processos) cfg.processos = { lista: [] };
+    if (!Array.isArray(cfg.processos.lista)) cfg.processos.lista = [];
+    listaRef = cfg.processos.lista;
+  }
 
   const mapaExistentes = new Map();
-  cfg.processos.lista.forEach((p, idx) => {
+  listaRef.forEach((p, idx) => {
     const chave = p.processo || p.numeroProcesso || `idx_${idx}`;
     mapaExistentes.set(chave, idx);
   });
@@ -497,15 +503,15 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
 
     if (procKey && mapaExistentes.has(procKey)) {
       const idx = mapaExistentes.get(procKey);
-      cfg.processos.lista[idx] = {
-        ...cfg.processos.lista[idx],
+      listaRef[idx] = {
+        ...listaRef[idx],
         ...itemFormatado,
-        id: cfg.processos.lista[idx].id // preserva ID original
+        id: listaRef[idx].id // preserva ID original
       };
       atualizados++;
     } else {
-      cfg.processos.lista.push(itemFormatado);
-      if (procKey) mapaExistentes.set(procKey, cfg.processos.lista.length - 1);
+      listaRef.push(itemFormatado);
+      if (procKey) mapaExistentes.set(procKey, listaRef.length - 1);
       adicionados++;
     }
   });
@@ -514,8 +520,70 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
     configAtualizado: cfg,
     adicionados,
     atualizados,
-    totalProcessosNaBase: cfg.processos.lista.length
+    totalProcessosNaBase: listaRef.length
   };
+}
+
+/**
+ * Processa múltiplos arquivos de uma só vez e calcula métricas comparando com o config atual
+ * @param {Array<string>} filePaths
+ * @param {Object} configAtual
+ * @returns {Promise<{processos: Array, novos: number, atualizados: number, total: number, validosCNJ: number, validosCPF: number, alerta?: string}>}
+ */
+async function processarMultiplosArquivos(filePaths, configAtual = {}) {
+  let acumulado = [];
+  let alertaGeral = null;
+
+  for (const caminho of filePaths) {
+    if (!caminho || typeof caminho !== 'string') continue;
+    const res = await processarArquivoIngestao(caminho, path.basename(caminho));
+    if (res.success && Array.isArray(res.processos)) {
+      acumulado = acumulado.concat(res.processos);
+      if (res.alerta) alertaGeral = res.alerta;
+    }
+  }
+
+  let listaExistentes = [];
+  if (configAtual && configAtual.processos) {
+    if (Array.isArray(configAtual.processos)) {
+      listaExistentes = configAtual.processos;
+    } else if (Array.isArray(configAtual.processos.lista)) {
+      listaExistentes = configAtual.processos.lista;
+    }
+  }
+  const existentes = new Set(listaExistentes.map(p => p.processo || p.numeroProcesso));
+  let novos = 0;
+  let atualizados = 0;
+
+  acumulado.forEach(p => {
+    if (existentes.has(p.numeroProcesso)) {
+      atualizados++;
+    } else {
+      novos++;
+    }
+  });
+
+  const validosCNJ = acumulado.filter(p => p.validoCNJ).length;
+  const validosCPF = acumulado.filter(p => p.validoCPF).length;
+
+  return {
+    sucesso: true,
+    processos: acumulado,
+    novos,
+    atualizados,
+    erros: 0,
+    total: acumulado.length,
+    totalProcessosEncontrados: acumulado.length,
+    validosCNJ,
+    validosCPF,
+    alerta: alertaGeral
+  };
+}
+
+// Alias de mesclagem para compatibilidade total
+function mesclarComConfig(configAtual, novosProcessos) {
+  const { configAtualizado } = mesclarComConfigAtual(novosProcessos, configAtual);
+  return configAtualizado;
 }
 
 module.exports = {
@@ -531,6 +599,9 @@ module.exports = {
   parseTxt,
   chunkTextByCNJ,
   processarArquivoIngestao,
+  processarMultiplosArquivos,
   mesclarComConfigAtual,
+  mesclarComConfig,
   COLUMN_MAPPING_RULES
 };
+

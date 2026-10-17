@@ -1149,9 +1149,11 @@ ipcMain.handle('remover-ignorado', (e, identificador) => {
 // ==========================================
 // MÓDULOS v2.0: INGESTÃO MULTIFORMATO & TRANSBORDO & IA
 // ==========================================
-const { processarArquivoIngestao, mesclarComConfigAtual } = require('./src/ingestao/motorIngestao');
+const { processarArquivoIngestao, processarMultiplosArquivos, mesclarComConfigAtual } = require('./src/ingestao/motorIngestao');
 const { traduzirAndamentoParaCliente, traduzirAndamentoJuridico } = require('./src/ia/tradutorJuridico');
+const os = require('os');
 
+// Ingestão de arquivo único (Legado / Fallback)
 ipcMain.handle('ingestao-processar-arquivo', async (event, { caminhoArquivo, nomeArquivo, bufferBase64 }) => {
     try {
         let fonte = caminhoArquivo;
@@ -1165,6 +1167,48 @@ ipcMain.handle('ingestao-processar-arquivo', async (event, { caminhoArquivo, nom
     }
 });
 
+// Processamento unificado de lista de caminhos
+ipcMain.handle('ingestao-processar-caminhos', async (event, filePaths) => {
+    try {
+        if (!Array.isArray(filePaths) || filePaths.length === 0) {
+            return { success: false, error: 'Nenhum caminho de arquivo válido recebido.' };
+        }
+        const configAtual = carregarConfig();
+        const resultado = await processarMultiplosArquivos(filePaths, configAtual);
+        return { success: true, ...resultado };
+    } catch (err) {
+        console.error('Erro na ingestao-processar-caminhos:', err);
+        return { success: false, error: err.message };
+    }
+});
+
+// Processamento via buffer temporário (Fallback para Drag-and-Drop sem path no SO)
+ipcMain.handle('ingestao-processar-buffer', async (event, listaArquivosBuffer) => {
+    const caminhosTemp = [];
+    try {
+        if (!Array.isArray(listaArquivosBuffer) || listaArquivosBuffer.length === 0) {
+            return { success: false, error: 'Nenhum buffer recebido.' };
+        }
+        for (const item of listaArquivosBuffer) {
+            const tempPath = path.join(os.tmpdir(), `adv_import_${Date.now()}_${item.nome || 'documento.xlsx'}`);
+            const buf = Buffer.isBuffer(item.buffer) ? item.buffer : Buffer.from(item.buffer);
+            fs.writeFileSync(tempPath, buf);
+            caminhosTemp.push(tempPath);
+        }
+        const configAtual = carregarConfig();
+        const resultado = await processarMultiplosArquivos(caminhosTemp, configAtual);
+        return { success: true, ...resultado };
+    } catch (err) {
+        console.error('Erro na ingestao-processar-buffer:', err);
+        return { success: false, error: err.message };
+    } finally {
+        caminhosTemp.forEach(p => {
+            try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (e) {}
+        });
+    }
+});
+
+// Gravação confirmada preservando 100% de menus, templates e regras
 ipcMain.handle('ingestao-salvar-processos', async (event, processosParaSalvar) => {
     try {
         const configAtual = carregarConfig();
@@ -1173,8 +1217,9 @@ ipcMain.handle('ingestao-salvar-processos', async (event, processosParaSalvar) =
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('bot-processos-sync', configAtualizado);
         }
-        return { success: true, adicionados, atualizados, totalProcessosNaBase };
+        return { success: true, adicionados, atualizados, totalProcessosNaBase, config: configAtualizado };
     } catch (err) {
+        console.error('Erro em ingestao-salvar-processos:', err);
         return { success: false, error: err.message };
     }
 });
@@ -1193,7 +1238,7 @@ ipcMain.handle('ingestao-selecionar-arquivos', async () => {
     try {
         if (!mainWindow) return { canceled: true, filePaths: [] };
         const result = await dialog.showOpenDialog(mainWindow, {
-            title: 'Selecionar Arquivos para Ingestão de Processos',
+            title: 'Selecionar Planilhas ou Documentos de Processos',
             buttonLabel: 'Importar Arquivos',
             properties: ['openFile', 'multiSelections'],
             filters: [
@@ -1205,12 +1250,18 @@ ipcMain.handle('ingestao-selecionar-arquivos', async () => {
                 { name: 'Todos os Arquivos', extensions: ['*'] }
             ]
         });
-        return result;
+        if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+            return { canceled: true, filePaths: [] };
+        }
+        const configAtual = carregarConfig();
+        const analise = await processarMultiplosArquivos(result.filePaths, configAtual);
+        return { canceled: false, filePaths: result.filePaths, ...analise };
     } catch (err) {
         return { canceled: true, error: err.message, filePaths: [] };
     }
 });
 
+// Download da Planilha Modelo (Cópia fiel do arquivo oficial com fallback gerado)
 ipcMain.handle('ingestao-baixar-planilha-modelo', async () => {
     try {
         if (!mainWindow) return { success: false };
@@ -1223,28 +1274,49 @@ ipcMain.handle('ingestao-baixar-planilha-modelo', async () => {
             return { success: false, canceled: true };
         }
 
-        const XLSX = require('xlsx');
-        const wb = XLSX.utils.book_new();
-        const dadosExemplo = [
-            {
-                "NOME DO CLIENTE": "Maria Oliveira da Silva",
-                "CPF": "529.982.247-25",
-                "NUMERO DO PROCESSO": "0001234-56.2023.8.26.0100",
-                "DATA": new Date().toLocaleDateString('pt-BR'),
-                "RESUMO / ANDAMENTO": "Intimação expedida para réplica no prazo legal."
-            },
-            {
-                "NOME DO CLIENTE": "Carlos Eduardo Pereira",
-                "CPF": "111.444.777-35",
-                "NUMERO DO PROCESSO": "1005555-88.2024.8.26.0050",
-                "DATA": new Date().toLocaleDateString('pt-BR'),
-                "RESUMO / ANDAMENTO": "Sentença de procedência parcial publicada no Diário de Justiça."
-            }
-        ];
-        const ws = XLSX.utils.json_to_sheet(dadosExemplo);
-        XLSX.utils.book_append_sheet(wb, ws, "Processos e Clientes");
-        XLSX.writeFile(wb, saveDialog.filePath);
+        const modeloOrigem = path.join(__dirname, 'exemplos_importacao', '1_Planilha_Modelo_Oficial.xlsx');
+        if (fs.existsSync(modeloOrigem)) {
+            fs.copyFileSync(modeloOrigem, saveDialog.filePath);
+        } else {
+            const XLSX = require('xlsx');
+            const wb = XLSX.utils.book_new();
+            const dadosExemplo = [
+                {
+                    "NOME DO CLIENTE": "Maria Oliveira da Silva",
+                    "CPF": "529.982.247-25",
+                    "NUMERO DO PROCESSO": "0001234-56.2023.8.26.0100",
+                    "DATA": new Date().toLocaleDateString('pt-BR'),
+                    "RESUMO / ANDAMENTO": "Intimação expedida para réplica no prazo legal de 15 dias."
+                },
+                {
+                    "NOME DO CLIENTE": "Carlos Eduardo Pereira",
+                    "CPF": "111.444.777-35",
+                    "NUMERO DO PROCESSO": "1005555-88.2024.8.26.0050",
+                    "DATA": new Date().toLocaleDateString('pt-BR'),
+                    "RESUMO / ANDAMENTO": "Sentença de procedência parcial publicada no Diário da Justiça."
+                }
+            ];
+            const ws = XLSX.utils.json_to_sheet(dadosExemplo);
+            XLSX.utils.book_append_sheet(wb, ws, "Processos e Clientes");
+            XLSX.writeFile(wb, saveDialog.filePath);
+        }
         return { success: true, filePath: saveDialog.filePath };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+// Teste de Conexão com Google Gemini API
+ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
+    try {
+        const resultado = await traduzirAndamentoJuridico('Vistos. Especifiquem as partes as provas.', {
+            apiKey: chaveManual,
+            timeoutMs: 6000
+        });
+        if (resultado.fonte === 'ia') {
+            return { success: true, mensagem: 'Conectado com sucesso à IA Gemini!', texto: resultado.texto };
+        }
+        return { success: false, mensagem: 'Não foi possível conectar. Verifique a chave ou o status da rede.' };
     } catch (err) {
         return { success: false, error: err.message };
     }
@@ -1254,4 +1326,5 @@ module.exports = {
     traduzirAndamentoParaCliente,
     formatarMensagemProcesso,
     buscarProcessoPorNumero
-};
+};
+

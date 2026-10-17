@@ -1515,9 +1515,17 @@
         aoAtualizarProcessos: () => {},
         aoAtualizarIgnorados: () => {},
         aoReceberEventoUpdate: () => {},
-        aoReceberTransbordoHumano: () => {}
+        aoReceberTransbordoHumano: () => {},
+        selecionarArquivosIngestao: async () => ({ canceled: true, filePaths: [] }),
+        processarArquivosCaminhos: async () => ({ success: false, error: 'Modo navegador' }),
+        processarArquivoBuffer: async () => ({ success: false, error: 'Modo navegador' }),
+        processarArquivoIngestao: async () => ({ success: false, error: 'Modo navegador' }),
+        salvarProcessosIngeridos: async (lista) => ({ success: true, adicionados: lista.length, atualizados: 0 }),
+        baixarPlanilhaModelo: async () => ({ success: true })
       };
     }
+    if (!window.electronAPI) window.electronAPI = window.api;
+    if (!window.api) window.api = window.electronAPI;
 
     function garantirEstruturaAgenda() {
       const padrao = obterConfigPadraoFallback();
@@ -2458,39 +2466,56 @@
     const btnSelecionarArquivos = document.getElementById('btn-selecionar-arquivos-proc');
     const btnBaixarModeloXlsx = document.getElementById('btn-baixar-modelo-xlsx');
 
+    // Bloqueia comportamento padrão do navegador de abrir o arquivo na janela inteira
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      window.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+
     if (btnBaixarModeloXlsx) {
-      btnBaixarModeloXlsx.addEventListener('click', async () => {
-        if (window.api && window.api.baixarPlanilhaModelo) {
-          const res = await window.api.baixarPlanilhaModelo();
-          if (res.success) {
+      btnBaixarModeloXlsx.addEventListener('click', async (e) => {
+        if (e) e.stopPropagation();
+        const api = window.api || window.electronAPI;
+        if (api && api.baixarPlanilhaModelo) {
+          const res = await api.baixarPlanilhaModelo();
+          if (res && res.success) {
             mostrarToast("Planilha modelo salva com sucesso!");
-          } else if (!res.canceled) {
+          } else if (res && !res.canceled) {
             mostrarToast("Erro ao salvar planilha modelo.");
           }
         }
       });
     }
 
-    if (btnSelecionarArquivos) {
-      btnSelecionarArquivos.addEventListener('click', async () => {
-        if (window.api && window.api.selecionarArquivosIngestao) {
-          const res = await window.api.selecionarArquivosIngestao();
-          if (!res.canceled && res.filePaths && res.filePaths.length > 0) {
+    const acionarSeletorArquivos = async (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const api = window.api || window.electronAPI;
+      if (api && api.selecionarArquivosIngestao) {
+        mostrarToast("Aguardando seleção de arquivos...");
+        const res = await api.selecionarArquivosIngestao();
+        if (res && !res.canceled) {
+          if (res.processos && res.processos.length > 0) {
+            abrirPreviaIngestao(res.processos, res.alerta);
+          } else if (res.filePaths && res.filePaths.length > 0) {
             processarArquivosSelecionados(res.filePaths);
+          } else {
+            mostrarToast("Nenhum processo válido encontrado nos arquivos.");
           }
-        } else if (fileInputHidden) {
-          fileInputHidden.click();
         }
-      });
+      } else if (fileInputHidden) {
+        fileInputHidden.click();
+      }
+    };
+
+    if (btnSelecionarArquivos) {
+      btnSelecionarArquivos.addEventListener('click', acionarSeletorArquivos);
     }
 
     if (dropzone) {
-      dropzone.addEventListener('click', () => {
-        if (window.api && window.api.selecionarArquivosIngestao) {
-          btnSelecionarArquivos.click();
-        } else if (fileInputHidden) {
-          fileInputHidden.click();
-        }
+      dropzone.addEventListener('click', (e) => {
+        acionarSeletorArquivos(e);
       });
 
       ['dragenter', 'dragover'].forEach(eventName => {
@@ -2509,51 +2534,102 @@
         });
       });
 
-      dropzone.addEventListener('drop', (e) => {
+      dropzone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('border-[#d4af37]', 'bg-[#d4af37]/10');
+
         const files = Array.from(e.dataTransfer.files || []);
         if (files.length > 0) {
-          processarArquivosLocais(files);
+          await processarArquivosLocais(files);
         }
       });
     }
 
     if (fileInputHidden) {
-      fileInputHidden.addEventListener('change', (e) => {
+      fileInputHidden.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
-          processarArquivosLocais(files);
+          await processarArquivosLocais(files);
         }
         fileInputHidden.value = '';
       });
     }
 
     async function processarArquivosSelecionados(caminhos) {
+      const api = window.api || window.electronAPI;
+      if (!api) return;
       mostrarToast(`Processando ${caminhos.length} arquivo(s)...`);
+
+      if (api.processarArquivosCaminhos) {
+        const res = await api.processarArquivosCaminhos(caminhos);
+        if (res && res.success && Array.isArray(res.processos)) {
+          abrirPreviaIngestao(res.processos, res.alerta);
+          return;
+        }
+      }
+
       let acumulado = [];
       let alertaGeral = null;
-
       for (const caminho of caminhos) {
-        if (window.api && window.api.processarArquivoIngestao) {
-          const res = await window.api.processarArquivoIngestao({ caminhoArquivo: caminho });
+        if (api.processarArquivoIngestao) {
+          const res = await api.processarArquivoIngestao({ caminhoArquivo: caminho });
           if (res.success && Array.isArray(res.processos)) {
             acumulado = acumulado.concat(res.processos);
             if (res.alerta) alertaGeral = res.alerta;
           }
         }
       }
-
       abrirPreviaIngestao(acumulado, alertaGeral);
     }
 
     async function processarArquivosLocais(files) {
+      const api = window.api || window.electronAPI;
       mostrarToast(`Lendo ${files.length} arquivo(s)...`);
+
+      // 1. Tenta extrair caminhos reais via webUtils do Electron
+      const caminhosReais = files
+        .map(f => {
+          if (api && typeof api.obterCaminhoArquivo === 'function') {
+            return api.obterCaminhoArquivo(f);
+          }
+          return f.path || '';
+        })
+        .filter(Boolean);
+
+      if (caminhosReais.length === files.length && api && api.processarArquivosCaminhos) {
+        const res = await api.processarArquivosCaminhos(caminhosReais);
+        if (res && res.success && Array.isArray(res.processos)) {
+          abrirPreviaIngestao(res.processos, res.alerta);
+          return;
+        }
+      }
+
+      // 2. Fallback via buffer nativo ArrayBuffer
+      if (api && api.processarArquivoBuffer) {
+        const buffersPayload = await Promise.all(files.map(async f => {
+          const ab = await f.arrayBuffer();
+          return {
+            nome: f.name,
+            buffer: Array.from(new Uint8Array(ab))
+          };
+        }));
+
+        const resBuffer = await api.processarArquivoBuffer(buffersPayload);
+        if (resBuffer && resBuffer.success && Array.isArray(resBuffer.processos)) {
+          abrirPreviaIngestao(resBuffer.processos, resBuffer.alerta);
+          return;
+        }
+      }
+
+      // 3. Fallback legado arquivo a arquivo
       let acumulado = [];
       let alertaGeral = null;
-
       for (const file of files) {
-        if (window.api && window.api.processarArquivoIngestao) {
-          if (file.path) {
-            const res = await window.api.processarArquivoIngestao({ caminhoArquivo: file.path, nomeArquivo: file.name });
+        if (api && api.processarArquivoIngestao) {
+          const pathReal = (api.obterCaminhoArquivo ? api.obterCaminhoArquivo(file) : file.path);
+          if (pathReal) {
+            const res = await api.processarArquivoIngestao({ caminhoArquivo: pathReal, nomeArquivo: file.name });
             if (res.success && Array.isArray(res.processos)) {
               acumulado = acumulado.concat(res.processos);
               if (res.alerta) alertaGeral = res.alerta;
@@ -2566,7 +2642,7 @@
               binary += String.fromCharCode(bytes[i]);
             }
             const base64 = btoa(binary);
-            const res = await window.api.processarArquivoIngestao({ bufferBase64: base64, nomeArquivo: file.name });
+            const res = await api.processarArquivoIngestao({ bufferBase64: base64, nomeArquivo: file.name });
             if (res.success && Array.isArray(res.processos)) {
               acumulado = acumulado.concat(res.processos);
               if (res.alerta) alertaGeral = res.alerta;
@@ -2654,16 +2730,21 @@
         btnConfirmarGravar.innerText = "Gravando...";
 
         try {
-          if (window.api && window.api.salvarProcessosIngeridos) {
-            const res = await window.api.salvarProcessosIngeridos(processosEmPrevia);
-            if (res.success) {
-              mostrarToast(`Sucesso! ${res.adicionados} novos e ${res.atualizados} atualizados.`);
+          const api = window.api || window.electronAPI;
+          if (api && (api.salvarProcessosIngeridos || api.confirmarIngestao)) {
+            const gravarFn = api.salvarProcessosIngeridos || api.confirmarIngestao;
+            const res = await gravarFn(processosEmPrevia);
+            if (res && res.success) {
+              mostrarToast(`Sucesso! ${res.adicionados || 0} novos e ${res.atualizados || 0} atualizados.`);
               fecharPreviaIngestao();
-              const cfgAtualizada = await window.api.obterConfig();
+              const cfgAtualizada = await (api.obterConfig ? api.obterConfig() : api.carregarConfig());
               if (cfgAtualizada) {
                 configGlobal = cfgAtualizada;
-                renderizarModuloProcessos();
+              } else if (res.config) {
+                configGlobal = res.config;
               }
+              renderizarModuloProcessos();
+              if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
             } else {
               mostrarToast("Erro ao gravar processos na base.");
             }

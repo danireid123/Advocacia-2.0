@@ -141,7 +141,7 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const modelo = opcoes.modelo || 'gemini-3.8-flash';
+    const modelo = opcoes.modelo || process.env.GEMINI_MODEL || 'gemini-1.5-flash';
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
 
     const requestBody = {
