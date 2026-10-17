@@ -66,6 +66,35 @@ if (!fs.existsSync(AUTH_DIR)) {
     fs.mkdirSync(AUTH_DIR, { recursive: true });
 }
 
+/**
+ * Escrita atômica: grava em arquivo temporário e renomeia. Se o app fechar no meio da
+ * gravação, o arquivo original permanece íntegro (nunca fica um JSON pela metade).
+ */
+function escreverArquivoAtomico(destino, conteudo) {
+    const tmp = `${destino}.${process.pid}.tmp`;
+    try {
+        fs.writeFileSync(tmp, conteudo, 'utf-8');
+        fs.renameSync(tmp, destino);
+    } catch (err) {
+        try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch (e) {}
+        throw err;
+    }
+}
+
+/**
+ * Todo ipcMain.handle passa por este wrapper: qualquer exceção vira
+ * { success: false, error } e é logada, em vez de rejeitar a promise silenciosamente no renderer.
+ */
+const _ipcHandleOriginal = ipcMain.handle.bind(ipcMain);
+ipcMain.handle = (canal, listener) => _ipcHandleOriginal(canal, async (...args) => {
+    try {
+        return await listener(...args);
+    } catch (err) {
+        console.error(`[IPC:${canal}] erro:`, err);
+        return { success: false, sucesso: false, error: err.message, erro: err.message };
+    }
+});
+
 function carregarContatosIgnorados() {
     try {
         if (fs.existsSync(IGNORED_CONTACTS_PATH)) {
@@ -91,7 +120,7 @@ function carregarContatosIgnorados() {
 function salvarContatosIgnorados(lista) {
     try {
         const limpa = Array.isArray(lista) ? lista : [];
-        fs.writeFileSync(IGNORED_CONTACTS_PATH, JSON.stringify(limpa, null, 2), 'utf-8');
+        escreverArquivoAtomico(IGNORED_CONTACTS_PATH, JSON.stringify(limpa, null, 2));
         const cfg = carregarConfig();
         cfg.contatosIgnorados = limpa;
         salvarConfigDisco(cfg, false);
@@ -201,7 +230,7 @@ function carregarConfig(forcarDisco = false) {
                 return configEmMemoria;
             }
             const padrao = criarConfigPadraoV2();
-            fs.writeFileSync(CONFIG_PATH, JSON.stringify(padrao, null, 2), 'utf-8');
+            escreverArquivoAtomico(CONFIG_PATH, JSON.stringify(padrao, null, 2));
             configEmMemoria = padrao;
             return configEmMemoria;
         }
@@ -218,6 +247,12 @@ function carregarConfig(forcarDisco = false) {
                 return configEmMemoria;
             }
         } catch (err2) {}
+        // Ambos corrompidos: preserva o arquivo ruim para recuperação manual em vez de sobrescrevê-lo
+        try {
+            if (fs.existsSync(CONFIG_PATH)) {
+                fs.copyFileSync(CONFIG_PATH, CONFIG_PATH.replace(/\.json$/, '.corrompido.' + Date.now() + '.json'));
+            }
+        } catch (err3) {}
         configEmMemoria = criarConfigPadraoV2();
         return configEmMemoria;
     }
@@ -229,9 +264,11 @@ function salvarConfigDisco(cfg, imediato = false) {
     const gravar = () => {
         try {
             const payload = JSON.stringify(configEmMemoria, null, 2);
-            fs.writeFileSync(CONFIG_PATH, payload, 'utf-8');
-            fs.writeFileSync(CONFIG_BACKUP_PATH, payload, 'utf-8');
-        } catch (e) {}
+            escreverArquivoAtomico(CONFIG_PATH, payload);
+            escreverArquivoAtomico(CONFIG_BACKUP_PATH, payload);
+        } catch (e) {
+            console.error('[Config] Falha ao gravar config.json:', e.message);
+        }
     };
     if (imediato) {
         gravar();
@@ -1115,6 +1152,12 @@ ipcMain.handle('obter-config', () => carregarConfig());
 ipcMain.handle('obter-versao-app', () => `Beta 0.8 (v${app.getVersion()})`);
 ipcMain.handle('obter-estado-conexao', () => ({ status: statusAtualBot, qr: ultimoQrDataUrl, subStatus: subStatusDetalhado, tentativa: tentativasReconexao }));
 ipcMain.handle('salvar-config', (e, nc) => {
+    // Campos de runtime pertencem ao processo principal: o renderer guarda cópias parciais
+    // (ex.: contatosAtendidos vira array vazio) que corromperiam as métricas ao autosalvar.
+    const atualEmMemoria = carregarConfig();
+    ['metricasReais', 'mapaNomes', 'mapaTelefones'].forEach(k => {
+        if (atualEmMemoria && atualEmMemoria[k] !== undefined) nc[k] = atualEmMemoria[k];
+    });
     salvarConfigDisco(nc, true);
     if (typeof nc.iniciar_com_windows !== 'undefined') {
         configurarAutoStartWindows(nc.iniciar_com_windows);
@@ -1174,8 +1217,8 @@ ipcMain.handle('remover-ignorado', (e, identificador) => {
 // ==========================================
 // MÓDULOS v2.0: INGESTÃO MULTIFORMATO & TRANSBORDO & IA
 // ==========================================
-const { processarArquivoIngestao, processarMultiplosArquivos, mesclarComConfigAtual } = require('./src/ingestao/motorIngestao');
-const { traduzirAndamentoParaCliente, traduzirAndamentoJuridico } = require('./src/ia/tradutorJuridico');
+const { processarArquivoIngestao, processarMultiplosArquivos, mesclarComConfigAtual, processosEquivalentes, extrairTextoDocumento } = require('./src/ingestao/motorIngestao');
+const { traduzirAndamentoParaCliente, traduzirAndamentoJuridico, catalogarPecaProcessual } = require('./src/ia/tradutorJuridico');
 const os = require('os');
 
 // Ingestão de arquivo único (Legado / Fallback)
@@ -1186,6 +1229,9 @@ ipcMain.handle('ingestao-processar-arquivo', async (event, { caminhoArquivo, nom
             fonte = Buffer.from(bufferBase64, 'base64');
         }
         const resultado = await processarArquivoIngestao(fonte, nomeArquivo || path.basename(caminhoArquivo || ''));
+        const cfgAtual = carregarConfig();
+        const existentes = Array.isArray(cfgAtual.processos) ? cfgAtual.processos : ((cfgAtual.processos && cfgAtual.processos.lista) || []);
+        (resultado.processos || []).forEach(n => { n.situacao = existentes.some(p => processosEquivalentes(n, p)) ? 'ATUALIZACAO' : 'NOVO'; });
         return resultado;
     } catch (err) {
         return { success: false, error: err.message, processos: [], total: 0 };
@@ -1380,9 +1426,51 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
         const remetenteChave = identidade.chaveCliente;
         const gatilhoDigitado = extrairGatilhoLimpo(mockMsg.body);
 
+        // Espelha o fluxo real: contato pausado (aguardando advogado) não recebe resposta do robô
+        const regPausaSim = contatosPausados[remetenteChave];
+        const tsPausaSim = regPausaSim && (typeof regPausaSim === 'object' ? regPausaSim.timestamp : regPausaSim);
+        if (tsPausaSim && (Date.now() - tsPausaSim < 24 * 60 * 60 * 1000)) {
+            return { success: true, sucesso: true, resposta: '', pausado: true, transbordo: false };
+        }
+
+        // Métricas do topo + Histórico de Mensagens (mesmo caminho do WhatsApp real)
+        if (!config.metricasReais) config.metricasReais = { totalMensagens: 0, contatosAtendidos: [] };
+        if (!Array.isArray(config.metricasReais.contatosAtendidos)) config.metricasReais.contatosAtendidos = [];
+        config.metricasReais.totalMensagens += 1;
+        if (!config.metricasReais.contatosAtendidos.includes(remetenteChave)) {
+            config.metricasReais.contatosAtendidos.push(remetenteChave);
+        }
+        salvarConfigDisco(config, false);
+        const horaLog = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-log', {
+                numero: identidade.telefoneFormatado,
+                nome: identidade.nomeCliente || '',
+                exibicao: identidade.exibicao,
+                msg: mockMsg.body,
+                hora: horaLog(),
+                metricasReais: {
+                    totalMensagens: config.metricasReais.totalMensagens,
+                    totalContatos: config.metricasReais.contatosAtendidos.length
+                }
+            });
+        }
+
         const prefixoHorario = obterPrefixoHorario(config, remetenteChave);
         const responderCliente = async (txt) => {
             respostaSimulada = prefixoHorario + txt;
+        };
+        const finalizarSimulacao = () => {
+            if (respostaSimulada && mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-log', {
+                    numero: identidade.telefoneFormatado,
+                    nome: '🤖 Robô → ' + (identidade.nomeCliente || 'Cliente'),
+                    exibicao: '🤖 Robô',
+                    msg: respostaSimulada.replace(/\s+/g, ' ').slice(0, 180),
+                    hora: horaLog()
+                });
+            }
+            return { success: true, sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
         };
 
         const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
@@ -1412,11 +1500,11 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
             if (gatilhoDigitado === '1') {
                 delete estadosUsuarios[remetenteChave];
                 await responderCliente(tplsProc.msg_encerrar_conversa || "✅ Atendimento finalizado! Agradecemos o seu contato.");
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
             if (gatilhoDigitado === '2') {
                 await colocarNaFilaHumana(tplsProc.msg_chamar_advogado_pos_proc || "👨‍⚖️ Perfeito! Um advogado da nossa equipe já foi acionado e já está chegando para atender você.");
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
         }
 
@@ -1424,7 +1512,7 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
         if (gatilhoDigitado === "0" || saudacoes.some(s => gatilhoDigitado === s || gatilhoDigitado.startsWith(s + " "))) {
             estadosUsuarios[remetenteChave] = 'raiz';
             await responderCliente(montarTextoEtapa(config.fluxo.raiz));
-            return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            return finalizarSimulacao();
         }
 
         if (estadoAtual === 'aguardando_processo') {
@@ -1437,11 +1525,11 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
                 estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
                 const textoProc = await formatarMensagemProcesso(config, procAchado, remetenteChave);
                 await responderCliente(textoProc);
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             } else {
                 const msgNaoEncontrado = tplsProc.msg_nao_encontrado || criarConfigPadrao().processos.mensagens.msg_nao_encontrado;
                 await responderCliente(msgNaoEncontrado);
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
         }
 
@@ -1454,23 +1542,23 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
         if (opcaoEscolhida) {
             if (opcaoEscolhida.tipo === 'humano') {
                 await colocarNaFilaHumana(opcaoEscolhida.resposta || "Perfeito! Um advogado da nossa equipe já está chegando para atender você.");
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
             if (opcaoEscolhida.tipo === 'processo') {
                 estadosUsuarios[remetenteChave] = 'aguardando_processo';
                 await responderCliente(opcaoEscolhida.resposta || "Por favor, digite apenas o seu *CPF* ou o *Número do Processo*:");
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
             if (opcaoEscolhida.tipo === 'submenu') {
                 const dest = opcaoEscolhida.destino || 'raiz';
                 estadosUsuarios[remetenteChave] = dest;
                 const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
                 await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
             if (opcaoEscolhida.resposta) {
                 await responderCliente(opcaoEscolhida.resposta);
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
         }
 
@@ -1484,17 +1572,143 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
                 estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
                 const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
                 await responderCliente(textoProc);
-                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+                return finalizarSimulacao();
             }
         }
 
         estadosUsuarios[remetenteChave] = 'raiz';
         await responderCliente(montarTextoEtapa(config.fluxo.raiz));
-        return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+        return finalizarSimulacao();
     } catch (err) {
         console.error('Erro no simulador-enviar-mensagem:', err);
-        return { sucesso: false, erro: err.message, resposta: 'Erro ao processar mensagem simulada.' };
+        return { success: false, sucesso: false, error: err.message, erro: err.message, resposta: 'Erro ao processar mensagem simulada.' };
     }
+});
+
+// RESETAR CONVERSA DO SIMULADOR / DESPAUSAR ROBÔ
+ipcMain.handle('simulador-resetar-conversa', async (event, dados) => {
+    const tel = String((dados && dados.telefone) || '').replace(/\D/g, '') || '5511999998888';
+    let despausado = false;
+    [tel, `${tel}@c.us`].forEach(k => {
+        delete estadosUsuarios[k];
+        if (contatosPausados[k]) { delete contatosPausados[k]; despausado = true; }
+    });
+    // Libera o reenvio de andamentos para este contato (permite testar "novo andamento" de novo)
+    const cfg = carregarConfig();
+    const lista = Array.isArray(cfg.processos) ? cfg.processos : ((cfg.processos && cfg.processos.lista) || []);
+    lista.forEach(p => { if (p.consultasPorContato) { delete p.consultasPorContato[tel]; p._resetarVistos = true; } });
+    emitirPausados();
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('bot-processos-sync', cfg);
+    return { success: true, despausado };
+});
+
+// CADASTRO MANUAL DE PROCESSO (usa a MESMA regra de deduplicação da importação de planilhas)
+ipcMain.handle('processo-salvar-manual', async (event, registro) => {
+    if (!registro || typeof registro !== 'object') return { success: false, error: 'Registro inválido.' };
+    const configAtual = carregarConfig();
+    const { configAtualizado, adicionados, atualizados } = mesclarComConfigAtual([{
+        ...registro,
+        numeroProcesso: registro.numeroProcesso || registro.numero || '',
+        origem: registro.origem || { tipo: 'MANUAL', arquivo: 'cadastro manual' }
+    }], configAtual);
+    const lista = Array.isArray(configAtualizado.processos) ? configAtualizado.processos : configAtualizado.processos.lista;
+    const salvo = lista.find(p => processosEquivalentes(registro, p));
+    salvarConfigDisco(configAtualizado, true);
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('bot-processos-sync', configAtualizado);
+    return { success: true, adicionados, atualizados, id: salvo ? salvo.id : null, config: configAtualizado };
+});
+
+// ANEXAR PEÇAS PROCESSUAIS (PDF / DOCX / TXT) A UM PROCESSO ESPECÍFICO -> documentosCatalogados
+async function anexarArquivosAoProcesso(processoId, caminhos) {
+    const config = carregarConfig();
+    const lista = Array.isArray(config.processos) ? config.processos : ((config.processos && config.processos.lista) || []);
+    const proc = lista.find(p => p.id === processoId);
+    if (!proc) return { success: false, error: 'Processo não encontrado.' };
+    if (!Array.isArray(proc.documentosCatalogados)) proc.documentosCatalogados = [];
+    if (!Array.isArray(proc.historicoAndamentos)) proc.historicoAndamentos = [];
+
+    const LIMITE_BYTES = 25 * 1024 * 1024;
+    const avisos = [];
+    let anexados = 0;
+    const digitosProc = String(proc.numero || proc.numeroProcesso || '').replace(/\D/g, '');
+
+    for (const caminho of caminhos) {
+        const nomeArquivo = path.basename(caminho);
+        try {
+            const stat = fs.statSync(caminho);
+            if (stat.size > LIMITE_BYTES) { avisos.push(`${nomeArquivo}: arquivo maior que 25 MB, ignorado.`); continue; }
+            const ext = await extrairTextoDocumento(caminho, nomeArquivo);
+            if (!ext.success) { avisos.push(`${nomeArquivo}: ${ext.error}`); continue; }
+            if (ext.alerta) avisos.push(`${nomeArquivo}: ${ext.alerta}`);
+
+            const cat = ext.texto
+                ? await catalogarPecaProcessual(ext.texto, { config, nomeArquivo })
+                : { tipoPeca: 'DOCUMENTO_PROCESSUAL', assunto: 'Documento sem texto pesquisável', decisao: '-', proximoPasso: '-', resumoCliente: 'Documento anexado ao processo.', fonte: 'sem-texto', dadosExtraidos: {} };
+
+            const cnjDoc = String((cat.dadosExtraidos && cat.dadosExtraidos.numeroProcesso) || '').replace(/\D/g, '');
+            if (cnjDoc && digitosProc && cnjDoc !== digitosProc) {
+                avisos.push(`${nomeArquivo}: o número do processo no documento (${cat.dadosExtraidos.numeroProcesso}) é diferente do processo selecionado.`);
+            }
+
+            const doc = {
+                id: 'doc_' + Date.now() + '_' + anexados,
+                nomeArquivo,
+                tamanhoBytes: stat.size,
+                tipoPeca: cat.tipoPeca,
+                assunto: cat.assunto,
+                decisao: cat.decisao,
+                proximoPasso: cat.proximoPasso,
+                resumoIA: cat.resumoCliente,
+                resumoCliente: cat.resumoCliente,
+                fonteResumo: cat.fonte || 'local',
+                dadosExtraidos: cat.dadosExtraidos || {},
+                anexadoEm: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }),
+                timestamp: Date.now()
+            };
+            const idxMesmo = proc.documentosCatalogados.findIndex(d => d.nomeArquivo === nomeArquivo);
+            if (idxMesmo !== -1) proc.documentosCatalogados[idxMesmo] = doc; else proc.documentosCatalogados.unshift(doc);
+
+            proc.historicoAndamentos.unshift({
+                data: doc.anexadoEm,
+                tipo: 'PECA',
+                textoBruto: `📎 Peça anexada: ${nomeArquivo} — ${cat.decisao}`,
+                textoHumanizado: cat.resumoCliente,
+                timestamp: doc.timestamp
+            });
+            anexados++;
+        } catch (err) {
+            avisos.push(`${nomeArquivo}: ${err.message}`);
+        }
+    }
+
+    proc.updatedAt = Date.now();
+    salvarConfigDisco(config, true);
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('bot-processos-sync', config);
+    return { success: anexados > 0 || avisos.length === 0, anexados, avisos, documentos: proc.documentosCatalogados, config };
+}
+
+ipcMain.handle('processo-anexar-pecas', async (event, dados) => {
+    const processoId = dados && dados.processoId;
+    if (!processoId) return { success: false, error: 'Processo não informado.' };
+    if (!mainWindow) return { success: false, error: 'Janela indisponível.' };
+    const sel = await dialog.showOpenDialog(mainWindow, {
+        title: 'Anexar peças ao processo',
+        buttonLabel: 'Anexar',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+            { name: 'Peças (PDF, Word, Texto)', extensions: ['pdf', 'docx', 'txt'] },
+            { name: 'Todos os Arquivos', extensions: ['*'] }
+        ]
+    });
+    if (sel.canceled || !sel.filePaths || sel.filePaths.length === 0) return { success: false, canceled: true };
+    return await anexarArquivosAoProcesso(processoId, sel.filePaths);
+});
+
+// Mesma ação para arquivos já conhecidos (arrastar e soltar sobre o processo)
+ipcMain.handle('processo-anexar-pecas-caminhos', async (event, dados) => {
+    const { processoId, caminhos } = dados || {};
+    if (!processoId || !Array.isArray(caminhos) || caminhos.length === 0) return { success: false, error: 'Dados inválidos.' };
+    return await anexarArquivosAoProcesso(processoId, caminhos);
 });
 
 // HIGIENIZAÇÃO DE BASE LOCAL

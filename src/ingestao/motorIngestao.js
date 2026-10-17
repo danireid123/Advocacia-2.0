@@ -272,6 +272,82 @@ async function parseSpreadsheet(filePathOrBuffer, fileName = 'planilha.xlsx') {
 }
 
 /**
+ * Extrai o nome da parte/cliente a partir de rótulos comuns em peças e relatórios
+ */
+function extrairNomeDoBloco(bloco) {
+  const re = /(?:Parte\s+Autora|Autor(?:a)?|Requerente|Exequente|Reclamante|Cliente|Impetrante|Interessado)\s*(?:\([^)]*\))?\s*[:\-]\s*([A-ZÀ-Ú][A-Za-zÀ-ú'.\s]{3,80}?)(?=\s*(?:\(|CPF|CNPJ|\n|\r|,|;|$))/;
+  const m = bloco.match(re);
+  return m ? m[1].replace(/\s+/g, ' ').trim() : '';
+}
+
+/**
+ * Extrai o andamento mais relevante e sua data, ignorando fragmentos do número CNJ
+ */
+function extrairResumoEDataDoBloco(bloco, cnjBruto) {
+  const semIds = bloco
+    .split(cnjBruto || '\u0000').join(' ')
+    .replace(REGEX_PATTERNS.CNJ, ' ')
+    .replace(/\b\d{3}\.\d{3}\.\d{3}-\d{2}\b/g, ' ')
+    .replace(/\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b/g, ' ');
+
+  const datasValidas = (txt) => (txt.match(REGEX_PATTERNS.DATA) || []).filter(d => {
+    const p = d.split(/[\/\-\.]/).map(n => parseInt(n, 10));
+    return p[0] >= 1 && p[0] <= 31 && p[1] >= 1 && p[1] <= 12 && (p[2] >= 1900 || (p[2] >= 0 && p[2] <= 99));
+  });
+
+  // 1) Prefere seção rotulada de "Andamento"
+  const mAnd = bloco.match(/andamento[^\n:]{0,120}:\s*\n?\s*["“]?([^\n]{20,700})/i);
+  let resumo = '';
+  let dataBruta = '';
+  if (mAnd) {
+    resumo = mAnd[1].replace(/["”]+\s*$/, '').trim();
+    const linhaRotulo = (bloco.match(/andamento[^\n:]{0,120}:/i) || [''])[0];
+    dataBruta = datasValidas(linhaRotulo)[0] || datasValidas(resumo)[0] || '';
+  }
+
+  // 2) Fallback: primeiras linhas úteis do bloco
+  if (!resumo) {
+    const linhas = semIds.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+    resumo = linhas.slice(0, 4).join(' ');
+  }
+  if (resumo.length > 350) resumo = resumo.slice(0, 347) + '...';
+  if (!dataBruta) dataBruta = datasValidas(semIds)[0] || '';
+  return { resumo, dataBruta };
+}
+
+/**
+ * Extrai somente o texto bruto de PDF/DOCX/TXT (usado para anexar peças a um processo)
+ * @returns {Promise<{success: boolean, texto: string, alerta?: string, error?: string}>}
+ */
+async function extrairTextoDocumento(source, fileName) {
+  const ext = path.extname(fileName || '').toLowerCase();
+  try {
+    const buffer = Buffer.isBuffer(source) ? source : await fs.promises.readFile(source);
+    let texto = '';
+    if (ext === '.pdf') {
+      const pdfParser = getPdfParser();
+      if (!pdfParser) throw new Error('Módulo de leitura de PDF indisponível no momento.');
+      const data = await pdfParser(buffer);
+      texto = data.text || '';
+      if (texto.replace(/\s/g, '').length < 30) {
+        return { success: true, texto: '', alerta: 'PDF sem camada de texto (digitalizado). Resumo automático indisponível.' };
+      }
+    } else if (ext === '.docx') {
+      const mammothLib = getMammoth();
+      if (!mammothLib) throw new Error('Módulo de leitura de DOCX indisponível no momento.');
+      texto = (await mammothLib.extractRawText({ buffer })).value || '';
+    } else if (ext === '.txt' || ext === '.log') {
+      texto = buffer.toString('utf-8');
+    } else {
+      throw new Error(`Extensão ${ext} não suportada para anexo. Use PDF, DOCX ou TXT.`);
+    }
+    return { success: true, texto };
+  } catch (err) {
+    return { success: false, texto: '', error: err.message };
+  }
+}
+
+/**
  * Chunkeador Semântico por Bloco de CNJ para PDFs e Documentos de Tribunais
  * @param {string} fullText
  * @param {string} fileName
@@ -323,36 +399,28 @@ function chunkTextByCNJ(fullText, fileName = 'documento.pdf', tipoOrigem = 'PDF'
     const atual = matches[i];
     const startIndex = atual.index;
     const endIndex = (i + 1 < matches.length) ? matches[i + 1].index : fullText.length;
-    const blocoTexto = fullText.substring(startIndex, endIndex).trim();
+    // Para o primeiro CNJ, inclui o cabeçalho anterior (partes costumam vir antes/depois do número)
+    const inicioBloco = (i === 0) ? 0 : startIndex;
+    const blocoTexto = fullText.substring(inicioBloco, endIndex).trim();
 
-    // Extrai CPFs dentro do bloco do processo
+    // Extrai CPFs dentro do bloco do processo (prefere o do autor/cliente)
     const cpfsNoBloco = blocoTexto.match(REGEX_PATTERNS.CPF) || [];
-    let cpfValido = cpfsNoBloco.find(c => validarCPF(c)) || cpfsNoBloco[0] || "";
-
-    // Extrai data mais recente no bloco
-    const datasNoBloco = blocoTexto.match(REGEX_PATTERNS.DATA) || [];
-    const dataExtraida = datasNoBloco[0] || new Date();
-
-    // Extrai linhas relevantes como resumo
-    const linhas = blocoTexto.split('\n')
-      .map(l => l.trim())
-      .filter(l => l.length > 5 && !l.includes(atual.cnjBruto));
-
-    let resumoExtraido = linhas.slice(0, 4).join(' ');
-    if (resumoExtraido.length > 350) {
-      resumoExtraido = resumoExtraido.slice(0, 347) + '...';
-    }
+    const cpfRotulado = (blocoTexto.match(/CPF[^\n:]{0,25}:\s*([\d.\-]{11,14})/i) || [])[1];
+    const cpfValido = (cpfRotulado && validarCPF(cpfRotulado) ? cpfRotulado : null)
+      || cpfsNoBloco.find(c => validarCPF(c)) || cpfRotulado || cpfsNoBloco[0] || "";
 
     const cnjSanitizado = sanitizarNumeroProcesso(atual.cnjBruto);
     const cpfSanitizado = sanitizarCPF(cpfValido);
+    const nomeExtraido = extrairNomeDoBloco(blocoTexto);
+    const { resumo: resumoExtraido, dataBruta } = extrairResumoEDataDoBloco(blocoTexto, atual.cnjBruto);
 
     resultados.push({
       id: `proc_${Date.now()}_${i}`,
       numeroProcesso: cnjSanitizado,
       cpf: cpfSanitizado,
-      nome: `Parte do Processo ${cnjSanitizado.slice(-4)}`,
+      nome: nomeExtraido || `Parte do Processo ${cnjSanitizado.slice(-4)}`,
       resumo: resumoExtraido || "Andamento processual registrado no tribunal.",
-      data: sanitizarData(dataExtraida),
+      data: sanitizarData(dataBruta || new Date()),
       validoCNJ: validarCNJ(cnjSanitizado),
       validoCPF: validarCPF(cpfSanitizado),
       origem: {
@@ -512,18 +580,47 @@ function normalizarChaveProcesso(numeroProcesso, cpf) {
 }
 
 /**
+ * Regra ÚNICA de equivalência entre dois processos (usada por planilha, cadastro manual,
+ * higienização e pré-visualização). Dois registros são o mesmo processo se:
+ *  - o ID coincide; OU
+ *  - os dígitos do CNJ coincidem; OU
+ *  - o CPF coincide e (um dos lados não tem CNJ OU os números textuais são idênticos).
+ */
+function processosEquivalentes(a, b) {
+  if (!a || !b) return false;
+  if (a.id && b.id && a.id === b.id) return true;
+  const numA = a.numero || a.numeroProcesso || a.processo || '';
+  const numB = b.numero || b.numeroProcesso || b.processo || '';
+  const nA = normalizarChaveProcesso(numA, a.cpf);
+  const nB = normalizarChaveProcesso(numB, b.cpf);
+  if (nA.cnjLimpo && nB.cnjLimpo) return nA.cnjLimpo === nB.cnjLimpo;
+  if (nA.cpfLimpo && nB.cpfLimpo && nA.cpfLimpo === nB.cpfLimpo) {
+    if (!nA.cnjLimpo || !nB.cnjLimpo) return true;
+  }
+  return false;
+}
+
+/**
  * Converte a lista extraída para a estrutura oficial do config.json (compatível v1.8 e v2.0)
  * Realiza Upsert e Deduplicação Inteligente:
  * - Mescla por CNJ idêntico (20 dígitos ou dígitos limpos)
- * - Mescla por CPF + Processo coincidente
+ * - Mescla por CPF quando um dos lados não possui CNJ
  * - Mescla por ID se fornecido
- * - Preserva histórico de andamentos e documentos catalogados
+ * - Preserva histórico de andamentos (inclusive o texto anterior) e documentos catalogados
  * @param {Array} novosProcessos
  * @param {Object} configAtual
  * @returns {Object}
  */
 function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
-  const cfg = JSON.parse(JSON.stringify(configAtual));
+  // Resiliência de assinatura caso os argumentos sejam invertidos
+  if (!Array.isArray(novosProcessos) && Array.isArray(configAtual)) {
+    const tmp = novosProcessos;
+    novosProcessos = configAtual;
+    configAtual = tmp;
+  }
+  if (!Array.isArray(novosProcessos)) novosProcessos = [];
+
+  const cfg = JSON.parse(JSON.stringify(configAtual || {}));
   let listaRef;
   if (Array.isArray(cfg.processos)) {
     listaRef = cfg.processos;
@@ -539,33 +636,10 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
   novosProcessos.forEach((novo, i) => {
     const numNovo = novo.numero || novo.numeroProcesso || '';
     const cpfNovo = novo.cpf || '';
-    const normNovo = normalizarChaveProcesso(numNovo, cpfNovo);
 
-    // Encontra registro existente na base atual por múltiplos critérios de equivalência
-    const idxExistente = listaRef.findIndex((p, pIdx) => {
-      if (novo.id && p.id && novo.id === p.id) return true;
-      const numExistente = p.numero || p.numeroProcesso || p.processo || '';
-      const cpfExistente = p.cpf || '';
-      const normExistente = normalizarChaveProcesso(numExistente, cpfExistente);
-
-      // Critério 1: CNJ idêntico (se ambos tiverem ao menos 10 dígitos)
-      if (normNovo.cnjLimpo && normExistente.cnjLimpo && normNovo.cnjLimpo === normExistente.cnjLimpo) {
-        return true;
-      }
-
-      // Critério 2: Mesmo CPF e mesmo número de processo
-      if (normNovo.cpfLimpo && normExistente.cpfLimpo && normNovo.cpfLimpo === normExistente.cpfLimpo) {
-        if (normNovo.cnjLimpo && normExistente.cnjLimpo && normNovo.cnjLimpo === normExistente.cnjLimpo) {
-          return true;
-        }
-        // Se ambos têm o mesmo CPF e o número é idêntico em string
-        if (numNovo && numExistente && numNovo.trim().toLowerCase() === numExistente.trim().toLowerCase()) {
-          return true;
-        }
-      }
-
-      return false;
-    });
+    // Encontra registro existente na base atual pela regra única de equivalência
+    let idxExistente = novo.id ? listaRef.findIndex(p => p.id === novo.id) : -1;
+    if (idxExistente === -1) idxExistente = listaRef.findIndex(p => processosEquivalentes(novo, p));
 
     const dataAtual = novo.data || new Date().toLocaleDateString('pt-BR');
     const agoraIso = new Date().toISOString();
@@ -580,7 +654,18 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
 
       const novoAndamentoTexto = novo.resumo || novo.andamento || '';
       const historicoAtualizado = [...historicoAnterior];
-      if (novoAndamentoTexto && !historicoAtualizado.some(h => (h.textoBruto || h.resumo) === novoAndamentoTexto)) {
+      const jaNoHistorico = (txt) => historicoAtualizado.some(h => (h.textoBruto || h.resumo) === txt);
+
+      // Guarda o texto ANTERIOR no histórico quando ele será substituído (registros legados não tinham histórico)
+      if (existente.resumo && novoAndamentoTexto && existente.resumo !== novoAndamentoTexto && !jaNoHistorico(existente.resumo)) {
+        historicoAtualizado.unshift({
+          data: existente.dataAtualizacaoTexto || existente.data || dataAtual,
+          textoBruto: existente.resumo,
+          textoHumanizado: '',
+          timestamp: existente.updatedAt || Date.now()
+        });
+      }
+      if (novoAndamentoTexto && !jaNoHistorico(novoAndamentoTexto)) {
         historicoAtualizado.unshift({
           data: dataAtual,
           textoBruto: novoAndamentoTexto,
@@ -656,8 +741,11 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
 
   return {
     configAtualizado: cfg,
+    config: cfg,
     adicionados,
+    novos: adicionados,
     atualizados,
+    total: listaRef.length,
     totalProcessosNaBase: listaRef.length
   };
 }
@@ -694,21 +782,9 @@ async function processarMultiplosArquivos(filePaths, configAtual = {}) {
   let atualizados = 0;
 
   acumulado.forEach(novo => {
-    const normNovo = normalizarChaveProcesso(novo.numeroProcesso || novo.numero, novo.cpf);
-    const existe = listaExistentes.some(p => {
-      const normP = normalizarChaveProcesso(p.numeroProcesso || p.processo || p.numero, p.cpf);
-      if (normNovo.cnjLimpo && normP.cnjLimpo && normNovo.cnjLimpo === normP.cnjLimpo) return true;
-      if (normNovo.cpfLimpo && normP.cpfLimpo && normNovo.cpfLimpo === normP.cpfLimpo) {
-        if (normNovo.cnjLimpo && normP.cnjLimpo && normNovo.cnjLimpo === normP.cnjLimpo) return true;
-      }
-      return false;
-    });
-
-    if (existe) {
-      atualizados++;
-    } else {
-      novos++;
-    }
+    const existe = listaExistentes.some(p => processosEquivalentes(novo, p));
+    novo.situacao = existe ? 'ATUALIZACAO' : 'NOVO';
+    if (existe) atualizados++; else novos++;
   });
 
   const validosCNJ = acumulado.filter(p => p.validoCNJ).length;
@@ -740,6 +816,7 @@ module.exports = {
   sanitizarCPF,
   sanitizarNumeroProcesso,
   normalizarChaveProcesso,
+  processosEquivalentes,
   sanitizarData,
   mapearColunasPlanilha,
   parseSpreadsheet,
@@ -747,6 +824,7 @@ module.exports = {
   parseDocx,
   parseTxt,
   chunkTextByCNJ,
+  extrairTextoDocumento,
   processarArquivoIngestao,
   processarMultiplosArquivos,
   mesclarComConfigAtual,

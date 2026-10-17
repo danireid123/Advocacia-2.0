@@ -102,7 +102,7 @@ async function executarTestes() {
         assert.strictEqual(resMiss.fonte, 'ia', 'Primeira chamada deve vir da IA');
         assert.strictEqual(resMiss.texto, textoMockadoIA, 'Texto deve ser o retornado pela API');
         assert.strictEqual(chamadasFetch, 1, 'Deve ter chamado fetch exatamente 1 vez');
-        assert.ok(urlChamada.includes('gemini-1.5-flash'), 'URL deve apontar para modelo gemini-1.5-flash');
+        assert.ok(urlChamada.includes('gemini-flash') || urlChamada.includes('gemini-1.5-flash'), 'URL deve apontar para endpoint oficial Gemini Flash');
 
         // 3.2 Segunda chamada: CACHE HIT (deve vir do cache em memória/disco sem chamar a API)
         const t2 = Date.now();

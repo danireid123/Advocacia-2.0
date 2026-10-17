@@ -598,6 +598,7 @@
         <table class="w-full text-left text-[11px]">
           <thead class="bg-slate-900/90 text-slate-400 uppercase text-[9px] sticky top-0 border-b border-slate-800">
             <tr>
+              <th class="p-2.5">Situação</th>
               <th class="p-2.5">Cliente</th>
               <th class="p-2.5">CPF</th>
               <th class="p-2.5">Processo (CNJ)</th>
@@ -622,6 +623,59 @@
         <button type="button" id="btn-confirmar-gravar-ingestao" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-slate-950 shadow transition flex items-center space-x-1.5">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
           <span>Confirmar e Gravar na Base</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DOSSIÊ DO PROCESSO (v2.0) -->
+  <div id="modal-dossie-processo" class="fixed inset-0 bg-[#060911]/90 backdrop-blur-md z-[9998] hidden items-center justify-center p-4">
+    <div class="exec-card w-full max-w-2xl rounded-3xl p-6 border border-[#d4af37]/60 space-y-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          </div>
+          <div>
+            <h3 id="dossie-proc-titulo" class="text-sm font-bold text-white">Dossiê Processual Inteligente</h3>
+            <span id="dossie-proc-subtitulo" class="text-[11px] font-mono text-[#e5c158]">Documentos Catalogados e Histórico</span>
+          </div>
+        </div>
+        <button type="button" id="btn-fechar-modal-dossie" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕</button>
+      </div>
+
+      <!-- Abas Internas do Dossiê -->
+      <div class="flex items-center space-x-2 border-b border-slate-800 pb-2">
+        <button type="button" id="tab-btn-docs" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40">
+          Peças Anexadas (<span id="dossie-count-docs">0</span>)
+        </button>
+        <button type="button" id="tab-btn-historico" class="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white">
+          Histórico de Andamentos (<span id="dossie-count-historico">0</span>)
+        </button>
+      </div>
+
+      <!-- Conteúdo Peças Anexadas -->
+      <div id="dossie-aba-conteudo-docs" class="flex-1 overflow-y-auto space-y-2.5 max-h-72 pr-1">
+        <div id="dossie-lista-docs" class="space-y-2">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- Conteúdo Histórico de Andamentos -->
+      <div id="dossie-aba-conteudo-historico" class="flex-1 overflow-y-auto space-y-2.5 max-h-72 pr-1 hidden">
+        <div id="dossie-lista-historico" class="space-y-2">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button type="button" id="btn-dossie-anexar-mais" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-[#e5c158] border border-[#d4af37]/40 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+          <span>📎 Anexar Mais Peças (PDF/DOCX)</span>
+        </button>
+        <button type="button" id="btn-fechar-dossie" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-slate-950 shadow transition">
+          Fechar
         </button>
       </div>
     </div>
@@ -1093,6 +1147,13 @@
                     </div>
 
                     <div class="flex items-center space-x-2">
+                      <button type="button" id="btn-anexar-peca-proc" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-[#e5c158] border border-[#d4af37]/40 rounded-xl text-[11px] font-bold transition flex items-center space-x-1" title="Anexar petição, sentença, certidão ou laudo para catalogação inteligente com IA">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                        <span>📎 Anexar Peça</span>
+                      </button>
+                      <button type="button" id="btn-ver-dossie-proc" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/40 rounded-xl text-[11px] font-bold transition flex items-center space-x-1" title="Visualizar histórico de andamentos e documentos anexados">
+                        <span>🗂️ Ver Dossiê</span>
+                      </button>
                       <button type="button" id="btn-resetar-visto-ficha" class="hidden px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-700/50 rounded-xl text-[11px] font-bold transition flex items-center space-x-1">
                         <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
                         <span>Liberar Reenvio</span>
@@ -1411,6 +1472,7 @@
                 <div class="exec-card p-10 rounded-2xl text-center text-xs text-slate-400">Nenhum contato na lista de bloqueio. Todos os contatos recebem atendimento normal.</div>
               </div>
             </div>
+          </div>
         <!-- ================= ABA 8: SIMULADOR DE CHAT WHATSAPP (SANDBOX) ================= -->
         <div id="aba-simulador" class="hidden space-y-5 tab-pane-anim">
           <div class="exec-card p-6 rounded-2xl space-y-4">
@@ -1425,9 +1487,12 @@
                 <p class="text-xs text-slate-400 mt-1">Teste todo o fluxo de menus, consulta por CPF/CNJ, tradução jurídica com IA e transbordo humano sem precisar de um celular real.</p>
               </div>
               <div class="flex items-center space-x-2">
+                <button type="button" id="btn-simulador-reset" class="px-3 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Restaura a sessão e despausa o robô se estiver aguardando advogado">
+                  <span>🔄 Resetar Conversa / Despausar Robô</span>
+                </button>
                 <button type="button" id="btn-simulador-limpar" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
                   <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
-                  <span>Limpar Conversa</span>
+                  <span>Limpar Tela</span>
                 </button>
               </div>
             </div>
@@ -2156,6 +2221,9 @@
       if (abaNome === 'processos') renderizarModuloProcessos();
       if (abaNome === 'agenda') renderizarAgendaSemanal();
       if (abaNome === 'ignorados') carregarERenderizarIgnorados();
+      if (abaNome === 'simulador' && typeof window.aoAbrirAbaSimulador === 'function') {
+        window.aoAbrirAbaSimulador();
+      }
     };
 
     document.getElementById('nav-btn-inicio').addEventListener('click', () => ativarAba('inicio'));
@@ -2450,6 +2518,10 @@
       document.getElementById('subtitulo-status-ficha').innerText = 'Preencha o CPF ou Número do Processo e escreva o resumo';
       document.getElementById('btn-resetar-visto-ficha').classList.add('hidden');
       document.getElementById('btn-excluir-proc-ficha').classList.add('hidden');
+      const btnAnexar = document.getElementById('btn-anexar-peca-proc');
+      const btnDossie = document.getElementById('btn-ver-dossie-proc');
+      if (btnAnexar) btnAnexar.classList.add('hidden');
+      if (btnDossie) btnDossie.classList.add('hidden');
       renderizarModuloProcessos();
       document.getElementById('proc-cpf').focus();
     }
@@ -2478,6 +2550,12 @@
 
       document.getElementById('btn-resetar-visto-ficha').classList.toggle('hidden', qtdVistos === 0);
       document.getElementById('btn-excluir-proc-ficha').classList.remove('hidden');
+
+      const btnAnexar = document.getElementById('btn-anexar-peca-proc');
+      const btnDossie = document.getElementById('btn-ver-dossie-proc');
+      if (btnAnexar) btnAnexar.classList.remove('hidden');
+      if (btnDossie) btnDossie.classList.remove('hidden');
+
       renderizarModuloProcessos();
     };
 
@@ -2499,7 +2577,176 @@
       limparFormularioProcesso();
     });
 
-    document.getElementById('btn-salvar-processo').addEventListener('click', () => {
+    // Anexar Peça ao Processo Selecionado (v2.0)
+    const btnAnexarPeca = document.getElementById('btn-anexar-peca-proc');
+    if (btnAnexarPeca) {
+      btnAnexarPeca.addEventListener('click', async () => {
+        if (!idProcessoSelecionado) {
+          mostrarToast("Selecione um processo antes de anexar peças.");
+          return;
+        }
+        const api = window.api || window.electronAPI;
+        if (api && api.anexarPecasProcesso) {
+          mostrarToast("Selecione os arquivos da peça processual (PDF, DOCX, TXT)...");
+          const res = await api.anexarPecasProcesso({ processoId: idProcessoSelecionado });
+          if (res && res.success) {
+            mostrarToast(`Peça(s) anexada(s) e catalogada(s) com sucesso!`);
+            if (api.obterConfig) {
+              const cfg = await api.obterConfig();
+              if (cfg) configGlobal = cfg;
+            }
+            selecionarProcessoNaLista(idProcessoSelecionado);
+          } else if (res && res.error) {
+            mostrarToast("Aviso ao anexar peça: " + res.error);
+          }
+        } else {
+          mostrarToast("Recurso disponível apenas no ambiente desktop.");
+        }
+      });
+    }
+
+    // Modal Dossiê do Processo (v2.0)
+    const btnVerDossie = document.getElementById('btn-ver-dossie-proc');
+    const modalDossie = document.getElementById('modal-dossie-processo');
+    const btnFecharDossieX = document.getElementById('btn-fechar-modal-dossie');
+    const btnFecharDossie = document.getElementById('btn-fechar-dossie');
+    const btnDossieAnexarMais = document.getElementById('btn-dossie-anexar-mais');
+    const tabBtnDocs = document.getElementById('tab-btn-docs');
+    const tabBtnHistorico = document.getElementById('tab-btn-historico');
+
+    function alternarAbaDossie(aba) {
+      const boxDocs = document.getElementById('dossie-aba-conteudo-docs');
+      const boxHist = document.getElementById('dossie-aba-conteudo-historico');
+      if (aba === 'docs') {
+        tabBtnDocs.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40";
+        tabBtnHistorico.className = "px-3 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white";
+        boxDocs.classList.remove('hidden');
+        boxHist.classList.add('hidden');
+      } else {
+        tabBtnHistorico.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40";
+        tabBtnDocs.className = "px-3 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white";
+        boxHist.classList.remove('hidden');
+        boxDocs.classList.add('hidden');
+      }
+    }
+
+    function renderizarDossie(proc) {
+      const docs = proc.documentosCatalogados || [];
+      const hist = proc.historicoAndamentos || [];
+
+      document.getElementById('dossie-count-docs').innerText = String(docs.length);
+      document.getElementById('dossie-count-historico').innerText = String(hist.length);
+
+      const listaDocs = document.getElementById('dossie-lista-docs');
+      listaDocs.innerHTML = '';
+      if (docs.length === 0) {
+        listaDocs.innerHTML = `
+          <div class="text-center py-8 text-slate-500 text-xs bg-slate-900/30 rounded-2xl border border-slate-800">
+            <p>Nenhuma peça processual anexada ainda.</p>
+            <p class="text-[10px] mt-1 text-slate-600">Clique em "Anexar Mais Peças" para incluir petições, sentenças ou certidões em PDF/DOCX.</p>
+          </div>
+        `;
+      } else {
+        docs.forEach(doc => {
+          const card = document.createElement('div');
+          card.className = "p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-xs space-y-1";
+          const dataRef = doc.dataReferencia ? ` • Data: ${doc.dataReferencia}` : '';
+          const autoridade = doc.autoridade ? ` • ${doc.autoridade}` : '';
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-[#e5c158] flex items-center space-x-1.5">
+                <span>📄</span>
+                <span>${doc.tipoPeca || 'Peça Processual'}</span>
+              </span>
+              <span class="text-[10px] font-mono text-slate-500">${doc.nomeArquivo || ''}</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">${doc.resumo || ''}</p>
+            <div class="text-[9px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-800/60">
+              <span>Catalogado via IA (${doc.confianca || 'alta'})${dataRef}${autoridade}</span>
+              <span>${doc.adicionadoEm ? new Date(doc.adicionadoEm).toLocaleDateString('pt-BR') : ''}</span>
+            </div>
+          `;
+          listaDocs.appendChild(card);
+        });
+      }
+
+      const listaHist = document.getElementById('dossie-lista-historico');
+      listaHist.innerHTML = '';
+      if (hist.length === 0) {
+        listaHist.innerHTML = `
+          <div class="text-center py-8 text-slate-500 text-xs bg-slate-900/30 rounded-2xl border border-slate-800">
+            <p>Nenhum histórico anterior registrado.</p>
+            <p class="text-[10px] mt-1 text-slate-600">Atualizações de andamento e novos resumos serão arquivados aqui automaticamente.</p>
+          </div>
+        `;
+      } else {
+        [...hist].reverse().forEach(h => {
+          const item = document.createElement('div');
+          item.className = "p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 text-xs space-y-1";
+          item.innerHTML = `
+            <div class="flex items-center justify-between text-[10px] text-[#e5c158] font-bold">
+              <span>📅 ${h.data || '-'}</span>
+              <span class="text-slate-500 font-normal uppercase text-[9px]">${h.origem || 'atualização'}</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">${h.descricao || h.resumoAnterior || '-'}</p>
+            ${h.nomeArquivo ? `<span class="text-[9px] font-mono text-sky-400 block">Arquivo: ${h.nomeArquivo}</span>` : ''}
+          `;
+          listaHist.appendChild(item);
+        });
+      }
+    }
+
+    function abrirDossieProcesso(id) {
+      const p = (configGlobal.processos.lista || []).find(item => item.id === id);
+      if (!p) {
+        mostrarToast("Selecione um processo primeiro.");
+        return;
+      }
+      document.getElementById('dossie-proc-titulo').innerText = `Dossiê: ${p.nome || 'Cliente'}`;
+      document.getElementById('dossie-proc-subtitulo').innerText = `Processo CNJ: ${p.numero || p.numeroProcesso || 'Não informado'} • CPF: ${p.cpf || 'Não informado'}`;
+      renderizarDossie(p);
+      alternarAbaDossie('docs');
+      if (modalDossie) {
+        modalDossie.classList.remove('hidden');
+        modalDossie.classList.add('flex');
+      }
+    }
+
+    function fecharDossie() {
+      if (modalDossie) {
+        modalDossie.classList.add('hidden');
+        modalDossie.classList.remove('flex');
+      }
+    }
+
+    if (btnVerDossie) btnVerDossie.addEventListener('click', () => abrirDossieProcesso(idProcessoSelecionado));
+    if (btnFecharDossieX) btnFecharDossieX.addEventListener('click', fecharDossie);
+    if (btnFecharDossie) btnFecharDossie.addEventListener('click', fecharDossie);
+    if (tabBtnDocs) tabBtnDocs.addEventListener('click', () => alternarAbaDossie('docs'));
+    if (tabBtnHistorico) tabBtnHistorico.addEventListener('click', () => alternarAbaDossie('historico'));
+
+    if (btnDossieAnexarMais) {
+      btnDossieAnexarMais.addEventListener('click', async () => {
+        if (!idProcessoSelecionado) return;
+        const api = window.api || window.electronAPI;
+        if (api && api.anexarPecasProcesso) {
+          const res = await api.anexarPecasProcesso({ processoId: idProcessoSelecionado });
+          if (res && res.success) {
+            mostrarToast("Peça(s) anexada(s) ao dossiê!");
+            if (api.obterConfig) {
+              const cfg = await api.obterConfig();
+              if (cfg) {
+                configGlobal = cfg;
+                const procAtual = (configGlobal.processos.lista || []).find(x => x.id === idProcessoSelecionado);
+                if (procAtual) renderizarDossie(procAtual);
+              }
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById('btn-salvar-processo').addEventListener('click', async () => {
       garantirEstruturaProcessos();
       const idEdit = document.getElementById('proc-id-edit').value;
       const nome = document.getElementById('proc-nome').value.trim() || 'Cliente';
@@ -2516,6 +2763,33 @@
         return;
       }
 
+      // Paridade total v2.0 com backend unificado
+      const api = window.api || window.electronAPI;
+      if (api && api.salvarProcessoManual) {
+        try {
+          const res = await api.salvarProcessoManual({
+            id: idEdit,
+            nome, cpf, numero, resumo, temAtualizacao
+          });
+          if (res && res.success) {
+            if (res.processo && res.processo.id) {
+              idProcessoSelecionado = res.processo.id;
+            }
+            if (api.obterConfig) {
+              const cfgAtualizada = await api.obterConfig();
+              if (cfgAtualizada) configGlobal = cfgAtualizada;
+            }
+            renderizarModuloProcessos();
+            selecionarProcessoNaLista(idProcessoSelecionado);
+            mostrarToast(res.isUpdate ? "Processo atualizado com histórico preservado!" : "Novo processo cadastrado com sucesso!");
+            return;
+          }
+        } catch (errManual) {
+          console.warn("Falha no salvarProcessoManual IPC, aplicando fallback local:", errManual);
+        }
+      }
+
+      // Fallback local caso executado fora do Electron
       const agoraStr = new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 
       if (idEdit) {
@@ -2532,8 +2806,6 @@
           idProcessoSelecionado = idEdit;
         }
       } else {
-        // DEDUPLICAÇÃO INTELIGENTE NO CADASTRO MANUAL:
-        // Verifica se já existe processo com mesmo CNJ ou mesmo CPF
         const idxExistente = configGlobal.processos.lista.findIndex(p => {
           const numP = String(p.numero || p.numeroProcesso || '').replace(/\D/g, '');
           const cpfP = String(p.cpf || '').replace(/\D/g, '');
@@ -2812,7 +3084,8 @@
       let atualizados = 0;
 
       processosExtraidos.forEach(p => {
-        if (existentes.has(p.numeroProcesso)) {
+        const isAtualizacao = p.situacao === 'ATUALIZACAO' || existentes.has(p.numeroProcesso);
+        if (isAtualizacao) {
           atualizados++;
         } else {
           novos++;
@@ -2833,7 +3106,13 @@
       processosExtraidos.slice(0, 50).forEach(p => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-900/40 transition';
+        const isAtualizacao = p.situacao === 'ATUALIZACAO' || existentes.has(p.numeroProcesso);
+        const tagSituacao = isAtualizacao
+          ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 whitespace-nowrap">🔄 ATUALIZAÇÃO</span>'
+          : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">🟢 NOVO CADASTRO</span>';
+
         tr.innerHTML = `
+          <td class="p-2.5 whitespace-nowrap">${tagSituacao}</td>
           <td class="p-2.5 font-semibold text-white whitespace-nowrap">${p.nome || 'Cliente'}</td>
           <td class="p-2.5 text-slate-300 font-mono text-[10px] whitespace-nowrap">${p.cpf || '-'}</td>
           <td class="p-2.5 text-[#e5c158] font-mono text-[10px] whitespace-nowrap">${p.numeroProcesso || '-'}</td>
@@ -3599,6 +3878,28 @@
             }
           });
 
+          const btnReset = document.getElementById('btn-simulador-reset');
+          if (btnReset) {
+            btnReset.addEventListener('click', async () => {
+              const api = window.api || window.electronAPI;
+              const telefone = (inputTel?.value || '+55 (11) 98765-4321').trim();
+              if (api && api.simuladorResetarConversa) {
+                await api.simuladorResetarConversa({ telefone });
+              }
+              boxMensagens.innerHTML = `
+                <div class="text-center my-2">
+                  <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
+                    🔒 Sessão reiniciada e robô despausado. Simulação pronta.
+                  </span>
+                </div>
+              `;
+              mostrarToast('Conversa resetada e robô despausado!');
+              setTimeout(() => {
+                enviarMensagemSimulada('Olá');
+              }, 250);
+            });
+          }
+
           if (btnLimpar) {
             btnLimpar.addEventListener('click', () => {
               boxMensagens.innerHTML = `
@@ -3633,6 +3934,15 @@
           if (btnCenarioAdv) {
             btnCenarioAdv.addEventListener('click', () => enviarMensagemSimulada('falar com advogado'));
           }
+
+          window.aoAbrirAbaSimulador = function() {
+            setTimeout(() => {
+              if (boxMensagens && boxMensagens.children.length <= 1) {
+                enviarMensagemSimulada('Olá');
+              }
+              if (inputMsg) inputMsg.focus();
+            }, 100);
+          };
         }
 
         inicializarSimuladorChat();

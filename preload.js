@@ -48,6 +48,10 @@ const apiBridge = {
 
     // Simulador de Chat & Higienização
     simuladorEnviarMensagem: (dados) => ipcRenderer.invoke('simulador-enviar-mensagem', dados),
+  simuladorResetarConversa: (dados) => ipcRenderer.invoke('simulador-resetar-conversa', dados),
+  salvarProcessoManual: (registro) => ipcRenderer.invoke('processo-salvar-manual', registro),
+  anexarPecasProcesso: (dados) => ipcRenderer.invoke('processo-anexar-pecas', dados),
+  anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
     higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
 
     // Listeners Específicos Legados

@@ -96,6 +96,8 @@ INSTRUÇÕES OBRIGATÓRIAS:
  * @param {boolean} [opcoes.desativarPersistencia=false] - Desativa gravação em disco se true
  * @returns {Promise<{ texto: string, fonte: 'cache' | 'ia' | 'fallback', duracaoMs: number }>}
  */
+const MODELOS_GEMINI_PADRAO = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+
 async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const inicio = Date.now();
 
@@ -112,7 +114,8 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     carregarCacheDisco();
 
     // 1. Verificação de Cache Local (MD5)
-    const hash = calcularHash(textoLimpo);
+    const modoBruto = Boolean(opcoes.modoBruto);
+    const hash = calcularHash((modoBruto ? 'raw::' : '') + textoLimpo);
     if (cacheEmMemoria.has(hash)) {
         return {
             texto: cacheEmMemoria.get(hash),
@@ -141,43 +144,58 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const modelo = opcoes.modelo || process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+    // Cadeia de modelos: o 1.5/2.0 foram descontinuados na API; tenta os atuais em ordem.
+    const modelosCandidatos = [opcoes.modelo, process.env.GEMINI_MODEL, ...MODELOS_GEMINI_PADRAO]
+        .filter(Boolean)
+        .filter((m, i, arr) => arr.indexOf(m) === i);
 
     const requestBody = {
-        system_instruction: {
-            parts: [{ text: SYSTEM_INSTRUCTION_OAB }]
-        },
         contents: [
             {
                 role: 'user',
                 parts: [
                     {
-                        text: `Explique este andamento processual de forma simples para o cliente:\n\n"${textoLimpo}"`
+                        text: modoBruto
+                            ? textoLimpo
+                            : `Explique este andamento processual de forma simples para o cliente:\n\n"${textoLimpo}"`
                     }
                 ]
             }
         ],
         generationConfig: {
             temperature: 0.2,
-            maxOutputTokens: 800
+            maxOutputTokens: modoBruto ? 1500 : 800
         }
     };
+    const instrucaoSistema = modoBruto ? opcoes.systemInstruction : SYSTEM_INSTRUCTION_OAB;
+    if (instrucaoSistema) {
+        requestBody.system_instruction = { parts: [{ text: instrucaoSistema }] };
+    }
+    if (modoBruto && opcoes.json) {
+        requestBody.generationConfig.responseMimeType = 'application/json';
+    }
 
     try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody),
-            signal: controller.signal
-        });
+        let response = null;
+        for (const modelo of modelosCandidatos) {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+            response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
+            });
+            if (response.ok) break;
+            // Modelo indisponível/sobrecarregado/descontinuado -> tenta o próximo da cadeia
+            if (![404, 429, 500, 503].includes(response.status)) break;
+        }
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-            // Se cota estourada (429), erro interno ou chave inválida
+        if (!response || !response.ok) {
+            // Cota estourada, chave inválida ou todos os modelos indisponíveis
             return {
                 texto: textoLimpo,
                 fonte: 'fallback',
@@ -296,36 +314,39 @@ async function catalogarPecaProcessual(textoPeca, opcoes = {}) {
     };
 
     const trecho = textoPeca.slice(0, 12000);
-    const promptAnalise = `Você é um perito jurídico digital. Analise a peça processual abaixo e responda em formato JSON com exatamente os campos:
-{
-  "assunto": "Assunto principal da causa em até 10 palavras",
-  "decisao": "Última decisão ou determinação do juiz/órgão em 1 frase curta",
-  "proximoPasso": "Próximo passo esperado no processo em 1 frase curta",
-  "resumoCliente": "Explicação simples e acolhedora em até 2 frases para o cliente leigo, sem prometer vitórias ou prazos (Provimento 205/2021 OAB)"
-}
-
-Peça processual:
-"""
-${trecho}
-"""`;
+    const instrucaoCatalogo = 'Você é um assistente jurídico que analisa peças processuais brasileiras. ' +
+        'Responda SOMENTE com um objeto JSON válido com os campos: ' +
+        '"assunto" (até 10 palavras), "decisao" (última decisão/determinação em 1 frase curta, ou "Sem decisão registrada"), ' +
+        '"proximoPasso" (próximo passo esperado em 1 frase curta), ' +
+        '"resumoCliente" (até 3 frases curtas, tom acolhedor, linguagem simples para leigo). ' +
+        'Provimento 205/2021 da OAB: NUNCA prometa prazos, vitória ou valores que não estejam no texto; ' +
+        'se citar valores da peça, atribua-os ao documento ("a sentença fixou...") sem garantir pagamento.';
 
     try {
-        const res = await traduzirAndamentoJuridico(promptAnalise, {
+        const res = await traduzirAndamentoJuridico(`Peça processual:\n"""\n${trecho}\n"""`, {
             ...opcoes,
-            timeoutMs: 8000
+            modoBruto: true,
+            json: true,
+            systemInstruction: instrucaoCatalogo,
+            timeoutMs: 15000
         });
 
-        if (res.texto) {
+        // Só aceita resultado vindo de IA/cache. Em fallback o "texto" é o próprio prompt — nunca parsear.
+        if ((res.fonte === 'ia' || res.fonte === 'cache') && res.texto) {
             const jsonMatch = res.texto.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0]);
                 const resumo = parsed.resumoCliente || 'Seu documento foi recebido e catalogado.';
                 return {
                     sucesso: true,
+                    fonte: res.fonte,
+                    origem: res.fonte,
+                    confianca: 'alta',
                     tipoPeca,
                     assunto: parsed.assunto || 'Processo Judicial',
                     decisao: parsed.decisao || 'Andamento registrado nos autos.',
                     proximoPasso: parsed.proximoPasso || 'Aguardando manifestação.',
+                    resumo: resumo,
                     resumoCliente: resumo,
                     resumoLeigo: resumo,
                     dadosExtraidos
@@ -333,19 +354,68 @@ ${trecho}
             }
         }
     } catch (e) {
-        // Fallback silencioso
+        // Fallback local abaixo
     }
 
-    const resumoPadrao = 'Documento recebido e integrado ao histórico do seu processo.';
+    // Catalogação local (sem IA): extrai por rótulos e palavras-chave do próprio documento
+    const local = catalogarLocalmente(textoPeca);
     return {
         sucesso: true,
+        fonte: 'local',
+        origem: 'local',
+        confianca: 'media',
         tipoPeca,
-        assunto: 'Peça Processual Registrada',
-        decisao: 'Documento acostado aos autos.',
-        proximoPasso: 'Acompanhamento processual pela equipe jurídica.',
-        resumoCliente: resumoPadrao,
-        resumoLeigo: resumoPadrao,
+        assunto: local.assunto,
+        decisao: local.decisao,
+        proximoPasso: local.proximoPasso,
+        resumo: local.resumoCliente,
+        resumoCliente: local.resumoCliente,
+        resumoLeigo: local.resumoCliente,
         dadosExtraidos
+    };
+}
+
+/**
+ * Catalogação sem IA: usa rótulos ("Assunto:", "DISPOSITIVO", "Andamento") e frases-chave do texto.
+ */
+function catalogarLocalmente(texto) {
+    const limpo = String(texto || '').replace(/\r/g, '');
+    const linhaDe = (re) => { const m = limpo.match(re); return m ? m[1].replace(/\s+/g, ' ').trim() : ''; };
+    const corta = (s, n) => (s.length > n ? s.slice(0, n - 1).trim() + '…' : s);
+
+    const assunto = linhaDe(/Assunto\s*:\s*([^\n]{4,160})/i)
+        || linhaDe(/Classe\s+Processual\s*:\s*([^\n]{4,160})/i)
+        || 'Peça processual registrada';
+
+    let decisao = '';
+    const mDisp = limpo.match(/(julgo\s+(?:totalmente\s+|parcialmente\s+)?(?:procedente|improcedente)s?[^.]{0,220})/i);
+    if (mDisp) decisao = 'Sentença: ' + mDisp[1].replace(/\s+/g, ' ').trim();
+    if (!decisao) {
+        const mDec = limpo.match(/(defiro[^.]{0,200}|indefiro[^.]{0,200}|determino[^.]{0,200}|homologo[^.]{0,200})/i);
+        if (mDec) decisao = mDec[1].replace(/\s+/g, ' ').trim();
+    }
+    if (!decisao) decisao = 'Documento acostado aos autos.';
+
+    const valor = linhaDe(/danos?\s+morais?[^.]{0,80}?(R\$\s?[\d.]+,\d{2})/i);
+    const andamento = linhaDe(/andamento[^\n:]{0,120}:\s*\n?\s*["“]?([^\n]{20,400})/i);
+
+    const proximoPasso = /embargos?\s+de\s+declara/i.test(limpo)
+        ? 'Aguardando o julgamento dos embargos de declaração.'
+        : (/prazo/i.test(limpo) ? 'Acompanhar os prazos em curso nos autos.' : 'Acompanhamento processual pela equipe jurídica.');
+
+    const partes = [];
+    if (/julgo\s+(?:totalmente\s+)?procedente/i.test(limpo)) partes.push('O juiz analisou o caso e decidiu a favor da parte autora.');
+    else if (/julgo\s+improcedente/i.test(limpo)) partes.push('O juiz analisou o caso e decidiu contra os pedidos da parte autora.');
+    else partes.push('Este documento foi anexado ao seu processo e está sendo acompanhado pela equipe.');
+    if (valor) partes.push('A decisão menciona o valor de ' + valor + ' a título de indenização.');
+    if (andamento) partes.push('Situação mais recente registrada: ' + corta(andamento, 160));
+    else partes.push('Nossa equipe seguirá acompanhando os próximos passos.');
+
+    return {
+        assunto: corta(assunto, 120),
+        decisao: corta(decisao, 260),
+        proximoPasso,
+        resumoCliente: partes.slice(0, 3).join(' ')
     };
 }
 
@@ -393,7 +463,9 @@ module.exports = {
     traduzirAndamentoJuridico,
     traduzirAndamentoParaCliente,
     catalogarPecaProcessual,
+    catalogarLocalmente,
     sintetizarDossieProcesso,
+    MODELOS_GEMINI_PADRAO,
     calcularHash,
     definirCaminhoCache,
     obterEstatisticasCache,
