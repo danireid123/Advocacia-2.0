@@ -275,13 +275,19 @@ async function parseSpreadsheet(filePathOrBuffer, fileName = 'planilha.xlsx') {
  * Extrai o nome da parte/cliente a partir de rótulos comuns em peças e relatórios
  */
 function extrairNomeDoBloco(bloco) {
-  const re = /(?:Parte\s+Autora|Autor(?:a)?|Requerente|Exequente|Reclamante|Cliente|Impetrante|Interessado)\s*(?:\([^)]*\))?\s*[:\-]\s*([A-ZÀ-Ú][A-Za-zÀ-ú'.\s]{3,80}?)(?=\s*(?:\(|CPF|CNPJ|\n|\r|,|;|$))/;
+  const re = /(?:Parte\s+Autora|Autor(?:a)?|Requerente|Exequente|Reclamante|Cliente|Impetrante|Interessado)\s*(?:\([^)]*\))?\s*[:\-]\s*([A-ZÀ-Ú][A-Za-zÀ-ú'.\s]{3,80}?)(?=\s*(?:\(|CPF|CNPJ|\n|\r|,|;|$))/i;
   const m = bloco.match(re);
-  return m ? m[1].replace(/\s+/g, ' ').trim() : '';
+  if (m) {
+    const nomeLimpo = m[1].replace(/\s+/g, ' ').trim();
+    if (nomeLimpo.length >= 3 && !/^(?:Processo|Vara|Tribunal|Comarca|Estado|Secretaria|Cartorio|Diario)/i.test(nomeLimpo)) {
+      return nomeLimpo;
+    }
+  }
+  return '';
 }
 
 /**
- * Extrai o andamento mais relevante e sua data, ignorando fragmentos do número CNJ
+ * Extrai o andamento mais relevante e sua data, priorizando núcleos decisórios de mérito
  */
 function extrairResumoEDataDoBloco(bloco, cnjBruto) {
   const semIds = bloco
@@ -295,7 +301,7 @@ function extrairResumoEDataDoBloco(bloco, cnjBruto) {
     return p[0] >= 1 && p[0] <= 31 && p[1] >= 1 && p[1] <= 12 && (p[2] >= 1900 || (p[2] >= 0 && p[2] <= 99));
   });
 
-  // 1) Prefere seção rotulada de "Andamento"
+  // 1) Prefere seção expressamente rotulada de "Andamento"
   const mAnd = bloco.match(/andamento[^\n:]{0,120}:\s*\n?\s*["“]?([^\n]{20,700})/i);
   let resumo = '';
   let dataBruta = '';
@@ -305,12 +311,30 @@ function extrairResumoEDataDoBloco(bloco, cnjBruto) {
     dataBruta = datasValidas(linhaRotulo)[0] || datasValidas(resumo)[0] || '';
   }
 
-  // 2) Fallback: primeiras linhas úteis do bloco
+  // 2) Detecção de núcleos decisórios de sentenças, acórdãos e despachos (JULGO, HOMOLOGO, EXTINÇÃO, ALVARÁ...)
   if (!resumo) {
-    const linhas = semIds.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+    const mDecisao = bloco.match(/(?:JULGO\s+(?:EXTINT[AO]|PROCEDENTE|IMPROCEDENTE|PARCIALMENTE\s+PROCEDENTE)[^\n.]{15,400}\.?|SENTEN[CÇ]A\s+DE\s+[^\n]{10,250}|Vistos[^\n]*\n[\s\S]{30,400}?(?=\.\s|\n\s*\n))/i);
+    const mAlvara = bloco.match(/(?:expe[cç]a-se[^\n]{10,200}|Alvar[aá]\s+Judicial[^\n]{10,200})/i);
+
+    if (mDecisao) {
+      resumo = mDecisao[0].replace(/\s+/g, ' ').trim();
+      if (mAlvara && !resumo.toLowerCase().includes('alvará')) {
+        resumo += ' — ' + mAlvara[0].replace(/\s+/g, ' ').trim();
+      }
+    } else if (mAlvara) {
+      resumo = mAlvara[0].replace(/\s+/g, ' ').trim();
+    }
+  }
+
+  // 3) Fallback: primeiras linhas úteis do bloco ignorando cabeçalhos genéricos
+  if (!resumo) {
+    const linhas = semIds.split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 5 && !/poder judici[aá]rio|tribunal de justi[cç]a|comarca de|vara c[ií]vel|processo (?:digital|n[oº])|classe\s*\/\s*assunto|exequente|requerente|autor|requerido|r[eé]u/i.test(l));
     resumo = linhas.slice(0, 4).join(' ');
   }
-  if (resumo.length > 350) resumo = resumo.slice(0, 347) + '...';
+
+  if (resumo.length > 400) resumo = resumo.slice(0, 397) + '...';
   if (!dataBruta) dataBruta = datasValidas(semIds)[0] || '';
   return { resumo, dataBruta };
 }
@@ -349,6 +373,7 @@ async function extrairTextoDocumento(source, fileName) {
 
 /**
  * Chunkeador Semântico por Bloco de CNJ para PDFs e Documentos de Tribunais
+ * Agrupa todas as menções do mesmo CNJ dentro do arquivo para evitar blocos duplicados de rodapé.
  * @param {string} fullText
  * @param {string} fileName
  * @returns {Array}
@@ -357,21 +382,32 @@ function chunkTextByCNJ(fullText, fileName = 'documento.pdf', tipoOrigem = 'PDF'
   if (!fullText || typeof fullText !== 'string') return [];
 
   // Encontra todas as ocorrências de números de processo CNJ
-  const matches = [];
-  let match;
   const cnjRegex = new RegExp(REGEX_PATTERNS.CNJ.source, 'g');
+  const mapaProcessosDistintos = new Map();
+  let match;
 
   while ((match = cnjRegex.exec(fullText)) !== null) {
-    matches.push({
-      cnjBruto: match[0],
-      index: match.index
-    });
+    const raw = match[0];
+    const cnjDigits = raw.replace(/\D/g, '');
+    if (!mapaProcessosDistintos.has(cnjDigits)) {
+      mapaProcessosDistintos.set(cnjDigits, {
+        cnjBruto: raw,
+        primeiroIndex: match.index,
+        ultimoIndex: match.index + raw.length,
+        ocorrencias: 1
+      });
+    } else {
+      const info = mapaProcessosDistintos.get(cnjDigits);
+      info.ultimoIndex = match.index + raw.length;
+      info.ocorrencias++;
+    }
   }
 
+  const matchesDistintos = Array.from(mapaProcessosDistintos.values());
   const resultados = [];
 
   // Se nenhum número de processo com formato CNJ for encontrado, procura por CPF e cria um bloco único
-  if (matches.length === 0) {
+  if (matchesDistintos.length === 0) {
     const cpfsEncontrados = fullText.match(REGEX_PATTERNS.CPF) || [];
     const primeiroCpf = cpfsEncontrados.find(c => validarCPF(c)) || cpfsEncontrados[0] || "";
 
@@ -394,14 +430,12 @@ function chunkTextByCNJ(fullText, fileName = 'documento.pdf', tipoOrigem = 'PDF'
     return resultados;
   }
 
-  // Segmenta o texto em blocos baseando-se nas posições dos números CNJ
-  for (let i = 0; i < matches.length; i++) {
-    const atual = matches[i];
-    const startIndex = atual.index;
-    const endIndex = (i + 1 < matches.length) ? matches[i + 1].index : fullText.length;
-    // Para o primeiro CNJ, inclui o cabeçalho anterior (partes costumam vir antes/depois do número)
-    const inicioBloco = (i === 0) ? 0 : startIndex;
-    const blocoTexto = fullText.substring(inicioBloco, endIndex).trim();
+  // Segmenta o texto respeitando os blocos distintos de processo
+  for (let i = 0; i < matchesDistintos.length; i++) {
+    const atual = matchesDistintos[i];
+    const inicioBloco = (i === 0) ? 0 : atual.primeiroIndex;
+    const fimBloco = (i + 1 < matchesDistintos.length) ? matchesDistintos[i + 1].primeiroIndex : fullText.length;
+    const blocoTexto = fullText.substring(inicioBloco, fimBloco).trim();
 
     // Extrai CPFs dentro do bloco do processo (prefere o do autor/cliente)
     const cpfsNoBloco = blocoTexto.match(REGEX_PATTERNS.CPF) || [];
@@ -682,9 +716,14 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
         }
       });
 
+      const nomeEhGenerico = (n) => !n || /^(?:Cliente|Parte do Processo|Cliente Identificado)/i.test(String(n).trim());
+      const nomeFinal = (!nomeEhGenerico(novo.nome)) 
+        ? novo.nome 
+        : (!nomeEhGenerico(existente.nome) ? existente.nome : (novo.nome || existente.nome || 'Cliente'));
+
       listaRef[idxExistente] = {
         ...existente,
-        nome: novo.nome && novo.nome !== 'Cliente' ? novo.nome : (existente.nome || 'Cliente'),
+        nome: nomeFinal,
         cpf: cpfFormatado || existente.cpf || '',
         numero: cnjFormatado || existente.numero || existente.numeroProcesso || '',
         numeroProcesso: cnjFormatado || existente.numeroProcesso || existente.numero || '',
@@ -698,6 +737,7 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
         origem: novo.origem || existente.origem || { tipo: "IMPORTADO", arquivo: "multi" },
         historicoAndamentos: historicoAtualizado,
         documentosCatalogados: docsAtualizados,
+        consultasPorContato: {},
         _resetarVistos: true
       };
       atualizados++;

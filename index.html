@@ -1120,7 +1120,7 @@
             <!-- Master-Detail -->
             <div class="grid grid-cols-12 gap-6 pt-1">
               <div class="col-span-5 exec-card rounded-2xl p-4 flex flex-col h-[500px]">
-                <div class="flex items-center space-x-2 mb-3.5">
+                <div class="flex items-center space-x-2 mb-2">
                   <div class="relative flex-1">
                     <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"><use href="#icon-search"/></svg>
                     <input type="text" id="busca-processos" placeholder="Buscar CPF, Nº ou Nome..." class="exec-input w-full rounded-xl pl-9 pr-3 py-2 text-xs">
@@ -1129,6 +1129,17 @@
                     <svg class="w-3.5 h-3.5"><use href="#icon-plus"/></svg>
                     <span>Novo</span>
                   </button>
+                </div>
+                <div class="flex items-center justify-between px-1 mb-2.5 text-[10px] text-slate-400">
+                  <span class="font-semibold flex items-center space-x-1">
+                    <span>Ordenar por:</span>
+                  </span>
+                  <select id="ordem-processos-select" class="exec-input px-2 py-1 rounded-lg text-[10px] text-[#e5c158] font-bold bg-[#131b2c] border border-slate-700/80">
+                    <option value="recente" selected>📅 Atualização Recente</option>
+                    <option value="alfabetica">🔤 Ordem Alfabética (A-Z)</option>
+                    <option value="alfabetica_desc">🔤 Ordem Alfabética (Z-A)</option>
+                    <option value="antiga">⏳ Mais Antigos</option>
+                  </select>
                 </div>
                 <div id="lista-processos-box" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
               </div>
@@ -3194,6 +3205,10 @@
     }
 
     document.getElementById('busca-processos').addEventListener('input', () => renderizarModuloProcessos());
+    const selOrdemProcessos = document.getElementById('ordem-processos-select');
+    if (selOrdemProcessos) {
+      selOrdemProcessos.addEventListener('change', () => renderizarModuloProcessos());
+    }
 
     function renderizarModuloProcessos() {
       garantirEstruturaProcessos();
@@ -3205,12 +3220,32 @@
       const box = document.getElementById('lista-processos-box');
       box.innerHTML = '';
 
-      const filtrados = lista.filter(p => {
+      let filtrados = lista.filter(p => {
         if (!termo) return true;
         const nMatch = (p.nome || '').toLowerCase().includes(termo);
         const cMatch = (p.cpf || '').toLowerCase().includes(termo) || (termoDig && (p.cpf || '').replace(/\D/g, '').includes(termoDig));
         const pMatch = (p.numero || '').toLowerCase().includes(termo) || (termoDig && (p.numero || '').replace(/\D/g, '').includes(termoDig));
         return nMatch || cMatch || pMatch;
+      });
+
+      // Aplica ordenação selecionada pelo usuário
+      const ordemAtual = selOrdemProcessos ? selOrdemProcessos.value : 'recente';
+      filtrados.sort((a, b) => {
+        if (ordemAtual === 'alfabetica') {
+          return (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base' });
+        }
+        if (ordemAtual === 'alfabetica_desc') {
+          return (b.nome || '').localeCompare(a.nome || '', 'pt-BR', { sensitivity: 'base' });
+        }
+        if (ordemAtual === 'antiga') {
+          const tA = a.updatedAt || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+          const tB = b.updatedAt || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+          return tA - tB;
+        }
+        // Padrão: 'recente' (mais novos / atualizados no topo)
+        const tA = a.updatedAt || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+        const tB = b.updatedAt || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+        return tB - tA;
       });
 
       if (filtrados.length === 0) {
