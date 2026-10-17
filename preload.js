@@ -23,5 +23,10 @@ contextBridge.exposeInMainWorld('api', {
     aoAtualizarPausados: (callback) => ipcRenderer.on('bot-pausados', (_e, mapa) => callback(mapa)),
     aoAtualizarProcessos: (callback) => ipcRenderer.on('bot-processos-sync', (_e, cfg) => callback(cfg)),
     aoAtualizarIgnorados: (callback) => ipcRenderer.on('bot-ignorados-sync', (_e, lista) => callback(lista)),
-    aoReceberEventoUpdate: (callback) => ipcRenderer.on('bot-update-status', (_e, dados) => callback(dados))
+    aoReceberEventoUpdate: (callback) => ipcRenderer.on('bot-update-status', (_e, dados) => callback(dados)),
+
+    // v2.0: Ingestão Multiformato & Transbordo
+    processarArquivoIngestao: (dados) => ipcRenderer.invoke('ingestao-processar-arquivo', dados),
+    salvarProcessosIngeridos: (lista) => ipcRenderer.invoke('ingestao-salvar-processos', lista),
+    notificarTransbordoHumano: (dados) => ipcRenderer.invoke('notify-transbordo-humano', dados)
 });

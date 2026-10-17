@@ -1076,3 +1076,61 @@ ipcMain.handle('remover-ignorado', (e, identificador) => {
     salvarContatosIgnorados(lista);
     return lista;
 });
+
+// ==========================================
+// MÓDULOS v2.0: INGESTÃO MULTIFORMATO & TRANSBORDO
+// ==========================================
+const { processarArquivoIngestao, mesclarComConfigAtual } = require('./src/ingestao/motorIngestao');
+const { Notification } = require('electron');
+
+ipcMain.handle('ingestao-processar-arquivo', async (event, { caminhoArquivo, nomeArquivo, bufferBase64 }) => {
+    try {
+        let fonte = caminhoArquivo;
+        if (bufferBase64) {
+            fonte = Buffer.from(bufferBase64, 'base64');
+        }
+        const resultado = await processarArquivoIngestao(fonte, nomeArquivo || path.basename(caminhoArquivo || ''));
+        return resultado;
+    } catch (err) {
+        return { success: false, error: err.message, processos: [], total: 0 };
+    }
+});
+
+ipcMain.handle('ingestao-salvar-processos', async (event, processosParaSalvar) => {
+    try {
+        const configAtual = carregarConfig();
+        const { configAtualizado, adicionados, atualizados, totalProcessosNaBase } = mesclarComConfigAtual(processosParaSalvar, configAtual);
+        salvarConfigDisco(configAtualizado, true);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-processos-sync', configAtualizado);
+        }
+        return { success: true, adicionados, atualizados, totalProcessosNaBase };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('notify-transbordo-humano', (event, { contatoNome, telefone, motivo }) => {
+    try {
+        if (Notification.isSupported()) {
+            const notif = new Notification({
+                title: '⚠️ Atendimento Humano Solicitado',
+                body: `${contatoNome || 'Cliente'} (${telefone || 'WhatsApp'}) solicitou falar com o advogado.\nMotivo: ${motivo || 'Opção "Falar com Advogado"'}`,
+                urgency: 'critical',
+                silent: true
+            });
+            notif.on('click', () => {
+                if (mainWindow) {
+                    if (mainWindow.isMinimized()) mainWindow.restore();
+                    mainWindow.show();
+                    mainWindow.focus();
+                }
+            });
+            notif.show();
+            return { success: true };
+        }
+    } catch (e) {
+        console.warn('Erro ao disparar notificação nativa:', e);
+    }
+    return { success: false };
+});

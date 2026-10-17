@@ -48,8 +48,11 @@
   },
   "dependencies": {
     "electron-updater": "^6.1.7",
+    "mammoth": "^1.13.0",
+    "pdf-parse": "^2.4.5",
     "qrcode": "^1.5.3",
-    "whatsapp-web.js": "^1.23.0"
+    "whatsapp-web.js": "^1.23.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "electron": "^28.3.3",
