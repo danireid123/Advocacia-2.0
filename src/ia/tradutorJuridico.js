@@ -137,11 +137,12 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     }
 
     // 3. Chamada REST pura para o Gemini 1.5 Flash com AbortController (timeout 2.8s)
-    const timeoutMs = opcoes.timeoutMs || 2800;
+    const timeoutMs = opcoes.timeoutMs || 7000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+    const modelo = opcoes.modelo || 'gemini-3.8-flash';
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
 
     const requestBody = {
         system_instruction: {
@@ -159,7 +160,7 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
         ],
         generationConfig: {
             temperature: 0.2,
-            maxOutputTokens: 250
+            maxOutputTokens: 800
         }
     };
 
@@ -185,10 +186,11 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
         }
 
         const data = await response.json();
-        const textoGerado = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parts = data?.candidates?.[0]?.content?.parts || [];
+        const textoGerado = parts.map(p => p.text || '').filter(Boolean).join('\n').trim();
 
-        if (textoGerado && typeof textoGerado === 'string' && textoGerado.trim()) {
-            const traducaoFinal = textoGerado.trim();
+        if (textoGerado) {
+            const traducaoFinal = textoGerado;
 
             // Salva no cache em memória
             cacheEmMemoria.set(hash, traducaoFinal);
