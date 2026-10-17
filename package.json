@@ -1,0 +1,58 @@
+{
+  "name": "advocacia-studio-pro-v2",
+  "version": "2.0.0-alpha.1",
+  "description": "Advocacia Studio Pro - Suite Executiva de Atendimento e Processos (Beta 0.8)",
+  "main": "main.js",
+  "author": "Escritorio Digital",
+  "license": "MIT",
+  "scripts": {
+    "dev": "node -e \"const http=require('http'),fs=require('fs');http.createServer((q,s)=>{if(q.url.includes('.zip')||q.url==='/download'){s.writeHead(200,{'Content-Type':'application/zip','Content-Disposition':'attachment; filename=\\\"advocacia-studio-pro-completo.zip\\\"'});fs.createReadStream('advocacia-studio-pro-completo.zip').pipe(s);}else{fs.createReadStream('index.html').pipe(s);}}).listen(3000);\"",
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "release": "electron-builder --win --publish always"
+  },
+  "build": {
+    "appId": "com.advocaciastudiopro.app",
+    "productName": "Advocacia Studio Pro",
+    "asar": false,
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "icon.png",
+      "icon.ico",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png",
+      "verifyUpdateCodeSignature": false,
+      "artifactName": "Advocacia-Studio-Pro-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Advocacia Studio Pro"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "danireid123",
+        "repo": "Advocacia-2.0",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7",
+    "qrcode": "^1.5.3",
+    "whatsapp-web.js": "^1.23.0"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  }
+}
