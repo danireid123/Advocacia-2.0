@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu } = require('electron');
 const path = require('path');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
@@ -942,6 +942,30 @@ function createWindow() {
 
     mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
         console.error('[MainWindow] Falha ao carregar index.html:', errorCode, errorDescription);
+    });
+
+    // Menu de contexto nativo com Desfazer, Recortar, Copiar, Colar para campos de texto
+    mainWindow.webContents.on('context-menu', (event, params) => {
+        const { editFlags, isEditable, selectionText } = params;
+        if (isEditable) {
+            const menu = Menu.buildFromTemplate([
+                { role: 'undo', label: 'Desfazer' },
+                { role: 'redo', label: 'Refazer' },
+                { type: 'separator' },
+                { role: 'cut', label: 'Recortar', enabled: editFlags.canCut },
+                { role: 'copy', label: 'Copiar', enabled: editFlags.canCopy },
+                { role: 'paste', label: 'Colar', enabled: editFlags.canPaste },
+                { type: 'separator' },
+                { role: 'selectAll', label: 'Selecionar Tudo' }
+            ]);
+            menu.popup(mainWindow);
+        } else if (selectionText && selectionText.trim().length > 0) {
+            const menu = Menu.buildFromTemplate([
+                { role: 'copy', label: 'Copiar' },
+                { role: 'selectAll', label: 'Selecionar Tudo' }
+            ]);
+            menu.popup(mainWindow);
+        }
     });
 }
 

@@ -272,6 +272,7 @@
     }
 
     #tour-backdrop {
+      display: none;
       position: fixed;
       inset: 0;
       background: rgba(6, 9, 16, 0.75);
@@ -282,6 +283,7 @@
       transition: opacity 0.32s ease;
     }
     #tour-backdrop.active {
+      display: block;
       opacity: 1;
       pointer-events: auto;
     }
@@ -1261,11 +1263,11 @@
 
                 <div id="format-drawer" class="format-drawer">
                   <div class="flex flex-wrap items-center gap-1.5 bg-black/20 p-2 rounded-xl border border-slate-800">
-                    <button type="button" onclick="formatarTexto('bold')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-[#e5c158] transition">B *Negrito*</button>
-                    <button type="button" onclick="formatarTexto('italic')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs italic text-slate-200 transition">I _Itálico_</button>
-                    <button type="button" onclick="formatarTexto('strike')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs line-through text-slate-400 transition">S ~Tachado~</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('bold')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-[#e5c158] transition">B *Negrito*</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('italic')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs italic text-slate-200 transition">I _Itálico_</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('strike')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-xs line-through text-slate-400 transition">S ~Tachado~</button>
                     <div class="h-4 w-px bg-slate-800 mx-1"></div>
-                    <button type="button" onclick="inserirSnippet('• ')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-300 transition">+ Tópico</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="inserirSnippet('• ')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-300 transition">+ Tópico</button>
                   </div>
                 </div>
 
@@ -1515,15 +1517,19 @@
 
             <!-- Controles do Cliente Simulado & Cenários Rápidos -->
             <div class="grid grid-cols-12 gap-3 p-3.5 bg-black/25 rounded-2xl border border-slate-800">
-              <div class="col-span-4">
+              <div class="col-span-3">
                 <label class="text-[11px] font-bold text-[#e5c158] block mb-1">Telefone Simulado</label>
                 <input type="text" id="simulador-tel" value="+55 (11) 98765-4321" class="exec-input w-full rounded-xl px-3 py-1.5 text-xs font-mono">
               </div>
-              <div class="col-span-4">
+              <div class="col-span-3">
                 <label class="text-[11px] font-bold text-slate-300 block mb-1">Nome do Cliente</label>
                 <input type="text" id="simulador-nome" value="Carlos Eduardo Teste" class="exec-input w-full rounded-xl px-3 py-1.5 text-xs">
               </div>
-              <div class="col-span-4 flex flex-col justify-end">
+              <div class="col-span-3">
+                <label class="text-[11px] font-bold text-indigo-300 block mb-1">Chave Google Gemini API</label>
+                <input type="password" id="proc-gemini-api-key" placeholder="AQ.Ab8... ou AIzaSy..." class="exec-input w-full rounded-xl px-3 py-1.5 text-xs font-mono" title="Chave oficial da Google AI Studio para tradução leiga de andamentos">
+              </div>
+              <div class="col-span-3 flex flex-col justify-end">
                 <div class="flex items-center space-x-1.5">
                   <span class="text-[10px] text-slate-400 font-semibold block mb-0.5">Cenários Rápidos:</span>
                 </div>
@@ -2492,21 +2498,45 @@
       etapaSelecionada = 'raiz'; popularSeletorDeEtapas(); carregarEtapaNoEditor('raiz'); marcarAlteracaoPendente();
     });
 
-    function carregarTemplatesProcessosNosInputs() {
+    function carregarTemplatesProcessosNosInputs(forcar = false) {
       garantirEstruturaProcessos();
       const m = configGlobal.processos.mensagens;
-      document.getElementById('tpl-msg-com-atualizacao').value = m.msg_com_atualizacao || '';
-      document.getElementById('tpl-msg-ja-visto').value = m.msg_ja_visto || '';
-      document.getElementById('tpl-msg-sem-atualizacao').value = m.msg_sem_atualizacao || '';
-      document.getElementById('tpl-msg-nao-encontrado').value = m.msg_nao_encontrado || '';
-      document.getElementById('tpl-msg-encerrar').value = m.msg_encerrar_conversa || '';
-      document.getElementById('tpl-msg-advogado-pos').value = m.msg_chamar_advogado_pos_proc || '';
+      const tpls = [
+        ['tpl-msg-com-atualizacao', m.msg_com_atualizacao],
+        ['tpl-msg-ja-visto', m.msg_ja_visto],
+        ['tpl-msg-sem-atualizacao', m.msg_sem_atualizacao],
+        ['tpl-msg-nao-encontrado', m.msg_nao_encontrado],
+        ['tpl-msg-encerrar', m.msg_encerrar_conversa],
+        ['tpl-msg-advogado-pos', m.msg_chamar_advogado_pos_proc]
+      ];
+      tpls.forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el && (forcar || document.activeElement !== el)) {
+          el.value = val || '';
+        }
+      });
     }
+
+    ['tpl-msg-com-atualizacao', 'tpl-msg-ja-visto', 'tpl-msg-sem-atualizacao', 'tpl-msg-nao-encontrado', 'tpl-msg-encerrar', 'tpl-msg-advogado-pos'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => {
+          garantirEstruturaProcessos();
+          const m = configGlobal.processos.mensagens;
+          if (id === 'tpl-msg-com-atualizacao') m.msg_com_atualizacao = el.value;
+          if (id === 'tpl-msg-ja-visto') m.msg_ja_visto = el.value;
+          if (id === 'tpl-msg-sem-atualizacao') m.msg_sem_atualizacao = el.value;
+          if (id === 'tpl-msg-nao-encontrado') m.msg_nao_encontrado = el.value;
+          if (id === 'tpl-msg-encerrar') m.msg_encerrar_conversa = el.value;
+          if (id === 'tpl-msg-advogado-pos') m.msg_chamar_advogado_pos_proc = el.value;
+        });
+      }
+    });
 
     document.getElementById('btn-toggle-msg-processos').addEventListener('click', () => {
       const p = document.getElementById('painel-msg-processos');
       p.classList.toggle('hidden');
-      carregarTemplatesProcessosNosInputs();
+      carregarTemplatesProcessosNosInputs(true);
     });
 
     document.getElementById('btn-salvar-tpl-processos').addEventListener('click', () => {
@@ -2521,14 +2551,25 @@
       document.getElementById('painel-msg-processos').classList.add('hidden');
     });
 
+    let draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
+
     function limparFormularioProcesso() {
       idProcessoSelecionado = '';
-      document.getElementById('proc-id-edit').value = '';
-      document.getElementById('proc-nome').value = '';
-      document.getElementById('proc-cpf').value = '';
-      document.getElementById('proc-numero').value = '';
-      document.getElementById('proc-resumo').value = '';
-      document.getElementById('proc-tem-atualizacao').checked = true;
+      draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
+      const elId = document.getElementById('proc-id-edit');
+      const elNome = document.getElementById('proc-nome');
+      const elCpf = document.getElementById('proc-cpf');
+      const elNumero = document.getElementById('proc-numero');
+      const elResumo = document.getElementById('proc-resumo');
+      const elCheck = document.getElementById('proc-tem-atualizacao');
+
+      if (elId) elId.value = '';
+      if (elNome) elNome.value = '';
+      if (elCpf) elCpf.value = '';
+      if (elNumero) elNumero.value = '';
+      if (elResumo) elResumo.value = '';
+      if (elCheck) elCheck.checked = true;
+
       document.getElementById('avatar-ficha-proc').innerText = 'NP';
       document.getElementById('form-proc-titulo').innerText = 'Nova Pasta de Processo';
       document.getElementById('subtitulo-status-ficha').innerText = 'Preencha o CPF ou Número do Processo e escreva o resumo';
@@ -2539,25 +2580,46 @@
       if (btnAnexar) btnAnexar.classList.add('hidden');
       if (btnDossie) btnDossie.classList.add('hidden');
       renderizarModuloProcessos();
-      document.getElementById('proc-cpf').focus();
+      if (elCpf) elCpf.focus();
     }
 
     document.getElementById('btn-limpar-form-proc').addEventListener('click', limparFormularioProcesso);
 
-    window.selecionarProcessoNaLista = function(id) {
+    window.selecionarProcessoNaLista = function(id, forcar = false) {
       const p = (configGlobal.processos.lista || []).find(item => item.id === id);
       if (!p) return;
       idProcessoSelecionado = p.id;
-      document.getElementById('proc-id-edit').value = p.id;
-      document.getElementById('proc-nome').value = p.nome || '';
-      document.getElementById('proc-cpf').value = p.cpf || '';
-      document.getElementById('proc-numero').value = p.numero || '';
-      document.getElementById('proc-resumo').value = p.resumo || '';
-      document.getElementById('proc-tem-atualizacao').checked = Boolean(p.temAtualizacao);
 
-      const iniciais = (p.nome || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const elId = document.getElementById('proc-id-edit');
+      const elNome = document.getElementById('proc-nome');
+      const elCpf = document.getElementById('proc-cpf');
+      const elNumero = document.getElementById('proc-numero');
+      const elResumo = document.getElementById('proc-resumo');
+      const elCheck = document.getElementById('proc-tem-atualizacao');
+
+      if (elId) elId.value = p.id;
+
+      // Blindagem anti-congelamento: NUNCA sobrescreve campos onde o usuário está ativamente digitando
+      if (elNome && (forcar || document.activeElement !== elNome)) {
+        elNome.value = p.nome || '';
+      }
+      if (elCpf && (forcar || document.activeElement !== elCpf)) {
+        elCpf.value = p.cpf || '';
+      }
+      if (elNumero && (forcar || document.activeElement !== elNumero)) {
+        elNumero.value = p.numero || '';
+      }
+      if (elResumo && (forcar || document.activeElement !== elResumo)) {
+        elResumo.value = p.resumo || '';
+      }
+      if (elCheck && (forcar || document.activeElement !== elCheck)) {
+        elCheck.checked = Boolean(p.temAtualizacao);
+      }
+
+      const nomeExibicao = (elNome && document.activeElement === elNome && elNome.value) ? elNome.value : (p.nome || 'Cliente');
+      const iniciais = nomeExibicao.trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
       document.getElementById('avatar-ficha-proc').innerText = iniciais || 'CL';
-      document.getElementById('form-proc-titulo').innerText = `Pasta: ${p.nome || 'Cliente'}`;
+      document.getElementById('form-proc-titulo').innerText = `Pasta: ${nomeExibicao}`;
 
       const qtdVistos = Object.keys(p.consultasPorContato || {}).length;
       document.getElementById('subtitulo-status-ficha').innerText = qtdVistos > 0
@@ -2572,8 +2634,49 @@
       if (btnAnexar) btnAnexar.classList.remove('hidden');
       if (btnDossie) btnDossie.classList.remove('hidden');
 
-      renderizarModuloProcessos();
+      // Se o usuário estiver focado na caixa de busca, não destrói o DOM da lista para não interromper digitação
+      if (document.activeElement !== document.getElementById('busca-processos')) {
+        renderizarModuloProcessos();
+      }
     };
+
+    // Sincronização em tempo real da digitação (evita que auto-save ou sync apague texto digitado)
+    function sincronizarDigitacaoProcesso(campo, valor) {
+      if (idProcessoSelecionado) {
+        const p = (configGlobal.processos.lista || []).find(item => item.id === idProcessoSelecionado);
+        if (p) {
+          p[campo] = valor;
+          if (campo === 'nome') {
+            const iniciais = (valor || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const avatar = document.getElementById('avatar-ficha-proc');
+            const titulo = document.getElementById('form-proc-titulo');
+            if (avatar) avatar.innerText = iniciais || 'CL';
+            if (titulo) titulo.innerText = `Pasta: ${valor || 'Cliente'}`;
+          }
+        }
+      } else {
+        draftNovoProcesso[campo] = valor;
+        if (campo === 'nome') {
+          const iniciais = (valor || 'NP').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+          const avatar = document.getElementById('avatar-ficha-proc');
+          const titulo = document.getElementById('form-proc-titulo');
+          if (avatar) avatar.innerText = iniciais || 'NP';
+          if (titulo) titulo.innerText = valor ? `Nova Pasta: ${valor}` : 'Nova Pasta de Processo';
+        }
+      }
+    }
+
+    const elProcNome = document.getElementById('proc-nome');
+    const elProcCpf = document.getElementById('proc-cpf');
+    const elProcNumero = document.getElementById('proc-numero');
+    const elProcResumo = document.getElementById('proc-resumo');
+    const elProcTemAtualizacao = document.getElementById('proc-tem-atualizacao');
+
+    if (elProcNome) elProcNome.addEventListener('input', (e) => sincronizarDigitacaoProcesso('nome', e.target.value));
+    if (elProcCpf) elProcCpf.addEventListener('input', (e) => sincronizarDigitacaoProcesso('cpf', e.target.value));
+    if (elProcNumero) elProcNumero.addEventListener('input', (e) => sincronizarDigitacaoProcesso('numero', e.target.value));
+    if (elProcResumo) elProcResumo.addEventListener('input', (e) => sincronizarDigitacaoProcesso('resumo', e.target.value));
+    if (elProcTemAtualizacao) elProcTemAtualizacao.addEventListener('change', (e) => sincronizarDigitacaoProcesso('temAtualizacao', e.target.checked));
 
     document.getElementById('btn-resetar-visto-ficha').addEventListener('click', () => {
       if (!idProcessoSelecionado) return;
@@ -3261,7 +3364,7 @@
 
         const item = document.createElement('div');
         item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : ''}`;
-        item.onclick = () => selecionarProcessoNaLista(p.id);
+        item.onclick = () => selecionarProcessoNaLista(p.id, true);
 
         item.innerHTML = `
           <div class="flex items-center space-x-3 overflow-hidden pr-2">
@@ -3284,17 +3387,23 @@
       });
     }
 
-    function carregarConfiguracaoAgendaNosCampos() {
+    function carregarConfiguracaoAgendaNosCampos(forcar = false) {
       garantirEstruturaAgenda();
       const a = configGlobal.agenda;
-      document.getElementById('agenda-almoco-ativo').checked = Boolean(a.almoco_ativo);
-      document.getElementById('agenda-almoco-inicio').value = a.almoco_inicio || '12:00';
-      document.getElementById('agenda-almoco-fim').value = a.almoco_fim || '13:30';
-      document.getElementById('agenda-msg-almoco').value = a.msg_almoco || '';
-      document.getElementById('agenda-msg-fora').value = a.msg_fora_expediente || '';
+      const elAtivo = document.getElementById('agenda-almoco-ativo');
+      const elInicio = document.getElementById('agenda-almoco-inicio');
+      const elFim = document.getElementById('agenda-almoco-fim');
+      const elMsgAlmoco = document.getElementById('agenda-msg-almoco');
+      const elMsgFora = document.getElementById('agenda-msg-fora');
+
+      if (elAtivo && (forcar || document.activeElement !== elAtivo)) elAtivo.checked = Boolean(a.almoco_ativo);
+      if (elInicio && (forcar || document.activeElement !== elInicio)) elInicio.value = a.almoco_inicio || '12:00';
+      if (elFim && (forcar || document.activeElement !== elFim)) elFim.value = a.almoco_fim || '13:30';
+      if (elMsgAlmoco && (forcar || document.activeElement !== elMsgAlmoco)) elMsgAlmoco.value = a.msg_almoco || '';
+      if (elMsgFora && (forcar || document.activeElement !== elMsgFora)) elMsgFora.value = a.msg_fora_expediente || '';
 
       const checkAutoStart = document.getElementById('check-iniciar-windows');
-      if (checkAutoStart) {
+      if (checkAutoStart && (forcar || document.activeElement !== checkAutoStart)) {
         checkAutoStart.checked = Boolean(configGlobal.iniciar_com_windows !== false);
       }
     }
@@ -3611,12 +3720,45 @@
 
         if (window.api.aoAtualizarProcessos) {
           window.api.aoAtualizarProcessos((cfg) => {
+            const elAtivo = document.activeElement;
+            const digitandoNoForm = elAtivo && (
+              elAtivo.id === 'proc-nome' ||
+              elAtivo.id === 'proc-cpf' ||
+              elAtivo.id === 'proc-numero' ||
+              elAtivo.id === 'proc-resumo' ||
+              elAtivo.id === 'busca-processos' ||
+              elAtivo.tagName === 'INPUT' ||
+              elAtivo.tagName === 'TEXTAREA'
+            );
+
+            // Se o usuário está digitando ativamente na ficha de um processo, preserva as edições locais que estão na tela
+            if (idProcessoSelecionado && cfg && cfg.processos && Array.isArray(cfg.processos.lista)) {
+              const pRemoto = cfg.processos.lista.find(p => p.id === idProcessoSelecionado);
+              if (pRemoto && digitandoNoForm) {
+                if (elProcNome && elAtivo === elProcNome) pRemoto.nome = elProcNome.value;
+                if (elProcCpf && elAtivo === elProcCpf) pRemoto.cpf = elProcCpf.value;
+                if (elProcNumero && elAtivo === elProcNumero) pRemoto.numero = elProcNumero.value;
+                if (elProcResumo && elAtivo === elProcResumo) pRemoto.resumo = elProcResumo.value;
+              }
+            }
+
             configGlobal = cfg;
             garantirEstruturaAgenda();
             garantirEstruturaProcessos();
-            renderizarModuloProcessos();
+
+            // Se o usuário está digitando na busca, atualiza contadores sem destruir o DOM da lista
+            if (elAtivo && elAtivo.id === 'busca-processos') {
+              document.getElementById('badge-processos').innerText = String((configGlobal.processos.lista || []).length);
+            } else {
+              renderizarModuloProcessos();
+            }
+
             renderizarTelaInicial();
-            if (idProcessoSelecionado) selecionarProcessoNaLista(idProcessoSelecionado);
+
+            // Passa forcar = false para nunca sobrescrever os campos que estão em foco
+            if (idProcessoSelecionado) {
+              selecionarProcessoNaLista(idProcessoSelecionado, false);
+            }
           });
         }
 
@@ -3747,7 +3889,16 @@
           const btnEnviar = document.getElementById('btn-simulador-enviar');
           const inputTel = document.getElementById('simulador-tel');
           const inputNome = document.getElementById('simulador-nome');
+          const inputKey = document.getElementById('proc-gemini-api-key');
           const btnLimpar = document.getElementById('btn-simulador-limpar');
+
+          if (inputKey) {
+            inputKey.value = configGlobal.gemini_api_key || '';
+            inputKey.addEventListener('input', (e) => {
+              configGlobal.gemini_api_key = e.target.value.trim();
+              marcarAlteracaoPendente();
+            });
+          }
 
           const btnCenarioOla = document.getElementById('btn-cenario-ola');
           const btnCenarioProc = document.getElementById('btn-cenario-proc');
@@ -3915,7 +4066,18 @@
               adicionarBalaoBot(`❌ Erro no simulador: ${err.message}`);
             } finally {
               btnEnviar.disabled = false;
-              inputMsg.focus();
+              // Previne roubo de foco se o usuário navegou ou está digitando em outro campo
+              const abaSimulador = document.getElementById('aba-simulador');
+              const simVisivel = abaSimulador && !abaSimulador.classList.contains('hidden');
+              const outroInputFocado = document.activeElement && 
+                document.activeElement !== document.body && 
+                document.activeElement !== inputMsg && 
+                document.activeElement !== btnEnviar &&
+                (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+
+              if (simVisivel && !outroInputFocado) {
+                inputMsg.focus();
+              }
             }
           }
 
@@ -3938,7 +4100,7 @@
               adicionarIndicadorDigitando();
               btnTestarIaSim.disabled = true;
               try {
-                const chaveCampo = document.getElementById('proc-gemini-api-key')?.value?.trim() || '';
+                const chaveCampo = document.getElementById('proc-gemini-api-key')?.value?.trim() || configGlobal.gemini_api_key || '';
                 const res = await api.testarConexaoIA(chaveCampo);
                 removerIndicadorDigitando();
                 if (res && res.success) {
