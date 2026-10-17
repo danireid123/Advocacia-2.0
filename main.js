@@ -35,7 +35,8 @@ let timerGravacaoDisco = null;
 let timerHeartbeatShutdown = null;
 
 const GITHUB_OWNER = 'danireid123';
-const GITHUB_REPO = 'advocacia-studio-pro';
+const GITHUB_REPO = 'Advocacia-2.0';
+const { criarConfigPadraoV2, migrarConfigV1ParaV2 } = require('./migracao');
 
 const USER_DATA_DIR = app.getPath('userData');
 const CONFIG_PATH = path.join(USER_DATA_DIR, 'config.json');
@@ -156,114 +157,31 @@ function limparLocksTravados() {
 }
 
 function criarConfigPadrao() {
-    const msgPadraoAtualizacao = "⚖️ *Andamento Processual Localizado*\n\nOlá, *{nome}*!\nReferente ao processo nº *{processo}* (CPF: *{cpf}*):\n\n📋 *Resumo da Atualização ({data}):*\n{resumo}\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
-    const msgPadraoJaVisto = "⚖️ *Consulta Processual*\n\nOlá, *{nome}*! Verificamos a pasta do seu processo nº *{processo}* e informamos que *não houve novas movimentações* desde a sua última consulta em *{ultima_consulta}*.\n\n📌 *Último resumo registrado ({data}):*\n{resumo}\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
-    const msgPadraoSemAtualizacao = "⚖️ *Consulta Processual*\n\nOlá, *{nome}*! Seu processo nº *{processo}* está devidamente cadastrado em nosso sistema, porém ainda não possui movimentações ou resumos lançados até o momento.\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
-
-    return {
-        versao_config: "Beta 0.8",
-        iniciar_com_windows: true,
-        primeiraConexaoTimestamp: 0,
-        ultimoDesligamentoTimestamp: 0,
-        ultimoInicioTimestamp: 0,
-        agenda: {
-            "0": { nome: "Domingo", ativo: false, abertura: "08:00", fechamento: "18:00" },
-            "1": { nome: "Segunda-feira", ativo: true, abertura: "08:00", fechamento: "18:00" },
-            "2": { nome: "Terça-feira", ativo: true, abertura: "08:00", fechamento: "18:00" },
-            "3": { nome: "Quarta-feira", ativo: true, abertura: "08:00", fechamento: "18:00" },
-            "4": { nome: "Quinta-feira", ativo: true, abertura: "08:00", fechamento: "18:00" },
-            "5": { nome: "Sexta-feira", ativo: true, abertura: "08:00", fechamento: "18:00" },
-            "6": { nome: "Sábado", ativo: false, abertura: "08:00", fechamento: "12:00" },
-            almoco_ativo: true,
-            almoco_inicio: "12:00",
-            almoco_fim: "13:30",
-            msg_almoco: "⏳ *Horário de Almoço:* No momento nossa equipe está em intervalo de almoço (retornamos às 13:30), mas nosso atendimento automático segue abaixo para ajudar você:",
-            msg_fora_expediente: "🌙 *Fora do Horário de Expediente:* Nosso escritório está fechado neste momento, mas nosso atendimento automático segue disponível abaixo para adiantar sua solicitação:"
-        },
-        fluxo: {
-            raiz: {
-                titulo: "Menu Principal (Boas-Vindas)",
-                mensagem: "⚖️ *Escritório de Advocacia*\n\nOlá! Seja muito bem-vindo(a) ao nosso atendimento digital.\n\nComo podemos auxiliar você hoje?",
-                opcoes: [
-                    { gatilho: "1", rotulo: "Consultar Andamento de Processo", tipo: "processo", destino: "", resposta: "Perfeito! Por gentileza, digite apenas o seu *CPF* ou o *Número do Processo* para localizarmos sua pasta:" },
-                    { gatilho: "2", rotulo: "Iniciar Nova Consulta Jurídica", tipo: "submenu", destino: "areas", resposta: "" },
-                    { gatilho: "3", rotulo: "Falar diretamente com Advogado", tipo: "humano", destino: "", resposta: "Perfeito! Sua solicitação foi encaminhada e um advogado da nossa equipe já está chegando para assumir seu atendimento." }
-                ]
-            },
-            etapas: {
-                "areas": {
-                    titulo: "Submenu: Especialidades",
-                    mensagem: "*Nova Consulta Jurídica*\n\nSelecione a área correspondente ao seu caso:",
-                    opcoes: [
-                        { gatilho: "1", rotulo: "Direito Cível, Família ou Contratos", tipo: "texto", destino: "", resposta: "Compreendido. Envie um breve relato do ocorrido para análise prévia do advogado." },
-                        { gatilho: "0", rotulo: "Voltar ao Menu Principal", tipo: "submenu", destino: "raiz", resposta: "" }
-                    ]
-                }
-            }
-        },
-        processos: {
-            mensagens: {
-                msg_com_atualizacao: msgPadraoAtualizacao,
-                msg_ja_visto: msgPadraoJaVisto,
-                msg_sem_atualizacao: msgPadraoSemAtualizacao,
-                msg_nao_encontrado: "⚠️ Não conseguimos localizar nenhum processo com o *CPF* ou *Número de Processo* informado.\n\nPor favor, envie novamente apenas os números do seu CPF ou do Processo, ou digite *0* para voltar ao Menu Inicial.",
-                msg_encerrar_conversa: "✅ *Atendimento Finalizado!*\n\nAgradecemos o seu contato. Sempre que precisar consultar seu processo ou falar conosco, basta enviar uma mensagem por aqui. Tenha um excelente dia!",
-                msg_chamar_advogado_pos_proc: "👨‍⚖️ *Solicitação Recebida!*\n\nUm advogado da nossa equipe já foi notificado e *já está chegando* para assumir o seu atendimento pessoalmente. Por gentileza, aguarde alguns instantes."
-            },
-            lista: []
-        },
-        mapaNomes: {},
-        mapaTelefones: {},
-        pausadosPersistidos: {},
-        contatosIgnorados: [],
-        metricasReais: { totalMensagens: 0, contatosAtendidos: [] }
-    };
+    return criarConfigPadraoV2();
 }
 
 function migrarTemplatesAntigosProcessos(cfg) {
-    const padrao = criarConfigPadrao();
-    if (!cfg.processos) cfg.processos = padrao.processos;
-    if (!cfg.processos.mensagens) cfg.processos.mensagens = padrao.processos.mensagens;
-
-    const m = cfg.processos.mensagens;
-    const substituirRodapeAntigo = (txt) => {
-        if (!txt) return txt;
-        return txt.replace(/_\(Digite \*0\* para voltar ao Menu Principal ou \*3\* para falar com um advogado\)_/gi,
-            "━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado");
-    };
-
-    m.msg_com_atualizacao = substituirRodapeAntigo(m.msg_com_atualizacao || padrao.processos.mensagens.msg_com_atualizacao);
-    m.msg_ja_visto = substituirRodapeAntigo(m.msg_ja_visto || padrao.processos.mensagens.msg_ja_visto);
-    m.msg_sem_atualizacao = substituirRodapeAntigo(m.msg_sem_atualizacao || padrao.processos.mensagens.msg_sem_atualizacao);
-
-    if (!m.msg_encerrar_conversa) m.msg_encerrar_conversa = padrao.processos.mensagens.msg_encerrar_conversa;
-    if (!m.msg_chamar_advogado_pos_proc) m.msg_chamar_advogado_pos_proc = padrao.processos.mensagens.msg_chamar_advogado_pos_proc;
-
-    if (typeof cfg.iniciar_com_windows === 'undefined') cfg.iniciar_com_windows = true;
-    if (!cfg.mapaNomes) cfg.mapaNomes = {};
-    if (!cfg.mapaTelefones) cfg.mapaTelefones = {};
-    if (!cfg.pausadosPersistidos) cfg.pausadosPersistidos = {};
-    if (!Array.isArray(cfg.contatosIgnorados)) cfg.contatosIgnorados = [];
-    return cfg;
+    return migrarConfigV1ParaV2(cfg);
 }
 
 function carregarConfig(forcarDisco = false) {
     if (configEmMemoria && !forcarDisco) return configEmMemoria;
     try {
-        const padrao = criarConfigPadrao();
+        const contatosIgnoradosExternos = carregarContatosIgnorados();
         if (!fs.existsSync(CONFIG_PATH)) {
             if (fs.existsSync(CONFIG_BACKUP_PATH)) {
                 const recuperado = JSON.parse(fs.readFileSync(CONFIG_BACKUP_PATH, 'utf-8'));
-                configEmMemoria = migrarTemplatesAntigosProcessos({ ...padrao, ...recuperado });
+                configEmMemoria = migrarConfigV1ParaV2(recuperado, contatosIgnoradosExternos);
                 salvarConfigDisco(configEmMemoria, true);
                 return configEmMemoria;
             }
+            const padrao = criarConfigPadraoV2();
             fs.writeFileSync(CONFIG_PATH, JSON.stringify(padrao, null, 2), 'utf-8');
             configEmMemoria = padrao;
             return configEmMemoria;
         }
         const lido = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-        configEmMemoria = migrarTemplatesAntigosProcessos({ ...padrao, ...lido });
+        configEmMemoria = migrarConfigV1ParaV2(lido, contatosIgnoradosExternos);
         if (configEmMemoria.pausadosPersistidos) {
             contatosPausados = { ...configEmMemoria.pausadosPersistidos, ...contatosPausados };
         }
@@ -271,11 +189,11 @@ function carregarConfig(forcarDisco = false) {
     } catch (e) {
         try {
             if (fs.existsSync(CONFIG_BACKUP_PATH)) {
-                configEmMemoria = migrarTemplatesAntigosProcessos(JSON.parse(fs.readFileSync(CONFIG_BACKUP_PATH, 'utf-8')));
+                configEmMemoria = migrarConfigV1ParaV2(JSON.parse(fs.readFileSync(CONFIG_BACKUP_PATH, 'utf-8')), carregarContatosIgnorados());
                 return configEmMemoria;
             }
         } catch (err2) {}
-        configEmMemoria = criarConfigPadrao();
+        configEmMemoria = criarConfigPadraoV2();
         return configEmMemoria;
     }
 }
