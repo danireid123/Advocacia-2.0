@@ -841,19 +841,31 @@ function createWindow() {
         height: 900,
         minWidth: 1100,
         minHeight: 720,
-        title: 'Advocacia Studio Pro • Beta 0.8 (v1.8.5)',
+        title: 'Advocacia Studio Pro v2.0 (Executive Suite)',
         icon: obterIconeNativo(),
         backgroundColor: '#0b0f17',
+        show: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
-            backgroundThrottling: true
+            backgroundThrottling: false
         },
         autoHideMenuBar: true
     });
 
     mainWindow.loadFile('index.html');
+
+    mainWindow.once('ready-to-show', () => {
+        if (mainWindow) {
+            mainWindow.show();
+            mainWindow.focus();
+        }
+    });
+
+    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+        console.error('[MainWindow] Falha ao carregar index.html:', errorCode, errorDescription);
+    });
 }
 
 // Otimização para PC fraco: limpeza periódica de referências em memória (< 300MB)
@@ -874,8 +886,12 @@ app.whenReady().then(() => {
 
     configurarAutoStartWindows(cfg.iniciar_com_windows !== false);
     createWindow();
-    iniciarWhatsApp();
-    configurarAutoUpdater();
+
+    // Inicia o motor WhatsApp e o AutoUpdater em background sem bloquear a abertura da janela
+    setTimeout(() => {
+        iniciarWhatsApp();
+        configurarAutoUpdater();
+    }, 1000);
 
     timerHeartbeatShutdown = setInterval(() => {
         try {
