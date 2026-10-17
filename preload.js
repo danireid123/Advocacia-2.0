@@ -28,5 +28,8 @@ contextBridge.exposeInMainWorld('api', {
     // v2.0: Ingestão Multiformato & Transbordo
     processarArquivoIngestao: (dados) => ipcRenderer.invoke('ingestao-processar-arquivo', dados),
     salvarProcessosIngeridos: (lista) => ipcRenderer.invoke('ingestao-salvar-processos', lista),
-    notificarTransbordoHumano: (dados) => ipcRenderer.invoke('notify-transbordo-humano', dados)
+    notificarTransbordoHumano: (dados) => ipcRenderer.invoke('notify-transbordo-humano', dados),
+    selecionarArquivosIngestao: () => ipcRenderer.invoke('ingestao-selecionar-arquivos'),
+    baixarPlanilhaModelo: () => ipcRenderer.invoke('ingestao-baixar-planilha-modelo'),
+    aoReceberTransbordoHumano: (callback) => ipcRenderer.on('bot-transbordo-humano', (_e, dados) => callback(dados))
 });

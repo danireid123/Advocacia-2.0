@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification } = require('electron');
 const path = require('path');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
@@ -306,6 +306,42 @@ function emitirPausados() {
     }
 }
 
+function dispararNotificacaoTransbordo(dados) {
+    try {
+        const { contatoNome, telefone, motivo } = dados || {};
+        
+        // 1. Emite evento para o renderer para tocar o áudio executivo e atualizar UI
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-transbordo-humano', {
+                contatoNome: contatoNome || 'Cliente',
+                telefone: telefone || '',
+                motivo: motivo || 'Opção "Falar com Advogado"',
+                timestamp: Date.now()
+            });
+        }
+
+        // 2. Dispara Notificação Nativa do Windows via Electron Notification
+        if (Notification && Notification.isSupported && Notification.isSupported()) {
+            const notif = new Notification({
+                title: '⚠️ Atendimento Humano Solicitado',
+                body: `${contatoNome || 'Cliente'} (${telefone || 'WhatsApp'}) solicitou falar com o advogado.\nMotivo: ${motivo || 'Opção "Falar com Advogado"'}`,
+                urgency: 'critical',
+                silent: true
+            });
+            notif.on('click', () => {
+                if (mainWindow) {
+                    if (mainWindow.isMinimized()) mainWindow.restore();
+                    mainWindow.show();
+                    mainWindow.focus();
+                }
+            });
+            notif.show();
+        }
+    } catch (e) {
+        console.warn('Erro ao disparar alerta de transbordo:', e);
+    }
+}
+
 function atualizarStatusUI(novoStatus, detalheSubStatus = null) {
     statusAtualBot = novoStatus;
     if (detalheSubStatus) subStatusDetalhado = detalheSubStatus;
@@ -407,7 +443,7 @@ function buscarProcessoPorNumero(config, digitosBusca) {
     });
 }
 
-function formatarMensagemProcesso(config, proc, remetenteChave) {
+async function formatarMensagemProcesso(config, proc, remetenteChave) {
     const tpls = (config.processos && config.processos.mensagens) || criarConfigPadrao().processos.mensagens;
     const temResumo = Boolean(proc.temAtualizacao && proc.resumo && proc.resumo.trim());
 
@@ -432,11 +468,21 @@ function formatarMensagemProcesso(config, proc, remetenteChave) {
         mainWindow.webContents.send('bot-processos-sync', config);
     }
 
+    // Se houver resumo, tenta traduzir com Gemini 1.5 Flash (com fallback imediato para o texto original)
+    let resumoParaExibir = proc.resumo || 'Sem detalhes adicionais.';
+    if (temResumo) {
+        try {
+            resumoParaExibir = await traduzirAndamentoParaCliente(proc, proc.resumo, config);
+        } catch (e) {
+            resumoParaExibir = proc.resumo;
+        }
+    }
+
     return String(modelo || '')
         .replace(/\{nome\}/g, proc.nome || 'Cliente')
         .replace(/\{cpf\}/g, proc.cpf || '-')
         .replace(/\{processo\}/g, proc.numero || '-')
-        .replace(/\{resumo\}/g, proc.resumo || 'Sem detalhes adicionais.')
+        .replace(/\{resumo\}/g, resumoParaExibir)
         .replace(/\{data\}/g, proc.dataAtualizacaoTexto || agoraTexto)
         .replace(/\{ultima_consulta\}/g, ultimaConsulta || agoraTexto);
 }
@@ -507,7 +553,7 @@ async function processarMensagemEntrada(msg) {
             await enviarMensagemSegura(msg, msg.from, prefixoHorario + txt);
         };
 
-        const colocarNaFilaHumana = async (mensagemConfirmacao) => {
+        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
@@ -517,6 +563,11 @@ async function processarMensagemEntrada(msg) {
             };
             delete estadosUsuarios[remetenteChave];
             emitirPausados();
+            dispararNotificacaoTransbordo({
+                contatoNome: identidade.nomeCliente || identidade.exibicao || '',
+                telefone: identidade.telefoneFormatado || msg.from,
+                motivo: motivo
+            });
             await responderCliente(mensagemConfirmacao);
         };
 
@@ -550,7 +601,7 @@ async function processarMensagemEntrada(msg) {
                     config.mapaNomes[remetenteChave] = procAchado.nome;
                 }
                 estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
-                const textoProc = formatarMensagemProcesso(config, procAchado, remetenteChave);
+                const textoProc = await formatarMensagemProcesso(config, procAchado, remetenteChave);
                 await responderCliente(textoProc);
                 return true;
             } else {
@@ -597,7 +648,7 @@ async function processarMensagemEntrada(msg) {
                     config.mapaNomes[remetenteChave] = procDireto.nome;
                 }
                 estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
-                const textoProc = formatarMensagemProcesso(config, procDireto, remetenteChave);
+                const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
                 await responderCliente(textoProc);
                 return true;
             }
@@ -1078,10 +1129,10 @@ ipcMain.handle('remover-ignorado', (e, identificador) => {
 });
 
 // ==========================================
-// MÓDULOS v2.0: INGESTÃO MULTIFORMATO & TRANSBORDO
+// MÓDULOS v2.0: INGESTÃO MULTIFORMATO & TRANSBORDO & IA
 // ==========================================
 const { processarArquivoIngestao, mesclarComConfigAtual } = require('./src/ingestao/motorIngestao');
-const { Notification } = require('electron');
+const { traduzirAndamentoParaCliente, traduzirAndamentoJuridico } = require('./src/ia/tradutorJuridico');
 
 ipcMain.handle('ingestao-processar-arquivo', async (event, { caminhoArquivo, nomeArquivo, bufferBase64 }) => {
     try {
@@ -1112,25 +1163,77 @@ ipcMain.handle('ingestao-salvar-processos', async (event, processosParaSalvar) =
 
 ipcMain.handle('notify-transbordo-humano', (event, { contatoNome, telefone, motivo }) => {
     try {
-        if (Notification.isSupported()) {
-            const notif = new Notification({
-                title: '⚠️ Atendimento Humano Solicitado',
-                body: `${contatoNome || 'Cliente'} (${telefone || 'WhatsApp'}) solicitou falar com o advogado.\nMotivo: ${motivo || 'Opção "Falar com Advogado"'}`,
-                urgency: 'critical',
-                silent: true
-            });
-            notif.on('click', () => {
-                if (mainWindow) {
-                    if (mainWindow.isMinimized()) mainWindow.restore();
-                    mainWindow.show();
-                    mainWindow.focus();
-                }
-            });
-            notif.show();
-            return { success: true };
-        }
+        dispararNotificacaoTransbordo({ contatoNome, telefone, motivo });
+        return { success: true };
     } catch (e) {
         console.warn('Erro ao disparar notificação nativa:', e);
+        return { success: false, error: e.message };
     }
-    return { success: false };
-});
+});
+
+ipcMain.handle('ingestao-selecionar-arquivos', async () => {
+    try {
+        if (!mainWindow) return { canceled: true, filePaths: [] };
+        const result = await dialog.showOpenDialog(mainWindow, {
+            title: 'Selecionar Arquivos para Ingestão de Processos',
+            buttonLabel: 'Importar Arquivos',
+            properties: ['openFile', 'multiSelections'],
+            filters: [
+                { name: 'Documentos e Planilhas Aceitos', extensions: ['xlsx', 'xls', 'csv', 'ods', 'pdf', 'docx', 'txt', 'log'] },
+                { name: 'Planilhas (Excel / CSV)', extensions: ['xlsx', 'xls', 'csv', 'ods'] },
+                { name: 'Documentos PDF (Tribunais)', extensions: ['pdf'] },
+                { name: 'Documentos Word (.docx)', extensions: ['docx'] },
+                { name: 'Textos / Extratos (.txt)', extensions: ['txt', 'log'] },
+                { name: 'Todos os Arquivos', extensions: ['*'] }
+            ]
+        });
+        return result;
+    } catch (err) {
+        return { canceled: true, error: err.message, filePaths: [] };
+    }
+});
+
+ipcMain.handle('ingestao-baixar-planilha-modelo', async () => {
+    try {
+        if (!mainWindow) return { success: false };
+        const saveDialog = await dialog.showSaveDialog(mainWindow, {
+            title: 'Salvar Planilha Modelo de Processos',
+            defaultPath: 'Planilha_Modelo_Processos_Advocacia.xlsx',
+            filters: [{ name: 'Planilha Excel (*.xlsx)', extensions: ['xlsx'] }]
+        });
+        if (saveDialog.canceled || !saveDialog.filePath) {
+            return { success: false, canceled: true };
+        }
+
+        const XLSX = require('xlsx');
+        const wb = XLSX.utils.book_new();
+        const dadosExemplo = [
+            {
+                "NOME DO CLIENTE": "Maria Oliveira da Silva",
+                "CPF": "529.982.247-25",
+                "NUMERO DO PROCESSO": "0001234-56.2023.8.26.0100",
+                "DATA": new Date().toLocaleDateString('pt-BR'),
+                "RESUMO / ANDAMENTO": "Intimação expedida para réplica no prazo legal."
+            },
+            {
+                "NOME DO CLIENTE": "Carlos Eduardo Pereira",
+                "CPF": "111.444.777-35",
+                "NUMERO DO PROCESSO": "1005555-88.2024.8.26.0050",
+                "DATA": new Date().toLocaleDateString('pt-BR'),
+                "RESUMO / ANDAMENTO": "Sentença de procedência parcial publicada no Diário de Justiça."
+            }
+        ];
+        const ws = XLSX.utils.json_to_sheet(dadosExemplo);
+        XLSX.utils.book_append_sheet(wb, ws, "Processos e Clientes");
+        XLSX.writeFile(wb, saveDialog.filePath);
+        return { success: true, filePath: saveDialog.filePath };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+module.exports = {
+    traduzirAndamentoParaCliente,
+    formatarMensagemProcesso,
+    buscarProcessoPorNumero
+};

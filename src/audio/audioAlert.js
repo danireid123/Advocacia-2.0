@@ -59,6 +59,10 @@ class SoundAlert {
   }
 }
 
+if (typeof window !== 'undefined') {
+  window.SoundAlert = SoundAlert;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { SoundAlert };
 }

@@ -557,6 +557,76 @@
     </div>
   </div>
 
+  <!-- MODAL DE PRÉVIA DE INGESTÃO MULTIFORMATO (v2.0) -->
+  <div id="modal-preview-ingestao" class="fixed inset-0 bg-[#060911]/90 backdrop-blur-md z-[9998] hidden items-center justify-center p-4">
+    <div class="exec-card w-full max-w-2xl rounded-3xl p-6 border border-[#d4af37]/60 space-y-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-[#d4af37]/20 border border-[#d4af37]/40 flex items-center justify-center text-[#e5c158]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Prévia de Importação de Processos</h3>
+            <span id="preview-ingestao-subtitulo" class="text-[11px] text-slate-400">Arquivo processado com sucesso</span>
+          </div>
+        </div>
+        <button type="button" id="btn-fechar-modal-preview" class="text-slate-400 hover:text-white p-1 text-sm font-bold">✕</button>
+      </div>
+
+      <!-- Métricas Rápidas -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-center">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold block">Total Encontrado</span>
+          <span id="preview-metric-total" class="text-lg font-bold text-white">0</span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-center">
+          <span class="text-[10px] text-emerald-400 uppercase font-semibold block">Novos</span>
+          <span id="preview-metric-novos" class="text-lg font-bold text-emerald-400">0</span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-center">
+          <span class="text-[10px] text-sky-400 uppercase font-semibold block">Atualizações</span>
+          <span id="preview-metric-atualizados" class="text-lg font-bold text-sky-400">0</span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-center">
+          <span class="text-[10px] text-amber-400 uppercase font-semibold block">Validação CNJ/CPF</span>
+          <span id="preview-metric-validos" class="text-lg font-bold text-amber-400">100%</span>
+        </div>
+      </div>
+
+      <!-- Tabela Scrollável das Primeiras Linhas -->
+      <div class="flex-1 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/60 max-h-60">
+        <table class="w-full text-left text-[11px]">
+          <thead class="bg-slate-900/90 text-slate-400 uppercase text-[9px] sticky top-0 border-b border-slate-800">
+            <tr>
+              <th class="p-2.5">Cliente</th>
+              <th class="p-2.5">CPF</th>
+              <th class="p-2.5">Processo (CNJ)</th>
+              <th class="p-2.5">Resumo / Andamento</th>
+            </tr>
+          </thead>
+          <tbody id="preview-tabela-corpo" class="divide-y divide-slate-800/60 text-slate-300">
+            <!-- Linhas inseridas dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Aviso opcional -->
+      <div id="preview-alerta-box" class="hidden text-[11px] p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="flex items-center justify-end space-x-3 pt-2 border-t border-slate-800">
+        <button type="button" id="btn-cancelar-preview-ingestao" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">
+          Cancelar
+        </button>
+        <button type="button" id="btn-confirmar-gravar-ingestao" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-slate-950 shadow transition flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          <span>Confirmar e Gravar na Base</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 3. ENTRADA DO LEXBOT (SEM QUADRADO EM VOLTA) -->
   <div id="lexbot-center-modal" class="fixed inset-0 bg-[#060911]/90 backdrop-blur-md z-[9999] hidden items-center justify-center p-4">
     <div class="exec-card w-full max-w-md rounded-3xl p-8 border-2 border-[#d4af37]/60 text-center space-y-5 mascot-center-entry shadow-2xl">
@@ -906,6 +976,43 @@
                 <svg class="w-3.5 h-3.5"><use href="#icon-settings"/></svg>
                 <span>Configurar Respostas e Opções 1 / 2</span>
               </button>
+            </div>
+
+            <!-- v2.0: Smart Import Universal (Drag-and-Drop Multiformato) -->
+            <div class="bg-gradient-to-r from-slate-900/90 via-[#0d121f] to-slate-900/90 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#e5c158]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-white block">Smart Import Multiformato</span>
+                    <span class="text-[11px] text-slate-400">Aceita <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong>, <strong>Word (.docx)</strong> e <strong>Textos (.txt)</strong></span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button type="button" id="btn-baixar-modelo-xlsx" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 rounded-xl text-[11px] font-semibold transition flex items-center space-x-1.5">
+                    <svg class="w-3.5 h-3.5 text-[#e5c158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Baixar Planilha Modelo (.xlsx)</span>
+                  </button>
+                  <button type="button" id="btn-selecionar-arquivos-proc" class="px-3.5 py-1.5 champagne-gradient rounded-xl text-[11px] font-bold text-slate-950 shadow flex items-center space-x-1.5 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Selecionar Arquivo(s)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Dropzone Visual -->
+              <div id="dropzone-processos" class="border-2 border-dashed border-slate-700/80 hover:border-[#d4af37]/70 bg-slate-950/40 hover:bg-[#d4af37]/5 rounded-xl p-5 text-center transition cursor-pointer flex flex-col items-center justify-center space-y-2">
+                <svg class="w-7 h-7 text-slate-500 transition-colors dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <div class="text-xs text-slate-300">
+                  <span class="font-bold text-[#e5c158]">Arraste e solte seus arquivos aqui</span> ou clique para navegar
+                </div>
+                <div class="text-[10px] text-slate-500">
+                  Leitura instantânea local e segura com higienização de CPF e número CNJ
+                </div>
+                <input type="file" id="input-file-processos-hidden" multiple accept=".xlsx,.xls,.csv,.ods,.pdf,.docx,.txt,.log" class="hidden">
+              </div>
             </div>
 
             <!-- Gaveta de Customização das Mensagens -->
@@ -1300,6 +1407,7 @@
     </main>
   </div>
 
+  <script src="./src/audio/audioAlert.js"></script>
   <script>
     function obterConfigPadraoFallback() {
       return {
@@ -1406,7 +1514,8 @@
         aoAtualizarPausados: () => {},
         aoAtualizarProcessos: () => {},
         aoAtualizarIgnorados: () => {},
-        aoReceberEventoUpdate: () => {}
+        aoReceberEventoUpdate: () => {},
+        aoReceberTransbordoHumano: () => {}
       };
     }
 
@@ -2335,6 +2444,239 @@
       mostrarToast("Pasta salva com sucesso!");
     });
 
+    // ==========================================
+    // v2.0: LÓGICA DO SMART IMPORT MULTIFORMATO
+    // ==========================================
+    let processosEmPrevia = [];
+
+    const dropzone = document.getElementById('dropzone-processos');
+    const fileInputHidden = document.getElementById('input-file-processos-hidden');
+    const modalPreview = document.getElementById('modal-preview-ingestao');
+    const btnFecharPreview = document.getElementById('btn-fechar-modal-preview');
+    const btnCancelarPreview = document.getElementById('btn-cancelar-preview-ingestao');
+    const btnConfirmarGravar = document.getElementById('btn-confirmar-gravar-ingestao');
+    const btnSelecionarArquivos = document.getElementById('btn-selecionar-arquivos-proc');
+    const btnBaixarModeloXlsx = document.getElementById('btn-baixar-modelo-xlsx');
+
+    if (btnBaixarModeloXlsx) {
+      btnBaixarModeloXlsx.addEventListener('click', async () => {
+        if (window.api && window.api.baixarPlanilhaModelo) {
+          const res = await window.api.baixarPlanilhaModelo();
+          if (res.success) {
+            mostrarToast("Planilha modelo salva com sucesso!");
+          } else if (!res.canceled) {
+            mostrarToast("Erro ao salvar planilha modelo.");
+          }
+        }
+      });
+    }
+
+    if (btnSelecionarArquivos) {
+      btnSelecionarArquivos.addEventListener('click', async () => {
+        if (window.api && window.api.selecionarArquivosIngestao) {
+          const res = await window.api.selecionarArquivosIngestao();
+          if (!res.canceled && res.filePaths && res.filePaths.length > 0) {
+            processarArquivosSelecionados(res.filePaths);
+          }
+        } else if (fileInputHidden) {
+          fileInputHidden.click();
+        }
+      });
+    }
+
+    if (dropzone) {
+      dropzone.addEventListener('click', () => {
+        if (window.api && window.api.selecionarArquivosIngestao) {
+          btnSelecionarArquivos.click();
+        } else if (fileInputHidden) {
+          fileInputHidden.click();
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('border-[#d4af37]', 'bg-[#d4af37]/10');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('border-[#d4af37]', 'bg-[#d4af37]/10');
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files || []);
+        if (files.length > 0) {
+          processarArquivosLocais(files);
+        }
+      });
+    }
+
+    if (fileInputHidden) {
+      fileInputHidden.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+          processarArquivosLocais(files);
+        }
+        fileInputHidden.value = '';
+      });
+    }
+
+    async function processarArquivosSelecionados(caminhos) {
+      mostrarToast(`Processando ${caminhos.length} arquivo(s)...`);
+      let acumulado = [];
+      let alertaGeral = null;
+
+      for (const caminho of caminhos) {
+        if (window.api && window.api.processarArquivoIngestao) {
+          const res = await window.api.processarArquivoIngestao({ caminhoArquivo: caminho });
+          if (res.success && Array.isArray(res.processos)) {
+            acumulado = acumulado.concat(res.processos);
+            if (res.alerta) alertaGeral = res.alerta;
+          }
+        }
+      }
+
+      abrirPreviaIngestao(acumulado, alertaGeral);
+    }
+
+    async function processarArquivosLocais(files) {
+      mostrarToast(`Lendo ${files.length} arquivo(s)...`);
+      let acumulado = [];
+      let alertaGeral = null;
+
+      for (const file of files) {
+        if (window.api && window.api.processarArquivoIngestao) {
+          if (file.path) {
+            const res = await window.api.processarArquivoIngestao({ caminhoArquivo: file.path, nomeArquivo: file.name });
+            if (res.success && Array.isArray(res.processos)) {
+              acumulado = acumulado.concat(res.processos);
+              if (res.alerta) alertaGeral = res.alerta;
+            }
+          } else {
+            const arrayBuffer = await file.arrayBuffer();
+            const bytes = new Uint8Array(arrayBuffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            const base64 = btoa(binary);
+            const res = await window.api.processarArquivoIngestao({ bufferBase64: base64, nomeArquivo: file.name });
+            if (res.success && Array.isArray(res.processos)) {
+              acumulado = acumulado.concat(res.processos);
+              if (res.alerta) alertaGeral = res.alerta;
+            }
+          }
+        }
+      }
+
+      abrirPreviaIngestao(acumulado, alertaGeral);
+    }
+
+    function abrirPreviaIngestao(processosExtraidos, alerta) {
+      if (!processosExtraidos || processosExtraidos.length === 0) {
+        mostrarToast("Nenhum processo ou CPF válido identificado no arquivo.");
+        return;
+      }
+
+      processosEmPrevia = processosExtraidos;
+      garantirEstruturaProcessos();
+      const existentes = new Set((configGlobal.processos.lista || []).map(p => p.processo || p.numeroProcesso));
+
+      let novos = 0;
+      let atualizados = 0;
+
+      processosExtraidos.forEach(p => {
+        if (existentes.has(p.numeroProcesso)) {
+          atualizados++;
+        } else {
+          novos++;
+        }
+      });
+
+      document.getElementById('preview-metric-total').innerText = String(processosExtraidos.length);
+      document.getElementById('preview-metric-novos').innerText = String(novos);
+      document.getElementById('preview-metric-atualizados').innerText = String(atualizados);
+      
+      const validosCnj = processosExtraidos.filter(p => p.validoCNJ).length;
+      const pct = Math.round((validosCnj / processosExtraidos.length) * 100);
+      document.getElementById('preview-metric-validos').innerText = `${pct}% CNJ`;
+
+      const tbody = document.getElementById('preview-tabela-corpo');
+      tbody.innerHTML = '';
+
+      processosExtraidos.slice(0, 50).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/40 transition';
+        tr.innerHTML = `
+          <td class="p-2.5 font-semibold text-white whitespace-nowrap">${p.nome || 'Cliente'}</td>
+          <td class="p-2.5 text-slate-300 font-mono text-[10px] whitespace-nowrap">${p.cpf || '-'}</td>
+          <td class="p-2.5 text-[#e5c158] font-mono text-[10px] whitespace-nowrap">${p.numeroProcesso || '-'}</td>
+          <td class="p-2.5 text-slate-400 max-w-xs truncate" title="${p.resumo || ''}">${p.resumo || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const alertaBox = document.getElementById('preview-alerta-box');
+      if (alerta) {
+        alertaBox.innerText = alerta;
+        alertaBox.classList.remove('hidden');
+      } else {
+        alertaBox.classList.add('hidden');
+      }
+
+      modalPreview.classList.remove('hidden');
+      modalPreview.classList.add('flex');
+    }
+
+    function fecharPreviaIngestao() {
+      processosEmPrevia = [];
+      modalPreview.classList.add('hidden');
+      modalPreview.classList.remove('flex');
+    }
+
+    if (btnFecharPreview) btnFecharPreview.addEventListener('click', fecharPreviaIngestao);
+    if (btnCancelarPreview) btnCancelarPreview.addEventListener('click', fecharPreviaIngestao);
+
+    if (btnConfirmarGravar) {
+      btnConfirmarGravar.addEventListener('click', async () => {
+        if (!processosEmPrevia || processosEmPrevia.length === 0) {
+          fecharPreviaIngestao();
+          return;
+        }
+
+        btnConfirmarGravar.disabled = true;
+        btnConfirmarGravar.innerText = "Gravando...";
+
+        try {
+          if (window.api && window.api.salvarProcessosIngeridos) {
+            const res = await window.api.salvarProcessosIngeridos(processosEmPrevia);
+            if (res.success) {
+              mostrarToast(`Sucesso! ${res.adicionados} novos e ${res.atualizados} atualizados.`);
+              fecharPreviaIngestao();
+              const cfgAtualizada = await window.api.obterConfig();
+              if (cfgAtualizada) {
+                configGlobal = cfgAtualizada;
+                renderizarModuloProcessos();
+              }
+            } else {
+              mostrarToast("Erro ao gravar processos na base.");
+            }
+          }
+        } catch (err) {
+          mostrarToast("Falha ao salvar: " + err.message);
+        } finally {
+          btnConfirmarGravar.disabled = false;
+          btnConfirmarGravar.innerHTML = `<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Confirmar e Gravar na Base`;
+        }
+      });
+    }
+
     document.getElementById('busca-processos').addEventListener('input', () => renderizarModuloProcessos());
 
     function renderizarModuloProcessos() {
@@ -2699,7 +3041,23 @@
         }
 
         window.api.aoAtualizarPausados((l) => renderizarPausados(l));
-        
+
+        const alertaSinoTransbordo = (typeof window.SoundAlert === 'function') ? new window.SoundAlert() : null;
+
+        if (window.api.aoReceberTransbordoHumano) {
+          window.api.aoReceberTransbordoHumano((dados) => {
+            try {
+              if (alertaSinoTransbordo) {
+                alertaSinoTransbordo.playTransbordoChime();
+              }
+            } catch (errAudio) {
+              console.warn('Erro ao tocar sino de transbordo:', errAudio);
+            }
+            const nomeContato = dados?.contatoNome || 'Cliente';
+            mostrarToast(`🔔 Transbordo Humano: ${nomeContato} chamou o advogado!`);
+          });
+        }
+
         if (window.api.aoAtualizarProcessos) {
           window.api.aoAtualizarProcessos((cfg) => {
             configGlobal = cfg;
