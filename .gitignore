@@ -2,9 +2,16 @@ node_modules/
 dist/
 .cache/
 wwebjs_auth_session/
+wwebjs_auth_session_v2/
 bun.lock
 -e 
 *.zip
 metadata.json
 .wwebjs_cache/
 *.zip
+.env
+.env.local
+.env.*.local
+gemini_cache.json
+test_fixtures_temp/
+

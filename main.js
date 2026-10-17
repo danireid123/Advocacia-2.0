@@ -13,6 +13,24 @@ process.on('unhandledRejection', (reason) => {
     console.error('[Proteção Anti-Crash] unhandledRejection:', reason);
 });
 
+// Carrega variáveis do arquivo .env se existir (Sem expor credenciais)
+try {
+    const envPath = path.join(__dirname, '.env');
+    if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf-8');
+        envContent.split(/\r?\n/).forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+                const [key, ...vals] = trimmed.split('=');
+                const val = vals.join('=').trim().replace(/^["']|["']$/g, '');
+                if (key && !process.env[key.trim()]) {
+                    process.env[key.trim()] = val;
+                }
+            }
+        });
+    }
+} catch (e) {}
+
 let mainWindow;
 let client = null;
 let configEmMemoria = null;
