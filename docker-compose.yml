@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  advocacia-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: advocacia_studio_pro_v2
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      # Persistência da sessão do WhatsApp (evita novo QR code ao reiniciar)
+      - ./wwebjs_auth_session_v2:/app/wwebjs_auth_session_v2
+      # Persistência da base de dados e configurações do escritório
+      - ./config.json:/app/config.json
+      # Cache local de traduções do Gemini
+      - ./cache:/app/cache
+      # Variáveis de ambiente e chave de IA (opcional)
+      - ./.env:/app/.env:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '2.00'
+          memory: 2048M
+        reservations:
+          cpus: '0.50'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"

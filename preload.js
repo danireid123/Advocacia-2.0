@@ -44,6 +44,11 @@ const apiBridge = {
     notificarTransbordoHumano: (dados) => ipcRenderer.invoke('notify-transbordo-humano', dados),
     atenderClienteFila: (telefone) => ipcRenderer.invoke('remover-pausa', telefone),
     testarConexaoIA: (chave) => ipcRenderer.invoke('ia-testar-conexao', chave),
+    catalogarPecaProcessual: (dados) => ipcRenderer.invoke('ia-catalogar-peca', dados),
+
+    // Simulador de Chat & Higienização
+    simuladorEnviarMensagem: (dados) => ipcRenderer.invoke('simulador-enviar-mensagem', dados),
+    higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
 
     // Listeners Específicos Legados
     aoReceberQR: (callback) => ipcRenderer.on('bot-qr', (_e, qr) => callback(qr)),

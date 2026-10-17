@@ -494,7 +494,30 @@ async function processarArquivoIngestao(source, fileName) {
 }
 
 /**
+ * Normaliza número de processo e CPF para identificadores limpos e seguros
+ */
+function normalizarChaveProcesso(numeroProcesso, cpf) {
+  const cnjLimpo = String(numeroProcesso || '').replace(/\D/g, '');
+  const cpfLimpo = String(cpf || '').replace(/\D/g, '');
+  const cnjValido = cnjLimpo.length >= 10 ? cnjLimpo : '';
+  const cpfValido = cpfLimpo.length >= 11 ? cpfLimpo.slice(-11) : (cpfLimpo.length >= 5 ? cpfLimpo : '');
+  const chaveStr = cnjValido ? `cnj_${cnjValido}` : (cpfValido ? `cpf_${cpfValido}` : '');
+  return {
+    cnjLimpo: cnjValido,
+    cpfLimpo: cpfValido,
+    chave: chaveStr,
+    toString() { return chaveStr; },
+    valueOf() { return chaveStr; }
+  };
+}
+
+/**
  * Converte a lista extraída para a estrutura oficial do config.json (compatível v1.8 e v2.0)
+ * Realiza Upsert e Deduplicação Inteligente:
+ * - Mescla por CNJ idêntico (20 dígitos ou dígitos limpos)
+ * - Mescla por CPF + Processo coincidente
+ * - Mescla por ID se fornecido
+ * - Preserva histórico de andamentos e documentos catalogados
  * @param {Array} novosProcessos
  * @param {Object} configAtual
  * @returns {Object}
@@ -510,39 +533,123 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
     listaRef = cfg.processos.lista;
   }
 
-  const mapaExistentes = new Map();
-  listaRef.forEach((p, idx) => {
-    const chave = p.processo || p.numeroProcesso || `idx_${idx}`;
-    mapaExistentes.set(chave, idx);
-  });
-
   let adicionados = 0;
   let atualizados = 0;
 
   novosProcessos.forEach((novo, i) => {
-    const procKey = novo.numeroProcesso;
-    const itemFormatado = {
-      id: novo.id || `proc_${Date.now()}_${i}`,
-      processo: novo.numeroProcesso,
-      cpf: novo.cpf,
-      nome: novo.nome || "Cliente",
-      resumo: novo.resumo,
-      data: novo.data,
-      ultima_consulta: "",
-      origem: novo.origem || { tipo: "IMPORTADO", arquivo: "manual" }
-    };
+    const numNovo = novo.numero || novo.numeroProcesso || '';
+    const cpfNovo = novo.cpf || '';
+    const normNovo = normalizarChaveProcesso(numNovo, cpfNovo);
 
-    if (procKey && mapaExistentes.has(procKey)) {
-      const idx = mapaExistentes.get(procKey);
-      listaRef[idx] = {
-        ...listaRef[idx],
-        ...itemFormatado,
-        id: listaRef[idx].id // preserva ID original
+    // Encontra registro existente na base atual por múltiplos critérios de equivalência
+    const idxExistente = listaRef.findIndex((p, pIdx) => {
+      if (novo.id && p.id && novo.id === p.id) return true;
+      const numExistente = p.numero || p.numeroProcesso || p.processo || '';
+      const cpfExistente = p.cpf || '';
+      const normExistente = normalizarChaveProcesso(numExistente, cpfExistente);
+
+      // Critério 1: CNJ idêntico (se ambos tiverem ao menos 10 dígitos)
+      if (normNovo.cnjLimpo && normExistente.cnjLimpo && normNovo.cnjLimpo === normExistente.cnjLimpo) {
+        return true;
+      }
+
+      // Critério 2: Mesmo CPF e mesmo número de processo
+      if (normNovo.cpfLimpo && normExistente.cpfLimpo && normNovo.cpfLimpo === normExistente.cpfLimpo) {
+        if (normNovo.cnjLimpo && normExistente.cnjLimpo && normNovo.cnjLimpo === normExistente.cnjLimpo) {
+          return true;
+        }
+        // Se ambos têm o mesmo CPF e o número é idêntico em string
+        if (numNovo && numExistente && numNovo.trim().toLowerCase() === numExistente.trim().toLowerCase()) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    const dataAtual = novo.data || new Date().toLocaleDateString('pt-BR');
+    const agoraIso = new Date().toISOString();
+    const cnjFormatado = sanitizarNumeroProcesso(numNovo);
+    const cpfFormatado = sanitizarCPF(cpfNovo);
+
+    if (idxExistente !== -1) {
+      // ATUALIZAÇÃO (MERGE / UPSERT PRESERVANDO DADOS EXISTENTES)
+      const existente = listaRef[idxExistente];
+      const historicoAnterior = Array.isArray(existente.historicoAndamentos) ? existente.historicoAndamentos : [];
+      const docsAnteriores = Array.isArray(existente.documentosCatalogados) ? existente.documentosCatalogados : [];
+
+      const novoAndamentoTexto = novo.resumo || novo.andamento || '';
+      const historicoAtualizado = [...historicoAnterior];
+      if (novoAndamentoTexto && !historicoAtualizado.some(h => (h.textoBruto || h.resumo) === novoAndamentoTexto)) {
+        historicoAtualizado.unshift({
+          data: dataAtual,
+          textoBruto: novoAndamentoTexto,
+          textoHumanizado: novo.resumoHumanizado || '',
+          timestamp: Date.now()
+        });
+      }
+
+      const docsNovos = Array.isArray(novo.documentosCatalogados) ? novo.documentosCatalogados : [];
+      const docsAtualizados = [...docsAnteriores];
+      docsNovos.forEach(docNovo => {
+        if (!docsAtualizados.some(d => d.nomeArquivo === docNovo.nomeArquivo)) {
+          docsAtualizados.push(docNovo);
+        }
+      });
+
+      listaRef[idxExistente] = {
+        ...existente,
+        nome: novo.nome && novo.nome !== 'Cliente' ? novo.nome : (existente.nome || 'Cliente'),
+        cpf: cpfFormatado || existente.cpf || '',
+        numero: cnjFormatado || existente.numero || existente.numeroProcesso || '',
+        numeroProcesso: cnjFormatado || existente.numeroProcesso || existente.numero || '',
+        numeroProcessoFormatado: cnjFormatado || existente.numeroProcessoFormatado || '',
+        resumo: novoAndamentoTexto || existente.resumo || '',
+        resumoGlobalProcesso: novo.resumoGlobalProcesso || existente.resumoGlobalProcesso || novoAndamentoTexto || existente.resumo || '',
+        temAtualizacao: novo.temAtualizacao !== undefined ? novo.temAtualizacao : true,
+        data: dataAtual,
+        dataAtualizacaoTexto: dataAtual,
+        updatedAt: Date.now(),
+        origem: novo.origem || existente.origem || { tipo: "IMPORTADO", arquivo: "multi" },
+        historicoAndamentos: historicoAtualizado,
+        documentosCatalogados: docsAtualizados,
+        _resetarVistos: true
       };
       atualizados++;
     } else {
+      // INSERÇÃO DE NOVO PROCESSO COM SCHEMA EXPANDIDO v2.0
+      const novoId = novo.id || `proc_${Date.now()}_${i}`;
+      const novoAndamentoTexto = novo.resumo || novo.andamento || '';
+      const itemFormatado = {
+        id: novoId,
+        nome: novo.nome || "Cliente",
+        cpf: cpfFormatado || '',
+        numero: cnjFormatado || numNovo,
+        numeroProcesso: cnjFormatado || numNovo,
+        numeroProcessoFormatado: cnjFormatado || numNovo,
+        resumo: novoAndamentoTexto,
+        resumoGlobalProcesso: novo.resumoGlobalProcesso || novoAndamentoTexto || '',
+        temAtualizacao: novo.temAtualizacao !== undefined ? novo.temAtualizacao : true,
+        data: dataAtual,
+        dataAtualizacaoTexto: dataAtual,
+        createdAt: agoraIso,
+        updatedAt: Date.now(),
+        consultasPorContato: {},
+        _resetarVistos: true,
+        origem: novo.origem || { tipo: "IMPORTADO", arquivo: "multi" },
+        dadosCadastrais: novo.dadosCadastrais || { vara: "", comarca: "" },
+        documentosCatalogados: Array.isArray(novo.documentosCatalogados) ? novo.documentosCatalogados : [],
+        historicoAndamentos: novoAndamentoTexto ? [
+          {
+            data: dataAtual,
+            textoBruto: novoAndamentoTexto,
+            textoHumanizado: novo.resumoHumanizado || '',
+            timestamp: Date.now()
+          }
+        ] : []
+      };
+
       listaRef.push(itemFormatado);
-      if (procKey) mapaExistentes.set(procKey, listaRef.length - 1);
       adicionados++;
     }
   });
@@ -582,12 +689,22 @@ async function processarMultiplosArquivos(filePaths, configAtual = {}) {
       listaExistentes = configAtual.processos.lista;
     }
   }
-  const existentes = new Set(listaExistentes.map(p => p.processo || p.numeroProcesso));
+
   let novos = 0;
   let atualizados = 0;
 
-  acumulado.forEach(p => {
-    if (existentes.has(p.numeroProcesso)) {
+  acumulado.forEach(novo => {
+    const normNovo = normalizarChaveProcesso(novo.numeroProcesso || novo.numero, novo.cpf);
+    const existe = listaExistentes.some(p => {
+      const normP = normalizarChaveProcesso(p.numeroProcesso || p.processo || p.numero, p.cpf);
+      if (normNovo.cnjLimpo && normP.cnjLimpo && normNovo.cnjLimpo === normP.cnjLimpo) return true;
+      if (normNovo.cpfLimpo && normP.cpfLimpo && normNovo.cpfLimpo === normP.cpfLimpo) {
+        if (normNovo.cnjLimpo && normP.cnjLimpo && normNovo.cnjLimpo === normP.cnjLimpo) return true;
+      }
+      return false;
+    });
+
+    if (existe) {
       atualizados++;
     } else {
       novos++;
@@ -622,6 +739,7 @@ module.exports = {
   validarCNJ,
   sanitizarCPF,
   sanitizarNumeroProcesso,
+  normalizarChaveProcesso,
   sanitizarData,
   mapearColunasPlanilha,
   parseSpreadsheet,

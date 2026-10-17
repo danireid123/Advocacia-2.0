@@ -455,16 +455,18 @@ function montarTextoEtapa(etapa) {
 }
 
 function buscarProcessoPorNumero(config, digitosBusca) {
-    if (!config.processos || !Array.isArray(config.processos.lista)) return null;
+    if (!config.processos) return null;
+    const lista = Array.isArray(config.processos) ? config.processos : (Array.isArray(config.processos.lista) ? config.processos.lista : []);
+    if (!lista || lista.length === 0) return null;
     if (!digitosBusca || digitosBusca.length < 5) return null;
 
-    return config.processos.lista.find(p => {
+    return lista.find(p => {
         const cpfLimpo = apenasNumeros(p.cpf);
-        const numLimpo = apenasNumeros(p.numero);
+        const numLimpo = apenasNumeros(p.numero || p.numeroProcesso || p.processo || '');
         return (cpfLimpo && cpfLimpo === digitosBusca) ||
                (numLimpo && numLimpo === digitosBusca) ||
-               (cpfLimpo && cpfLimpo.length >= 5 && digitosBusca.includes(cpfLimpo)) ||
-               (numLimpo && numLimpo.length >= 5 && digitosBusca.includes(numLimpo));
+               (cpfLimpo && cpfLimpo.length >= 5 && (digitosBusca.includes(cpfLimpo) || cpfLimpo.includes(digitosBusca))) ||
+               (numLimpo && numLimpo.length >= 5 && (digitosBusca.includes(numLimpo) || numLimpo.includes(digitosBusca)));
     });
 }
 
@@ -1345,9 +1347,188 @@ ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
     }
 });
 
+// SIMULADOR DE CHAT CLIENTE (SANDBOX LOCAL)
+ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nome }) => {
+    try {
+        const telLimpo = (telefone || '5511999998888').replace(/\D/g, '') || '5511999998888';
+        const nomeCliente = (nome || 'Cliente Teste').trim();
+        const chatId = `${telLimpo}@c.us`;
+
+        let respostaSimulada = '';
+        let acaoTransbordo = false;
+
+        // Mock de mensagem com interface compatível com processarMensagemEntrada
+        const mockMsg = {
+            id: { id: `sim_${Date.now()}`, _serialized: `sim_${Date.now()}` },
+            from: chatId,
+            fromMe: false,
+            isStatus: false,
+            broadcast: false,
+            body: String(texto || '').trim(),
+            timestamp: Math.floor(Date.now() / 1000),
+            _data: { notifyName: nomeCliente, pushname: nomeCliente },
+            getContact: async () => ({
+                number: telLimpo,
+                name: nomeCliente,
+                pushname: nomeCliente
+            })
+        };
+
+        // Sobrescreve temporariamente enviarMensagemSegura para capturar a resposta
+        const config = carregarConfig();
+        const identidade = await resolverIdentidadeCompleta(mockMsg, config);
+        const remetenteChave = identidade.chaveCliente;
+        const gatilhoDigitado = extrairGatilhoLimpo(mockMsg.body);
+
+        const prefixoHorario = obterPrefixoHorario(config, remetenteChave);
+        const responderCliente = async (txt) => {
+            respostaSimulada = prefixoHorario + txt;
+        };
+
+        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
+            acaoTransbordo = true;
+            contatosPausados[remetenteChave] = {
+                timestamp: Date.now(),
+                nome: identidade.nomeCliente || '',
+                telefone: identidade.telefoneFormatado,
+                exibicao: identidade.exibicao,
+                idChat: mockMsg.from,
+                origem: 'SIMULADOR'
+            };
+            delete estadosUsuarios[remetenteChave];
+            emitirPausados();
+            dispararNotificacaoTransbordo({
+                contatoNome: identidade.nomeCliente || identidade.exibicao || '',
+                telefone: identidade.telefoneFormatado || mockMsg.from,
+                motivo: `[SIMULADOR] ${motivo}`
+            });
+            await responderCliente(mensagemConfirmacao);
+        };
+
+        const estadoAtual = estadosUsuarios[remetenteChave] || 'raiz';
+        const tplsProc = (config.processos && config.processos.mensagens) || criarConfigPadrao().processos.mensagens;
+
+        if (estadoAtual === 'pos_consulta_processo') {
+            if (gatilhoDigitado === '1') {
+                delete estadosUsuarios[remetenteChave];
+                await responderCliente(tplsProc.msg_encerrar_conversa || "✅ Atendimento finalizado! Agradecemos o seu contato.");
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+            if (gatilhoDigitado === '2') {
+                await colocarNaFilaHumana(tplsProc.msg_chamar_advogado_pos_proc || "👨‍⚖️ Perfeito! Um advogado da nossa equipe já foi acionado e já está chegando para atender você.");
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+        }
+
+        const saudacoes = ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "menu", "inicio", "início", "ajuda"];
+        if (gatilhoDigitado === "0" || saudacoes.some(s => gatilhoDigitado === s || gatilhoDigitado.startsWith(s + " "))) {
+            estadosUsuarios[remetenteChave] = 'raiz';
+            await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+            return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+        }
+
+        if (estadoAtual === 'aguardando_processo') {
+            const digitos = apenasNumeros(mockMsg.body);
+            const procAchado = buscarProcessoPorNumero(config, digitos);
+            if (procAchado) {
+                if (procAchado.nome && !config.mapaNomes[remetenteChave]) {
+                    config.mapaNomes[remetenteChave] = procAchado.nome;
+                }
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const textoProc = await formatarMensagemProcesso(config, procAchado, remetenteChave);
+                await responderCliente(textoProc);
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            } else {
+                const msgNaoEncontrado = tplsProc.msg_nao_encontrado || criarConfigPadrao().processos.mensagens.msg_nao_encontrado;
+                await responderCliente(msgNaoEncontrado);
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+        }
+
+        const etapaAtual = (estadoAtual === 'raiz' || estadoAtual === 'pos_consulta_processo')
+            ? config.fluxo.raiz
+            : (config.fluxo.etapas[estadoAtual] || config.fluxo.raiz);
+
+        const opcaoEscolhida = (etapaAtual.opcoes || []).find(op => String(op.gatilho).trim().toLowerCase() === gatilhoDigitado);
+
+        if (opcaoEscolhida) {
+            if (opcaoEscolhida.tipo === 'humano') {
+                await colocarNaFilaHumana(opcaoEscolhida.resposta || "Perfeito! Um advogado da nossa equipe já está chegando para atender você.");
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+            if (opcaoEscolhida.tipo === 'processo') {
+                estadosUsuarios[remetenteChave] = 'aguardando_processo';
+                await responderCliente(opcaoEscolhida.resposta || "Por favor, digite apenas o seu *CPF* ou o *Número do Processo*:");
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+            if (opcaoEscolhida.tipo === 'submenu') {
+                const dest = opcaoEscolhida.destino || 'raiz';
+                estadosUsuarios[remetenteChave] = dest;
+                const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
+                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+            if (opcaoEscolhida.resposta) {
+                await responderCliente(opcaoEscolhida.resposta);
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+        }
+
+        const digitosDiretos = apenasNumeros(mockMsg.body);
+        if (digitosDiretos.length >= 9) {
+            const procDireto = buscarProcessoPorNumero(config, digitosDiretos);
+            if (procDireto) {
+                if (procDireto.nome && !config.mapaNomes[remetenteChave]) {
+                    config.mapaNomes[remetenteChave] = procDireto.nome;
+                }
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
+                await responderCliente(textoProc);
+                return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            }
+        }
+
+        estadosUsuarios[remetenteChave] = 'raiz';
+        await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+        return { sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+    } catch (err) {
+        console.error('Erro no simulador-enviar-mensagem:', err);
+        return { sucesso: false, erro: err.message, resposta: 'Erro ao processar mensagem simulada.' };
+    }
+});
+
+// HIGIENIZAÇÃO DE BASE LOCAL
+ipcMain.handle('processos-higienizar-base', async () => {
+    try {
+        const { higienizarBaseProcessos } = require('./src/ingestao/higienizarBase');
+        const configAtual = carregarConfig();
+        const res = higienizarBaseProcessos(configAtual);
+        salvarConfigDisco(res.configHigienizado, true);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-processos-sync', res.configHigienizado);
+        }
+        return { sucesso: true, ...res };
+    } catch (err) {
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+// CATALOGAR PEÇA PROCESSUAL COM IA
+ipcMain.handle('ia-catalogar-peca', async (event, { texto, nomeArquivo }) => {
+    try {
+        const { catalogarPecaProcessual } = require('./src/ia/tradutorJuridico');
+        const config = carregarConfig();
+        const resultado = await catalogarPecaProcessual(texto, { config });
+        return { sucesso: true, resultado };
+    } catch (err) {
+        return { sucesso: false, erro: err.message };
+    }
+});
+
 module.exports = {
     traduzirAndamentoParaCliente,
     formatarMensagemProcesso,
-    buscarProcessoPorNumero
+    buscarProcessoPorNumero,
+    processarMensagemEntrada
 };
 

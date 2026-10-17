@@ -824,6 +824,13 @@
               <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg><span>Contatos Ignorados</span></div>
               <span id="badge-ignorados" class="px-2 py-0.5 text-[10px] rounded-full bg-slate-800 text-rose-300 font-bold">0</span>
             </button>
+            <button id="nav-btn-simulador" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white flex items-center justify-between transition" title="Ambiente de Testes do WhatsApp em Tempo Real">
+              <div class="flex items-center space-x-3">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <span>Simulador WhatsApp</span>
+              </div>
+              <span class="px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold uppercase">Sandbox</span>
+            </button>
             <button id="nav-btn-terminal" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white flex items-center justify-between transition">
               <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-activity"/></svg><span>Histórico de Mensagens</span></div>
             </button>
@@ -991,6 +998,10 @@
                   </div>
                 </div>
                 <div class="flex items-center space-x-2">
+                  <button type="button" id="btn-higienizar-base" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/30 rounded-xl text-[11px] font-semibold transition flex items-center space-x-1.5" title="Remove duplicidades de processos com mesmo CNJ ou CPF preservando históricos">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    <span>Higienizar Base</span>
+                  </button>
                   <button type="button" id="btn-baixar-modelo-xlsx" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 rounded-xl text-[11px] font-semibold transition flex items-center space-x-1.5">
                     <svg class="w-3.5 h-3.5 text-[#e5c158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     <span>Baixar Planilha Modelo (.xlsx)</span>
@@ -1400,6 +1411,87 @@
                 <div class="exec-card p-10 rounded-2xl text-center text-xs text-slate-400">Nenhum contato na lista de bloqueio. Todos os contatos recebem atendimento normal.</div>
               </div>
             </div>
+        <!-- ================= ABA 8: SIMULADOR DE CHAT WHATSAPP (SANDBOX) ================= -->
+        <div id="aba-simulador" class="hidden space-y-5 tab-pane-anim">
+          <div class="exec-card p-6 rounded-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div>
+                <div class="flex items-center space-x-2.5">
+                  <h2 class="font-serif-legal text-lg font-bold">Simulador de Atendimento WhatsApp</h2>
+                  <span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Ambiente Sandbox 100% Local
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Teste todo o fluxo de menus, consulta por CPF/CNJ, tradução jurídica com IA e transbordo humano sem precisar de um celular real.</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button type="button" id="btn-simulador-limpar" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                  <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
+                  <span>Limpar Conversa</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Controles do Cliente Simulado & Cenários Rápidos -->
+            <div class="grid grid-cols-12 gap-3 p-3.5 bg-black/25 rounded-2xl border border-slate-800">
+              <div class="col-span-4">
+                <label class="text-[11px] font-bold text-[#e5c158] block mb-1">Telefone Simulado</label>
+                <input type="text" id="simulador-tel" value="+55 (11) 98765-4321" class="exec-input w-full rounded-xl px-3 py-1.5 text-xs font-mono">
+              </div>
+              <div class="col-span-4">
+                <label class="text-[11px] font-bold text-slate-300 block mb-1">Nome do Cliente</label>
+                <input type="text" id="simulador-nome" value="Carlos Eduardo Teste" class="exec-input w-full rounded-xl px-3 py-1.5 text-xs">
+              </div>
+              <div class="col-span-4 flex flex-col justify-end">
+                <div class="flex items-center space-x-1.5">
+                  <span class="text-[10px] text-slate-400 font-semibold block mb-0.5">Cenários Rápidos:</span>
+                </div>
+                <div class="flex items-center space-x-1.5 overflow-x-auto">
+                  <button type="button" id="btn-cenario-ola" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition whitespace-nowrap">"Olá"</button>
+                  <button type="button" id="btn-cenario-proc" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[#e5c158] rounded-lg text-[10px] font-semibold transition whitespace-nowrap">Opção "1"</button>
+                  <button type="button" id="btn-cenario-cpf" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap">CPF Válido</button>
+                  <button type="button" id="btn-cenario-adv" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap">Chamar Advogado</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Janela de Chat Estilo WhatsApp Web -->
+            <div class="rounded-2xl border border-slate-800/90 overflow-hidden flex flex-col h-[460px] bg-[#0b1019] shadow-inner">
+              <!-- Topo do Chat -->
+              <div class="bg-[#151d2d] px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-full champagne-gradient flex items-center justify-center text-slate-950 font-bold text-xs shadow">
+                    🤖
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-white block">Robô de Atendimento do Escritório</span>
+                    <span class="text-[10px] text-emerald-400 flex items-center space-x-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>Online • Simulação Ativa</span>
+                    </span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono">WhatsApp Web Protocol v2.0</span>
+              </div>
+
+              <!-- Mensagens -->
+              <div id="simulador-mensagens-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#080d16]">
+                <div class="text-center my-2">
+                  <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
+                    🔒 Mensagens criptografadas de ponta a ponta na simulação local
+                  </span>
+                </div>
+              </div>
+
+              <!-- Input de Envio -->
+              <div class="p-3 bg-[#131a29] border-t border-slate-800 flex items-center space-x-2">
+                <input type="text" id="simulador-input-msg" placeholder="Digite uma mensagem (ex: Olá, 1, CPF, ou falar com advogado)..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
+                <button type="button" id="btn-simulador-enviar" class="px-5 py-2.5 champagne-gradient rounded-xl font-bold text-xs text-slate-950 shadow flex items-center space-x-1.5 transition">
+                  <span>Enviar</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1521,7 +1613,10 @@
         processarArquivoBuffer: async () => ({ success: false, error: 'Modo navegador' }),
         processarArquivoIngestao: async () => ({ success: false, error: 'Modo navegador' }),
         salvarProcessosIngeridos: async (lista) => ({ success: true, adicionados: lista.length, atualizados: 0 }),
-        baixarPlanilhaModelo: async () => ({ success: true })
+        baixarPlanilhaModelo: async () => ({ success: true }),
+        simuladorEnviarMensagem: async () => ({ sucesso: false, resposta: 'Simulador disponível ao executar com Electron.' }),
+        higienizarBaseProcessos: async () => ({ sucesso: true, duplicatasRemovidas: 0 }),
+        catalogarPecaProcessual: async () => ({ sucesso: false, erro: 'Modo navegador' })
       };
     }
     if (!window.electronAPI) window.electronAPI = window.api;
@@ -2045,7 +2140,7 @@
     }
 
     window.ativarAba = function(abaNome) {
-      ['inicio', 'processos', 'fluxo', 'agenda', 'pausados', 'ignorados', 'terminal', 'backup'].forEach(a => {
+      ['inicio', 'processos', 'fluxo', 'agenda', 'pausados', 'ignorados', 'simulador', 'terminal', 'backup'].forEach(a => {
         const d = document.getElementById('aba-' + a);
         const b = document.getElementById('nav-btn-' + a);
         if (d) {
@@ -2072,6 +2167,8 @@
       if (window.api && window.api.obterPausados) renderizarPausados(await window.api.obterPausados());
     });
     document.getElementById('nav-btn-ignorados').addEventListener('click', () => ativarAba('ignorados'));
+    const btnNavSimulador = document.getElementById('nav-btn-simulador');
+    if (btnNavSimulador) btnNavSimulador.addEventListener('click', () => ativarAba('simulador'));
     document.getElementById('nav-btn-terminal').addEventListener('click', () => ativarAba('terminal'));
     document.getElementById('nav-btn-backup').addEventListener('click', () => ativarAba('backup'));
 
@@ -2435,16 +2532,42 @@
           idProcessoSelecionado = idEdit;
         }
       } else {
-        const novoId = 'proc_' + Date.now();
-        configGlobal.processos.lista.unshift({
-          id: novoId,
-          nome, cpf, numero, resumo, temAtualizacao,
-          updatedAt: Date.now(),
-          dataAtualizacaoTexto: agoraStr,
-          consultasPorContato: {},
-          _resetarVistos: true
+        // DEDUPLICAÇÃO INTELIGENTE NO CADASTRO MANUAL:
+        // Verifica se já existe processo com mesmo CNJ ou mesmo CPF
+        const idxExistente = configGlobal.processos.lista.findIndex(p => {
+          const numP = String(p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+          const cpfP = String(p.cpf || '').replace(/\D/g, '');
+          if (digitosNum.length >= 10 && numP.length >= 10 && digitosNum === numP) return true;
+          if (digitosCpf.length === 11 && cpfP.length === 11 && digitosCpf === cpfP) {
+            if (digitosNum && numP && digitosNum === numP) return true;
+          }
+          return false;
         });
-        idProcessoSelecionado = novoId;
+
+        if (idxExistente !== -1) {
+          const idEx = configGlobal.processos.lista[idxExistente].id;
+          configGlobal.processos.lista[idxExistente] = {
+            ...configGlobal.processos.lista[idxExistente],
+            nome, cpf, numero, resumo, temAtualizacao,
+            updatedAt: Date.now(),
+            dataAtualizacaoTexto: agoraStr,
+            _resetarVistos: true
+          };
+          idProcessoSelecionado = idEx;
+          mostrarToast("Processo já cadastrado: dados atualizados com sucesso!");
+        } else {
+          const novoId = 'proc_' + Date.now();
+          configGlobal.processos.lista.unshift({
+            id: novoId,
+            nome, cpf, numero, resumo, temAtualizacao,
+            updatedAt: Date.now(),
+            dataAtualizacaoTexto: agoraStr,
+            consultasPorContato: {},
+            _resetarVistos: true
+          });
+          idProcessoSelecionado = novoId;
+          mostrarToast("Nova pasta salva com sucesso!");
+        }
       }
 
       salvarConfiguracaoCompleta(false);
@@ -2473,6 +2596,27 @@
         e.stopPropagation();
       }, false);
     });
+
+    const btnHigienizarBase = document.getElementById('btn-higienizar-base');
+    if (btnHigienizarBase) {
+      btnHigienizarBase.addEventListener('click', async (e) => {
+        if (e) e.stopPropagation();
+        const api = window.api || window.electronAPI;
+        if (!api || !api.higienizarBaseProcessos) return;
+        if (!confirm("Deseja higienizar e consolidar a base de processos agora? Duplicidades serão unificadas preservando históricos.")) return;
+        mostrarToast("Higienizando base...");
+        const res = await api.higienizarBaseProcessos();
+        if (res && res.sucesso) {
+          mostrarToast(`Higienização concluída: ${res.duplicatasRemovidas} duplicidade(s) unificada(s).`);
+          const cfg = await (api.obterConfig ? api.obterConfig() : api.carregarConfig());
+          if (cfg) configGlobal = cfg;
+          renderizarModuloProcessos();
+          if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
+        } else {
+          mostrarToast("Erro ao higienizar base: " + (res?.erro || 'desconhecido'));
+        }
+      });
+    }
 
     if (btnBaixarModeloXlsx) {
       btnBaixarModeloXlsx.addEventListener('click', async (e) => {
@@ -3267,6 +3411,231 @@
             while(homeLogs.children.length > 4) homeLogs.removeChild(homeLogs.lastElementChild);
           }
         });
+
+        // =========================================================================
+        // INICIALIZAÇÃO DO SIMULADOR DE ATENDIMENTO WHATSAPP (SANDBOX LOCAL)
+        // =========================================================================
+        function inicializarSimuladorChat() {
+          const boxMensagens = document.getElementById('simulador-mensagens-box');
+          const inputMsg = document.getElementById('simulador-input-msg');
+          const btnEnviar = document.getElementById('btn-simulador-enviar');
+          const inputTel = document.getElementById('simulador-tel');
+          const inputNome = document.getElementById('simulador-nome');
+          const btnLimpar = document.getElementById('btn-simulador-limpar');
+
+          const btnCenarioOla = document.getElementById('btn-cenario-ola');
+          const btnCenarioProc = document.getElementById('btn-cenario-proc');
+          const btnCenarioCpf = document.getElementById('btn-cenario-cpf');
+          const btnCenarioAdv = document.getElementById('btn-cenario-adv');
+
+          if (!boxMensagens || !inputMsg || !btnEnviar) return;
+
+          function formatarTextoZap(textoBruto) {
+            if (!textoBruto) return '';
+            // Escape básico de HTML
+            let seguro = textoBruto
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
+
+            // *negrito*
+            seguro = seguro.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+            // _itálico_
+            seguro = seguro.replace(/_([^_]+)_/g, '<em>$1</em>');
+            // ~tachado~
+            seguro = seguro.replace(/~([^~]+)~/g, '<del>$1</del>');
+            // Quebras de linha
+            seguro = seguro.replace(/\n/g, '<br>');
+            return seguro;
+          }
+
+          function obterHoraAtual() {
+            const agora = new Date();
+            return agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          }
+
+          function scrollAoFinal() {
+            boxMensagens.scrollTop = boxMensagens.scrollHeight;
+          }
+
+          function adicionarBalaoUsuario(texto) {
+            const divWrap = document.createElement('div');
+            divWrap.className = 'flex justify-end mb-2.5';
+            divWrap.innerHTML = `
+              <div class="max-w-[78%] bg-[#005c4b] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 shadow text-xs relative group">
+                <div class="text-[10px] text-emerald-200/70 font-semibold mb-0.5 text-right">
+                  ${(inputNome?.value || 'Cliente').trim()}
+                </div>
+                <div class="leading-relaxed break-words">${formatarTextoZap(texto)}</div>
+                <div class="text-[9px] text-emerald-300/60 text-right mt-1 font-mono">
+                  ${obterHoraAtual()} • Enviada ✓✓
+                </div>
+              </div>
+            `;
+            boxMensagens.appendChild(divWrap);
+            scrollAoFinal();
+          }
+
+          function adicionarBalaoBot(texto, transbordo = false) {
+            const divWrap = document.createElement('div');
+            divWrap.className = 'flex justify-start mb-2.5';
+            divWrap.innerHTML = `
+              <div class="max-w-[82%] bg-[#202c33] border border-slate-700/60 text-slate-100 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow text-xs relative">
+                <div class="flex items-center space-x-1.5 text-[10px] text-[#e5c158] font-bold mb-1">
+                  <span>⚖️ Escritório de Advocacia</span>
+                  <span class="text-slate-400 font-normal">• Robô Automático</span>
+                </div>
+                <div class="leading-relaxed break-words">${formatarTextoZap(texto)}</div>
+                <div class="text-[9px] text-slate-400 text-right mt-1 font-mono">
+                  ${obterHoraAtual()}
+                </div>
+              </div>
+            `;
+            boxMensagens.appendChild(divWrap);
+
+            if (transbordo) {
+              const divAlerta = document.createElement('div');
+              divAlerta.className = 'my-3 p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl text-xs text-amber-200 flex items-start space-x-2.5';
+              divAlerta.innerHTML = `
+                <div class="text-lg">🔔</div>
+                <div class="flex-1">
+                  <strong class="font-bold block text-amber-300">Transbordo Humano Acionado!</strong>
+                  <span>O robô pausou o atendimento automático para este cliente. O advogado responsável foi notificado com alerta sonoro e visual.</span>
+                </div>
+              `;
+              boxMensagens.appendChild(divAlerta);
+            }
+
+            scrollAoFinal();
+          }
+
+          function adicionarIndicadorDigitando() {
+            const id = 'simulador-typing-indicator';
+            const anterior = document.getElementById(id);
+            if (anterior) anterior.remove();
+
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'flex justify-start mb-2';
+            div.innerHTML = `
+              <div class="bg-[#202c33] px-3.5 py-2 rounded-xl text-slate-400 text-xs flex items-center space-x-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.4s]"></span>
+                <span class="text-[11px] ml-1">Robô digitando...</span>
+              </div>
+            `;
+            boxMensagens.appendChild(div);
+            scrollAoFinal();
+          }
+
+          function removerIndicadorDigitando() {
+            const ind = document.getElementById('simulador-typing-indicator');
+            if (ind) ind.remove();
+          }
+
+          async function enviarMensagemSimulada(textoDireto = null) {
+            const texto = (textoDireto !== null ? textoDireto : inputMsg.value).trim();
+            if (!texto) return;
+
+            const telefone = (inputTel?.value || '+55 (11) 98765-4321').trim();
+            const nome = (inputNome?.value || 'Carlos Eduardo').trim();
+
+            if (textoDireto === null) {
+              inputMsg.value = '';
+            }
+
+            adicionarBalaoUsuario(texto);
+            adicionarIndicadorDigitando();
+            btnEnviar.disabled = true;
+
+            try {
+              const api = window.api || window.electronAPI;
+              if (api && api.simuladorEnviarMensagem) {
+                const res = await api.simuladorEnviarMensagem({
+                  texto: texto,
+                  telefone: telefone,
+                  nome: nome
+                });
+
+                removerIndicadorDigitando();
+
+                if (res && res.sucesso && res.resposta) {
+                  adicionarBalaoBot(res.resposta, res.transbordo === true);
+
+                  if (res.transbordo) {
+                    try {
+                      if (alertaSinoTransbordo) {
+                        alertaSinoTransbordo.playTransbordoChime();
+                      }
+                    } catch (e) {
+                      console.warn('Erro ao reproduzir sino de transbordo:', e);
+                    }
+                    mostrarToast(`🔔 Transbordo Humano: ${nome} solicitou falar com o advogado!`);
+                  }
+                } else if (res && res.resposta) {
+                  adicionarBalaoBot(res.resposta);
+                } else {
+                  adicionarBalaoBot("⚠️ Nenhuma resposta gerada pelo fluxo para esta mensagem.");
+                }
+              } else {
+                removerIndicadorDigitando();
+                adicionarBalaoBot("⚠️ A API do simulador requer o aplicativo em execução via Electron.");
+              }
+            } catch (err) {
+              removerIndicadorDigitando();
+              adicionarBalaoBot(`❌ Erro no simulador: ${err.message}`);
+            } finally {
+              btnEnviar.disabled = false;
+              inputMsg.focus();
+            }
+          }
+
+          btnEnviar.addEventListener('click', () => enviarMensagemSimulada());
+          inputMsg.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              enviarMensagemSimulada();
+            }
+          });
+
+          if (btnLimpar) {
+            btnLimpar.addEventListener('click', () => {
+              boxMensagens.innerHTML = `
+                <div class="text-center my-2">
+                  <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
+                    🔒 Conversa reiniciada. Mensagens em ambiente local e seguro.
+                  </span>
+                </div>
+              `;
+              mostrarToast('Histórico do simulador limpo.');
+            });
+          }
+
+          // Cenários rápidos
+          if (btnCenarioOla) {
+            btnCenarioOla.addEventListener('click', () => enviarMensagemSimulada('Olá'));
+          }
+          if (btnCenarioProc) {
+            btnCenarioProc.addEventListener('click', () => enviarMensagemSimulada('1'));
+          }
+          if (btnCenarioCpf) {
+            btnCenarioCpf.addEventListener('click', () => {
+              const lista = configGlobal?.processos?.lista || [];
+              let cpfEnvio = '123.456.789-00';
+              if (lista.length > 0) {
+                const procComCpf = lista.find(p => p.cpf && p.cpf.trim());
+                if (procComCpf) cpfEnvio = procComCpf.cpf;
+              }
+              enviarMensagemSimulada(cpfEnvio);
+            });
+          }
+          if (btnCenarioAdv) {
+            btnCenarioAdv.addEventListener('click', () => enviarMensagemSimulada('falar com advogado'));
+          }
+        }
+
+        inicializarSimuladorChat();
       }
     });
   </script>
