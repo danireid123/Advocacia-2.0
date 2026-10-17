@@ -2,6 +2,24 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
+// Auto-carrega .env da raiz do projeto caso ainda não tenha sido carregado
+try {
+    const envPath = path.resolve(__dirname, '../../.env');
+    if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf-8');
+        envContent.split(/\r?\n/).forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+                const [key, ...vals] = trimmed.split('=');
+                const val = vals.join('=').trim().replace(/^["']|["']$/g, '');
+                if (key && !process.env[key.trim()]) {
+                    process.env[key.trim()] = val;
+                }
+            }
+        });
+    }
+} catch (e) {}
+
 // Cache em memória (Map: md5Hash -> textoTraduzido)
 const cacheEmMemoria = new Map();
 
@@ -96,7 +114,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
  * @param {boolean} [opcoes.desativarPersistencia=false] - Desativa gravação em disco se true
  * @returns {Promise<{ texto: string, fonte: 'cache' | 'ia' | 'fallback', duracaoMs: number }>}
  */
-const MODELOS_GEMINI_PADRAO = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const MODELOS_GEMINI_PADRAO = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
 
 async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const inicio = Date.now();

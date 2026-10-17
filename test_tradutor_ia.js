@@ -12,8 +12,11 @@ const {
 
 async function executarTestes() {
     console.log('======================================================');
-    console.log('🚀 INICIANDO TESTES DO TRADUTOR JURÍDICO (GEMINI 1.5 FLASH)');
+    console.log('🚀 INICIANDO TESTES DO TRADUTOR JURÍDICO (GEMINI FLASH)');
     console.log('======================================================\n');
+
+    const envKeyReal = process.env.GEMINI_API_KEY;
+    delete process.env.GEMINI_API_KEY;
 
     const tempCachePath = path.join(__dirname, 'test_gemini_cache_temp.json');
     definirCaminhoCache(tempCachePath);
@@ -219,10 +222,28 @@ async function executarTestes() {
         console.log(`   - Com resumo vazio: retornou vazio com segurança.`);
 
     } finally {
-        // Restaura fetch
+        // Restaura fetch e chave real
         global.fetch = fetchOriginal;
+        if (envKeyReal) process.env.GEMINI_API_KEY = envKeyReal;
         // Limpa arquivo de teste temporário
         if (fs.existsSync(tempCachePath)) fs.unlinkSync(tempCachePath);
+    }
+
+    // ------------------------------------------------------------------
+    // TESTE 8: Chamada REAL à API Gemini (se chave presente no .env)
+    // ------------------------------------------------------------------
+    if (envKeyReal) {
+        console.log('\n🧪 Teste 8: Chamada REAL ao endpoint Google Gemini com a chave do .env...');
+        limparCacheMemoria();
+        const tReal = Date.now();
+        const resReal = await traduzirAndamentoJuridico(
+            'Vistos. Defiro a tutela de urgência para determinar o desbloqueio imediato da conta bancária da autora no prazo de 48 horas. Intime-se.',
+            { desativarPersistencia: true }
+        );
+        console.log(`   - Fonte: ${resReal.fonte} | Latência Real: ${Date.now() - tReal}ms`);
+        console.log(`   - Tradução da IA: "${resReal.texto}"`);
+        assert.strictEqual(resReal.fonte, 'ia', 'A chamada real com a chave do .env deve retornar fonte="ia"');
+        console.log('   ✅ API Gemini Real respondeu com sucesso!');
     }
 
     console.log('\n======================================================');

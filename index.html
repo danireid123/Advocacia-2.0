@@ -1489,6 +1489,9 @@
                 <p class="text-xs text-slate-400 mt-1">Teste todo o fluxo de menus, consulta por CPF/CNJ, tradução jurídica com IA e transbordo humano sem precisar de um celular real.</p>
               </div>
               <div class="flex items-center space-x-2">
+                <button type="button" id="btn-simulador-testar-ia" class="px-3 py-1.5 bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Testa a conexão ao vivo com a API Google Gemini e exibe a tradução no chat">
+                  <span>✨ Testar IA Gemini</span>
+                </button>
                 <button type="button" id="btn-simulador-reset" class="px-3 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Restaura a sessão e despausa o robô se estiver aguardando advogado">
                   <span>🔄 Resetar Conversa / Despausar Robô</span>
                 </button>
@@ -2654,6 +2657,8 @@
           card.className = "p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-xs space-y-1";
           const dataRef = doc.dataReferencia ? ` • Data: ${doc.dataReferencia}` : '';
           const autoridade = doc.autoridade ? ` • ${doc.autoridade}` : '';
+          const textoResumoDoc = doc.resumoCliente || doc.resumoIA || doc.resumo || doc.assuntoPrincipal || '';
+          const dataAnexo = doc.anexadoEm || doc.adicionadoEm || doc.data || '';
           card.innerHTML = `
             <div class="flex items-center justify-between">
               <span class="font-bold text-[#e5c158] flex items-center space-x-1.5">
@@ -2662,10 +2667,10 @@
               </span>
               <span class="text-[10px] font-mono text-slate-500">${doc.nomeArquivo || ''}</span>
             </div>
-            <p class="text-slate-300 text-[11px] leading-relaxed">${doc.resumo || ''}</p>
+            <p class="text-slate-300 text-[11px] leading-relaxed">${textoResumoDoc}</p>
             <div class="text-[9px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-800/60">
-              <span>Catalogado via IA (${doc.confianca || 'alta'})${dataRef}${autoridade}</span>
-              <span>${doc.adicionadoEm ? new Date(doc.adicionadoEm).toLocaleDateString('pt-BR') : ''}</span>
+              <span>Catalogado (${doc.fonteResumo || doc.confianca || 'IA'})${dataRef}${autoridade}</span>
+              <span>${dataAnexo}</span>
             </div>
           `;
           listaDocs.appendChild(card);
@@ -2685,12 +2690,13 @@
         [...hist].reverse().forEach(h => {
           const item = document.createElement('div');
           item.className = "p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 text-xs space-y-1";
+          const textoHist = h.textoHumanizado || h.textoBruto || h.descricao || h.resumoAnterior || '-';
           item.innerHTML = `
             <div class="flex items-center justify-between text-[10px] text-[#e5c158] font-bold">
               <span>📅 ${h.data || '-'}</span>
               <span class="text-slate-500 font-normal uppercase text-[9px]">${h.origem || 'atualização'}</span>
             </div>
-            <p class="text-slate-300 text-[11px] leading-relaxed">${h.descricao || h.resumoAnterior || '-'}</p>
+            <p class="text-slate-300 text-[11px] leading-relaxed">${textoHist}</p>
             ${h.nomeArquivo ? `<span class="text-[9px] font-mono text-sky-400 block">Arquivo: ${h.nomeArquivo}</span>` : ''}
           `;
           listaHist.appendChild(item);
@@ -2774,16 +2780,20 @@
             nome, cpf, numero, resumo, temAtualizacao
           });
           if (res && res.success) {
-            if (res.processo && res.processo.id) {
-              idProcessoSelecionado = res.processo.id;
+            const idRetornado = res.id || (res.processo && res.processo.id);
+            if (idRetornado) {
+              idProcessoSelecionado = idRetornado;
             }
-            if (api.obterConfig) {
+            if (res.config) {
+              configGlobal = res.config;
+            } else if (api.obterConfig) {
               const cfgAtualizada = await api.obterConfig();
               if (cfgAtualizada) configGlobal = cfgAtualizada;
             }
             renderizarModuloProcessos();
             selecionarProcessoNaLista(idProcessoSelecionado);
-            mostrarToast(res.isUpdate ? "Processo atualizado com histórico preservado!" : "Novo processo cadastrado com sucesso!");
+            const foiAtualizado = Boolean(res.atualizados > 0 || res.isUpdate);
+            mostrarToast(foiAtualizado ? "Processo atualizado com histórico preservado!" : "Novo processo cadastrado com sucesso!");
             return;
           }
         } catch (errManual) {
@@ -3841,7 +3851,9 @@
 
                 removerIndicadorDigitando();
 
-                if (res && res.sucesso && res.resposta) {
+                if (res && res.pausado) {
+                  adicionarBalaoBot("⏸️ *Robô em Pausa (Fila de Espera):* Este contato já solicitou atendimento humano e está na aba *Fila de Espera (Advogado)*. O robô permanece em silêncio para não interromper o advogado.\n\n💡 _Clique em *🔄 Resetar Conversa / Despausar Robô* no topo para retomar os testes automáticos._");
+                } else if (res && res.sucesso && res.resposta) {
                   adicionarBalaoBot(res.resposta, res.transbordo === true);
 
                   if (res.transbordo) {
@@ -3879,6 +3891,36 @@
               enviarMensagemSimulada();
             }
           });
+
+          const btnTestarIaSim = document.getElementById('btn-simulador-testar-ia');
+          if (btnTestarIaSim) {
+            btnTestarIaSim.addEventListener('click', async () => {
+              const api = window.api || window.electronAPI;
+              if (!api || !api.testarConexaoIA) {
+                mostrarToast('API de teste de IA disponível apenas no aplicativo Electron.');
+                return;
+              }
+              adicionarIndicadorDigitando();
+              btnTestarIaSim.disabled = true;
+              try {
+                const chaveCampo = document.getElementById('proc-gemini-api-key')?.value?.trim() || '';
+                const res = await api.testarConexaoIA(chaveCampo);
+                removerIndicadorDigitando();
+                if (res && res.success) {
+                  adicionarBalaoBot(`✨ *Diagnóstico Google Gemini API: ONLINE*\n\n*Status:* ${res.mensagem}\n*Tradução de Teste ao Vivo:* _"${res.texto}"_`);
+                  mostrarToast('✅ IA Gemini conectada e respondendo em tempo real!');
+                } else {
+                  adicionarBalaoBot(`⚠️ *Diagnóstico Google Gemini API: MODO FALLBACK LOCAL*\n\n${res?.mensagem || res?.error || 'Sem chave ativa — o robô usará o texto original da planilha com segurança.'}`);
+                  mostrarToast('⚠️ IA Gemini indisponível — fallback local ativo.');
+                }
+              } catch (e) {
+                removerIndicadorDigitando();
+                adicionarBalaoBot(`❌ Falha ao testar IA: ${e.message}`);
+              } finally {
+                btnTestarIaSim.disabled = false;
+              }
+            });
+          }
 
           const btnReset = document.getElementById('btn-simulador-reset');
           if (btnReset) {
@@ -3927,8 +3969,10 @@
               const lista = configGlobal?.processos?.lista || [];
               let cpfEnvio = '123.456.789-00';
               if (lista.length > 0) {
-                const procComCpf = lista.find(p => p.cpf && p.cpf.trim());
+                const procComCpf = lista.find(p => p.cpf && String(p.cpf).replace(/\D/g, '').length >= 9);
+                const procComNum = lista.find(p => (p.numero || p.numeroProcesso) && String(p.numero || p.numeroProcesso).replace(/\D/g, '').length >= 9);
                 if (procComCpf) cpfEnvio = procComCpf.cpf;
+                else if (procComNum) cpfEnvio = procComNum.numero || procComNum.numeroProcesso;
               }
               enviarMensagemSimulada(cpfEnvio);
             });

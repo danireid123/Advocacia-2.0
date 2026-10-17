@@ -326,8 +326,11 @@ async function resolverIdentidadeCompleta(msg, config) {
         }
     } catch (e) {}
 
+    if (!config.mapaNomes) config.mapaNomes = {};
+    if (!config.mapaTelefones) config.mapaTelefones = {};
+
     const chaveUnica = numeroReal || parteId;
-    const nomeEscolhido = nomeAgenda || nomePush || (config.mapaNomes && config.mapaNomes[chaveUnica]) || '';
+    const nomeEscolhido = nomeAgenda || nomePush || config.mapaNomes[chaveUnica] || '';
 
     if (nomeEscolhido) {
         config.mapaNomes[chaveUnica] = nomeEscolhido;
@@ -509,7 +512,10 @@ function buscarProcessoPorNumero(config, digitosBusca) {
 
 async function formatarMensagemProcesso(config, proc, remetenteChave) {
     const tpls = (config.processos && config.processos.mensagens) || criarConfigPadrao().processos.mensagens;
-    const temResumo = Boolean(proc.temAtualizacao && proc.resumo && proc.resumo.trim());
+    const textoBrutoResumo = (proc.resumo && proc.resumo.trim())
+        ? proc.resumo.trim()
+        : ((proc.resumoGlobalProcesso && proc.resumoGlobalProcesso.trim()) || '');
+    const temResumo = Boolean(proc.temAtualizacao !== false && textoBrutoResumo);
 
     if (!proc.consultasPorContato) proc.consultasPorContato = {};
     const ultimaConsulta = proc.consultasPorContato[remetenteChave];
@@ -532,24 +538,33 @@ async function formatarMensagemProcesso(config, proc, remetenteChave) {
         mainWindow.webContents.send('bot-processos-sync', config);
     }
 
-    // Se houver resumo, tenta traduzir com Gemini 1.5 Flash (com fallback imediato para o texto original)
-    let resumoParaExibir = proc.resumo || 'Sem detalhes adicionais.';
+    // Se houver resumo, tenta traduzir com Gemini Flash (com fallback imediato para o texto original)
+    let resumoParaExibir = textoBrutoResumo || 'Sem detalhes adicionais.';
     if (temResumo) {
         try {
-            resumoParaExibir = await traduzirAndamentoParaCliente(proc, proc.resumo, config);
+            resumoParaExibir = await traduzirAndamentoParaCliente(proc, textoBrutoResumo, config);
         } catch (e) {
-            resumoParaExibir = proc.resumo;
+            resumoParaExibir = textoBrutoResumo;
         }
     }
+
+    const numeroExibicao = proc.numero || proc.numeroProcesso || proc.numeroProcessoFormatado || proc.processo || '-';
+    const dataExibicao = proc.dataAtualizacaoTexto || proc.data || agoraTexto;
 
     return String(modelo || '')
         .replace(/\{nome\}/g, proc.nome || 'Cliente')
         .replace(/\{cpf\}/g, proc.cpf || '-')
-        .replace(/\{processo\}/g, proc.numero || '-')
+        .replace(/\{processo\}/g, numeroExibicao)
         .replace(/\{resumo\}/g, resumoParaExibir)
-        .replace(/\{data\}/g, proc.dataAtualizacaoTexto || agoraTexto)
+        .replace(/\{data\}/g, dataExibicao)
         .replace(/\{ultima_consulta\}/g, ultimaConsulta || agoraTexto);
 }
+
+const FRASES_TRANSBORDO_DIRETO = [
+    "falar com advogado", "falar com o advogado", "chamar advogado",
+    "quero falar com advogado", "atendente", "falar com humano",
+    "atendimento humano", "advogado", "suporte humano", "falar diretamente com advogado"
+];
 
 async function processarMensagemEntrada(msg) {
     try {
@@ -650,6 +665,18 @@ async function processarMensagemEntrada(msg) {
             }
         }
 
+        // Reconhecimento direto de pedido de transbordo humano ("falar com advogado", etc.)
+        if (FRASES_TRANSBORDO_DIRETO.some(f => gatilhoDigitado === f || gatilhoDigitado.includes(f))) {
+            const opHumano = (config.fluxo && config.fluxo.raiz && Array.isArray(config.fluxo.raiz.opcoes))
+                ? config.fluxo.raiz.opcoes.find(o => o.tipo === 'humano')
+                : null;
+            const msgConfirmacao = (opHumano && opHumano.resposta)
+                || tplsProc.msg_chamar_advogado_pos_proc
+                || "👨‍⚖️ Perfeito! Sua solicitação foi encaminhada e um advogado da nossa equipe já está chegando para assumir seu atendimento.";
+            await colocarNaFilaHumana(msgConfirmacao, 'Solicitação de atendimento humano');
+            return true;
+        }
+
         const saudacoes = ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "menu", "inicio", "início", "ajuda"];
         if (gatilhoDigitado === "0" || saudacoes.some(s => gatilhoDigitado === s || gatilhoDigitado.startsWith(s + " "))) {
             estadosUsuarios[remetenteChave] = 'raiz';
@@ -679,7 +706,11 @@ async function processarMensagemEntrada(msg) {
             ? config.fluxo.raiz
             : (config.fluxo.etapas[estadoAtual] || config.fluxo.raiz);
 
-        const opcaoEscolhida = (etapaAtual.opcoes || []).find(op => String(op.gatilho).trim().toLowerCase() === gatilhoDigitado);
+        const opcaoEscolhida = (etapaAtual.opcoes || []).find(op => {
+            const g = String(op.gatilho || '').trim().toLowerCase();
+            const r = String(op.rotulo || '').trim().toLowerCase();
+            return g === gatilhoDigitado || (r && r === gatilhoDigitado);
+        });
 
         if (opcaoEscolhida) {
             if (opcaoEscolhida.tipo === 'humano') {
@@ -1149,7 +1180,7 @@ async function iniciarWhatsApp(forcarReinicio = false) {
 }
 
 ipcMain.handle('obter-config', () => carregarConfig());
-ipcMain.handle('obter-versao-app', () => `Beta 0.8 (v${app.getVersion()})`);
+ipcMain.handle('obter-versao-app', () => `v2.0 (Executive Suite)`);
 ipcMain.handle('obter-estado-conexao', () => ({ status: statusAtualBot, qr: ultimoQrDataUrl, subStatus: subStatusDetalhado, tentativa: tentativasReconexao }));
 ipcMain.handle('salvar-config', (e, nc) => {
     // Campos de runtime pertencem ao processo principal: o renderer guarda cópias parciais
@@ -1380,21 +1411,27 @@ ipcMain.handle('ingestao-baixar-planilha-modelo', async () => {
 // Teste de Conexão com Google Gemini API
 ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
     try {
-        const resultado = await traduzirAndamentoJuridico('Vistos. Especifiquem as partes as provas.', {
-            apiKey: chaveManual,
-            timeoutMs: 6000
-        });
+        const config = carregarConfig();
+        const resultado = await traduzirAndamentoJuridico(
+            `Vistos. Especifiquem as partes as provas que pretendem produzir, justificando sua pertinência em 15 dias. [Teste #${Date.now()}]`,
+            {
+                apiKey: chaveManual,
+                config,
+                timeoutMs: 8000,
+                desativarPersistencia: true
+            }
+        );
         if (resultado.fonte === 'ia') {
-            return { success: true, mensagem: 'Conectado com sucesso à IA Gemini!', texto: resultado.texto };
+            return { success: true, mensagem: `Conectado com sucesso à IA Gemini (${resultado.modelo || 'gemini-flash'})!`, texto: resultado.texto, modelo: resultado.modelo };
         }
-        return { success: false, mensagem: 'Não foi possível conectar. Verifique a chave ou o status da rede.' };
+        return { success: false, mensagem: `Não foi possível conectar (${resultado.erro || 'verifique a chave ou o status da rede'}).` };
     } catch (err) {
-        return { success: false, error: err.message };
+        return { success: false, error: err.message, mensagem: err.message };
     }
 });
 
-// SIMULADOR DE CHAT CLIENTE (SANDBOX LOCAL)
-ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nome }) => {
+// SIMULADOR DE CHAT CLIENTE (SANDBOX LOCAL — FUNCIONA 100% SEM WHATSAPP CONECTADO)
+async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
     try {
         const telLimpo = (telefone || '5511999998888').replace(/\D/g, '') || '5511999998888';
         const nomeCliente = (nome || 'Cliente Teste').trim();
@@ -1420,7 +1457,6 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
             })
         };
 
-        // Sobrescreve temporariamente enviarMensagemSegura para capturar a resposta
         const config = carregarConfig();
         const identidade = await resolverIdentidadeCompleta(mockMsg, config);
         const remetenteChave = identidade.chaveCliente;
@@ -1470,7 +1506,7 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
                     hora: horaLog()
                 });
             }
-            return { success: true, sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo };
+            return { success: true, sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo, pausado: false };
         };
 
         const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
@@ -1496,6 +1532,14 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
         const estadoAtual = estadosUsuarios[remetenteChave] || 'raiz';
         const tplsProc = (config.processos && config.processos.mensagens) || criarConfigPadrao().processos.mensagens;
 
+        // Frases universais de transbordo humano direto (ex.: botão "Chamar Advogado" ou digitação livre)
+        if (FRASES_TRANSBORDO_DIRETO.some(f => gatilhoDigitado === f || gatilhoDigitado.includes(f))) {
+            const opHumano = ((config.fluxo && config.fluxo.raiz && config.fluxo.raiz.opcoes) || []).find(op => op.tipo === 'humano');
+            const msgTransbordo = (opHumano && opHumano.resposta) || tplsProc.msg_chamar_advogado_pos_proc || "👨‍⚖️ Perfeito! Um advogado da nossa equipe já foi acionado e já está chegando para atender você.";
+            await colocarNaFilaHumana(msgTransbordo, 'Solicitação direta de atendimento humano');
+            return finalizarSimulacao();
+        }
+
         if (estadoAtual === 'pos_consulta_processo') {
             if (gatilhoDigitado === '1') {
                 delete estadosUsuarios[remetenteChave];
@@ -1515,9 +1559,27 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
             return finalizarSimulacao();
         }
 
+        // Helper que busca no banco ou retorna processo demonstrativo para o CPF de teste padrão do Simulador (123.456.789-00)
+        const buscarProcessoSimulador = (digitos) => {
+            let proc = buscarProcessoPorNumero(config, digitos);
+            if (!proc && digitos === '12345678900') {
+                const lista = Array.isArray(config.processos) ? config.processos : ((config.processos && config.processos.lista) || []);
+                proc = lista[0] || {
+                    id: 'proc_demo_simulador',
+                    numero: '0004589-72.2025.8.26.0100',
+                    numeroProcesso: '0004589-72.2025.8.26.0100',
+                    cpf: '12345678900',
+                    nome: nomeCliente || 'Cliente Demonstração',
+                    resumo: 'Vistos. Julgo PROCEDENTE o pedido inicial para condenar a parte ré ao pagamento de R$ 18.500,00 a título de indenização, bem como determino a expedição imediata de alvará eletrônico após o trânsito em julgado.',
+                    atualizadoEm: new Date().toLocaleDateString('pt-BR')
+                };
+            }
+            return proc;
+        };
+
         if (estadoAtual === 'aguardando_processo') {
             const digitos = apenasNumeros(mockMsg.body);
-            const procAchado = buscarProcessoPorNumero(config, digitos);
+            const procAchado = buscarProcessoSimulador(digitos);
             if (procAchado) {
                 if (procAchado.nome && !config.mapaNomes[remetenteChave]) {
                     config.mapaNomes[remetenteChave] = procAchado.nome;
@@ -1537,7 +1599,11 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
             ? config.fluxo.raiz
             : (config.fluxo.etapas[estadoAtual] || config.fluxo.raiz);
 
-        const opcaoEscolhida = (etapaAtual.opcoes || []).find(op => String(op.gatilho).trim().toLowerCase() === gatilhoDigitado);
+        const opcaoEscolhida = (etapaAtual.opcoes || []).find(op => {
+            const g = String(op.gatilho || '').trim().toLowerCase();
+            const r = String(op.rotulo || '').trim().toLowerCase();
+            return g === gatilhoDigitado || (r && r === gatilhoDigitado);
+        });
 
         if (opcaoEscolhida) {
             if (opcaoEscolhida.tipo === 'humano') {
@@ -1564,7 +1630,7 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
 
         const digitosDiretos = apenasNumeros(mockMsg.body);
         if (digitosDiretos.length >= 9) {
-            const procDireto = buscarProcessoPorNumero(config, digitosDiretos);
+            const procDireto = buscarProcessoSimulador(digitosDiretos);
             if (procDireto) {
                 if (procDireto.nome && !config.mapaNomes[remetenteChave]) {
                     config.mapaNomes[remetenteChave] = procDireto.nome;
@@ -1583,10 +1649,14 @@ ipcMain.handle('simulador-enviar-mensagem', async (event, { texto, telefone, nom
         console.error('Erro no simulador-enviar-mensagem:', err);
         return { success: false, sucesso: false, error: err.message, erro: err.message, resposta: 'Erro ao processar mensagem simulada.' };
     }
+}
+
+ipcMain.handle('simulador-enviar-mensagem', async (event, payload) => {
+    return await executarSimulacaoMensagem(payload);
 });
 
 // RESETAR CONVERSA DO SIMULADOR / DESPAUSAR ROBÔ
-ipcMain.handle('simulador-resetar-conversa', async (event, dados) => {
+async function resetarConversaSimulador(dados = {}) {
     const tel = String((dados && dados.telefone) || '').replace(/\D/g, '') || '5511999998888';
     let despausado = false;
     [tel, `${tel}@c.us`].forEach(k => {
@@ -1597,9 +1667,14 @@ ipcMain.handle('simulador-resetar-conversa', async (event, dados) => {
     const cfg = carregarConfig();
     const lista = Array.isArray(cfg.processos) ? cfg.processos : ((cfg.processos && cfg.processos.lista) || []);
     lista.forEach(p => { if (p.consultasPorContato) { delete p.consultasPorContato[tel]; p._resetarVistos = true; } });
+    salvarConfigDisco(cfg, false);
     emitirPausados();
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('bot-processos-sync', cfg);
     return { success: true, despausado };
+}
+
+ipcMain.handle('simulador-resetar-conversa', async (event, dados) => {
+    return await resetarConversaSimulador(dados);
 });
 
 // CADASTRO MANUAL DE PROCESSO (usa a MESMA regra de deduplicação da importação de planilhas)
@@ -1743,6 +1818,8 @@ module.exports = {
     traduzirAndamentoParaCliente,
     formatarMensagemProcesso,
     buscarProcessoPorNumero,
-    processarMensagemEntrada
+    processarMensagemEntrada,
+    executarSimulacaoMensagem,
+    resetarConversaSimulador
 };
 
