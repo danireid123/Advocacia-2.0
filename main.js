@@ -75,8 +75,15 @@ function carregarContatosIgnorados() {
         }
     } catch (e) {}
     try {
-        const cfg = carregarConfig();
-        if (Array.isArray(cfg.contatosIgnorados)) return cfg.contatosIgnorados;
+        if (configEmMemoria && Array.isArray(configEmMemoria.contatosIgnorados)) {
+            return configEmMemoria.contatosIgnorados;
+        }
+        if (fs.existsSync(CONFIG_PATH)) {
+            const rawCfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+            if (rawCfg && Array.isArray(rawCfg.contatosIgnorados)) {
+                return rawCfg.contatosIgnorados;
+            }
+        }
     } catch (e) {}
     return [];
 }
