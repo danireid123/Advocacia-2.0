@@ -1828,7 +1828,7 @@
                   </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <button type="button" id="btn-melhorar-template-onboarding" class="px-3 py-1.5 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Aprimorar o modelo padrão com IA">
+                  <button type="button" id="btn-melhorar-template-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('dossie-template-mensagem-docs'), (novoTexto) => { if (window.configGlobal) { window.configGlobal.modeloMensagemSolicitacaoDocs = novoTexto; typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); } }, this)" class="px-3 py-1.5 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Aprimorar o modelo padrão com IA">
                     <span>✨ Melhorar com IA</span>
                   </button>
                   <button type="button" id="btn-salvar-template-onboarding" onclick="window.salvarModeloTemplateOnboardingUI && window.salvarModeloTemplateOnboardingUI()" class="px-4 py-1.5 champagne-gradient rounded-xl text-xs font-bold text-slate-950 shadow flex items-center space-x-1.5 transition cursor-pointer">
@@ -2006,7 +2006,7 @@
 
               <div>
                 <label class="text-[11px] text-[#e5c158] font-bold block mb-1">Selecione o Preset de Documentos da Área Jurídica</label>
-                <select id="onboarding-modal-preset" class="exec-input w-full rounded-xl px-3 py-2.5 text-xs font-semibold">
+                <select id="onboarding-modal-preset" onchange="window.atualizarMensagemModalOnboarding && window.atualizarMensagemModalOnboarding()" class="exec-input w-full rounded-xl px-3 py-2.5 text-xs font-semibold">
                   <option value="Trabalhista">⚖️ Trabalhista (RG/CNH, CTPS, TRCT, Holerites, FGTS e Endereço)</option>
                   <option value="Previdenciario">🏛️ Previdenciário / INSS (RG/CNH, CNIS, Laudos Médicos, CTPS e Endereço)</option>
                   <option value="Civel">📑 Cível / Consumidor (RG/CNH, Comprovante de Endereço, Contrato/Provas)</option>
@@ -2018,7 +2018,7 @@
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <label class="text-[11px] text-[#e5c158] font-bold">Mensagem de Solicitação (Editável)</label>
-                  <button type="button" id="btn-melhorar-modal-onboarding" class="px-2.5 py-1 rounded-lg bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-[10px] font-semibold transition flex items-center space-x-1 cursor-pointer" title="Enriquecer a mensagem com termos jurídicos claros, tom acolhedor e emojis">
+                  <button type="button" id="btn-melhorar-modal-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('onboarding-modal-mensagem'), null, this)" class="px-2.5 py-1 rounded-lg bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-[10px] font-semibold transition flex items-center space-x-1 cursor-pointer" title="Enriquecer a mensagem com termos jurídicos claros, tom acolhedor e emojis">
                     <span>✨ Melhorar com IA</span>
                   </button>
                 </div>
@@ -5204,9 +5204,9 @@
         );
 
       elMsg.value = tpl
-        .replace(/\{nome\}/gi, nomeCliente)
-        .replace(/\{preset\}/gi, preset.rotulo)
-        .replace(/\{documentos\}/gi, preset.documentos);
+        .replace(/\{nome\}/gi, () => nomeCliente)
+        .replace(/\{preset\}/gi, () => preset.rotulo)
+        .replace(/\{documentos\}/gi, () => preset.documentos);
     };
 
     window.abrirModalSolicitarDocumentos = function(chave, nomeCliente) {
@@ -5271,8 +5271,9 @@
 
       // Fallback local caso IPC não retorne com sucesso (cenários headless/web)
       if (!sucesso) {
-        if (!msgTexto) {
-          msgTexto = `⚖️ *Solicitação de Documentos — ${preset}*\n\nOlá, *${clienteNome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seus documentos.\n\n💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas.`;
+        if (!msgTexto) msgTexto = `⚖️ *Solicitação de Documentos — ${preset}*\n\nOlá, *${clienteNome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seus documentos.\n\n💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas.`;
+        if (msgTexto && typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
+          window.adicionarBalaoAdvogadoNoSimulador(msgTexto);
         }
         if (configGlobal) {
           configGlobal.onboardingSessoes = configGlobal.onboardingSessoes || {};
@@ -5288,11 +5289,6 @@
           };
           marcarAlteracaoPendente();
         }
-      }
-
-      // Injeta imediatamente o balão de mensagem do advogado no simulador
-      if (msgTexto && typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
-        window.adicionarBalaoAdvogadoNoSimulador(msgTexto);
       }
 
       mostrarToast(`📄 Checklist (${preset}) enviado no WhatsApp de ${clienteNome}!`);

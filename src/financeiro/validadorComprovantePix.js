@@ -202,20 +202,43 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
     'ssp/', 'ssp-sp', 'detran', 'policia civil', 'polícia civil', 'ministerio do trabalho', 'ministério do trabalho',
     'pis/pasep', 'fatura de energia', 'conta de consumo', 'energia eletrica', 'energia elétrica',
     'comprovante de residencia', 'comprovante de residência', 'enel', 'sabesp', 'cpfl', 'cemig', 'copel',
-    'total a pagar', 'codigo de barras', 'código de barras', 'linha digitavel', 'linha digitável', 'cnh_br'
+    'total a pagar', 'codigo de barras', 'código de barras', 'linha digitavel', 'linha digitável', 'cnh_br',
+    'procuracao', 'procuração', 'ad judicia', 'peticao', 'petição', 'ação de cobrança', 'acao de cobranca',
+    'excelentissimo senhor', 'excelentíssimo senhor', 'contrato de honorarios', 'contrato de honorários',
+    'servicos advocaticios', 'serviços advocatícios', 'contrato de prestacao', 'contrato de prestação',
+    'recibo de pagamento em dinheiro', 'recibo em dinheiro', 'pagamento em dinheiro', 'dinheiro vivo', 'recibo de pagamento',
+    'cartao de credito', 'cartão de crédito', 'cartao de debito', 'cartão de débito', 'visa electron', 'mastercard', 'cielo',
+    'guia de recolhimento da uniao', 'guia de recolhimento da união', 'guia de recolhimento', 'gru',
+    'taxa de emissao de passaporte', 'taxa de emissão de passaporte', 'policia federal', 'polícia federal',
+    'comprovante de inscricao no cpf', 'comprovante de inscrição no cpf', 'inscricao no cpf', 'inscrição no cpf',
+    'receita federal do brasil', 'ministerio da fazenda', 'ministério da fazenda'
   ];
 
   const contemTermoCivil = termosDocumentoCivil.some(t => strLower.includes(t) || strLatin1.includes(t)) ||
-                           /\b(cnh_br|ctps)\b/i.test(strLower) ||
-                           /\b(cnh|ctps)\b/i.test(str) ||
+                           /\b(cnh_br|ctps|gru)\b/i.test(strLower) ||
+                           /\b(cnh|ctps|gru)\b/i.test(str) ||
                            /\brg[:\s._-]*[0-9]/i.test(str) ||
                            /\b(rg)\s+(ssp|[0-9])/i.test(strLower) ||
+                           /\b(procura[çc][aã]o|peti[çc][aã]o|honor[aá]rios|dinheiro\s+vivo|cart[aã]o\s+de\s+(cr[eé]dito|d[eé]bito))\b/i.test(strLower) ||
                            /\b(fatura|residencia|residência)\b/i.test(strLower);
 
-  const contemTermoPixDireto = strLower.includes('comprovante de transferencia') ||
-                               strLower.includes('comprovante de transferência') ||
-                               strLower.includes('comprovante de pagamento') ||
-                               (strLower.includes('pix') && (strLower.includes('transferencia') || strLower.includes('transferência')));
+  const contemTermoPixDireto = (strLower.includes('pix') && (
+                                  strLower.includes('transferencia') ||
+                                  strLower.includes('transferência') ||
+                                  strLower.includes('pagamento') ||
+                                  strLower.includes('transacao') ||
+                                  strLower.includes('transação') ||
+                                  strLower.includes('comprovante') ||
+                                  strLower.includes('chave') ||
+                                  strLower.includes('enviado') ||
+                                  strLower.includes('recebido')
+                                )) ||
+                                strLower.includes('comprovante de transferencia pix') ||
+                                strLower.includes('comprovante de transferência pix') ||
+                                strLower.includes('transferência pix') ||
+                                strLower.includes('transferencia pix') ||
+                                strLower.includes('pagamento pix') ||
+                                strLower.includes('chave pix');
 
   const ehFaturaOuConta = strLower.includes('fatura') ||
                           strLower.includes('conta de consumo') ||
@@ -242,7 +265,22 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
                                /\brg[:\s._-]*[0-9]/i.test(str) ||
                                /\b(rg)\s+(ssp|[0-9])/i.test(strLower);
 
-  const ehDocPessoal = ehFaturaOuConta || ehDocIdentidadeCivil || (contemTermoCivil && !contemTermoPixDireto);
+  const ehDocLegalOuCartorario = strLower.includes('procuracao') || strLower.includes('procuração') || strLower.includes('ad judicia') ||
+                                 strLower.includes('peticao') || strLower.includes('petição') || strLower.includes('excelentissimo') || strLower.includes('excelentíssimo') ||
+                                 strLower.includes('acao de cobranca') || strLower.includes('ação de cobrança') ||
+                                 strLower.includes('honorarios') || strLower.includes('honorários') ||
+                                 strLower.includes('servicos advocaticios') || strLower.includes('serviços advocatícios') ||
+                                 strLower.includes('contrato de prestacao') || strLower.includes('contrato de prestação') ||
+                                 strLower.includes('recibo de pagamento') || strLower.includes('recibo em dinheiro') ||
+                                 strLower.includes('pagamento em dinheiro') || strLower.includes('dinheiro vivo') ||
+                                 strLower.includes('cartao de credito') || strLower.includes('cartão de crédito') ||
+                                 strLower.includes('cartao de debito') || strLower.includes('cartão de débito') ||
+                                 strLower.includes('visa electron') || strLower.includes('cielo') ||
+                                 strLower.includes('guia de recolhimento') || /\bgru\b/i.test(strLower) ||
+                                 strLower.includes('inscricao no cpf') || strLower.includes('inscrição no cpf') ||
+                                 strLower.includes('receita federal');
+
+  const ehDocPessoal = ehFaturaOuConta || ehDocIdentidadeCivil || ehDocLegalOuCartorario || (contemTermoCivil && !contemTermoPixDireto);
 
   if (ehDocPessoal) {
     return {
@@ -300,7 +338,19 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
                   str.match(/\b(E\d{8,35}[A-Za-z0-9]+)\b/);
 
   // Se não foi detectado valor monetário ou não há evidência explícita de PIX, rejeita sem alucinações
-  const temEvidenciaPix = contemTermoPixDireto || Boolean(matchId) || strLower.includes('instituição') || strLower.includes('pagamento');
+  const temEvidenciaPix = contemTermoPixDireto ||
+                          Boolean(matchId) ||
+                          strLower.includes('chave pix') ||
+                          strLower.includes('transação pix') ||
+                          strLower.includes('transacao pix') ||
+                          strLower.includes('transferência pix') ||
+                          strLower.includes('transferencia pix') ||
+                          strLower.includes('pagamento pix') ||
+                          strLower.includes('id transação') ||
+                          strLower.includes('id transacao') ||
+                          strLower.includes('id da transação') ||
+                          strLower.includes('id da transacao') ||
+                          /\bpix\b/i.test(strLower);
   if (valorPago <= 0 || !temEvidenciaPix) {
     return {
       ehComprovantePix: false,
@@ -326,7 +376,7 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
   }
 
   // Banco
-  let bancoOrigem = 'Instituição Financeira PIX';
+  let bancoOrigem = '';
   const matchBancoDireto = str.match(/(?:BANCO)[:\s]*([A-Za-z0-9\s.]+?)(?=\s+DATA|\s+VALOR|$|\n)/i);
   if (matchBancoDireto && matchBancoDireto[1]) {
     bancoOrigem = matchBancoDireto[1].trim();
@@ -344,7 +394,7 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
   if (matchId && matchId[1]) {
     idTransacao = matchId[1].trim();
   } else {
-    idTransacao = 'E' + Date.now() + Math.random().toString(36).substring(2, 7).toUpperCase();
+    idTransacao = '';
   }
 
   // Nome do Pagador

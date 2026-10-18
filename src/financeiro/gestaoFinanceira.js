@@ -318,6 +318,38 @@ async function processarComprovanteRecebido(clienteTelefoneOuObj, bufferArg, mim
 
     const laudo = await auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado, nomeCliente);
 
+    // Deduplicação determinística de comprovante PIX (Prevenção de Replay Attack)
+    const idTx = String(laudo?.dadosLidos?.idTransacao || '').trim();
+    if (idTx && idTx.length >= 8) {
+        const jaProcessado = (config.financeiro.comprovantesRecebidos || []).some(c => {
+            const cId = String(c?.dadosLidos?.idTransacao || c?.idTransacao || '').trim();
+            return cId && cId.toLowerCase() === idTx.toLowerCase();
+        }) || (config.financeiro.parcelas || []).some(p => {
+            const pId = String(p?.idTransacao || '').trim();
+            return pId && pId.toLowerCase() === idTx.toLowerCase();
+        });
+
+        if (jaProcessado) {
+            return {
+                success: false,
+                sucesso: false,
+                motivo: 'COMPROVANTE_JA_PROCESSADO',
+                comprovanteValido: false,
+                divergencia: 'COMPROVANTE_JA_PROCESSADO',
+                ehDocumentoCivil: false,
+                rotearParaDossie: false,
+                laudo: {
+                    ...(laudo || {}),
+                    comprovanteValido: false,
+                    divergencia: 'COMPROVANTE_JA_PROCESSADO'
+                },
+                parcelaBaixada: null,
+                resultadoBaixa: null,
+                feedbackWhatsApp: `⚠️ Este comprovante PIX (ID: ${idTx}) já foi processado anteriormente em nosso sistema e não pode ser reutilizado para quitação.`
+            };
+        }
+    }
+
     const ehDocCivil = Boolean(
         laudo.ehDocumentoCivil ||
         laudo.dadosLidos?.ehDocumentoCivil ||

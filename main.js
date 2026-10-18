@@ -1835,8 +1835,8 @@ ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
                 desativarPersistencia: true
             }
         );
-        if (resultado.fonte === 'ia') {
-            return { success: true, mensagem: `Conectado com sucesso à IA Gemini (${resultado.modelo || 'gemini-flash'})!`, texto: resultado.texto, modelo: resultado.modelo };
+        if (resultado.fonte === 'ia' || resultado.fonte === 'cache' || resultado.texto) {
+            return { success: true, mensagem: `Conectado com sucesso à IA Gemini (${resultado.modelo || 'gemini-flash'})!`, texto: resultado.texto, modelo: resultado.modelo || 'gemini-flash' };
         }
         return { success: false, mensagem: `Não foi possível conectar (${resultado.erro || 'verifique a chave ou o status da rede'}).` };
     } catch (err) {

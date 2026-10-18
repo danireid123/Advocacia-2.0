@@ -117,7 +117,7 @@ function iniciarSessaoOnboarding(clienteTelefone, clienteNome, presetTipo = 'Ger
     const chaveTel = String(clienteTelefone || '').trim();
     const keyPreset = normalizarPresetKey(presetTipo);
     const preset = PRESETS_ONBOARDING[keyPreset] || PRESETS_ONBOARDING.Geral;
-    const nomeLimpo = String(clienteNome || 'Cliente').trim();
+    const nomeLimpo = String(clienteNome || '').trim() || 'Cliente';
 
     let mensagemCustomizada = '';
     let itensPersonalizados = null;
@@ -149,9 +149,9 @@ function iniciarSessaoOnboarding(clienteTelefone, clienteNome, presetTipo = 'Ger
         : templatePadrao;
 
     const mensagemSolicitacaoWhatsApp = baseTexto
-        .replace(/\{nome\}/gi, nomeLimpo)
-        .replace(/\{preset\}/gi, preset.rotulo || keyPreset)
-        .replace(/\{documentos\}/gi, listaTexto);
+        .replace(/\{nome\}/gi, () => nomeLimpo)
+        .replace(/\{preset\}/gi, () => (preset.rotulo || keyPreset))
+        .replace(/\{documentos\}/gi, () => listaTexto);
 
     const sessao = {
         id: `onb_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
