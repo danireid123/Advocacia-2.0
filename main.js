@@ -689,10 +689,13 @@ async function processarMensagemEntrada(msg) {
         if (mensagensJaProcessadas.has(msgId)) return false;
 
         const ehAudio = Boolean(msg.hasMedia && (msg.type === 'ptt' || msg.type === 'audio'));
+        const ehMidiaVisual = Boolean(msg.hasMedia && !ehAudio);
         let textoOriginal = String(msg.body || '').trim();
-        if (!textoOriginal && !ehAudio) return false;
+        if (!textoOriginal && !ehAudio && !ehMidiaVisual) return false;
         if (ehAudio && !textoOriginal) {
             textoOriginal = '[Mensagem de Voz enviada pelo cliente]';
+        } else if (ehMidiaVisual && !textoOriginal) {
+            textoOriginal = '[Documento / Imagem enviada pelo cliente]';
         }
 
         mensagensJaProcessadas.add(msgId);
@@ -704,6 +707,61 @@ async function processarMensagemEntrada(msg) {
         const config = carregarConfig();
         const identidade = await resolverIdentidadeCompleta(msg, config);
         const remetenteChave = identidade.chaveCliente;
+
+        // Se for documento/imagem (Onboarding Forense ou Comprovante PIX)
+        if (ehMidiaVisual && typeof msg.downloadMedia === 'function') {
+            try {
+                const media = await msg.downloadMedia();
+                if (media && media.data) {
+                    const bufferMidia = Buffer.from(media.data, 'base64');
+                    const mimeType = media.mimetype || 'image/jpeg';
+                    const apiKey = config.gemini_api_key || process.env.GEMINI_API_KEY || '';
+                    const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
+                    const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
+
+                    const sessaoOnboarding = obterSessaoAtiva(remetenteChave, config);
+                    if (sessaoOnboarding) {
+                        const resOnb = await processarMidiaOnboarding(remetenteChave, bufferMidia, mimeType, apiKey, config);
+                        salvarConfigDisco(config, true);
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('bot-processos-sync', config);
+                        }
+                        if (resOnb && resOnb.mensagemFeedbackWhatsApp && client) {
+                            await client.sendMessage(msg.from, resOnb.mensagemFeedbackWhatsApp);
+                        }
+                        if (resOnb && resOnb.dossieConsolidado) {
+                            dispararNotificacaoTransbordo({
+                                contatoNome: sessaoOnboarding.clienteNome || remetenteChave,
+                                telefone: remetenteChave,
+                                motivo: 'Dossiê e Caso Pré-Processual prontos para análise!'
+                            });
+                        }
+                        return true;
+                    }
+
+                    // Verifica se o cliente possui parcela pendente no financeiro
+                    const parcelas = (config.financeiro && Array.isArray(config.financeiro.parcelas)) ? config.financeiro.parcelas : [];
+                    const temParcelaAberta = parcelas.some(p => {
+                        const st = String(p.status || 'PENDENTE').toUpperCase();
+                        const telP = apenasNumeros(p.clienteTelefone || p.telefone || '');
+                        return st !== 'PAGO' && telP && (telP === remetenteChave || remetenteChave.endsWith(telP) || telP.endsWith(remetenteChave));
+                    });
+                    if (temParcelaAberta) {
+                        const resPix = await processarComprovanteRecebido(remetenteChave, bufferMidia, mimeType, apiKey, config);
+                        salvarConfigDisco(config, true);
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('bot-processos-sync', config);
+                        }
+                        if (resPix && resPix.mensagemFeedbackWhatsApp && client) {
+                            await client.sendMessage(msg.from, resPix.mensagemFeedbackWhatsApp);
+                        }
+                        return true;
+                    }
+                }
+            } catch (errMidia) {
+                console.error('Erro ao processar mídia visual (Onboarding/PIX) no WhatsApp:', errMidia);
+            }
+        }
 
         // Se for áudio do WhatsApp, faz download e processa via Gemini Multimodal
         if (ehAudio && typeof msg.downloadMedia === 'function') {
@@ -2372,6 +2430,203 @@ ipcMain.handle('ia-melhorar-mensagem', async (event, dados = {}) => {
     }
 });
 
+// =========================================================================
+// ONBOARDING DIGITAL, DOSSIÊ DE CLIENTES & GESTÃO FINANCEIRA (PIX)
+// =========================================================================
+
+ipcMain.handle('iniciar-onboarding', async (event, payload = {}) => {
+    try {
+        const { iniciarSessaoOnboarding } = require('./src/onboarding/onboardingController');
+        const cfg = carregarConfig();
+        const clienteTelefone = payload.clienteTelefone || payload.telefone || '';
+        const clienteNome = payload.clienteNome || payload.nome || 'Cliente';
+        const preset = payload.preset || 'Geral';
+        const itensPersonalizados = Array.isArray(payload.itensPersonalizados) ? payload.itensPersonalizados : null;
+
+        const sessao = iniciarSessaoOnboarding(clienteTelefone, clienteNome, preset, cfg, itensPersonalizados);
+        salvarConfigDisco(cfg);
+
+        // Dispara mensagem estruturada no WhatsApp se estiver conectado e solicitado
+        if (payload.enviarWhatsApp !== false && client && statusAtual === 'CONECTADO' && sessao.mensagemDisparo) {
+            const digitos = apenasNumeros(clienteTelefone);
+            if (digitos) {
+                try {
+                    const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                    await client.sendMessage(chatId, sessao.mensagemDisparo);
+                } catch (errEnvio) {
+                    console.warn('[Onboarding] Aviso ao enviar mensagem WhatsApp:', errEnvio.message);
+                }
+            }
+        }
+
+        // Atualiza status na fila humana se o contato estiver pausado
+        const chave = apenasNumeros(clienteTelefone);
+        if (chave && contatosPausados[chave]) {
+            contatosPausados[chave].statusOnboarding = 'DOCS_SOLICITADOS';
+            contatosPausados[chave].presetOnboarding = preset;
+            emitirPausados();
+        }
+
+        return {
+            sucesso: true,
+            sessao,
+            mensagemDisparo: sessao.mensagemDisparo
+        };
+    } catch (err) {
+        console.error('[IPC iniciar-onboarding] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('obter-dossies', async () => {
+    try {
+        const { obterDossies } = require('./src/onboarding/onboardingController');
+        const cfg = carregarConfig();
+        const resultado = obterDossies(cfg);
+        return {
+            sucesso: true,
+            ...resultado,
+            configuracaoCobranca: cfg.configuracaoCobranca || {},
+            financeiro: cfg.financeiro || { parcelas: [], comprovantesRecebidos: [] }
+        };
+    } catch (err) {
+        console.error('[IPC obter-dossies] Erro:', err);
+        return { sucesso: false, erro: err.message, lista: [], mapa: {}, sessoesOnboarding: {} };
+    }
+});
+
+ipcMain.handle('copiar-qualificacao-cpc', async (event, payload = {}) => {
+    try {
+        const { gerarQualificacaoCPC } = require('./src/onboarding/formatadorCPC');
+        const cfg = carregarConfig();
+        let qualificacaoDados = payload.qualificacao || payload;
+        if (payload.clienteId || payload.telefone) {
+            const chave = apenasNumeros(payload.clienteId || payload.telefone);
+            const dossie = cfg.dossiesClientes && cfg.dossiesClientes[chave];
+            if (dossie && dossie.civil) {
+                qualificacaoDados = dossie.civil;
+            }
+        }
+        const textoCPC = gerarQualificacaoCPC(qualificacaoDados);
+        try {
+            const { clipboard } = require('electron');
+            if (clipboard && typeof clipboard.writeText === 'function') {
+                clipboard.writeText(textoCPC);
+            }
+        } catch (errClip) {}
+        return { sucesso: true, texto: textoCPC };
+    } catch (err) {
+        console.error('[IPC copiar-qualificacao-cpc] Erro:', err);
+        return { sucesso: false, erro: err.message, texto: '' };
+    }
+});
+
+ipcMain.handle('salvar-config-cobranca', async (event, novaConfig = {}) => {
+    try {
+        const { salvarConfiguracaoCobranca } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const configSalva = salvarConfiguracaoCobranca(novaConfig, cfg);
+        salvarConfigDisco(cfg);
+        return { sucesso: true, configuracaoCobranca: configSalva };
+    } catch (err) {
+        console.error('[IPC salvar-config-cobranca] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('disparar-regua-cobranca', async (event, opcoes = {}) => {
+    try {
+        const { dispararReguaCobranca } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const enviarMsgFn = async (telefone, mensagem) => {
+            const digitos = apenasNumeros(telefone);
+            if (client && statusAtual === 'CONECTADO' && digitos) {
+                const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                await client.sendMessage(chatId, mensagem);
+                return true;
+            }
+            return true; // Simulado com sucesso quando WhatsApp offline
+        };
+        const relatorio = await dispararReguaCobranca(cfg, enviarMsgFn, {
+            delayMs: typeof opcoes.delayMs === 'number' ? opcoes.delayMs : 50,
+            ignorarDiaDaSemana: opcoes.ignorarDiaDaSemana !== undefined ? opcoes.ignorarDiaDaSemana : true,
+            apenasParcelaId: opcoes.apenasParcelaId || null
+        });
+        salvarConfigDisco(cfg);
+        return relatorio;
+    } catch (err) {
+        console.error('[IPC disparar-regua-cobranca] Erro:', err);
+        return { sucesso: false, erro: err.message, enviados: 0 };
+    }
+});
+
+ipcMain.handle('dar-baixa-parcela', async (event, payload = {}) => {
+    try {
+        const { darBaixaParcela } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const parcelaId = typeof payload === 'string' ? payload : (payload.parcelaId || payload.id);
+        const dadosPagamento = (typeof payload === 'object' && payload !== null) ? (payload.dadosPagamento || payload) : {};
+        const resultado = darBaixaParcela(parcelaId, cfg, dadosPagamento);
+        if (resultado.sucesso) {
+            salvarConfigDisco(cfg);
+        }
+        return resultado;
+    } catch (err) {
+        console.error('[IPC dar-baixa-parcela] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('financeiro-adicionar-parcela', async (event, dadosParcela = {}) => {
+    try {
+        const { adicionarParcela } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const nova = adicionarParcela(dadosParcela, cfg);
+        salvarConfigDisco(cfg);
+        return { sucesso: true, parcela: nova, parcelas: cfg.financeiro.parcelas };
+    } catch (err) {
+        console.error('[IPC financeiro-adicionar-parcela] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('onboarding-processar-midia', async (event, payload = {}) => {
+    try {
+        const { processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
+        const cfg = carregarConfig();
+        const buffer = Buffer.isBuffer(payload.buffer)
+            ? payload.buffer
+            : Buffer.from(String(payload.base64 || ''), 'base64');
+        const resultado = await processarMidiaOnboarding({
+            clienteTelefone: payload.clienteTelefone || payload.telefone,
+            clienteNome: payload.clienteNome || payload.nome,
+            buffer,
+            mimetype: payload.mimetype || 'image/jpeg',
+            nomeOriginal: payload.nomeOriginal || 'documento.jpg',
+            apiKey: cfg.gemini_api_key || process.env.GEMINI_API_KEY
+        }, cfg);
+        salvarConfigDisco(cfg);
+        return resultado;
+    } catch (err) {
+        console.error('[IPC onboarding-processar-midia] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('onboarding-consolidar-dossie', async (event, payload = {}) => {
+    try {
+        const { consolidarDossie } = require('./src/onboarding/onboardingController');
+        const cfg = carregarConfig();
+        const tel = typeof payload === 'string' ? payload : (payload.clienteTelefone || payload.telefone);
+        const dossie = consolidarDossie(tel, cfg);
+        salvarConfigDisco(cfg);
+        return { sucesso: Boolean(dossie), dossie };
+    } catch (err) {
+        console.error('[IPC onboarding-consolidar-dossie] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
 module.exports = {
     traduzirAndamentoParaCliente,
     formatarMensagemProcesso,
@@ -2380,4 +2635,5 @@ module.exports = {
     executarSimulacaoMensagem,
     resetarConversaSimulador
 };
+
 

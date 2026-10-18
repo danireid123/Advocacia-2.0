@@ -378,10 +378,13 @@ async function processarMensagemEntrada(msg) {
         if (mensagensJaProcessadas.has(msgId)) return false;
 
         const ehAudio = Boolean(msg.hasMedia && (msg.type === 'ptt' || msg.type === 'audio'));
+        const ehMidiaVisual = Boolean(msg.hasMedia && !ehAudio);
         let textoOriginal = String(msg.body || '').trim();
-        if (!textoOriginal && !ehAudio) return false;
+        if (!textoOriginal && !ehAudio && !ehMidiaVisual) return false;
         if (ehAudio && !textoOriginal) {
             textoOriginal = '[Mensagem de Voz enviada pelo cliente]';
+        } else if (ehMidiaVisual && !textoOriginal) {
+            textoOriginal = '[Documento ou Comprovante enviado pelo cliente]';
         }
 
         mensagensJaProcessadas.add(msgId);
@@ -395,6 +398,56 @@ async function processarMensagemEntrada(msg) {
         const remetenteChave = apenasNumeros(senderId);
 
         if (isContactIgnored(remetenteChave)) return false;
+
+        // Se for documento/imagem (Onboarding Digital ou Comprovante PIX)
+        if (ehMidiaVisual && typeof msg.downloadMedia === 'function') {
+            try {
+                const media = await msg.downloadMedia();
+                if (media && media.data) {
+                    const bufferMidia = Buffer.from(media.data, 'base64');
+                    const mimeType = media.mimetype || 'image/jpeg';
+                    const nomeArquivo = media.filename || `midia_${Date.now()}.${mimeType.includes('pdf') ? 'pdf' : 'jpg'}`;
+                    const apiKey = config.gemini_api_key || process.env.GEMINI_API_KEY;
+                    const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
+                    const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
+
+                    const sessaoAtiva = obterSessaoAtiva(remetenteChave, config);
+                    const legMin = String(msg.body || '').toLowerCase();
+                    const parecePix = legMin.includes('pix') || legMin.includes('comprovante') || legMin.includes('pagamento');
+
+                    if (sessaoAtiva && !parecePix) {
+                        const resOnb = await processarMidiaOnboarding({
+                            clienteTelefone: remetenteChave,
+                            clienteNome: config.mapaNomes?.[remetenteChave] || sessaoAtiva.clienteNome || 'Cliente WhatsApp',
+                            buffer: bufferMidia,
+                            mimetype: mimeType,
+                            nomeOriginal: nomeArquivo,
+                            apiKey
+                        }, config);
+                        salvarConfigDisco(config);
+                        if (resOnb && resOnb.mensagemFeedbackWhatsApp && client) {
+                            await client.sendMessage(msg.from, resOnb.mensagemFeedbackWhatsApp);
+                        }
+                        return true;
+                    } else {
+                        const resPix = await processarComprovanteRecebido({
+                            clienteTelefone: remetenteChave,
+                            clienteNome: config.mapaNomes?.[remetenteChave] || 'Cliente WhatsApp',
+                            buffer: bufferMidia,
+                            mimetype: mimeType,
+                            apiKey
+                        }, config);
+                        salvarConfigDisco(config);
+                        if (resPix && resPix.mensagemFeedbackWhatsApp && client) {
+                            await client.sendMessage(msg.from, resPix.mensagemFeedbackWhatsApp);
+                        }
+                        if (resPix && resPix.sucesso) return true;
+                    }
+                }
+            } catch (errMidia) {
+                console.error('[Server] Erro ao processar mídia visual:', errMidia);
+            }
+        }
 
         // Se for áudio do WhatsApp, faz download e processa via Gemini Multimodal
         if (ehAudio && typeof msg.downloadMedia === 'function') {

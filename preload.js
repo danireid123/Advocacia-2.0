@@ -61,6 +61,17 @@ const apiBridge = {
     anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
     higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
 
+    // Onboarding Forense, Dossiê de Clientes & Financeiro PIX (v2.1)
+    iniciarOnboarding: (dados) => ipcRenderer.invoke('iniciar-onboarding', dados),
+    obterDossies: () => ipcRenderer.invoke('obter-dossies'),
+    salvarConfigCobranca: (dados) => ipcRenderer.invoke('salvar-config-cobranca', dados),
+    dispararReguaCobranca: (dados) => ipcRenderer.invoke('disparar-regua-cobranca', dados),
+    copiarQualificacaoCPC: (clienteId) => ipcRenderer.invoke('copiar-qualificacao-cpc', clienteId),
+    darBaixaParcela: (dados) => ipcRenderer.invoke('dar-baixa-parcela', dados),
+    adicionarParcelaFinanceiro: (dados) => ipcRenderer.invoke('financeiro-adicionar-parcela', dados),
+    processarMidiaOnboarding: (dados) => ipcRenderer.invoke('onboarding-processar-midia', dados),
+    consolidarDossieCliente: (telefone) => ipcRenderer.invoke('onboarding-consolidar-dossie', telefone),
+
     // Listeners Específicos Legados
     aoReceberQR: (callback) => ipcRenderer.on('bot-qr', (_e, qr) => callback(qr)),
     aoMudarStatus: (callback) => ipcRenderer.on('bot-status', (_e, st) => callback(st)),

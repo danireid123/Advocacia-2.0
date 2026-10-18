@@ -68,7 +68,25 @@ function criarConfigPadraoV2() {
         mapaTelefones: {},
         pausadosPersistidos: {},
         contatosIgnorados: [],
-        metricasReais: { totalMensagens: 0, contatosAtendidos: [] }
+        metricasReais: { totalMensagens: 0, contatosAtendidos: [] },
+        dossiesClientes: {},
+        onboardingSessoes: {},
+        configuracaoCobranca: {
+            chavePix: "pix@escritorio.adv.br",
+            tipoChave: "E-MAIL",
+            beneficiario: "Advocacia Studio Pro",
+            frequenciaSemanal: 2,
+            diasDaSemana: ["TERCA", "QUINTA"],
+            horarioEnvio: "09:30",
+            delayMinimoSegundos: 15,
+            delayMaximoSegundos: 30,
+            modoAprovacao: "MANUAL_ADVOGADO"
+        },
+        financeiro: {
+            contratos: [],
+            parcelas: [],
+            comprovantesRecebidos: []
+        }
     };
 }
 
@@ -242,6 +260,29 @@ function migrarConfigV1ParaV2(rawInput, contatosIgnoradosExternos = []) {
         contatosAtendidos: Array.isArray(raw.metricasReais?.contatosAtendidos)
             ? [...raw.metricasReais.contatosAtendidos]
             : []
+    };
+
+    // 10. Dossiês de Clientes, Onboarding e Financeiro (v2.1+)
+    migrado.dossiesClientes = (raw.dossiesClientes && typeof raw.dossiesClientes === 'object' && !Array.isArray(raw.dossiesClientes))
+        ? { ...raw.dossiesClientes }
+        : {};
+
+    migrado.onboardingSessoes = (raw.onboardingSessoes && typeof raw.onboardingSessoes === 'object' && !Array.isArray(raw.onboardingSessoes))
+        ? { ...raw.onboardingSessoes }
+        : {};
+
+    migrado.configuracaoCobranca = {
+        ...padrao.configuracaoCobranca,
+        ...((raw.configuracaoCobranca && typeof raw.configuracaoCobranca === 'object') ? raw.configuracaoCobranca : {})
+    };
+    if (!Array.isArray(migrado.configuracaoCobranca.diasDaSemana)) {
+        migrado.configuracaoCobranca.diasDaSemana = [...padrao.configuracaoCobranca.diasDaSemana];
+    }
+
+    migrado.financeiro = {
+        contratos: Array.isArray(raw.financeiro?.contratos) ? [...raw.financeiro.contratos] : [],
+        parcelas: Array.isArray(raw.financeiro?.parcelas) ? [...raw.financeiro.parcelas] : [],
+        comprovantesRecebidos: Array.isArray(raw.financeiro?.comprovantesRecebidos) ? [...raw.financeiro.comprovantesRecebidos] : []
     };
 
     return migrado;

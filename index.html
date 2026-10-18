@@ -887,6 +887,14 @@
               </div>
               <span class="px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold uppercase">Sandbox</span>
             </button>
+            <button id="nav-btn-dossie-clientes" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white flex items-center justify-between transition" title="Ficha Civil CPC e Galeria de Documentos Auditados pela IA">
+              <div class="flex items-center space-x-3"><svg class="w-4 h-4 text-[#e5c158]"><use href="#icon-folder"/></svg><span>👥 Dossiê de Clientes</span></div>
+              <span id="badge-dossies" class="px-2 py-0.5 text-[10px] rounded-full bg-slate-800 text-[#f3e5ab] font-bold">0</span>
+            </button>
+            <button id="nav-btn-financeiro" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white flex items-center justify-between transition" title="Gestão de Honorários, Régua de Cobrança Semanal e Auditoria de PIX com IA">
+              <div class="flex items-center space-x-3"><svg class="w-4 h-4 text-emerald-400"><use href="#icon-scales"/></svg><span>💰 Financeiro & PIX</span></div>
+              <span id="badge-financeiro" class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/20 text-emerald-300 font-bold">PIX</span>
+            </button>
             <button id="nav-btn-terminal" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white flex items-center justify-between transition">
               <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-activity"/></svg><span>Histórico de Mensagens</span></div>
             </button>
@@ -1692,6 +1700,239 @@
           </div>
         </div>
 
+        <!-- ================= ABA DOSSIÊ DE CLIENTES (DESACOPLADO) ================= -->
+        <div id="aba-dossie-clientes" class="hidden space-y-5 tab-pane-anim">
+          <div id="tab-dossie-clientes" class="exec-card p-6 rounded-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div>
+                <div class="flex items-center space-x-2.5">
+                  <h2 class="font-serif-legal text-lg font-bold">👥 Dossiê de Clientes & Auditoria Forense</h2>
+                  <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-[#d4af37]/15 text-[#e5c158] border border-[#d4af37]/30">
+                    CPC Art. 319, II • OCR Multimodal Gemini
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Ficha civil estruturada desacoplada dos processos, com galeria de documentos originais auditados por Visão Computacional.</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button type="button" id="btn-atualizar-dossies" onclick="carregarERenderizarDossies()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                  <svg class="w-3.5 h-3.5 text-[#e5c158]"><use href="#icon-refresh"/></svg>
+                  <span>Atualizar Dossiês</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-5">
+              <!-- Coluna Esquerda: Lista de Clientes -->
+              <div class="col-span-4 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-[#e5c158]">Clientes & Sessões Onboarding</span>
+                  <span id="contador-dossies-lista" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold">0</span>
+                </div>
+                <div id="lista-clientes-dossie" class="space-y-2 max-h-[520px] overflow-y-auto pr-1">
+                  <div class="p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">Nenhum dossiê consolidado ainda. Solicite documentos na Fila de Espera!</div>
+                </div>
+              </div>
+
+              <!-- Coluna Direita: Ficha Civil CPC & Galeria de Documentos -->
+              <div class="col-span-8 space-y-4">
+                <div class="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3.5">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-[#e5c158] block">Qualificação Civil Completa (Art. 319, II do CPC)</span>
+                      <h3 id="dossie-cliente-titulo" class="text-sm font-bold text-white mt-0.5">Selecione um cliente ao lado</h3>
+                    </div>
+                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-4 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-slate-950 shadow-lg flex items-center space-x-1.5 transition cursor-pointer">
+                      <span>📋 Copiar Qualificação Civil (CPC)</span>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-12 gap-3 text-xs">
+                    <div class="col-span-6">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">Nome Completo</label>
+                      <input type="text" id="dossie-nome" placeholder="Extraído via OCR do RG/CNH" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    </div>
+                    <div class="col-span-3">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">CPF</label>
+                      <input type="text" id="dossie-cpf" placeholder="000.000.000-00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div class="col-span-3">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">RG / Órgão Emissor</label>
+                      <input type="text" id="dossie-rg" placeholder="00.000.000-0 SSP" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div class="col-span-4">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">Estado Civil</label>
+                      <input type="text" id="dossie-estado-civil" placeholder="Ex: casado(a), solteiro(a)" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    </div>
+                    <div class="col-span-4">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">Profissão</label>
+                      <input type="text" id="dossie-profissao" placeholder="Extraído da CTPS / Ficha" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    </div>
+                    <div class="col-span-4">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">Filiação (Mãe / Pai)</label>
+                      <input type="text" id="dossie-filiacao" placeholder="Filiação extraída do RG" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    </div>
+                    <div class="col-span-12">
+                      <label class="text-[10px] text-slate-400 font-semibold block mb-1">Endereço Completo com CEP</label>
+                      <input type="text" id="dossie-endereco" placeholder="Logradouro, número, bairro, cidade/UF e CEP" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    </div>
+                  </div>
+
+                  <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800/90">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">Prévia do Parágrafo de Qualificação (Cabeçalho da Petição Inicial):</span>
+                    <p id="dossie-preview-cpc" class="text-xs text-slate-300 font-serif-legal italic leading-relaxed select-all">Selecione um dossiê ou preencha os dados acima para gerar o texto formal do Art. 319, II do CPC.</p>
+                  </div>
+                </div>
+
+                <!-- Galeria Visual de Documentos Auditados pela IA -->
+                <div class="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[#e5c158]">🖼️ Galeria de Documentos Auditados (Visão Computacional)</span>
+                    <span class="text-[10px] text-slate-400">Pasta local: <code class="text-[#f3e5ab]">./documentos_clientes/</code></span>
+                  </div>
+                  <div id="galeria-documentos-cliente" class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2 p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">
+                      Nenhum documento exibido. Selecione um cliente para visualizar as imagens e laudos forenses da IA.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= ABA FINANCEIRO & PIX (RÉGUA SEMANAL + AUDITORIA DE COMPROVANTES) ================= -->
+        <div id="aba-financeiro" class="hidden space-y-5 tab-pane-anim">
+          <div id="tab-financeiro" class="exec-card p-6 rounded-2xl space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div>
+                <div class="flex items-center space-x-2.5">
+                  <h2 class="font-serif-legal text-lg font-bold">💰 Gestão de Honorários, Régua Semanal & Auditoria PIX</h2>
+                  <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    Leitura de Comprovantes por Visão Computacional
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Configure a frequência semanal de lembretes com Chave PIX, dispare com delay anti-ban e deixe a IA auditar os comprovantes recebidos.</p>
+              </div>
+              <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="px-4 py-2.5 champagne-gradient rounded-xl text-xs font-extrabold text-slate-950 shadow-lg flex items-center space-x-2 transition cursor-pointer">
+                <span>🚀 Revisar e Disparar com 1 Clique</span>
+              </button>
+            </div>
+
+            <!-- Painel de Configuração da Régua de Cobrança Semanal -->
+            <div id="painel-cobranca-semanal" class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#e5c158]">⚙️ Painel de Cobranças Configurável (Frequência Semanal & PIX)</span>
+                <button type="button" id="btn-salvar-config-cobranca" onclick="salvarConfigCobrancaUI()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow cursor-pointer">
+                  💾 Salvar Configuração PIX
+                </button>
+              </div>
+
+              <div class="grid grid-cols-12 gap-4 text-xs">
+                <div class="col-span-3">
+                  <label class="text-[11px] font-bold text-slate-300 block mb-1">Frequência Semanal</label>
+                  <select id="frequenciaSemanal" data-field="frequencia-cobranca" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    <option value="1">1 vez por semana</option>
+                    <option value="2">2 vezes por semana</option>
+                    <option value="3">3 vezes por semana</option>
+                  </select>
+                </div>
+                <div class="col-span-5">
+                  <label class="text-[11px] font-bold text-slate-300 block mb-1">Dias da Semana Permitidos para Disparo</label>
+                  <div class="flex flex-wrap items-center gap-2 pt-1">
+                    <label class="flex items-center space-x-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 cursor-pointer">
+                      <input type="checkbox" class="check-dia-cobranca accent-[#d4af37]" value="SEGUNDA" checked>
+                      <span>Seg</span>
+                    </label>
+                    <label class="flex items-center space-x-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 cursor-pointer">
+                      <input type="checkbox" class="check-dia-cobranca accent-[#d4af37]" value="TERCA">
+                      <span>Ter</span>
+                    </label>
+                    <label class="flex items-center space-x-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 cursor-pointer">
+                      <input type="checkbox" class="check-dia-cobranca accent-[#d4af37]" value="QUARTA">
+                      <span>Qua</span>
+                    </label>
+                    <label class="flex items-center space-x-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 cursor-pointer">
+                      <input type="checkbox" class="check-dia-cobranca accent-[#d4af37]" value="QUINTA" checked>
+                      <span>Qui</span>
+                    </label>
+                    <label class="flex items-center space-x-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 cursor-pointer">
+                      <input type="checkbox" class="check-dia-cobranca accent-[#d4af37]" value="SEXTA">
+                      <span>Sex</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-span-4">
+                  <label class="text-[11px] font-bold text-[#e5c158] block mb-1">Chave PIX do Escritório</label>
+                  <input type="text" id="chavePix" placeholder="CNPJ, CPF, E-mail ou Celular PIX" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+              </div>
+            </div>
+
+            <!-- Cadastro Rápido de Parcela + Tabela de Parcelas -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#e5c158]">📋 Controle de Parcelas de Honorários</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2.5 p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
+                <input type="text" id="fin-novo-nome" placeholder="Nome do Cliente" class="col-span-3 exec-input rounded-xl px-3 py-2 text-xs">
+                <input type="text" id="fin-novo-tel" placeholder="WhatsApp (Ex: 5511999999999)" class="col-span-3 exec-input rounded-xl px-3 py-2 text-xs font-mono">
+                <input type="number" step="0.01" id="fin-novo-valor" placeholder="Valor R$ (Ex: 750.00)" class="col-span-2 exec-input rounded-xl px-3 py-2 text-xs font-mono">
+                <input type="date" id="fin-novo-vencimento" class="col-span-2 exec-input rounded-xl px-3 py-2 text-xs">
+                <button type="button" onclick="adicionarParcelaFinanceiroUI()" class="col-span-2 champagne-gradient rounded-xl font-bold text-slate-950 text-xs shadow transition cursor-pointer">
+                  + Lançar Parcela
+                </button>
+              </div>
+
+              <div id="tabela-parcelas" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                <div class="p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">Nenhuma parcela lançada. Utilize o formulário acima para registrar honorários.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL: SOLICITAR DOCUMENTOS EM 1 CLIQUE (5 PRESETS JURÍDICOS) -->
+        <div id="modal-solicitar-documentos" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm items-center justify-center p-4">
+          <div class="exec-card max-w-lg w-full p-6 rounded-2xl border border-[#d4af37]/40 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#e5c158]">Onboarding Jurídico Digital</span>
+                <h3 class="font-serif-legal text-base font-bold text-white">📄 Solicitar Documentos pelo WhatsApp</h3>
+              </div>
+              <button type="button" onclick="fecharModalSolicitarDocumentos()" class="text-slate-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="text-[11px] text-slate-400 font-semibold block mb-1">Cliente Selecionado</label>
+                <input type="text" id="onboarding-modal-cliente-nome" readonly class="exec-input w-full rounded-xl px-3 py-2 text-xs font-bold text-[#f3e5ab]">
+                <input type="hidden" id="onboarding-modal-cliente-tel">
+              </div>
+
+              <div>
+                <label class="text-[11px] text-[#e5c158] font-bold block mb-1">Selecione o Preset de Documentos da Área Jurídica</label>
+                <select id="onboarding-modal-preset" class="exec-input w-full rounded-xl px-3 py-2.5 text-xs font-semibold">
+                  <option value="Trabalhista">⚖️ Trabalhista (RG/CNH, CTPS, TRCT, Holerites, FGTS e Endereço)</option>
+                  <option value="Previdenciario">🏛️ Previdenciário / INSS (RG/CNH, CNIS, Laudos Médicos, CTPS e Endereço)</option>
+                  <option value="Civel">📑 Cível / Consumidor (RG/CNH, Comprovante de Endereço, Contrato/Provas)</option>
+                  <option value="Familia">👨‍👩‍👧 Direito de Família (RG/CNH, Certidão Casamento/Nascimento, Endereço e Renda)</option>
+                  <option value="Geral">📋 Geral / Kit Básico (RG ou CNH, CPF, Comprovante de Residência e Extratos)</option>
+                </select>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+                ✨ O robô enviará o checklist acolhedor no WhatsApp do cliente e colocará o contato em modo <strong>AGUARDANDO_DOCUMENTOS</strong>. Cada foto ou PDF recebido será auditado automaticamente pela Visão Computacional do Gemini!
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-800">
+              <button type="button" onclick="fecharModalSolicitarDocumentos()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300">Cancelar</button>
+              <button type="button" id="btn-confirmar-onboarding" onclick="confirmarDisparoOnboarding()" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-slate-950 shadow-lg cursor-pointer">
+                🚀 Disparar Checklist no WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -2409,7 +2650,7 @@
           window.gravadorInterval = null;
         }
       }
-      ['inicio', 'processos', 'fluxo', 'agenda', 'pausados', 'ignorados', 'simulador', 'terminal', 'backup'].forEach(a => {
+      ['inicio', 'processos', 'fluxo', 'agenda', 'pausados', 'ignorados', 'simulador', 'dossie-clientes', 'financeiro', 'terminal', 'backup'].forEach(a => {
         const d = document.getElementById('aba-' + a);
         const b = document.getElementById('nav-btn-' + a);
         if (d) {
@@ -2425,6 +2666,12 @@
       if (abaNome === 'processos') renderizarModuloProcessos();
       if (abaNome === 'agenda') renderizarAgendaSemanal();
       if (abaNome === 'ignorados') carregarERenderizarIgnorados();
+      if (abaNome === 'dossie-clientes' && typeof window.carregarERenderizarDossies === 'function') {
+        window.carregarERenderizarDossies();
+      }
+      if (abaNome === 'financeiro' && typeof window.carregarERenderizarFinanceiro === 'function') {
+        window.carregarERenderizarFinanceiro();
+      }
       if (abaNome === 'simulador' && typeof window.aoAbrirAbaSimulador === 'function') {
         window.aoAbrirAbaSimulador();
       }
@@ -2440,6 +2687,8 @@
     });
     safeOn('nav-btn-ignorados', 'click', () => ativarAba('ignorados'));
     safeOn('nav-btn-simulador', 'click', () => ativarAba('simulador'));
+    safeOn('nav-btn-dossie-clientes', 'click', () => ativarAba('dossie-clientes'));
+    safeOn('nav-btn-financeiro', 'click', () => ativarAba('financeiro'));
     safeOn('nav-btn-terminal', 'click', () => ativarAba('terminal'));
     safeOn('nav-btn-backup', 'click', () => ativarAba('backup'));
 
@@ -4633,12 +4882,17 @@
                 <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">Robô pausado</span>
               </div>
 
-              <!-- BOTÃO PEDIDO PELO USUÁRIO: "Ver Resumo do Cliente" -->
-              <button type="button" onclick="alternarResumoCliente('${cardId}')" class="mt-2.5 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold transition text-xs shadow-sm cursor-pointer">
-                <span>📋</span>
-                <span id="label-resumo-${cardId}">Ver Resumo do Cliente</span>
-                <svg id="seta-resumo-${cardId}" class="w-3.5 h-3.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-              </button>
+              <!-- BOTÃO PEDIDO PELO USUÁRIO: "Ver Resumo do Cliente" + "Solicitar Documentos" -->
+              <div class="mt-2.5 flex flex-wrap items-center gap-2">
+                <button type="button" onclick="alternarResumoCliente('${cardId}')" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold transition text-xs shadow-sm cursor-pointer">
+                  <span>📋</span>
+                  <span id="label-resumo-${cardId}">Ver Resumo do Cliente</span>
+                  <svg id="seta-resumo-${cardId}" class="w-3.5 h-3.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button type="button" onclick="abrirModalSolicitarDocumentos('${chave}', '${escaparHtmlTexto(tituloExibicao)}')" class="btn-solicitar-docs inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#d4af37]/20 hover:bg-[#d4af37]/30 border border-[#d4af37]/40 text-[#f3e5ab] font-bold transition text-xs shadow-sm cursor-pointer">
+                  <span>📄 Solicitar Documentos</span>
+                </button>
+              </div>
             </div>
 
             <button onclick="reativarCliente('${chave}')" class="px-3.5 py-2 champagne-gradient font-bold rounded-xl transition shadow flex items-center space-x-1.5 text-slate-950 text-xs hover:opacity-90 cursor-pointer">
@@ -4747,6 +5001,317 @@
       } catch (e) {}
       document.body.removeChild(ta);
     }
+
+    // =========================================================================
+    // ONBOARDING DIGITAL, DOSSIÊ DE CLIENTES (CPC ART. 319) & FINANCEIRO PIX
+    // =========================================================================
+
+    window.dossieClienteSelecionadoId = null;
+    window.dossiesCache = {};
+
+    window.abrirModalSolicitarDocumentos = function(chave, nomeCliente) {
+      const modal = document.getElementById('modal-solicitar-documentos');
+      const elNome = document.getElementById('onboarding-modal-cliente-nome');
+      const elTel = document.getElementById('onboarding-modal-cliente-tel');
+      if (elNome) elNome.value = nomeCliente || chave || 'Cliente';
+      if (elTel) elTel.value = chave || '';
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    };
+
+    window.fecharModalSolicitarDocumentos = function() {
+      const modal = document.getElementById('modal-solicitar-documentos');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    window.confirmarDisparoOnboarding = async function() {
+      const elNome = document.getElementById('onboarding-modal-cliente-nome');
+      const elTel = document.getElementById('onboarding-modal-cliente-tel');
+      const elPreset = document.getElementById('onboarding-modal-preset');
+      const clienteNome = elNome ? elNome.value.trim() : 'Cliente';
+      const clienteTelefone = elTel ? elTel.value.trim() : '';
+      const preset = elPreset ? elPreset.value : 'Geral';
+
+      if (window.api && typeof window.api.iniciarOnboarding === 'function') {
+        const res = await window.api.iniciarOnboarding({
+          clienteTelefone,
+          clienteNome,
+          preset,
+          enviarWhatsApp: true
+        });
+        if (res && res.sucesso) {
+          mostrarToast(`📄 Checklist (${preset}) enviado no WhatsApp de ${clienteNome}!`);
+          fecharModalSolicitarDocumentos();
+          if (typeof window.carregarERenderizarDossies === 'function') {
+            window.carregarERenderizarDossies();
+          }
+          return;
+        }
+      }
+      mostrarToast(`📄 Solicitação de documentos (${preset}) registrada!`);
+      fecharModalSolicitarDocumentos();
+    };
+
+    window.carregarERenderizarDossies = async function() {
+      try {
+        let dados = { lista: [], mapa: {}, sessoesOnboarding: {} };
+        if (window.api && typeof window.api.obterDossies === 'function') {
+          dados = await window.api.obterDossies();
+        } else if (configGlobal && configGlobal.dossiesClientes) {
+          dados.mapa = configGlobal.dossiesClientes;
+          dados.lista = Object.values(configGlobal.dossiesClientes);
+        }
+
+        const lista = Array.isArray(dados.lista) ? dados.lista : [];
+        window.dossiesCache = dados.mapa || {};
+
+        const badge = document.getElementById('badge-dossies');
+        if (badge) badge.innerText = String(lista.length);
+        const contLista = document.getElementById('contador-dossies-lista');
+        if (contLista) contLista.innerText = String(lista.length);
+
+        const container = document.getElementById('lista-clientes-dossie');
+        if (!container) return;
+
+        if (lista.length === 0) {
+          container.innerHTML = '<div class="p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">Nenhum dossiê consolidado ainda. Clique em "📄 Solicitar Documentos" na Fila de Espera!</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        lista.forEach((dossie) => {
+          const id = dossie.clienteId || dossie.clienteTelefone;
+          const ativo = window.dossieClienteSelecionadoId === id;
+          const qtdDocs = Array.isArray(dossie.documentos) ? dossie.documentos.length : 0;
+          const card = document.createElement('div');
+          card.className = `p-3.5 rounded-xl border transition cursor-pointer ${ativo ? 'proc-list-item-active' : 'exec-card hover:border-slate-700'}`;
+          card.onclick = () => selecionarClienteDossie(id);
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white truncate">${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>
+            </div>
+            <span class="text-[10px] font-mono text-[#e5c158] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
+          `;
+          container.appendChild(card);
+        });
+
+        if (!window.dossieClienteSelecionadoId && lista[0]) {
+          selecionarClienteDossie(lista[0].clienteId || lista[0].clienteTelefone);
+        } else if (window.dossieClienteSelecionadoId && window.dossiesCache[window.dossieClienteSelecionadoId]) {
+          selecionarClienteDossie(window.dossieClienteSelecionadoId);
+        }
+      } catch (e) {
+        console.warn('Erro ao renderizar dossiês:', e);
+      }
+    };
+
+    window.selecionarClienteDossie = function(clienteId) {
+      window.dossieClienteSelecionadoId = clienteId;
+      const dossie = (window.dossiesCache && window.dossiesCache[clienteId]) || null;
+      if (!dossie) return;
+
+      const civil = dossie.civil || {};
+      const elTit = document.getElementById('dossie-cliente-titulo');
+      if (elTit) elTit.innerText = `${dossie.clienteNome || civil.nomeCompleto || 'Cliente'} (+${clienteId})`;
+
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      setVal('dossie-nome', civil.nomeCompleto || dossie.clienteNome || '');
+      setVal('dossie-cpf', civil.cpf || '');
+      setVal('dossie-rg', [civil.rg, civil.rgOrgaoEmissor].filter(Boolean).join(' '));
+      setVal('dossie-estado-civil', civil.estadoCivil || '');
+      setVal('dossie-profissao', civil.profissao || '');
+      const fil = civil.filiacao ? [civil.filiacao.mae, civil.filiacao.pai].filter(Boolean).join(' / ') : '';
+      setVal('dossie-filiacao', fil);
+      const end = typeof civil.endereco === 'object' && civil.endereco !== null
+        ? [civil.endereco.logradouro, civil.endereco.numero, civil.endereco.bairro, civil.endereco.cidade, civil.endereco.uf, civil.endereco.cep].filter(Boolean).join(', ')
+        : (civil.endereco || '');
+      setVal('dossie-endereco', end);
+
+      const elPrev = document.getElementById('dossie-preview-cpc');
+      if (elPrev) {
+        elPrev.innerText = dossie.qualificacaoCPC || `${(civil.nomeCompleto || dossie.clienteNome || 'CLIENTE').toUpperCase()}, inscrito(a) no CPF sob o nº ${civil.cpf || '[CPF PENDENTE]'}.`;
+      }
+
+      const galeria = document.getElementById('galeria-documentos-cliente');
+      if (galeria) {
+        const docs = Array.isArray(dossie.documentos) ? dossie.documentos : [];
+        if (docs.length === 0) {
+          galeria.innerHTML = '<div class="col-span-2 p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">Nenhum documento arquivado neste dossiê ainda.</div>';
+        } else {
+          galeria.innerHTML = docs.map(doc => {
+            const legivel = doc.legivel !== false;
+            const badgeStatus = legivel
+              ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 Documento Válido</span>'
+              : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">🟡 Legibilidade Baixa</span>';
+            return `
+              <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#e5c158]">${escaparHtmlTexto(doc.tipo || 'DOCUMENTO')}</span>
+                    ${badgeStatus}
+                  </div>
+                  <p class="text-[11px] text-slate-300 font-mono truncate mt-1">${escaparHtmlTexto(doc.arquivo || 'arquivo.jpg')}</p>
+                </div>
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+                  <span>Auditado via Gemini Vision</span>
+                  <span class="text-[#f3e5ab] font-semibold">✓ Arquivado</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    };
+
+    window.copiarQualificacaoCPCDoCliente = async function() {
+      const qualificacaoManual = {
+        nomeCompleto: document.getElementById('dossie-nome')?.value || '',
+        cpf: document.getElementById('dossie-cpf')?.value || '',
+        rg: document.getElementById('dossie-rg')?.value || '',
+        estadoCivil: document.getElementById('dossie-estado-civil')?.value || '',
+        profissao: document.getElementById('dossie-profissao')?.value || '',
+        endereco: document.getElementById('dossie-endereco')?.value || ''
+      };
+
+      if (window.api && typeof window.api.copiarQualificacaoCPC === 'function') {
+        const res = await window.api.copiarQualificacaoCPC({
+          clienteId: window.dossieClienteSelecionadoId,
+          qualificacao: qualificacaoManual
+        });
+        if (res && res.texto) {
+          const elPrev = document.getElementById('dossie-preview-cpc');
+          if (elPrev) elPrev.innerText = res.texto;
+          copiarTextoFallbackLocal(res.texto);
+          mostrarToast('📋 Qualificação Civil (CPC Art. 319) copiada para a área de transferência!');
+          return;
+        }
+      }
+
+      const textoFallback = document.getElementById('dossie-preview-cpc')?.innerText || '';
+      copiarTextoFallbackLocal(textoFallback);
+      mostrarToast('📋 Qualificação Civil (CPC) copiada!');
+    };
+
+    window.carregarERenderizarFinanceiro = async function() {
+      try {
+        let cfgCob = (configGlobal && configGlobal.configuracaoCobranca) || {};
+        let fin = (configGlobal && configGlobal.financeiro) || { parcelas: [] };
+
+        if (window.api && typeof window.api.obterDossies === 'function') {
+          const res = await window.api.obterDossies();
+          if (res && res.configuracaoCobranca) cfgCob = res.configuracaoCobranca;
+          if (res && res.financeiro) fin = res.financeiro;
+        }
+
+        const elFreq = document.getElementById('frequenciaSemanal');
+        if (elFreq && cfgCob.frequenciaSemanal) elFreq.value = String(cfgCob.frequenciaSemanal);
+        const elPix = document.getElementById('chavePix');
+        if (elPix && cfgCob.chavePix !== undefined) elPix.value = cfgCob.chavePix;
+
+        const diasAtivos = Array.isArray(cfgCob.diasDaSemana) ? cfgCob.diasDaSemana : ['SEGUNDA', 'QUINTA'];
+        document.querySelectorAll('.check-dia-cobranca').forEach(chk => {
+          chk.checked = diasAtivos.includes(chk.value);
+        });
+
+        renderizarTabelaParcelas(fin.parcelas || []);
+      } catch (e) {
+        console.warn('Erro ao carregar financeiro:', e);
+      }
+    };
+
+    function renderizarTabelaParcelas(parcelas) {
+      const container = document.getElementById('tabela-parcelas');
+      if (!container) return;
+      if (!Array.isArray(parcelas) || parcelas.length === 0) {
+        container.innerHTML = '<div class="p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">Nenhuma parcela lançada. Utilize o formulário acima para registrar honorários.</div>';
+        return;
+      }
+
+      container.innerHTML = parcelas.map(p => {
+        const pago = p.status === 'PAGO';
+        const badge = pago
+          ? '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 PAGO</span>'
+          : '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">⏳ PENDENTE</span>';
+        return `
+          <div class="p-3.5 rounded-xl exec-card flex items-center justify-between text-xs border-l-4 ${pago ? 'border-emerald-500' : 'border-amber-400'}">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="font-bold text-white">${escaparHtmlTexto(p.clienteNome || 'Cliente')}</span>
+                ${badge}
+                <span class="text-[11px] font-mono text-[#e5c158] font-bold">R$ ${Number(p.valor || 0).toFixed(2).replace('.', ',')}</span>
+              </div>
+              <span class="text-[10px] text-slate-400 font-mono block mt-0.5">Tel: +${escaparHtmlTexto(p.clienteTelefone || '')} • Vencimento: ${escaparHtmlTexto(p.vencimento || '-')}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              ${!pago ? `
+                <button type="button" onclick="darBaixaParcelaUI('${p.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] transition cursor-pointer">
+                  ✓ Dar Baixa Manual
+                </button>
+              ` : `<span class="text-[10px] text-emerald-400 font-semibold">Liquidado</span>`}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.salvarConfigCobrancaUI = async function() {
+      const frequenciaSemanal = Number(document.getElementById('frequenciaSemanal')?.value || 2);
+      const chavePix = (document.getElementById('chavePix')?.value || '').trim();
+      const diasDaSemana = [];
+      document.querySelectorAll('.check-dia-cobranca').forEach(chk => {
+        if (chk.checked) diasDaSemana.push(chk.value);
+      });
+
+      if (window.api && typeof window.api.salvarConfigCobranca === 'function') {
+        await window.api.salvarConfigCobranca({ frequenciaSemanal, diasDaSemana, chavePix });
+      }
+      mostrarToast('💾 Configuração da Régua de Cobrança Semanal e Chave PIX salva!');
+    };
+
+    window.adicionarParcelaFinanceiroUI = async function() {
+      const clienteNome = (document.getElementById('fin-novo-nome')?.value || '').trim();
+      const clienteTelefone = (document.getElementById('fin-novo-tel')?.value || '').trim();
+      const valor = Number(document.getElementById('fin-novo-valor')?.value || 0);
+      const vencimento = document.getElementById('fin-novo-vencimento')?.value || '';
+
+      if (!clienteNome || !valor) {
+        mostrarToast('⚠️ Informe o nome do cliente e o valor da parcela.');
+        return;
+      }
+
+      if (window.api && typeof window.api.adicionarParcelaFinanceiro === 'function') {
+        const res = await window.api.adicionarParcelaFinanceiro({ clienteNome, clienteTelefone, valor, vencimento });
+        if (res && res.parcelas) {
+          renderizarTabelaParcelas(res.parcelas);
+        }
+      }
+      mostrarToast('✅ Parcela de honorários adicionada!');
+    };
+
+    window.darBaixaParcelaUI = async function(parcelaId) {
+      if (window.api && typeof window.api.darBaixaParcela === 'function') {
+        await window.api.darBaixaParcela({ parcelaId });
+        await window.carregarERenderizarFinanceiro();
+      }
+      mostrarToast('🟢 Baixa registrada com sucesso na parcela!');
+    };
+
+    window.dispararReguaCobrancaUI = async function() {
+      if (window.api && typeof window.api.dispararReguaCobranca === 'function') {
+        const rel = await window.api.dispararReguaCobranca({ ignorarDiaDaSemana: true, delayMs: 50 });
+        mostrarToast(`🚀 Régua PIX executada: ${rel.enviados || 0} lembrete(s) enviado(s)!`);
+        await window.carregarERenderizarFinanceiro();
+      } else {
+        mostrarToast('🚀 Régua de cobrança PIX disparada!');
+      }
+    };
+
 
     window.enviarRespostaAdvogadoFila = async (cardId, chave) => {
       const input = document.getElementById(`input-resposta-${cardId}`);
