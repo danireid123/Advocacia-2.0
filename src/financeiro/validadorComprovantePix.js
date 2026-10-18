@@ -189,6 +189,24 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
     };
   }
 
+  // Detecção de documento civil/pessoal (RG, CNH, Comprovante de Residência)
+  const ehDocPessoal = (strLower.includes('rg') || strLower.includes('cnh') || strLower.includes('filiacao') || strLower.includes('filiação') || strLower.includes('orgao') || strLower.includes('órgão') || strLower.includes('residencia') || strLower.includes('residência') || strLower.includes('ctps') || strLower.includes('certidao') || strLower.includes('certidão') || strLower.includes('ssp/')) &&
+    !strLower.includes('pix') && !strLower.includes('transferencia') && !strLower.includes('transferência') && !strLower.includes('comprovante de pagamento');
+
+  if (ehDocPessoal) {
+    return {
+      ehComprovantePix: false,
+      ehDocumentoCivil: true,
+      tipoDetectado: 'DOCUMENTO_PESSOAL',
+      valorPago: 0,
+      dataTransacao: '',
+      bancoOrigem: '',
+      idTransacao: '',
+      nomePagador: clienteNome || '',
+      comprovanteLegivel: false
+    };
+  }
+
   // Testes de divergência/subvalor explícito
   if (strLower.includes('divergente') || strLower.includes('underpaid') || strLower.includes('parcial') || strLower.includes('subvalor')) {
     const esp = normalizarValorMonetario(valorEsperado);
@@ -294,6 +312,15 @@ function validarDivergenciaPix(dadosLidos, valorEsperado = 0, clienteNome = '') 
   const pago = normalizarValorMonetario(dadosLidos?.valorPago);
   const esperado = normalizarValorMonetario(valorEsperado);
 
+  if (dadosLidos?.ehComprovantePix === false || dadosLidos?.ehDocumentoCivil || dadosLidos?.tipoDetectado === 'DOCUMENTO_PESSOAL') {
+    return {
+      comprovanteValido: false,
+      ehDocumentoCivil: true,
+      divergencia: 'DOCUMENTO_PESSOAL_NAO_PIX',
+      diferenca: esperado
+    };
+  }
+
   if (!dadosLidos?.comprovanteLegivel && pago <= 0) {
     return {
       comprovanteValido: false,
@@ -364,6 +391,16 @@ function gerarMensagemFeedbackPix(comprovanteValido, dadosLidos, divergencia, cl
       `📋 *Dados da Transação Bancária:*${bancoLinha}${dataLinha}${pagadorLinha}${idLinha}\n\n` +
       `✅ O valor foi devidamente auditado e o pagamento confirmado em nosso sistema financeiro.\n\n` +
       `Muito obrigado pela pontualidade e pela confiança em nosso escritório! 🤝✨`
+    );
+  }
+
+  // Caso de documento civil/pessoal (RG, CNH, Comprovante de Residência)
+  if (dadosLidos?.ehDocumentoCivil || divergencia === 'DOCUMENTO_PESSOAL_NAO_PIX') {
+    return (
+      `📄 *Documento Pessoal / Civil Identificado*\n\n` +
+      `Olá, *${primeiroNome}*! 👋\n\n` +
+      `Identificamos que você enviou um documento de identificação civil / processual (como RG, CNH ou Comprovante de Residência) e não um comprovante financeiro de PIX.\n\n` +
+      `✅ O arquivo foi devidamente recebido e encaminhado com sucesso para inclusão no seu *Dossiê do Cliente*! 🤝⚖️`
     );
   }
 
@@ -479,20 +516,47 @@ async function auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado = 0
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MULTIMODAL_PIX);
 
   const promptPix = `
-Você é um auditor financeiro e perito documental de um escritório de advocacia.
-Analise a imagem de comprovante bancário PIX anexada e extraia as informações com exatidão cirúrgica.
+Você é um perito documental e auditor financeiro do escritório de advocacia.
+Analise a imagem anexada com rigor pericial.
 
-Extraia as seguintes propriedades:
-1. "valorPago": número decimal puro (ex: 150.00). Remova "R$", separadores de milhar e use ponto (.) decimal. Se não encontrar, retorne 0.
-2. "dataTransacao": data e horário da transação (ex: "18/10/2026 14:35"). Se não houver horário, retorne apenas a data.
-3. "bancoOrigem": instituição financeira pagadora (ex: Nubank, Banco do Brasil, Itaú, Bradesco, Caixa, Inter, etc).
-4. "idTransacao": ID da transação PIX, código de autenticação ou protocolo (ex: E12345678...).
-5. "nomePagador": nome completo do titular pagador/debitado.
-6. "nomeRecebedor": nome do recebedor/beneficiário, se visível.
-7. "comprovanteLegivel": booleano indicando se o documento é genuinamente um comprovante bancário legível (true) ou ilegível/inválido (false).
+ETAPA 1 - CLASSIFICAÇÃO TIPOLÓGICA:
+Verifique se a imagem é:
+(A) Um COMPROVANTE DE TRANSFERÊNCIA BANCÁRIA / PIX / PAGAMENTO; OU
+(B) Um DOCUMENTO PESSOAL / CIVIL (como RG, CNH, CPF, Carteira de Trabalho, Comprovante de Residência/Endereço, Certidão, etc.).
 
-Retorne ESTRITAMENTE o JSON abaixo:
+Se a imagem for um DOCUMENTO PESSOAL / CIVIL (RG, CNH, CPF, Endereço, etc.) e NÃO for comprovante bancário:
+Retorne ESTRITAMENTE o JSON:
 {
+  "ehComprovantePix": false,
+  "ehDocumentoCivil": true,
+  "tipoDetectado": "DOCUMENTO_PESSOAL",
+  "valorPago": 0.0,
+  "dataTransacao": "",
+  "bancoOrigem": "",
+  "idTransacao": "",
+  "nomePagador": "",
+  "nomeRecebedor": "",
+  "comprovanteLegivel": false
+}
+
+Se for GENUINAMENTE um comprovante bancário ou PIX:
+Extraia as seguintes propriedades:
+1. "ehComprovantePix": true
+2. "ehDocumentoCivil": false
+3. "tipoDetectado": "COMPROVANTE_PIX"
+4. "valorPago": número decimal puro (ex: 150.00). Remova "R$", separadores de milhar e use ponto (.) decimal. Se não encontrar, retorne 0.
+5. "dataTransacao": data e horário da transação (ex: "18/10/2026 14:35").
+6. "bancoOrigem": instituição financeira pagadora (ex: Nubank, Banco do Brasil, Itaú, Bradesco, Caixa, Inter, etc).
+7. "idTransacao": ID da transação PIX, código de autenticação ou protocolo.
+8. "nomePagador": nome completo do titular pagador/debitado.
+9. "nomeRecebedor": nome do recebedor/beneficiário, se visível.
+10. "comprovanteLegivel": booleano indicando se o documento é genuinamente um comprovante bancário legível (true) ou ilegível/inválido (false).
+
+Retorne ESTRITAMENTE o JSON:
+{
+  "ehComprovantePix": true,
+  "ehDocumentoCivil": false,
+  "tipoDetectado": "COMPROVANTE_PIX",
   "valorPago": 0.0,
   "dataTransacao": "",
   "bancoOrigem": "",
@@ -564,13 +628,17 @@ Retorne ESTRITAMENTE o JSON abaixo:
 
   // 4. Se a IA respondeu com sucesso, processa a resposta estruturada
   if (respostaData && typeof respostaData === 'object') {
+    const ehDocCivil = respostaData.ehComprovantePix === false || respostaData.ehDocumentoCivil === true || respostaData.tipoDetectado === 'DOCUMENTO_PESSOAL';
     const dadosExtraidos = {
+      ehComprovantePix: !ehDocCivil,
+      ehDocumentoCivil: ehDocCivil,
+      tipoDetectado: respostaData.tipoDetectado || (ehDocCivil ? 'DOCUMENTO_PESSOAL' : 'COMPROVANTE_PIX'),
       valorPago: normalizarValorMonetario(respostaData.valorPago),
       dataTransacao: String(respostaData.dataTransacao || formatarDataAtual()).trim(),
       bancoOrigem: String(respostaData.bancoOrigem || 'Instituição Financeira PIX').trim(),
       idTransacao: String(respostaData.idTransacao || '').trim(),
       nomePagador: String(respostaData.nomePagador || clienteNome || 'Titular da Conta').trim(),
-      comprovanteLegivel: Boolean(respostaData.comprovanteLegivel !== false)
+      comprovanteLegivel: Boolean(respostaData.comprovanteLegivel !== false && !ehDocCivil)
     };
 
     const validacao = validarDivergenciaPix(dadosExtraidos, valorEsperado, clienteNome);
@@ -585,6 +653,8 @@ Retorne ESTRITAMENTE o JSON abaixo:
 
     return {
       comprovanteValido: validacao.comprovanteValido,
+      ehDocumentoCivil: Boolean(validacao.ehDocumentoCivil || ehDocCivil),
+      tipoDetectado: dadosExtraidos.tipoDetectado,
       dadosLidos: {
         valorPago: dadosExtraidos.valorPago,
         dataTransacao: dadosExtraidos.dataTransacao,

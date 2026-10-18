@@ -720,8 +720,18 @@ async function processarMensagemEntrada(msg) {
                     const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
 
                     const sessaoOnboarding = obterSessaoAtiva(remetenteChave, config);
-                    if (sessaoOnboarding) {
-                        const resOnb = await processarMidiaOnboarding(remetenteChave, bufferMidia, mimeType, apiKey, config);
+                    const corpoMin = String(msg.body || '').toLowerCase();
+                    const palavrasCivil = ['rg', 'cnh', 'documento', 'residencia', 'filiacao', 'ctps', 'certidao', 'identidade', 'endereco'];
+                    const contemCivil = palavrasCivil.some(pc => corpoMin.includes(pc));
+
+                    if (sessaoOnboarding || contemCivil) {
+                        const resOnb = await processarMidiaOnboarding({
+                            clienteTelefone: remetenteChave,
+                            clienteNome: identidade.nomeCliente || 'Cliente',
+                            buffer: bufferMidia,
+                            mimetype: mimeType,
+                            apiKey
+                        }, config);
                         salvarConfigDisco(config, true);
                         if (mainWindow && !mainWindow.isDestroyed()) {
                             mainWindow.webContents.send('bot-processos-sync', config);
@@ -731,7 +741,7 @@ async function processarMensagemEntrada(msg) {
                         }
                         if (resOnb && resOnb.dossieConsolidado) {
                             dispararNotificacaoTransbordo({
-                                contatoNome: sessaoOnboarding.clienteNome || remetenteChave,
+                                contatoNome: (sessaoOnboarding && sessaoOnboarding.clienteNome) || identidade.nomeCliente || remetenteChave,
                                 telefone: remetenteChave,
                                 motivo: 'Dossiê e Caso Pré-Processual prontos para análise!'
                             });
@@ -749,6 +759,26 @@ async function processarMensagemEntrada(msg) {
                     if (temParcelaAberta) {
                         const resPix = await processarComprovanteRecebido(remetenteChave, bufferMidia, mimeType, apiKey, config);
                         salvarConfigDisco(config, true);
+
+                        // Se o laudo acusar documento civil, despacha para onboarding
+                        if (resPix && resPix.laudo && resPix.laudo.ehDocumentoCivil) {
+                            const resOnb = await processarMidiaOnboarding({
+                                clienteTelefone: remetenteChave,
+                                clienteNome: identidade.nomeCliente || 'Cliente',
+                                buffer: bufferMidia,
+                                mimetype: mimeType,
+                                apiKey
+                            }, config);
+                            salvarConfigDisco(config, true);
+                            if (mainWindow && !mainWindow.isDestroyed()) {
+                                mainWindow.webContents.send('bot-processos-sync', config);
+                            }
+                            if (resOnb && resOnb.mensagemFeedbackWhatsApp && client) {
+                                await client.sendMessage(msg.from, resOnb.mensagemFeedbackWhatsApp);
+                            }
+                            return true;
+                        }
+
                         if (mainWindow && !mainWindow.isDestroyed()) {
                             mainWindow.webContents.send('bot-processos-sync', config);
                         }
@@ -1858,42 +1888,79 @@ async function executarSimulacaoMensagem(payload = {}) {
 
             const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
             const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
+            const { auditarDocumentoMultimodal } = require('./src/documentos/validadorDocumentos');
 
             const sessaoAtiva = obterSessaoAtiva(remetenteChave, config);
             const corpoMin = String(mockMsg.body || '').toLowerCase();
-            const parecePix = corpoMin.includes('pix') || corpoMin.includes('comprovante') || corpoMin.includes('pagamento');
+            const nomeMin = String(nomeArquivo || '').toLowerCase();
 
-            if (sessaoAtiva && !parecePix) {
-                const resOnb = await processarMidiaOnboarding({
-                    clienteTelefone: remetenteChave,
-                    clienteNome: identidade.nomeCliente || 'Cliente',
-                    buffer,
-                    mimetype: mimeType,
-                    nomeOriginal: nomeArquivo,
-                    apiKey
-                }, config);
-                salvarConfigDisco(config, true);
-                return {
-                    success: true,
-                    sucesso: true,
-                    resposta: resOnb.mensagemFeedbackWhatsApp || "📄 Documento recebido e auditado pela IA!",
-                    onboarding: resOnb
-                };
-            } else {
-                const resPix = await processarComprovanteRecebido(remetenteChave, buffer, mimeType, apiKey, config);
-                salvarConfigDisco(config, true);
-                if (resPix && resPix.resultadoBaixa && resPix.resultadoBaixa.success) {
-                    if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
-                        mainWindow.webContents.send('notificacao-pagamento', resPix.resultadoBaixa);
-                    }
+            // Detecção precisa de intenção PIX: só é PIX se tiver palavras explícitas de pagamento/transferência e NÃO for documento civil
+            const palavrasCivil = ['rg', 'cnh', 'documento', 'residencia', 'filiacao', 'ctps', 'certidao', 'identidade', 'endereco'];
+            const contemCivil = palavrasCivil.some(pc => corpoMin.includes(pc) || nomeMin.includes(pc));
+            const palavrasPix = ['pix', 'pagamento', 'transferencia', 'ted', 'deposito'];
+            const contemPix = palavrasPix.some(pp => corpoMin.includes(pp) || nomeMin.includes(pp));
+            const parecePix = contemPix && !contemCivil;
+
+            // Se há sessão ativa de onboarding ou se for claramente documento civil, audita e guarda no Dossiê
+            if (sessaoAtiva || contemCivil || !parecePix) {
+                // Tenta validar como documento civil primeiro
+                try {
+                    const resOnb = await processarMidiaOnboarding({
+                        clienteTelefone: remetenteChave,
+                        clienteNome: identidade.nomeCliente || 'Cliente',
+                        buffer,
+                        mimetype: mimeType,
+                        nomeOriginal: nomeArquivo,
+                        apiKey
+                    }, config);
+                    salvarConfigDisco(config, true);
+                    return {
+                        success: true,
+                        sucesso: true,
+                        resposta: resOnb.mensagemFeedbackWhatsApp || "📄 Documento recebido e auditado pela IA!",
+                        onboarding: resOnb
+                    };
+                } catch (errOnb) {
+                    console.warn('[Simulador] Tentativa de documento civil falhou, avaliando fallback:', errOnb.message);
                 }
-                return {
-                    success: true,
-                    sucesso: true,
-                    resposta: resPix.mensagemFeedbackWhatsApp || (resPix.comprovanteValido ? "✅ Comprovante PIX validado com sucesso!" : "⚠️ Comprovante com divergência."),
-                    pix: resPix
-                };
             }
+
+            // Se for PIX ou fallback
+            const resPix = await processarComprovanteRecebido(remetenteChave, buffer, mimeType, apiKey, config);
+            salvarConfigDisco(config, true);
+
+            // Se o validador PIX detectou que era documento civil pessoal, converte graciosamente para onboarding
+            if (resPix && resPix.laudo && resPix.laudo.ehDocumentoCivil) {
+                try {
+                    const resOnb = await processarMidiaOnboarding({
+                        clienteTelefone: remetenteChave,
+                        clienteNome: identidade.nomeCliente || 'Cliente',
+                        buffer,
+                        mimetype: mimeType,
+                        nomeOriginal: nomeArquivo,
+                        apiKey
+                    }, config);
+                    salvarConfigDisco(config, true);
+                    return {
+                        success: true,
+                        sucesso: true,
+                        resposta: resOnb.mensagemFeedbackWhatsApp || "📄 Documento civil identificado e arquivado no seu Dossiê!",
+                        onboarding: resOnb
+                    };
+                } catch (eOnb) {}
+            }
+
+            if (resPix && resPix.resultadoBaixa && resPix.resultadoBaixa.success) {
+                if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('notificacao-pagamento', resPix.resultadoBaixa);
+                }
+            }
+            return {
+                success: true,
+                sucesso: true,
+                resposta: resPix.mensagemFeedbackWhatsApp || (resPix.comprovanteValido ? "✅ Comprovante PIX validado com sucesso!" : "⚠️ Comprovante com divergência."),
+                pix: resPix
+            };
         }
 
         // Espelha o fluxo real: contato pausado (aguardando advogado)
@@ -2512,13 +2579,15 @@ ipcMain.handle('iniciar-onboarding', async (event, payload = {}) => {
         const sessao = iniciarSessaoOnboarding(clienteTelefone, clienteNome, preset, cfg, itensPersonalizados);
         salvarConfigDisco(cfg);
 
+        const msgTextoDisparo = sessao.mensagemDisparo || sessao.mensagemSolicitacaoWhatsApp || '';
+
         // Dispara mensagem estruturada no WhatsApp se estiver conectado e solicitado
-        if (payload.enviarWhatsApp !== false && client && statusAtual === 'CONECTADO' && sessao.mensagemDisparo) {
+        if (payload.enviarWhatsApp !== false && client && statusAtual === 'CONECTADO' && msgTextoDisparo) {
             const digitos = apenasNumeros(clienteTelefone);
             if (digitos) {
                 try {
                     const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
-                    await client.sendMessage(chatId, sessao.mensagemDisparo);
+                    await client.sendMessage(chatId, msgTextoDisparo);
                 } catch (errEnvio) {
                     console.warn('[Onboarding] Aviso ao enviar mensagem WhatsApp:', errEnvio.message);
                 }
@@ -2527,16 +2596,36 @@ ipcMain.handle('iniciar-onboarding', async (event, payload = {}) => {
 
         // Atualiza status na fila humana se o contato estiver pausado
         const chave = apenasNumeros(clienteTelefone);
-        if (chave && contatosPausados[chave]) {
+        if (chave) {
+            contatosPausados[chave] = contatosPausados[chave] || {
+                telefone: clienteTelefone,
+                nome: clienteNome,
+                timestamp: Date.now()
+            };
             contatosPausados[chave].statusOnboarding = 'DOCS_SOLICITADOS';
             contatosPausados[chave].presetOnboarding = preset;
             emitirPausados();
         }
 
+        // Notifica o Simulador de WhatsApp na tela para exibir o balão do advogado imediatamente
+        if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed() && msgTextoDisparo) {
+            try {
+                mainWindow.webContents.send('resposta-advogado-simulador', {
+                    telefone: clienteTelefone,
+                    chave,
+                    texto: msgTextoDisparo,
+                    tipo: 'onboarding_solicitacao'
+                });
+            } catch (errSim) {
+                console.warn('[Onboarding] Aviso ao notificar simulador:', errSim.message);
+            }
+        }
+
         return {
             sucesso: true,
             sessao,
-            mensagemDisparo: sessao.mensagemDisparo
+            mensagemDisparo: msgTextoDisparo,
+            mensagemSolicitacaoWhatsApp: msgTextoDisparo
         };
     } catch (err) {
         console.error('[IPC iniciar-onboarding] Erro:', err);

@@ -5112,6 +5112,19 @@
           enviarWhatsApp: true
         });
         if (res && res.sucesso) {
+          const msgTexto = res.mensagemDisparo || res.mensagemSolicitacaoWhatsApp || '';
+          
+          // Sincroniza dados com o simulador de WhatsApp
+          const inputSimTel = document.getElementById('simulador-tel');
+          const inputSimNome = document.getElementById('simulador-nome');
+          if (inputSimTel && clienteTelefone) inputSimTel.value = clienteTelefone;
+          if (inputSimNome && clienteNome) inputSimNome.value = clienteNome;
+
+          // Injeta diretamente o balão de mensagem do advogado no simulador
+          if (msgTexto && typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
+            window.adicionarBalaoAdvogadoNoSimulador(msgTexto);
+          }
+
           mostrarToast(`📄 Checklist (${preset}) enviado no WhatsApp de ${clienteNome}!`);
           fecharModalSolicitarDocumentos();
           if (typeof window.carregarERenderizarDossies === 'function') {
@@ -6724,7 +6737,7 @@
               if (api && api.simuladorEnviarMensagem) {
                 const rawBase64 = base64Doc.includes(',') ? base64Doc.split(',')[1] : base64Doc;
                 const res = await api.simuladorEnviarMensagem({
-                  texto: `Envio de documento/comprovante: ${nomeArquivo}`,
+                  texto: `Envio de documento pessoal: ${nomeArquivo}`,
                   telefone: telCliente,
                   nome: nomeCliente,
                   midia: {

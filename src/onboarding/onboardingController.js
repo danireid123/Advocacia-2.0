@@ -142,34 +142,71 @@ function iniciarSessaoOnboarding(clienteTelefone, clienteNome, presetTipo = 'Ger
         qualificacaoAcumulada: {
             nomeCompleto: nomeLimpo
         },
-        mensagemSolicitacaoWhatsApp,
+        mensagemDisparo: mensagemSolicitacaoWhatsApp,
+        mensagemSolicitacaoWhatsApp: mensagemSolicitacaoWhatsApp,
         iniciadoEm: new Date().toISOString(),
         atualizadoEm: new Date().toISOString()
     };
 
     config.onboardingSessoes[chaveTel] = sessao;
+    const digitos = chaveTel.replace(/\D/g, '');
+    if (digitos && digitos !== chaveTel) {
+        config.onboardingSessoes[digitos] = sessao;
+    }
     return sessao;
 }
 
 function obterSessaoAtiva(clienteTelefone, config = {}) {
     garantirEstruturaOnboarding(config);
-    const chaveTel = String(clienteTelefone || '').trim();
-    const sessao = config.onboardingSessoes[chaveTel];
-    if (!sessao) return null;
-    if (sessao.status === 'CONSOLIDADO') return null;
-    return sessao;
+    if (!config || !config.onboardingSessoes) return null;
+    const raw = String(clienteTelefone || '').trim();
+    const digitos = raw.replace(/\D/g, '');
+
+    if (config.onboardingSessoes[raw] && config.onboardingSessoes[raw].status !== 'CONSOLIDADO') {
+        return config.onboardingSessoes[raw];
+    }
+    if (digitos && config.onboardingSessoes[digitos] && config.onboardingSessoes[digitos].status !== 'CONSOLIDADO') {
+        return config.onboardingSessoes[digitos];
+    }
+    for (const [k, sessao] of Object.entries(config.onboardingSessoes)) {
+        if (!sessao || sessao.status === 'CONSOLIDADO') continue;
+        const kDig = k.replace(/\D/g, '');
+        if (digitos && kDig && (kDig === digitos || kDig.endsWith(digitos) || digitos.endsWith(kDig))) {
+            return sessao;
+        }
+    }
+    return null;
 }
 
 /**
  * Processa uma imagem ou PDF enviado pelo cliente durante o onboarding.
+ * Suporta tanto chamada posicional quanto chamada com objeto de payload.
  */
-async function processarMidiaOnboarding(clienteTelefone, buffer, mimetype, apiKey, config = {}) {
+async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mimetypeArg, apiKeyArg, configArg = {}) {
+    let clienteTelefone, buffer, mimetype, apiKey, config;
+    let clienteNome = 'Cliente';
+
+    if (typeof clienteTelefoneOuPayload === 'object' && !Buffer.isBuffer(clienteTelefoneOuPayload)) {
+        config = bufferArg || configArg || {};
+        clienteTelefone = clienteTelefoneOuPayload.clienteTelefone || clienteTelefoneOuPayload.telefone || '';
+        clienteNome = clienteTelefoneOuPayload.clienteNome || clienteTelefoneOuPayload.nome || 'Cliente';
+        buffer = clienteTelefoneOuPayload.buffer;
+        mimetype = clienteTelefoneOuPayload.mimetype || clienteTelefoneOuPayload.mimeType || 'image/jpeg';
+        apiKey = clienteTelefoneOuPayload.apiKey;
+    } else {
+        clienteTelefone = clienteTelefoneOuPayload;
+        buffer = bufferArg;
+        mimetype = mimetypeArg;
+        apiKey = apiKeyArg;
+        config = configArg || {};
+    }
+
     garantirEstruturaOnboarding(config);
     const chaveTel = String(clienteTelefone || '').trim();
-    let sessao = config.onboardingSessoes[chaveTel];
+    let sessao = obterSessaoAtiva(chaveTel, config);
 
     if (!sessao) {
-        sessao = iniciarSessaoOnboarding(chaveTel, 'Cliente', 'Geral', config);
+        sessao = iniciarSessaoOnboarding(chaveTel, clienteNome, 'Geral', config);
     }
 
     const itensEsperados = sessao.documentosPendentes || sessao.itensPendentes || ['RG_OU_CNH'];
