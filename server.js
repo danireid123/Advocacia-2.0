@@ -6,10 +6,12 @@
  * Permite a execução autônoma do bot no Linux/Docker/VPS sem interface gráfica (Electron).
  * Suporte a:
  * - Docker / Docker Compose / Kubernetes / PM2
- * - Servidor HTTP embutido com /health, /status, /qr para monitoramento remoto
- * - Geração de QR Code no terminal e endpoint web
- * - Tradução jurídica Gemini 1.5 Flash integrada
- * - Transbordo humano e salvamento automático do config.json
+ * - Servidor HTTP embutido com /status, /qr-status, /health, /qr, /pausados para monitoramento remoto
+ * - Persistência de Sessão WhatsApp LocalAuth em ./wwebjs_auth_session_v2
+ * - Puppeteer headless otimizado com flag --single-process para VPS/ARM
+ * - Captura e transcrição multimodal de áudios de clientes com IA Gemini
+ * - Fila de transbordo humano cumulativa com Detector de Urgência e Cronologia dos Fatos
+ * - Resiliência e auto-recuperação anti-crash
  */
 
 const http = require('http');
@@ -17,7 +19,12 @@ const fs = require('fs');
 const path = require('path');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
-const { traduzirAndamentoParaCliente } = require('./src/ia/tradutorJuridico');
+const {
+    traduzirAndamentoParaCliente,
+    processarAudioECopilot,
+    analisarUrgenciaECronologia
+} = require('./src/ia/tradutorJuridico');
+const { criarConfigPadraoV2, migrarConfigV1ParaV2 } = require('./migracao');
 
 // 1. Carregamento de variáveis de ambiente (.env)
 try {
@@ -49,18 +56,28 @@ process.on('unhandledRejection', (reason) => {
     console.error('[Proteção Anti-Crash Headless] unhandledRejection:', reason);
 });
 
-// Estado do servidor
-let configEmMemoria = null;
-let contatosPausados = {};
-let estadosUsuarios = {};
-let avisoForaHorarioRecente = {};
-let mensagensJaProcessadas = new Set();
-let statusAtualBot = 'initializing';
-let ultimoQrCodeAscii = '';
+// Estado do servidor e monitoramento de conexão
+let qrCodeAtual = null;
+let statusConexao = 'DISCONNECTED'; // DISCONNECTED, QR_READY, CONNECTED
 let ultimoQrDataUrl = '';
 let momentoConexao = 0;
 let totalMensagensProcessadas = 0;
 let client = null;
+
+let configEmMemoria = null;
+let contatosPausados = {};
+let dadosAudiosPorContato = {};
+let historicoConversas = {};
+let estadosUsuarios = {};
+let avisoForaHorarioRecente = {};
+let mensagensJaProcessadas = new Set();
+
+// Frases padrão de transbordo direto para atendimento humano
+const FRASES_TRANSBORDO_DIRETO = [
+    'falar com advogado', 'falar com o advogado', 'chamar advogado',
+    'quero falar com advogado', 'atendimento humano', 'humano', 'advogado',
+    'falar com atendente', 'atendente', 'urgente'
+];
 
 // Funções utilitárias
 function apenasNumeros(str) {
@@ -78,7 +95,6 @@ function carregarConfig() {
     } catch (e) {
         console.error('[Server] Erro ao carregar config.json:', e);
     }
-    const { criarConfigPadraoV2 } = require('./migracao');
     configEmMemoria = criarConfigPadraoV2();
     return configEmMemoria;
 }
@@ -99,7 +115,7 @@ function isContactIgnored(numeroOuId) {
     const digitos = apenasNumeros(numeroOuId);
     if (!digitos) return false;
     return lista.some(item => {
-        const itemDig = apenasNumeros(typeof item === 'object' && item !== null ? item.numero : item);
+        const itemDig = apenasNumeros(typeof item === 'object' && item !== null ? (item.numero || item.telefone) : item);
         return itemDig === digitos;
     });
 }
@@ -138,6 +154,7 @@ function verificarExpediente(cfg) {
 }
 
 function montarTextoEtapa(etapa) {
+    if (!etapa) return "Olá! Como podemos orientar você hoje?";
     let txt = (etapa.mensagem || '') + "\n\n";
     (etapa.opcoes || []).forEach(op => {
         txt += `*${op.gatilho}* - ${op.rotulo}\n`;
@@ -200,6 +217,86 @@ async function formatarMensagemProcesso(config, proc, remetenteChave) {
         .replace(/\{ultima_consulta\}/g, ultimaConsulta || agoraTexto);
 }
 
+/**
+ * Concatena cumulativamente múltiplos áudios e mensagens de um cliente pausado na fila.
+ * Atualiza transcrições, histórico e aciona a IA para atualizar o Resumo Executivo,
+ * as 3 Sugestões do Copilot, Classificação de Urgência e Cronologia dos Fatos.
+ */
+async function anexarMensagemOuAudioAoPausado(chave, { novaMsg = null, novoAudio = null, contexto = {} } = {}) {
+    const item = contatosPausados[chave];
+    if (!item || typeof item !== 'object') return null;
+
+    if (!Array.isArray(item.mensagens)) item.mensagens = [];
+    if (!Array.isArray(item.historicoMensagens)) item.historicoMensagens = [...item.mensagens];
+    if (!Array.isArray(item.historicoAudios)) {
+        item.historicoAudios = item.audioBase64 ? [{
+            id: 'audio_1',
+            audioBase64: item.audioBase64,
+            mimeType: item.mimeType || 'audio/webm',
+            transcricao: item.transcricao || '',
+            hora: item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+        }] : [];
+    }
+
+    if (novaMsg) {
+        item.mensagens.push(novaMsg);
+        item.historicoMensagens.push(novaMsg);
+    }
+
+    if (novoAudio) {
+        const audioId = 'audio_' + (item.historicoAudios.length + 1);
+        item.historicoAudios.push({
+            id: audioId,
+            audioBase64: novoAudio.audioBase64,
+            mimeType: novoAudio.mimeType || 'audio/webm',
+            transcricao: novoAudio.transcricao || '',
+            hora: novoAudio.hora || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        item.audioBase64 = novoAudio.audioBase64;
+    }
+
+    // Concatena todas as transcrições de áudios existentes sem sobrescrever
+    if (item.historicoAudios.length > 0) {
+        item.transcricao = item.historicoAudios.map((a, i) => `[Áudio ${i + 1}${a.hora ? ' (' + a.hora + ')' : ''}]: "${a.transcricao || ''}"`).join('\n\n');
+    }
+
+    // Concatena totalidade das mensagens e áudios para atualizar Resumo, Copilot, Urgência e Cronologia
+    const linhasConsolidadas = [];
+    for (const m of item.historicoMensagens) {
+        linhasConsolidadas.push(`${m.de === 'cliente' ? 'Cliente' : 'Robô'}: ${m.texto}`);
+    }
+    for (let i = 0; i < item.historicoAudios.length; i++) {
+        const a = item.historicoAudios[i];
+        if (a.transcricao) {
+            linhasConsolidadas.push(`[Áudio ${i + 1} transcrito]: ${a.transcricao}`);
+        }
+    }
+
+    const textoConsolidado = linhasConsolidadas.join('\n');
+    try {
+        const cfg = carregarConfig();
+        const apiKey = (contexto && contexto.apiKey) || cfg.gemini_api_key || process.env.GEMINI_API_KEY;
+        const analise = await analisarUrgenciaECronologia(textoConsolidado, {
+            apiKey,
+            nome: item.nome,
+            telefone: item.telefone,
+            motivo: item.motivo
+        });
+
+        if (analise) {
+            if (analise.resumo) item.resumo = analise.resumo;
+            if (Array.isArray(analise.sugestoesResposta)) item.sugestoesResposta = analise.sugestoesResposta;
+            if (analise.nivelUrgencia) item.nivelUrgencia = analise.nivelUrgencia;
+            if (analise.motivoUrgencia) item.motivoUrgencia = analise.motivoUrgencia;
+            if (Array.isArray(analise.cronologiaFatos)) item.cronologiaFatos = analise.cronologiaFatos;
+        }
+    } catch (errAnalise) {
+        console.error('[Server] Erro ao analisar urgência/cronologia consolidada:', errAnalise);
+    }
+
+    return item;
+}
+
 async function processarMensagemEntrada(msg) {
     try {
         if (!msg || msg.fromMe || msg.isStatus || msg.broadcast) return false;
@@ -210,10 +307,19 @@ async function processarMensagemEntrada(msg) {
 
         const msgId = msg.id?._serialized || `${msg.from}_${msg.timestamp}_${msg.body}`;
         if (mensagensJaProcessadas.has(msgId)) return false;
-        mensagensJaProcessadas.add(msgId);
 
-        const textoOriginal = String(msg.body || '').trim();
-        if (!textoOriginal) return false;
+        const ehAudio = Boolean(msg.hasMedia && (msg.type === 'ptt' || msg.type === 'audio'));
+        let textoOriginal = String(msg.body || '').trim();
+        if (!textoOriginal && !ehAudio) return false;
+        if (ehAudio && !textoOriginal) {
+            textoOriginal = '[Mensagem de Voz enviada pelo cliente]';
+        }
+
+        mensagensJaProcessadas.add(msgId);
+        if (mensagensJaProcessadas.size > 2000) {
+            const primeiroItem = mensagensJaProcessadas.values().next().value;
+            mensagensJaProcessadas.delete(primeiroItem);
+        }
 
         totalMensagensProcessadas++;
         const config = carregarConfig();
@@ -221,8 +327,57 @@ async function processarMensagemEntrada(msg) {
 
         if (isContactIgnored(remetenteChave)) return false;
 
+        // Se for áudio do WhatsApp, faz download e processa via Gemini Multimodal
+        if (ehAudio && typeof msg.downloadMedia === 'function') {
+            try {
+                const media = await msg.downloadMedia();
+                if (media && media.data) {
+                    const audioBase64 = media.data;
+                    const mimeType = media.mimetype || 'audio/ogg';
+                    const resAudio = await processarAudioECopilot(audioBase64, mimeType, {
+                        telefone: remetenteChave,
+                        apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY
+                    });
+
+                    dadosAudiosPorContato[remetenteChave] = {
+                        audioBase64: `data:${mimeType};base64,${audioBase64}`,
+                        mimeType,
+                        transcricao: resAudio.transcricao,
+                        resumo: resAudio.resumo,
+                        sugestoesResposta: resAudio.sugestoesResposta,
+                        nivelUrgencia: resAudio.nivelUrgencia,
+                        motivoUrgencia: resAudio.motivoUrgencia,
+                        cronologiaFatos: resAudio.cronologiaFatos
+                    };
+
+                    textoOriginal = `[Mensagem de Voz]: "${resAudio.transcricao || 'Áudio recebido'}"`;
+                }
+            } catch (errAudio) {
+                console.error('[Server] Erro ao baixar/processar áudio no WhatsApp:', errAudio);
+            }
+        }
+
+        // Se contato já está em transbordo/pausa, acumula mensagem/áudio e reavalia urgência
         if (contatosPausados[remetenteChave]) {
-            console.log(`[Headless] Mensagem recebida de contato em transbordo humano: ${remetenteChave}`);
+            const horaMsg = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const novaMsg = { de: 'cliente', texto: textoOriginal, hora: horaMsg };
+            
+            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+            historicoConversas[remetenteChave].push(novaMsg);
+
+            const novoAudio = dadosAudiosPorContato[remetenteChave] ? {
+                audioBase64: dadosAudiosPorContato[remetenteChave].audioBase64,
+                mimeType: dadosAudiosPorContato[remetenteChave].mimeType,
+                transcricao: dadosAudiosPorContato[remetenteChave].transcricao,
+                hora: horaMsg
+            } : null;
+
+            await anexarMensagemOuAudioAoPausado(remetenteChave, {
+                novaMsg,
+                novoAudio,
+                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
+            });
+            console.log(`[Server] Mensagem/áudio cumulativo anexado ao contato pausado ${remetenteChave}`);
             return false;
         }
 
@@ -231,8 +386,46 @@ async function processarMensagemEntrada(msg) {
             try {
                 await client.sendMessage(msg.from, textoResposta);
             } catch (e) {
-                console.error('[Headless] Erro ao enviar resposta:', e.message);
+                console.error('[Server] Erro ao enviar resposta:', e.message);
             }
+        };
+
+        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"', opcoesExtras = {}) => {
+            const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
+            const acoesItem = opcoesExtras.acoes || null;
+            const msgsIniciais = (historicoConversas[remetenteChave] || []).slice(-10);
+            const audiosIniciais = audioSalvo.audioBase64 ? [{
+                id: 'audio_1',
+                audioBase64: audioSalvo.audioBase64,
+                mimeType: audioSalvo.mimeType || 'audio/webm',
+                transcricao: audioSalvo.transcricao || '',
+                hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }] : [];
+
+            contatosPausados[remetenteChave] = {
+                timestamp: Date.now(),
+                nome: config.mapaNomes?.[remetenteChave] || 'Cliente WhatsApp',
+                telefone: config.mapaTelefones?.[remetenteChave] || `+${remetenteChave}`,
+                motivo,
+                idChat: msg.from,
+                origem: 'WHATSAPP_SERVER',
+                mensagens: msgsIniciais,
+                historicoMensagens: [...msgsIniciais],
+                historicoAudios: audiosIniciais,
+                audioBase64: audioSalvo.audioBase64 || null,
+                transcricao: audioSalvo.transcricao || null,
+                resumo: audioSalvo.resumo || null,
+                sugestoesResposta: audioSalvo.sugestoesResposta || null,
+                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
+                cronologiaFatos: audioSalvo.cronologiaFatos || [],
+                acoes: acoesItem,
+                aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
+            };
+
+            estadosUsuarios[remetenteChave] = 'transbordo_humano';
+            await responder(mensagemConfirmacao);
+            return true;
         };
 
         const estadoAtual = estadosUsuarios[remetenteChave] || 'raiz';
@@ -273,28 +466,21 @@ async function processarMensagemEntrada(msg) {
                 await responder(tpls.msg_encerrar_conversa || "✅ Atendimento finalizado. Conte sempre conosco!");
                 return true;
             } else if (textoOriginal === '2') {
-                estadosUsuarios[remetenteChave] = 'transbordo_humano';
-                contatosPausados[remetenteChave] = {
-                    telefone: remetenteChave,
-                    nome: 'Cliente WhatsApp',
-                    pausadoEm: new Date().toISOString()
-                };
                 const tpls = config.processos?.mensagens || {};
-                await responder(tpls.msg_chamar_advogado_pos_proc || "👨‍⚖️ Um advogado da nossa equipe já foi avisado e já está chegando.");
+                await colocarNaFilaHumana(tpls.msg_chamar_advogado_pos_proc || "👨‍⚖️ Um advogado da nossa equipe já foi avisado e já está chegando.");
                 return true;
             }
         }
 
         // 4. Verificação de palavras-chave para transbordo
         const textoMin = textoOriginal.toLowerCase();
-        if (textoMin.includes('advogado') || textoMin.includes('humano') || textoMin.includes('atendente')) {
-            estadosUsuarios[remetenteChave] = 'transbordo_humano';
-            contatosPausados[remetenteChave] = {
-                telefone: remetenteChave,
-                nome: 'Cliente WhatsApp',
-                pausadoEm: new Date().toISOString()
-            };
-            await responder("👨‍⚖️ Sua solicitação foi recebida! Um advogado da nossa equipe assumirá esta conversa em instantes.");
+        if (FRASES_TRANSBORDO_DIRETO.some(f => textoMin === f || textoMin.includes(f))) {
+            const opHumano = (config.fluxo && config.fluxo.raiz && Array.isArray(config.fluxo.raiz.opcoes))
+                ? config.fluxo.raiz.opcoes.find(o => o.tipo === 'humano')
+                : null;
+            const msgConfirmacao = (opHumano && opHumano.resposta)
+                || "👨‍⚖️ Sua solicitação foi recebida! Um advogado da nossa equipe assumirá esta conversa em instantes.";
+            await colocarNaFilaHumana(msgConfirmacao, 'Solicitação direta de atendimento humano');
             return true;
         }
 
@@ -303,18 +489,23 @@ async function processarMensagemEntrada(msg) {
         const opcaoEscolhida = (etapaObj.opcoes || []).find(op => op.gatilho === textoOriginal.trim());
 
         if (opcaoEscolhida) {
+            const acoes = opcaoEscolhida.acoes || {};
+            const deveEncaminharFila = Boolean(
+                acoes.encaminharFilaHumana ||
+                acoes.pausarRobo ||
+                opcaoEscolhida.tipo === 'humano'
+            );
+
+            if (deveEncaminharFila) {
+                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi encaminhada para a nossa equipe.";
+                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Novo Atendimento';
+                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes });
+                return true;
+            }
+
             if (opcaoEscolhida.tipo === 'processo') {
                 estadosUsuarios[remetenteChave] = 'aguardando_processo';
                 await responder(opcaoEscolhida.resposta || "Por gentileza, digite apenas o seu CPF ou o Número do Processo:");
-                return true;
-            } else if (opcaoEscolhida.tipo === 'humano') {
-                estadosUsuarios[remetenteChave] = 'transbordo_humano';
-                contatosPausados[remetenteChave] = {
-                    telefone: remetenteChave,
-                    nome: 'Cliente WhatsApp',
-                    pausadoEm: new Date().toISOString()
-                };
-                await responder(opcaoEscolhida.resposta || "Perfeito! Um advogado já foi chamado.");
                 return true;
             } else if (opcaoEscolhida.tipo === 'submenu') {
                 const destino = opcaoEscolhida.destino;
@@ -337,61 +528,95 @@ async function processarMensagemEntrada(msg) {
         await responder(montarTextoEtapa(config.fluxo.raiz));
         return true;
     } catch (e) {
-        console.error('[Headless] Erro no processamento de mensagem:', e);
+        console.error('[Server] Erro no processamento de mensagem:', e);
         return false;
     }
 }
 
+function obterCaminhoNavegador() {
+    if (process.platform !== 'win32') return undefined;
+    const progFiles = process.env['PROGRAMFILES'] || 'C:\\Program Files';
+    const progFilesX86 = process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)';
+    const localAppData = process.env.LOCALAPPDATA || '';
+
+    const caminhosWindows = [
+        path.join(progFiles, 'Google\\Chrome\\Application\\chrome.exe'),
+        path.join(progFilesX86, 'Google\\Chrome\\Application\\chrome.exe'),
+        path.join(localAppData, 'Google\\Chrome\\Application\\chrome.exe'),
+        path.join(progFilesX86, 'Microsoft\\Edge\\Application\\msedge.exe'),
+        path.join(progFiles, 'Microsoft\\Edge\\Application\\msedge.exe'),
+        path.join(localAppData, 'Microsoft\\Edge\\Application\\msedge.exe')
+    ];
+    for (const caminho of caminhosWindows) {
+        if (caminho && fs.existsSync(caminho)) return caminho;
+    }
+    return undefined;
+}
+
 // Inicialização do WhatsApp Client
 async function iniciarBotHeadless() {
-    console.log('[Headless] Configurando cliente WhatsApp Web em modo autônomo...');
-    statusAtualBot = 'initializing';
+    console.log('[Headless] Configurando cliente WhatsApp Web com LocalAuth e flags de produção...');
+    statusConexao = 'DISCONNECTED';
+
+    const puppeteerArgs = [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+    ];
+
+    // No Linux/Docker/ARM, --single-process é crucial para economia de memória
+    if (process.platform === 'linux' || process.env.DOCKER_CONTAINER) {
+        puppeteerArgs.push('--single-process');
+    }
+
+    const execPath = process.env.PUPPETEER_EXECUTABLE_PATH || obterCaminhoNavegador();
 
     client = new Client({
         authStrategy: new LocalAuth({
+            clientId: 'advocacia-server-session',
             dataPath: SESSION_PATH
         }),
+        webVersionCache: {
+            type: 'none'
+        },
         puppeteer: {
-            headless: 'new',
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--disable-gpu'
-            ]
+            headless: true,
+            executablePath: execPath,
+            args: puppeteerArgs
         }
     });
 
     client.on('qr', async (qr) => {
-        statusAtualBot = 'qr_ready';
-        ultimoQrDataUrl = await qrcode.toDataURL(qr);
-        console.log('\n=============================================================');
-        console.log('📌 QR CODE GERADO COM SUCESSO! ESCANEIE COM SEU WHATSAPP:');
-        console.log('=============================================================\n');
+        qrCodeAtual = qr;
+        statusConexao = 'QR_READY';
+        console.log('⚡ Novo QR Code gerado.');
         try {
-            ultimoQrCodeAscii = await qrcode.toString(qr, { type: 'terminal', small: true });
-            console.log(ultimoQrCodeAscii);
+            ultimoQrDataUrl = await qrcode.toDataURL(qr);
+            const qrAscii = await qrcode.toString(qr, { type: 'terminal', small: true });
+            console.log(qrAscii);
         } catch (e) {
             console.log(`[QR String] ${qr}`);
         }
-        console.log(`\nOu acesse: http://localhost:${PORT}/qr para escanear via navegador.\n`);
+        console.log(`\nOu acesse: http://localhost:${PORT}/qr (ou /qr-status)\n`);
     });
 
     client.on('ready', () => {
-        statusAtualBot = 'ready';
+        qrCodeAtual = null;
+        statusConexao = 'CONNECTED';
         momentoConexao = Math.floor(Date.now() / 1000);
-        console.log('\n✅ [Headless] WhatsApp Conectado e Operante com Sucesso!');
+        console.log('✅ WhatsApp conectado e pronto para operação 24/7.');
         console.log(`   Sessão salva em: ${SESSION_PATH}`);
-        console.log(`   Endpoint de métricas: http://localhost:${PORT}/health\n`);
+        console.log(`   Endpoint de status: http://localhost:${PORT}/status\n`);
     });
 
     client.on('disconnected', (reason) => {
-        statusAtualBot = 'disconnected';
-        console.warn(`[Headless] WhatsApp desconectado: ${reason}. Tentando reconectar em 10s...`);
+        qrCodeAtual = null;
+        statusConexao = 'DISCONNECTED';
+        console.warn(`⚠️ [Headless] WhatsApp desconectado: ${reason}. Tentando reconectar em 10s...`);
         setTimeout(() => iniciarBotHeadless(), 10000);
     });
 
@@ -411,31 +636,72 @@ async function iniciarBotHeadless() {
 const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-    if (url.pathname === '/health' || url.pathname === '/status') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
+    // Helper res.json compatível com Express
+    res.json = (data, statusCode = 200) => {
+        res.writeHead(statusCode, {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        });
+        res.end(JSON.stringify(data, null, 2));
+    };
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        });
+        res.end();
+        return;
+    }
+
+    // 1. Endpoints de Verificação e Status (/status e /health)
+    if (url.pathname === '/status' || url.pathname === '/health') {
         const cfg = carregarConfig();
         const listaProcessos = cfg.processos?.lista || [];
-        res.end(JSON.stringify({
-            status: 'ok',
-            botStatus: statusAtualBot,
+        return res.json({
+            status: statusConexao,
+            uptime: process.uptime(),
             uptimeSegundos: Math.floor(process.uptime()),
+            timestamp: new Date().toISOString(),
+            botStatus: statusConexao,
             momentoConexao,
             totalProcessosCadastrados: listaProcessos.length,
             totalMensagensProcessadas,
             contatosPausadosQtd: Object.keys(contatosPausados).length,
             contatosPausados
-        }, null, 2));
-        return;
+        });
     }
 
+    // 2. Endpoint /qr-status
+    if (url.pathname === '/qr-status') {
+        return res.json({
+            status: statusConexao,
+            qr: qrCodeAtual,
+            qrDataUrl: ultimoQrDataUrl
+        });
+    }
+
+    // 3. Endpoint /pausados (sincronização remota)
+    if (url.pathname === '/pausados') {
+        return res.json({
+            sucesso: true,
+            total: Object.keys(contatosPausados).length,
+            contatosPausados
+        });
+    }
+
+    // 4. Endpoint /qr (Interface visual para escanear QR Code)
     if (url.pathname === '/qr') {
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        if (statusAtualBot === 'ready') {
+        if (statusConexao === 'CONNECTED') {
             res.end(`
                 <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
                     <h1 style="color:#2ea043;">✅ WhatsApp Conectado e Operante!</h1>
-                    <p>O robô já está atendendo normalmente.</p>
-                    <a href="/health" style="color:#58a6ff;">Ver Métricas</a>
+                    <p>O robô já está atendendo normalmente 24/7.</p>
+                    <a href="/status" style="color:#58a6ff;">Ver Status da API</a>
                 </body></html>
             `);
         } else if (ultimoQrDataUrl) {
@@ -451,6 +717,7 @@ const server = http.createServer(async (req, res) => {
             res.end(`
                 <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
                     <h1>Aguardando geração do QR Code...</h1>
+                    <p>Status atual: <strong>${statusConexao}</strong></p>
                     <p>Recarregando em 3 segundos...</p>
                     <script>setTimeout(() => location.reload(), 3000);</script>
                 </body></html>
@@ -459,7 +726,7 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // Dashboard minimalista
+    // Dashboard minimalista raiz
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(`
         <!DOCTYPE html>
@@ -478,13 +745,14 @@ const server = http.createServer(async (req, res) => {
         </head>
         <body>
             <div class="card">
-                <h1>Advocacia Studio Pro v2.0</h1>
-                <p>Status: <span class="status-badge ${statusAtualBot === 'ready' ? 'status-ready' : 'status-wait'}">${statusAtualBot.toUpperCase()}</span></p>
+                <h1>Advocacia Studio Pro v2.0 • Headless Cloud</h1>
+                <p>Status: <span class="status-badge ${statusConexao === 'CONNECTED' ? 'status-ready' : 'status-wait'}">${statusConexao}</span></p>
                 <p>Uptime: ${Math.floor(process.uptime())} segundos</p>
                 <p>Mensagens atendidas: ${totalMensagensProcessadas}</p>
-                <p>Contatos em transbordo: ${Object.keys(contatosPausados).length}</p>
+                <p>Contatos em fila humana: ${Object.keys(contatosPausados).length}</p>
                 <a class="btn" href="/qr">Ver QR Code</a>
-                <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/health">API /health</a>
+                <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/status">API /status</a>
+                <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/qr-status">API /qr-status</a>
             </div>
         </body>
         </html>
@@ -495,6 +763,7 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
     console.log(`\n🚀 [Server Headless] Servidor HTTP operando na porta ${PORT}`);
     console.log(`   Painel: http://localhost:${PORT}`);
-    console.log(`   Health: http://localhost:${PORT}/health\n`);
+    console.log(`   Status API: http://localhost:${PORT}/status`);
+    console.log(`   QR Status API: http://localhost:${PORT}/qr-status\n`);
     iniciarBotHeadless();
 });
