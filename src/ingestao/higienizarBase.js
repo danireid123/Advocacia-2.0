@@ -40,7 +40,8 @@ function higienizarBaseProcessos(config) {
     if (norm.cnjLimpo) {
       chave = `cnj_${norm.cnjLimpo}`;
     } else if (norm.cpfLimpo && num) {
-      chave = `cpf_${norm.cpfLimpo}_${num.trim().toLowerCase()}`;
+      const numStr = (num || '').toString().trim().toLowerCase();
+      chave = `cpf_${norm.cpfLimpo}_${numStr}`;
     } else if (norm.cpfLimpo) {
       chave = `cpf_${norm.cpfLimpo}`;
     } else {

@@ -191,7 +191,8 @@ function mapearColunasPlanilha(headers) {
     for (const regex of regexList) {
       if (mapa[campo]) break;
       for (const col of headers) {
-        if (!colunasUsadas.has(col) && regex.test(col.trim())) {
+        const colStr = (col || '').toString().trim();
+        if (!colunasUsadas.has(col) && regex.test(colStr)) {
           mapa[campo] = col;
           colunasUsadas.add(col);
           break;
@@ -237,7 +238,7 @@ async function parseSpreadsheet(filePathOrBuffer, fileName = 'planilha.xlsx') {
     // Fallback: busca por conteúdo caso colunas não estejam nomeadas
     if (!numProc || !cpf) {
       for (const val of Object.values(row)) {
-        const strVal = String(val).trim();
+        const strVal = (val || '').toString().trim();
         const clean = strVal.replace(/\D/g, '');
         if (!numProc && (clean.length === 20 || /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/.test(strVal))) {
           numProc = strVal;
@@ -275,8 +276,9 @@ async function parseSpreadsheet(filePathOrBuffer, fileName = 'planilha.xlsx') {
  * Extrai o nome da parte/cliente a partir de rótulos comuns em peças e relatórios
  */
 function extrairNomeDoBloco(bloco) {
+  const strBloco = (bloco || '').toString();
   const re = /(?:Parte\s+Autora|Autor(?:a)?|Requerente|Exequente|Reclamante|Cliente|Impetrante|Interessado)\s*(?:\([^)]*\))?\s*[:\-]\s*([A-ZÀ-Ú][A-Za-zÀ-ú'.\s]{3,80}?)(?=\s*(?:\(|CPF|CNPJ|\n|\r|,|;|$))/i;
-  const m = bloco.match(re);
+  const m = strBloco.match(re);
   if (m) {
     const nomeLimpo = m[1].replace(/\s+/g, ' ').trim();
     if (nomeLimpo.length >= 3 && !/^(?:Processo|Vara|Tribunal|Comarca|Estado|Secretaria|Cartorio|Diario)/i.test(nomeLimpo)) {
@@ -290,7 +292,8 @@ function extrairNomeDoBloco(bloco) {
  * Extrai o andamento mais relevante e sua data, priorizando núcleos decisórios de mérito
  */
 function extrairResumoEDataDoBloco(bloco, cnjBruto) {
-  const semIds = bloco
+  const strBloco = (bloco || '').toString();
+  const semIds = strBloco
     .split(cnjBruto || '\u0000').join(' ')
     .replace(REGEX_PATTERNS.CNJ, ' ')
     .replace(/\b\d{3}\.\d{3}\.\d{3}-\d{2}\b/g, ' ')
@@ -302,19 +305,19 @@ function extrairResumoEDataDoBloco(bloco, cnjBruto) {
   });
 
   // 1) Prefere seção expressamente rotulada de "Andamento"
-  const mAnd = bloco.match(/andamento[^\n:]{0,120}:\s*\n?\s*["“]?([^\n]{20,700})/i);
+  const mAnd = strBloco.match(/andamento[^\n:]{0,120}:\s*\n?\s*["“]?([^\n]{20,700})/i);
   let resumo = '';
   let dataBruta = '';
   if (mAnd) {
     resumo = mAnd[1].replace(/["”]+\s*$/, '').trim();
-    const linhaRotulo = (bloco.match(/andamento[^\n:]{0,120}:/i) || [''])[0];
+    const linhaRotulo = (strBloco.match(/andamento[^\n:]{0,120}:/i) || [''])[0];
     dataBruta = datasValidas(linhaRotulo)[0] || datasValidas(resumo)[0] || '';
   }
 
   // 2) Detecção de núcleos decisórios de sentenças, acórdãos e despachos (JULGO, HOMOLOGO, EXTINÇÃO, ALVARÁ...)
   if (!resumo) {
-    const mDecisao = bloco.match(/(?:JULGO\s+(?:EXTINT[AO]|PROCEDENTE|IMPROCEDENTE|PARCIALMENTE\s+PROCEDENTE)[^\n.]{15,400}\.?|SENTEN[CÇ]A\s+DE\s+[^\n]{10,250}|Vistos[^\n]*\n[\s\S]{30,400}?(?=\.\s|\n\s*\n))/i);
-    const mAlvara = bloco.match(/(?:expe[cç]a-se[^\n]{10,200}|Alvar[aá]\s+Judicial[^\n]{10,200})/i);
+    const mDecisao = strBloco.match(/(?:JULGO\s+(?:EXTINT[AO]|PROCEDENTE|IMPROCEDENTE|PARCIALMENTE\s+PROCEDENTE)[^\n.]{15,400}\.?|SENTEN[CÇ]A\s+DE\s+[^\n]{10,250}|Vistos[^\n]*\n[\s\S]{30,400}?(?=\.\s|\n\s*\n))/i);
+    const mAlvara = strBloco.match(/(?:expe[cç]a-se[^\n]{10,200}|Alvar[aá]\s+Judicial[^\n]{10,200})/i);
 
     if (mDecisao) {
       resumo = mDecisao[0].replace(/\s+/g, ' ').trim();
@@ -599,8 +602,8 @@ async function processarArquivoIngestao(source, fileName) {
  * Normaliza número de processo e CPF para identificadores limpos e seguros
  */
 function normalizarChaveProcesso(numeroProcesso, cpf) {
-  const cnjLimpo = String(numeroProcesso || '').replace(/\D/g, '');
-  const cpfLimpo = String(cpf || '').replace(/\D/g, '');
+  const cnjLimpo = (numeroProcesso || '').toString().replace(/\D/g, '');
+  const cpfLimpo = (cpf || '').toString().replace(/\D/g, '');
   const cnjValido = cnjLimpo.length >= 10 ? cnjLimpo : '';
   const cpfValido = cpfLimpo.length >= 11 ? cpfLimpo.slice(-11) : (cpfLimpo.length >= 5 ? cpfLimpo : '');
   const chaveStr = cnjValido ? `cnj_${cnjValido}` : (cpfValido ? `cpf_${cpfValido}` : '');

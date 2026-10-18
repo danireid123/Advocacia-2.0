@@ -3,12 +3,14 @@ dist/
 .cache/
 wwebjs_auth_session/
 wwebjs_auth_session_v2/
+wwebjs_auth_session*
+config.v1.backup.*.json
+*.log
 bun.lock
 -e 
 *.zip
 metadata.json
 .wwebjs_cache/
-*.zip
 .env
 .env.local
 .env.*.local

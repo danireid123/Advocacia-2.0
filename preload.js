@@ -40,6 +40,9 @@ const apiBridge = {
     adicionarIgnorado: (item) => ipcRenderer.invoke('adicionar-ignorado', item),
     removerIgnorado: (num) => ipcRenderer.invoke('remover-ignorado', num),
 
+    // Sincronização Nuvem (24/7)
+    sincronizarServidorNuvem: (payload) => ipcRenderer.invoke('sincronizar-servidor-nuvem', payload),
+
     // Transbordo Humano & IA
     notificarTransbordoHumano: (dados) => ipcRenderer.invoke('notify-transbordo-humano', dados),
     atenderClienteFila: (telefone) => ipcRenderer.invoke('remover-pausa', telefone),

@@ -1496,6 +1496,35 @@
               </div>
             </div>
           </div>
+
+          <!-- Card de Sincronização com Servidor Nuvem (24/7) -->
+          <div id="card-cloud-sync" class="exec-card p-6 rounded-2xl space-y-4 border border-sky-500/30 bg-sky-950/10">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div class="flex items-center space-x-2.5">
+                <span class="text-xl">☁️</span>
+                <div>
+                  <h3 class="text-sm font-bold text-white">☁️ Sincronização com Servidor Nuvem (24/7)</h3>
+                  <p class="text-xs text-slate-400">Sincronize a fila humana e status do atendimento em tempo real com o servidor na nuvem.</p>
+                </div>
+              </div>
+              <span id="cloud-sync-status-badge" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-800 text-slate-400 border border-slate-700">Offline / Standby</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end pt-1">
+              <div class="md:col-span-6">
+                <label class="text-[11px] font-semibold text-slate-300 block mb-1">URL do Servidor Remoto</label>
+                <input type="text" id="cloud-sync-url" value="https://advocacia-2-0.onrender.com" class="exec-input w-full rounded-xl px-3.5 py-2 text-xs font-mono">
+              </div>
+              <div class="md:col-span-4">
+                <label class="text-[11px] font-semibold text-slate-300 block mb-1">Token de Segurança (API_SECRET_TOKEN)</label>
+                <input type="password" id="cloud-sync-token" placeholder="Opcional se desativado no server..." class="exec-input w-full rounded-xl px-3.5 py-2 text-xs font-mono">
+              </div>
+              <div class="md:col-span-2">
+                <button type="button" id="btn-cloud-sync" onclick="executarSincronizacaoNuvem()" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
+                  <span>🔄 Sincronizar Agora</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- ================= ABA 7: CONTATOS IGNORADOS ================= -->
@@ -1669,6 +1698,12 @@
 
   <script src="./src/audio/audioAlert.js"></script>
   <script>
+    function safeOn(id, event, handler) {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(event, handler);
+    }
+    window.safeOn = safeOn;
+
     function obterConfigPadraoFallback() {
       return {
         versao_config: "Beta 0.8",
@@ -1837,18 +1872,22 @@
       if (tema === 'light') {
         document.body.classList.remove('theme-dark');
         document.body.classList.add('theme-light');
-        document.getElementById('theme-icon-sun').classList.remove('hidden');
-        document.getElementById('theme-icon-moon').classList.add('hidden');
+        const iconSun = document.getElementById('theme-icon-sun');
+        if (iconSun) iconSun.classList.remove('hidden');
+        const iconMoon = document.getElementById('theme-icon-moon');
+        if (iconMoon) iconMoon.classList.add('hidden');
       } else {
         document.body.classList.remove('theme-light');
         document.body.classList.add('theme-dark');
-        document.getElementById('theme-icon-sun').classList.add('hidden');
-        document.getElementById('theme-icon-moon').classList.remove('hidden');
+        const iconSun = document.getElementById('theme-icon-sun');
+        if (iconSun) iconSun.classList.add('hidden');
+        const iconMoon = document.getElementById('theme-icon-moon');
+        if (iconMoon) iconMoon.classList.remove('hidden');
       }
       localStorage.setItem('adv_bot_theme', tema);
     }
 
-    document.getElementById('btn-toggle-theme').addEventListener('click', () => {
+    safeOn('btn-toggle-theme', 'click', () => {
       const atual = document.body.classList.contains('theme-light') ? 'light' : 'dark';
       aplicarTema(atual === 'light' ? 'dark' : 'light');
     });
@@ -1873,22 +1912,29 @@
       const msgsQtd = m.totalMensagens || 0;
       const horasPoupadas = ((msgsQtd * 2) / 60).toFixed(1);
 
-      document.getElementById('metric-clientes-reais').innerText = String(contatosQtd);
-      document.getElementById('metric-mensagens-reais').innerText = String(msgsQtd);
-      document.getElementById('metric-horas-reais').innerText = `${horasPoupadas} h`;
+      const elClientes = document.getElementById('metric-clientes-reais');
+      if (elClientes) elClientes.innerText = String(contatosQtd);
+      const elMensagens = document.getElementById('metric-mensagens-reais');
+      if (elMensagens) elMensagens.innerText = String(msgsQtd);
+      const elHoras = document.getElementById('metric-horas-reais');
+      if (elHoras) elHoras.innerText = `${horasPoupadas} h`;
 
       if (qtdFilaHumana !== null) {
-        document.getElementById('metric-fila-humana').innerText = String(qtdFilaHumana);
+        const elFila = document.getElementById('metric-fila-humana');
+        if (elFila) elFila.innerText = String(qtdFilaHumana);
       }
       renderizarTelaInicial();
     }
 
     function mostrarToast(texto) {
       const toast = document.getElementById('toast-msg');
-      document.getElementById('toast-texto').innerText = texto;
-      toast.classList.remove('hidden');
-      toast.classList.add('flex');
-      setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 2800);
+      const toastTexto = document.getElementById('toast-texto');
+      if (toastTexto) toastTexto.innerText = texto;
+      if (toast) {
+        toast.classList.remove('hidden');
+        toast.classList.add('flex');
+        setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 2800);
+      }
     }
 
     function agendarRenderMapaVisual() {
@@ -2015,21 +2061,25 @@
     }
 
     function aplicarUsuarioLogado(dados) {
-      document.getElementById('header-user-info').innerText = `${dados.office || 'Escritório'} • Operador: ${dados.user} • Auto-Login 30d`;
-      document.getElementById('home-welcome-title').innerText = `Olá, ${dados.user || 'Doutor(a)'}! Bem-vindo ao ${dados.office || 'Escritório Digital'}.`;
+      const userInfo = document.getElementById('header-user-info');
+      if (userInfo) userInfo.innerText = `${dados?.office || 'Escritório'} • Operador: ${dados?.user} • Auto-Login 30d`;
+      const welcomeTitle = document.getElementById('home-welcome-title');
+      if (welcomeTitle) welcomeTitle.innerText = `Olá, ${dados?.user || 'Doutor(a)'}! Bem-vindo ao ${dados?.office || 'Escritório Digital'}.`;
     }
 
-    document.getElementById('btn-auth-submit').addEventListener('click', async () => {
-      const user = document.getElementById('auth-user').value.trim();
-      const pass = document.getElementById('auth-pass').value.trim();
-      const office = document.getElementById('auth-office').value.trim();
-      const recovery = document.getElementById('auth-recovery').value.trim();
-      const manter30d = document.getElementById('auth-keep-30days').checked;
+    safeOn('btn-auth-submit', 'click', async () => {
+      const user = (document.getElementById('auth-user')?.value || '').trim();
+      const pass = (document.getElementById('auth-pass')?.value || '').trim();
+      const office = (document.getElementById('auth-office')?.value || '').trim();
+      const recovery = (document.getElementById('auth-recovery')?.value || '').trim();
+      const manter30d = Boolean(document.getElementById('auth-keep-30days')?.checked);
       const err = document.getElementById('auth-error');
 
       if (!user || !pass) {
-        err.innerText = 'Preencha usuário e senha!';
-        err.classList.remove('hidden');
+        if (err) {
+          err.innerText = 'Preencha usuário e senha!';
+          err.classList.remove('hidden');
+        }
         return;
       }
 
@@ -2041,8 +2091,11 @@
         localStorage.setItem('adv_bot_user_account', JSON.stringify(novaConta));
         registrarSessao30Dias(manter30d);
         aplicarUsuarioLogado(novaConta);
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('auth-screen').classList.remove('flex');
+        const authScreen = document.getElementById('auth-screen');
+        if (authScreen) {
+          authScreen.classList.add('hidden');
+          authScreen.classList.remove('flex');
+        }
         mostrarToast('Acesso salvo por 30 dias!');
         setTimeout(() => dispararEntradaTriunfalLexBot(), 300);
       } else {
@@ -2050,39 +2103,45 @@
         if (dados.user === user && dados.passHash === passHash) {
           registrarSessao30Dias(manter30d);
           aplicarUsuarioLogado(dados);
-          document.getElementById('auth-screen').classList.add('hidden');
-          document.getElementById('auth-screen').classList.remove('flex');
-          err.classList.add('hidden');
+          const authScreen = document.getElementById('auth-screen');
+          if (authScreen) {
+            authScreen.classList.add('hidden');
+            authScreen.classList.remove('flex');
+          }
+          if (err) err.classList.add('hidden');
           const jaViu = localStorage.getItem('adv_bot_tour_beta08_done');
           if (!jaViu) dispararEntradaTriunfalLexBot();
         } else {
-          err.innerText = 'Usuário ou senha incorretos.';
-          err.classList.remove('hidden');
+          if (err) {
+            err.innerText = 'Usuário ou senha incorretos.';
+            err.classList.remove('hidden');
+          }
         }
       }
     });
 
-    document.getElementById('btn-logout').addEventListener('click', () => {
+    safeOn('btn-logout', 'click', () => {
       sessionStorage.removeItem('adv_bot_logged_in');
       localStorage.removeItem('adv_bot_session_30d');
-      document.getElementById('auth-pass').value = '';
+      const passEl = document.getElementById('auth-pass');
+      if (passEl) passEl.value = '';
       verificarEstadoLogin();
     });
 
     const modalReset = document.getElementById('modal-recuperar-senha');
-    document.getElementById('btn-esqueci-senha').addEventListener('click', () => {
-      modalReset.classList.remove('hidden'); modalReset.classList.add('flex');
+    safeOn('btn-esqueci-senha', 'click', () => {
+      if (modalReset) { modalReset.classList.remove('hidden'); modalReset.classList.add('flex'); }
     });
-    document.getElementById('btn-cancelar-reset').addEventListener('click', () => {
-      modalReset.classList.add('hidden'); modalReset.classList.remove('flex');
+    safeOn('btn-cancelar-reset', 'click', () => {
+      if (modalReset) { modalReset.classList.add('hidden'); modalReset.classList.remove('flex'); }
     });
-    document.getElementById('btn-confirmar-reset').addEventListener('click', () => {
-      const val = document.getElementById('input-chave-reset').value.trim().toLowerCase();
+    safeOn('btn-confirmar-reset', 'click', () => {
+      const val = (document.getElementById('input-chave-reset')?.value || '').trim().toLowerCase();
       const conta = JSON.parse(localStorage.getItem('adv_bot_user_account') || '{}');
       if (val === 'resetar' || (conta.recoveryKey && val === conta.recoveryKey)) {
         localStorage.removeItem('adv_bot_user_account');
         localStorage.removeItem('adv_bot_session_30d');
-        modalReset.classList.add('hidden'); modalReset.classList.remove('flex');
+        if (modalReset) { modalReset.classList.add('hidden'); modalReset.classList.remove('flex'); }
         verificarEstadoLogin();
         mostrarToast('Credenciais redefinidas!');
       } else {
@@ -2094,8 +2153,10 @@
       garantirEstruturaProcessos();
       garantirEstruturaAgenda();
       const lista = configGlobal.processos.lista || [];
-      document.getElementById('home-card-processos').innerText = String(lista.length);
-      document.getElementById('badge-processos').innerText = String(lista.length);
+      const elHomeCardProc = document.getElementById('home-card-processos');
+      if (elHomeCardProc) elHomeCardProc.innerText = String(lista.length);
+      const elBadgeProc = document.getElementById('badge-processos');
+      if (elBadgeProc) elBadgeProc.innerText = String(lista.length);
 
       const qtdMenus = 1 + Object.keys((configGlobal.fluxo && configGlobal.fluxo.etapas) || {}).length;
       const elMenus = document.getElementById('home-card-menus');
@@ -2109,12 +2170,14 @@
       const agora = new Date();
       const diaHoje = String(agora.getDay());
       const confHoje = configGlobal.agenda && configGlobal.agenda[diaHoje];
+      const elExpediente = document.getElementById('home-card-expediente');
+      const elHorarioDetalhe = document.getElementById('home-card-horario-detalhe');
       if (confHoje && confHoje.ativo) {
-        document.getElementById('home-card-expediente').innerText = "Aberto Hoje";
-        document.getElementById('home-card-horario-detalhe').innerText = `${confHoje.nome}: ${confHoje.abertura} às ${confHoje.fechamento}`;
+        if (elExpediente) elExpediente.innerText = "Aberto Hoje";
+        if (elHorarioDetalhe) elHorarioDetalhe.innerText = `${confHoje.nome}: ${confHoje.abertura} às ${confHoje.fechamento}`;
       } else {
-        document.getElementById('home-card-expediente').innerText = "Fora de Expediente";
-        document.getElementById('home-card-horario-detalhe').innerText = "Atendendo normal com aviso no início";
+        if (elExpediente) elExpediente.innerText = "Fora de Expediente";
+        if (elHorarioDetalhe) elHorarioDetalhe.innerText = "Atendendo normal com aviso no início";
       }
 
       const boxUltimos = document.getElementById('home-ultimos-processos');
@@ -2151,15 +2214,21 @@
       modalCentro.classList.add('flex');
     }
 
-    document.getElementById('btn-centro-nao').addEventListener('click', () => {
-      document.getElementById('lexbot-center-modal').classList.add('hidden');
-      document.getElementById('lexbot-center-modal').classList.remove('flex');
+    safeOn('btn-centro-nao', 'click', () => {
+      const modalCentro = document.getElementById('lexbot-center-modal');
+      if (modalCentro) {
+        modalCentro.classList.add('hidden');
+        modalCentro.classList.remove('flex');
+      }
       localStorage.setItem('adv_bot_tour_beta08_done', 'true');
     });
 
-    document.getElementById('btn-centro-sim').addEventListener('click', () => {
-      document.getElementById('lexbot-center-modal').classList.add('hidden');
-      document.getElementById('lexbot-center-modal').classList.remove('flex');
+    safeOn('btn-centro-sim', 'click', () => {
+      const modalCentro = document.getElementById('lexbot-center-modal');
+      if (modalCentro) {
+        modalCentro.classList.add('hidden');
+        modalCentro.classList.remove('flex');
+      }
       iniciarTourGuiado();
     });
 
@@ -2203,10 +2272,14 @@
       if (passo.aba) ativarAba(passo.aba);
       if (passo.acaoExtra) passo.acaoExtra();
 
-      document.getElementById('lexbot-title').innerText = passo.titulo;
-      document.getElementById('lexbot-text').innerText = passo.texto;
-      document.getElementById('lexbot-step-counter').innerText = `${passoAtualTour + 1} de ${passosTour.length}`;
-      document.getElementById('btn-lexbot-next').innerText = (passoAtualTour === passosTour.length - 1) ? 'Concluir' : 'Próximo ➔';
+      const elTitle = document.getElementById('lexbot-title');
+      if (elTitle) elTitle.innerText = passo.titulo;
+      const elText = document.getElementById('lexbot-text');
+      if (elText) elText.innerText = passo.texto;
+      const elCounter = document.getElementById('lexbot-step-counter');
+      if (elCounter) elCounter.innerText = `${passoAtualTour + 1} de ${passosTour.length}`;
+      const elNext = document.getElementById('btn-lexbot-next');
+      if (elNext) elNext.innerText = (passoAtualTour === passosTour.length - 1) ? 'Concluir' : 'Próximo ➔';
 
       setTimeout(() => {
         const alvo = document.getElementById(passo.alvoId);
@@ -2227,23 +2300,25 @@
 
     function finalizarTour() {
       tourAtivo = false; limparFocoTour(); alternarBarraFormatacao(false); ativarAba('inicio');
-      document.getElementById('tour-backdrop').classList.remove('active');
-      document.getElementById('lexbot-bubble').classList.add('hidden');
+      const backdrop = document.getElementById('tour-backdrop');
+      if (backdrop) backdrop.classList.remove('active');
+      const bubble = document.getElementById('lexbot-bubble');
+      if (bubble) bubble.classList.add('hidden');
       const wrapper = document.getElementById('lexbot-wrapper');
-      wrapper.style.top = 'auto'; wrapper.style.left = 'auto'; wrapper.style.bottom = '20px'; wrapper.style.right = '22px';
+      if (wrapper) { wrapper.style.top = 'auto'; wrapper.style.left = 'auto'; wrapper.style.bottom = '20px'; wrapper.style.right = '22px'; }
       localStorage.setItem('adv_bot_tour_beta08_done', 'true');
       mostrarToast('Tour Beta 0.8 concluído!');
     }
 
-    document.getElementById('btn-lexbot-next').addEventListener('click', () => {
+    safeOn('btn-lexbot-next', 'click', () => {
       if (passoAtualTour < passosTour.length - 1) { passoAtualTour++; renderizarPassoTour(); } else { finalizarTour(); }
     });
-    document.getElementById('btn-lexbot-prev').addEventListener('click', () => {
+    safeOn('btn-lexbot-prev', 'click', () => {
       if (passoAtualTour > 0) { passoAtualTour--; renderizarPassoTour(); }
     });
-    document.getElementById('btn-close-bubble').addEventListener('click', finalizarTour);
-    document.getElementById('tour-backdrop').addEventListener('click', finalizarTour);
-    document.getElementById('btn-lexbot-avatar').addEventListener('click', () => {
+    safeOn('btn-close-bubble', 'click', finalizarTour);
+    safeOn('tour-backdrop', 'click', finalizarTour);
+    safeOn('btn-lexbot-avatar', 'click', () => {
       if (tourAtivo) finalizarTour(); else iniciarTourGuiado();
     });
 
@@ -2284,7 +2359,8 @@
         card.className = `p-4 rounded-xl border transition cursor-pointer ${isSel ? 'bg-[#17223b] border-[#d4af37]' : 'exec-card hover:border-slate-700'}`;
         card.onclick = () => {
           etapaSelecionada = item.id;
-          document.getElementById('select-etapa').value = item.id;
+          const selEtapa = document.getElementById('select-etapa');
+          if (selEtapa) selEtapa.value = item.id;
           carregarEtapaNoEditor(item.id);
         };
         let opHtml = '';
@@ -2320,6 +2396,19 @@
     }
 
     window.ativarAba = function(abaNome) {
+      if (abaNome !== 'simulador') {
+        if (typeof window.cancelarGravacaoSimulador === 'function') {
+          window.cancelarGravacaoSimulador();
+        }
+        if (typeof gravadorInterval !== 'undefined' && gravadorInterval) {
+          clearInterval(gravadorInterval);
+          gravadorInterval = null;
+        }
+        if (window.gravadorInterval) {
+          clearInterval(window.gravadorInterval);
+          window.gravadorInterval = null;
+        }
+      }
       ['inicio', 'processos', 'fluxo', 'agenda', 'pausados', 'ignorados', 'simulador', 'terminal', 'backup'].forEach(a => {
         const d = document.getElementById('aba-' + a);
         const b = document.getElementById('nav-btn-' + a);
@@ -2341,19 +2430,18 @@
       }
     };
 
-    document.getElementById('nav-btn-inicio').addEventListener('click', () => ativarAba('inicio'));
-    document.getElementById('nav-btn-fluxo').addEventListener('click', () => ativarAba('fluxo'));
-    document.getElementById('nav-btn-processos').addEventListener('click', () => ativarAba('processos'));
-    document.getElementById('nav-btn-agenda').addEventListener('click', () => ativarAba('agenda'));
-    document.getElementById('nav-btn-pausados').addEventListener('click', async () => {
+    safeOn('nav-btn-inicio', 'click', () => ativarAba('inicio'));
+    safeOn('nav-btn-fluxo', 'click', () => ativarAba('fluxo'));
+    safeOn('nav-btn-processos', 'click', () => ativarAba('processos'));
+    safeOn('nav-btn-agenda', 'click', () => ativarAba('agenda'));
+    safeOn('nav-btn-pausados', 'click', async () => {
       ativarAba('pausados');
       if (window.api && window.api.obterPausados) renderizarPausados(await window.api.obterPausados());
     });
-    document.getElementById('nav-btn-ignorados').addEventListener('click', () => ativarAba('ignorados'));
-    const btnNavSimulador = document.getElementById('nav-btn-simulador');
-    if (btnNavSimulador) btnNavSimulador.addEventListener('click', () => ativarAba('simulador'));
-    document.getElementById('nav-btn-terminal').addEventListener('click', () => ativarAba('terminal'));
-    document.getElementById('nav-btn-backup').addEventListener('click', () => ativarAba('backup'));
+    safeOn('nav-btn-ignorados', 'click', () => ativarAba('ignorados'));
+    safeOn('nav-btn-simulador', 'click', () => ativarAba('simulador'));
+    safeOn('nav-btn-terminal', 'click', () => ativarAba('terminal'));
+    safeOn('nav-btn-backup', 'click', () => ativarAba('backup'));
 
     let contatosIgnoradosCache = [];
 
@@ -2475,6 +2563,7 @@
 
     function popularSeletorDeEtapas() {
       const select = document.getElementById('select-etapa');
+      if (!select) return;
       select.innerHTML = '<option value="raiz">Menu Principal (Boas-Vindas)</option>';
       Object.keys(configGlobal.fluxo.etapas || {}).forEach(id => {
         const opt = document.createElement('option');
@@ -2484,19 +2573,21 @@
       select.value = etapaSelecionada;
     }
 
-    document.getElementById('select-etapa').addEventListener('change', (e) => {
+    safeOn('select-etapa', 'change', (e) => {
       etapaSelecionada = e.target.value; carregarEtapaNoEditor(etapaSelecionada);
     });
 
     function carregarEtapaNoEditor(id) {
       const etapa = obterObjetoEtapaAtual();
       if (!etapa) return;
-      document.getElementById('input-etapa-msg').value = etapa.mensagem || '';
-      document.getElementById('btn-excluir-etapa').classList.toggle('hidden', id === 'raiz');
+      const elMsg = document.getElementById('input-etapa-msg');
+      if (elMsg) elMsg.value = etapa.mensagem || '';
+      const btnExcluir = document.getElementById('btn-excluir-etapa');
+      if (btnExcluir) btnExcluir.classList.toggle('hidden', id === 'raiz');
       renderizarOpcoesDaEtapa(); renderizarMapaVisual();
     }
 
-    document.getElementById('input-etapa-msg').addEventListener('input', (e) => {
+    safeOn('input-etapa-msg', 'input', (e) => {
       const etapa = obterObjetoEtapaAtual();
       if (etapa) { etapa.mensagem = e.target.value; agendarRenderMapaVisual(); marcarAlteracaoPendente(); }
     });
@@ -3212,7 +3303,7 @@
       if (e && e.opcoes) { e.opcoes.splice(idx, 1); renderizarOpcoesDaEtapa(); agendarRenderMapaVisual(); marcarAlteracaoPendente(); }
     };
 
-    document.getElementById('btn-add-opcao').addEventListener('click', () => {
+    safeOn('btn-add-opcao', 'click', () => {
       const e = obterObjetoEtapaAtual();
       if (!e.opcoes) e.opcoes = [];
       e.opcoes.push({ gatilho: String(e.opcoes.length + 1), rotulo: "Nova Opção", tipo: "texto", destino: "", resposta: "Informação registrada. Entraremos em contato." });
@@ -3220,18 +3311,24 @@
     });
 
     const modalSub = document.getElementById('modal-submenu');
-    document.getElementById('btn-nova-etapa').addEventListener('click', () => { document.getElementById('input-nome-submenu').value = ''; modalSub.classList.remove('hidden'); modalSub.classList.add('flex'); });
-    document.getElementById('btn-cancelar-modal').addEventListener('click', () => { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); });
-    document.getElementById('btn-confirmar-modal').addEventListener('click', () => {
-      const nome = document.getElementById('input-nome-submenu').value.trim();
+    safeOn('btn-nova-etapa', 'click', () => {
+      const inputSub = document.getElementById('input-nome-submenu');
+      if (inputSub) inputSub.value = '';
+      if (modalSub) { modalSub.classList.remove('hidden'); modalSub.classList.add('flex'); }
+    });
+    safeOn('btn-cancelar-modal', 'click', () => {
+      if (modalSub) { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); }
+    });
+    safeOn('btn-confirmar-modal', 'click', () => {
+      const nome = (document.getElementById('input-nome-submenu')?.value || '').trim();
       if (!nome) return;
       const id = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
       configGlobal.fluxo.etapas[id] = { titulo: `Submenu: ${nome}`, mensagem: `*${nome}*\n\nComo podemos lhe orientar?`, opcoes: [{ gatilho: "0", rotulo: "Voltar ao Início", tipo: "submenu", destino: "raiz", resposta: "" }] };
-      modalSub.classList.add('hidden'); modalSub.classList.remove('flex');
+      if (modalSub) { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); }
       etapaSelecionada = id; popularSeletorDeEtapas(); carregarEtapaNoEditor(id); marcarAlteracaoPendente();
     });
 
-    document.getElementById('btn-excluir-etapa').addEventListener('click', () => {
+    safeOn('btn-excluir-etapa', 'click', () => {
       if (etapaSelecionada === 'raiz') return;
       delete configGlobal.fluxo.etapas[etapaSelecionada];
       etapaSelecionada = 'raiz'; popularSeletorDeEtapas(); carregarEtapaNoEditor('raiz'); marcarAlteracaoPendente();
@@ -3272,22 +3369,23 @@
       }
     });
 
-    document.getElementById('btn-toggle-msg-processos').addEventListener('click', () => {
+    safeOn('btn-toggle-msg-processos', 'click', () => {
       const p = document.getElementById('painel-msg-processos');
-      p.classList.toggle('hidden');
+      if (p) p.classList.toggle('hidden');
       carregarTemplatesProcessosNosInputs(true);
     });
 
-    document.getElementById('btn-salvar-tpl-processos').addEventListener('click', () => {
+    safeOn('btn-salvar-tpl-processos', 'click', () => {
       garantirEstruturaProcessos();
-      configGlobal.processos.mensagens.msg_com_atualizacao = document.getElementById('tpl-msg-com-atualizacao').value;
-      configGlobal.processos.mensagens.msg_ja_visto = document.getElementById('tpl-msg-ja-visto').value;
-      configGlobal.processos.mensagens.msg_sem_atualizacao = document.getElementById('tpl-msg-sem-atualizacao').value;
-      configGlobal.processos.mensagens.msg_nao_encontrado = document.getElementById('tpl-msg-nao-encontrado').value;
-      configGlobal.processos.mensagens.msg_encerrar_conversa = document.getElementById('tpl-msg-encerrar').value;
-      configGlobal.processos.mensagens.msg_chamar_advogado_pos_proc = document.getElementById('tpl-msg-advogado-pos').value;
+      configGlobal.processos.mensagens.msg_com_atualizacao = document.getElementById('tpl-msg-com-atualizacao')?.value || '';
+      configGlobal.processos.mensagens.msg_ja_visto = document.getElementById('tpl-msg-ja-visto')?.value || '';
+      configGlobal.processos.mensagens.msg_sem_atualizacao = document.getElementById('tpl-msg-sem-atualizacao')?.value || '';
+      configGlobal.processos.mensagens.msg_nao_encontrado = document.getElementById('tpl-msg-nao-encontrado')?.value || '';
+      configGlobal.processos.mensagens.msg_encerrar_conversa = document.getElementById('tpl-msg-encerrar')?.value || '';
+      configGlobal.processos.mensagens.msg_chamar_advogado_pos_proc = document.getElementById('tpl-msg-advogado-pos')?.value || '';
       salvarConfiguracaoCompleta(false);
-      document.getElementById('painel-msg-processos').classList.add('hidden');
+      const painel = document.getElementById('painel-msg-processos');
+      if (painel) painel.classList.add('hidden');
     });
 
     let draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
@@ -3309,11 +3407,16 @@
       if (elResumo) elResumo.value = '';
       if (elCheck) elCheck.checked = true;
 
-      document.getElementById('avatar-ficha-proc').innerText = 'NP';
-      document.getElementById('form-proc-titulo').innerText = 'Nova Pasta de Processo';
-      document.getElementById('subtitulo-status-ficha').innerText = 'Preencha o CPF ou Número do Processo e escreva o resumo';
-      document.getElementById('btn-resetar-visto-ficha').classList.add('hidden');
-      document.getElementById('btn-excluir-proc-ficha').classList.add('hidden');
+      const avatarEl = document.getElementById('avatar-ficha-proc');
+      if (avatarEl) avatarEl.innerText = 'NP';
+      const tituloEl = document.getElementById('form-proc-titulo');
+      if (tituloEl) tituloEl.innerText = 'Nova Pasta de Processo';
+      const subtituloEl = document.getElementById('subtitulo-status-ficha');
+      if (subtituloEl) subtituloEl.innerText = 'Preencha o CPF ou Número do Processo e escreva o resumo';
+      const btnResetEl = document.getElementById('btn-resetar-visto-ficha');
+      if (btnResetEl) btnResetEl.classList.add('hidden');
+      const btnExcluirEl = document.getElementById('btn-excluir-proc-ficha');
+      if (btnExcluirEl) btnExcluirEl.classList.add('hidden');
       const btnAnexar = document.getElementById('btn-anexar-peca-proc');
       const btnDossie = document.getElementById('btn-ver-dossie-proc');
       if (btnAnexar) btnAnexar.classList.add('hidden');
@@ -3322,7 +3425,7 @@
       if (elCpf) elCpf.focus();
     }
 
-    document.getElementById('btn-limpar-form-proc').addEventListener('click', limparFormularioProcesso);
+    safeOn('btn-limpar-form-proc', 'click', limparFormularioProcesso);
 
     window.selecionarProcessoNaLista = function(id, forcar = false) {
       const p = (configGlobal.processos.lista || []).find(item => item.id === id);
@@ -3356,14 +3459,18 @@
       }
 
       const nomeExibicao = (elNome && document.activeElement === elNome && elNome.value) ? elNome.value : (p.nome || 'Cliente');
-      const iniciais = nomeExibicao.trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-      document.getElementById('avatar-ficha-proc').innerText = iniciais || 'CL';
-      document.getElementById('form-proc-titulo').innerText = `Pasta: ${nomeExibicao}`;
+      const avatarFicha = document.getElementById('avatar-ficha-proc');
+      if (avatarFicha) avatarFicha.innerText = iniciais || 'CL';
+      const formTitulo = document.getElementById('form-proc-titulo');
+      if (formTitulo) formTitulo.innerText = `Pasta: ${nomeExibicao}`;
 
       const qtdVistos = Object.keys(p.consultasPorContato || {}).length;
-      document.getElementById('subtitulo-status-ficha').innerText = qtdVistos > 0
-        ? `✓ Já consultado pelo cliente no WhatsApp • Salvo em ${p.dataAtualizacaoTexto || '-'}`
-        : `● Novo resumo pronto para consulta • Salvo em ${p.dataAtualizacaoTexto || '-'}`;
+      const subtituloFicha = document.getElementById('subtitulo-status-ficha');
+      if (subtituloFicha) {
+        subtituloFicha.innerText = qtdVistos > 0
+          ? `✓ Já consultado pelo cliente no WhatsApp • Salvo em ${p.dataAtualizacaoTexto || '-'}`
+          : `● Novo resumo pronto para consulta • Salvo em ${p.dataAtualizacaoTexto || '-'}`;
+      }
 
       document.getElementById('btn-resetar-visto-ficha').classList.toggle('hidden', qtdVistos === 0);
       document.getElementById('btn-excluir-proc-ficha').classList.remove('hidden');
@@ -3417,7 +3524,7 @@
     if (elProcResumo) elProcResumo.addEventListener('input', (e) => sincronizarDigitacaoProcesso('resumo', e.target.value));
     if (elProcTemAtualizacao) elProcTemAtualizacao.addEventListener('change', (e) => sincronizarDigitacaoProcesso('temAtualizacao', e.target.checked));
 
-    document.getElementById('btn-resetar-visto-ficha').addEventListener('click', () => {
+    safeOn('btn-resetar-visto-ficha', 'click', () => {
       if (!idProcessoSelecionado) return;
       const p = (configGlobal.processos.lista || []).find(item => item.id === idProcessoSelecionado);
       if (!p) return;
@@ -3428,7 +3535,7 @@
       mostrarToast("Reenvio liberado!");
     });
 
-    document.getElementById('btn-excluir-proc-ficha').addEventListener('click', () => {
+    safeOn('btn-excluir-proc-ficha', 'click', () => {
       if (!idProcessoSelecionado) return;
       configGlobal.processos.lista = (configGlobal.processos.lista || []).filter(item => item.id !== idProcessoSelecionado);
       salvarConfiguracaoCompleta(false);
@@ -3492,11 +3599,14 @@
       const docs = proc.documentosCatalogados || [];
       const hist = proc.historicoAndamentos || [];
 
-      document.getElementById('dossie-count-docs').innerText = String(docs.length);
-      document.getElementById('dossie-count-historico').innerText = String(hist.length);
+      const countDocs = document.getElementById('dossie-count-docs');
+      if (countDocs) countDocs.innerText = String(docs.length);
+      const countHist = document.getElementById('dossie-count-historico');
+      if (countHist) countHist.innerText = String(hist.length);
 
       const listaDocs = document.getElementById('dossie-lista-docs');
-      listaDocs.innerHTML = '';
+      if (listaDocs) listaDocs.innerHTML = '';
+      if (!listaDocs) return;
       if (docs.length === 0) {
         listaDocs.innerHTML = `
           <div class="text-center py-8 text-slate-500 text-xs bg-slate-900/30 rounded-2xl border border-slate-800">
@@ -3563,8 +3673,10 @@
         mostrarToast("Selecione um processo primeiro.");
         return;
       }
-      document.getElementById('dossie-proc-titulo').innerText = `Dossiê: ${p.nome || 'Cliente'}`;
-      document.getElementById('dossie-proc-subtitulo').innerText = `Processo CNJ: ${p.numero || p.numeroProcesso || 'Não informado'} • CPF: ${p.cpf || 'Não informado'}`;
+      const tit = document.getElementById('dossie-proc-titulo');
+      if (tit) tit.innerText = `Dossiê: ${p.nome || 'Cliente'}`;
+      const subt = document.getElementById('dossie-proc-subtitulo');
+      if (subt) subt.innerText = `Processo CNJ: ${p.numero || p.numeroProcesso || 'Não informado'} • CPF: ${p.cpf || 'Não informado'}`;
       renderizarDossie(p);
       alternarAbaDossie('docs');
       if (modalDossie) {
@@ -3607,14 +3719,14 @@
       });
     }
 
-    document.getElementById('btn-salvar-processo').addEventListener('click', async () => {
+    safeOn('btn-salvar-processo', 'click', async () => {
       garantirEstruturaProcessos();
-      const idEdit = document.getElementById('proc-id-edit').value;
-      const nome = document.getElementById('proc-nome').value.trim() || 'Cliente';
-      const cpf = document.getElementById('proc-cpf').value.trim();
-      const numero = document.getElementById('proc-numero').value.trim();
-      const resumo = document.getElementById('proc-resumo').value.trim();
-      const temAtualizacao = document.getElementById('proc-tem-atualizacao').checked;
+      const idEdit = document.getElementById('proc-id-edit')?.value || '';
+      const nome = (document.getElementById('proc-nome')?.value || '').trim() || 'Cliente';
+      const cpf = (document.getElementById('proc-cpf')?.value || '').trim();
+      const numero = (document.getElementById('proc-numero')?.value || '').trim();
+      const resumo = (document.getElementById('proc-resumo')?.value || '').trim();
+      const temAtualizacao = Boolean(document.getElementById('proc-tem-atualizacao')?.checked);
 
       const digitosCpf = cpf.replace(/\D/g, '');
       const digitosNum = numero.replace(/\D/g, '');
@@ -3957,16 +4069,20 @@
         }
       });
 
-      document.getElementById('preview-metric-total').innerText = String(processosExtraidos.length);
-      document.getElementById('preview-metric-novos').innerText = String(novos);
-      document.getElementById('preview-metric-atualizados').innerText = String(atualizados);
+      const elPrevTotal = document.getElementById('preview-metric-total');
+      if (elPrevTotal) elPrevTotal.innerText = String(processosExtraidos.length);
+      const elPrevNovos = document.getElementById('preview-metric-novos');
+      if (elPrevNovos) elPrevNovos.innerText = String(novos);
+      const elPrevAtualizados = document.getElementById('preview-metric-atualizados');
+      if (elPrevAtualizados) elPrevAtualizados.innerText = String(atualizados);
       
       const validosCnj = processosExtraidos.filter(p => p.validoCNJ).length;
       const pct = Math.round((validosCnj / processosExtraidos.length) * 100);
-      document.getElementById('preview-metric-validos').innerText = `${pct}% CNJ`;
+      const elPrevValidos = document.getElementById('preview-metric-validos');
+      if (elPrevValidos) elPrevValidos.innerText = `${pct}% CNJ`;
 
       const tbody = document.getElementById('preview-tabela-corpo');
-      tbody.innerHTML = '';
+      if (tbody) tbody.innerHTML = '';
 
       processosExtraidos.slice(0, 50).forEach(p => {
         const tr = document.createElement('tr');
@@ -3983,25 +4099,31 @@
           <td class="p-2.5 text-[#e5c158] font-mono text-[10px] whitespace-nowrap">${p.numeroProcesso || '-'}</td>
           <td class="p-2.5 text-slate-400 max-w-xs truncate" title="${p.resumo || ''}">${p.resumo || '-'}</td>
         `;
-        tbody.appendChild(tr);
+        if (tbody) tbody.appendChild(tr);
       });
 
       const alertaBox = document.getElementById('preview-alerta-box');
-      if (alerta) {
-        alertaBox.innerText = alerta;
-        alertaBox.classList.remove('hidden');
-      } else {
-        alertaBox.classList.add('hidden');
+      if (alertaBox) {
+        if (alerta) {
+          alertaBox.innerText = alerta;
+          alertaBox.classList.remove('hidden');
+        } else {
+          alertaBox.classList.add('hidden');
+        }
       }
 
-      modalPreview.classList.remove('hidden');
-      modalPreview.classList.add('flex');
+      if (modalPreview) {
+        modalPreview.classList.remove('hidden');
+        modalPreview.classList.add('flex');
+      }
     }
 
     function fecharPreviaIngestao() {
       processosEmPrevia = [];
-      modalPreview.classList.add('hidden');
-      modalPreview.classList.remove('flex');
+      if (modalPreview) {
+        modalPreview.classList.add('hidden');
+        modalPreview.classList.remove('flex');
+      }
     }
 
     if (btnFecharPreview) btnFecharPreview.addEventListener('click', fecharPreviaIngestao);
@@ -4046,7 +4168,7 @@
       });
     }
 
-    document.getElementById('busca-processos').addEventListener('input', () => renderizarModuloProcessos());
+    safeOn('busca-processos', 'input', () => renderizarModuloProcessos());
     const selOrdemProcessos = document.getElementById('ordem-processos-select');
     if (selOrdemProcessos) {
       selOrdemProcessos.addEventListener('change', () => renderizarModuloProcessos());
@@ -4055,12 +4177,14 @@
     function renderizarModuloProcessos() {
       garantirEstruturaProcessos();
       const lista = configGlobal.processos.lista || [];
-      document.getElementById('badge-processos').innerText = String(lista.length);
+      const badgeProc = document.getElementById('badge-processos');
+      if (badgeProc) badgeProc.innerText = String(lista.length);
 
-      const termo = (document.getElementById('busca-processos').value || '').toLowerCase().trim();
+      const termo = (document.getElementById('busca-processos')?.value || '').toLowerCase().trim();
       const termoDig = termo.replace(/\D/g, '');
       const box = document.getElementById('lista-processos-box');
-      box.innerHTML = '';
+      if (box) box.innerHTML = '';
+      if (!box) return;
 
       let filtrados = lista.filter(p => {
         if (!termo) return true;
@@ -4174,28 +4298,28 @@
       });
     }
 
-    document.getElementById('agenda-almoco-ativo').addEventListener('change', (e) => {
+    safeOn('agenda-almoco-ativo', 'change', (e) => {
       configGlobal.agenda.almoco_ativo = e.target.checked;
       marcarAlteracaoPendente();
     });
-    document.getElementById('agenda-almoco-inicio').addEventListener('change', (e) => {
+    safeOn('agenda-almoco-inicio', 'change', (e) => {
       configGlobal.agenda.almoco_inicio = e.target.value;
       marcarAlteracaoPendente();
     });
-    document.getElementById('agenda-almoco-fim').addEventListener('change', (e) => {
+    safeOn('agenda-almoco-fim', 'change', (e) => {
       configGlobal.agenda.almoco_fim = e.target.value;
       marcarAlteracaoPendente();
     });
-    document.getElementById('agenda-msg-almoco').addEventListener('input', (e) => {
+    safeOn('agenda-msg-almoco', 'input', (e) => {
       configGlobal.agenda.msg_almoco = e.target.value;
       marcarAlteracaoPendente();
     });
-    document.getElementById('agenda-msg-fora').addEventListener('input', (e) => {
+    safeOn('agenda-msg-fora', 'input', (e) => {
       configGlobal.agenda.msg_fora_expediente = e.target.value;
       marcarAlteracaoPendente();
     });
 
-    document.getElementById('check-iniciar-windows').addEventListener('change', async (e) => {
+    safeOn('check-iniciar-windows', 'change', async (e) => {
       configGlobal.iniciar_com_windows = e.target.checked;
       if (window.api && window.api.definirAutoStart) {
         await window.api.definirAutoStart(e.target.checked);
@@ -4236,29 +4360,45 @@
     window.copilotSugestoesMap = window.copilotSugestoesMap || {};
     window.copilotCronologiaMap = window.copilotCronologiaMap || {};
 
+    const PESO_URGENCIA = {
+      'CRITICA': 4,
+      'ALTA': 3,
+      'MEDIA': 2,
+      'BAIXA': 1
+    };
+    window.PESO_URGENCIA = PESO_URGENCIA;
+
     function renderizarPausados(mapa) {
       const container = document.getElementById('lista-pausados');
       const mapaObj = mapa || {};
       
-      // Ordenação prioritária (Furador de Fila):
-      // CRITICA (Peso 3) > COMERCIAL (Peso 2) > ROTINA (Peso 1) > Mais recente
-      const chaves = Object.keys(mapaObj).sort((a, b) => {
-        const itemA = mapaObj[a] || {};
-        const itemB = mapaObj[b] || {};
+      // Ordenação prioritária (Furador de Fila 4 Níveis):
+      // CRITICA (4) > ALTA (3) > MEDIA (2) > BAIXA (1) > Mais recente
+      const chaves = Object.keys(mapaObj).sort((aKey, bKey) => {
+        const itemA = mapaObj[aKey] || {};
+        const itemB = mapaObj[bKey] || {};
+        const a = itemA;
+        const b = itemB;
         const obterPeso = (item) => {
-          const nivel = String(item.nivelUrgencia || '').toUpperCase();
-          if (nivel === 'CRITICA') return 3;
-          if (nivel === 'COMERCIAL') return 2;
-          return 1;
+          const nivel = String((item && item.nivelUrgencia) || 'MEDIA').toUpperCase();
+          if (PESO_URGENCIA[nivel]) return PESO_URGENCIA[nivel];
+          if (nivel === 'COMERCIAL') return PESO_URGENCIA.ALTA;
+          if (nivel === 'ROTINA') return PESO_URGENCIA.MEDIA;
+          return PESO_URGENCIA[item?.nivelUrgencia || 'MEDIA'] || 2;
         };
-        const pesoA = obterPeso(itemA);
-        const pesoB = obterPeso(itemB);
+        const pesoB = PESO_URGENCIA[b.nivelUrgencia || 'MEDIA'] || obterPeso(b);
+        const pesoA = PESO_URGENCIA[a.nivelUrgencia || 'MEDIA'] || obterPeso(a);
+        const diff = (PESO_URGENCIA[b.nivelUrgencia || 'MEDIA'] - PESO_URGENCIA[a.nivelUrgencia || 'MEDIA']) || (pesoB - pesoA);
+        if (diff !== 0 && !isNaN(diff)) return diff;
         if (pesoB !== pesoA) return pesoB - pesoA;
         return (itemB.timestamp || 0) - (itemA.timestamp || 0);
       });
 
-      document.getElementById('badge-pausados').innerText = String(chaves.length);
-      atualizarPainelMetricas(chaves.length);
+      const badgePausados = document.getElementById('badge-pausados');
+      if (badgePausados) badgePausados.innerText = String(chaves.length);
+      if (typeof atualizarPainelMetricas === 'function') atualizarPainelMetricas(chaves.length);
+
+      if (!container) return;
 
       if (chaves.length === 0) {
         container.innerHTML = '<div class="exec-card p-10 rounded-2xl text-center text-xs text-slate-400">Nenhum cliente aguardando advogado no momento.</div>';
@@ -4397,31 +4537,47 @@
           </div>
         ` : '';
 
-        // Identificação de Urgência & Estilos Dinâmicos (Furador de Fila)
-        const nivelUrgencia = String((item && item.nivelUrgencia) || 'ROTINA').toUpperCase();
+        // Identificação de Urgência & Estilos Dinâmicos (Furador de Fila 4 Níveis)
+        const nivelUrgenciaRaw = String((item && item.nivelUrgencia) || 'MEDIA').toUpperCase();
+        let nivelUrgencia = nivelUrgenciaRaw;
+        if (nivelUrgenciaRaw === 'COMERCIAL') nivelUrgencia = 'ALTA';
+        else if (nivelUrgenciaRaw === 'ROTINA') nivelUrgencia = 'MEDIA';
+
         const motivoExibicao = (item && (item.motivoUrgencia || item.motivo)) || 'Atendimento com Advogado';
         const aguardandoAudio = Boolean(typeof item === 'object' && item.aguardandoAudioRelato);
 
-        const isCritica = nivelUrgencia === 'CRITICA';
-        const isComercial = nivelUrgencia === 'COMERCIAL';
-
-        let classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
-        let dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
+        let classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-blue-500 mb-3 shadow transition";
+        let dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>';
         let badgeUrgenciaHTML = '';
 
-        if (isCritica) {
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 shadow-lg shadow-red-950/40 ring-1 ring-red-500/40 mb-3 transition relative";
+        if (nivelUrgencia === 'CRITICA') {
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 animate-pulse shadow-lg shadow-red-950/40 ring-1 ring-red-500/40 mb-3 transition relative";
           dotIndicador = '<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span></span>';
-          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-300 border border-red-500/40 font-bold flex items-center space-x-1 animate-pulse">
+          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-300 border border-red-500/40 font-bold flex items-center space-x-1 animate-pulse" title="URGÊNCIA MÁXIMA">
             <span>🚨</span>
-            <span>URGÊNCIA MÁXIMA: ${escaparHtmlTexto(motivoExibicao)}</span>
+            <span>🚨 URGÊNCIA CRÍTICA (URGÊNCIA MÁXIMA): ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
-        } else if (isComercial) {
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 shadow-md shadow-amber-950/30 ring-1 ring-amber-400/30 mb-3 transition";
+        } else if (nivelUrgencia === 'ALTA') {
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-500 shadow-md ring-1 ring-amber-500/30 mb-3 transition";
           dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
           badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center space-x-1">
-            <span>⭐</span>
-            <span>OPORTUNIDADE / FECHAMENTO: ${escaparHtmlTexto(motivoExibicao)}</span>
+            <span>⚠️</span>
+            <span>⚠️ ALTA PRIORIDADE (INTIMAÇÃO / BLOQUEIO): ${escaparHtmlTexto(motivoExibicao)}</span>
+          </span>`;
+        } else if (nivelUrgencia === 'BAIXA') {
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-slate-600 mb-3 shadow transition";
+          dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>';
+          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-medium flex items-center space-x-1">
+            <span>💬</span>
+            <span>💬 DÚVIDA GERAL: ${escaparHtmlTexto(motivoExibicao)}</span>
+          </span>`;
+        } else {
+          // MEDIA (padrão)
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-blue-500 mb-3 shadow transition";
+          dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>';
+          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40 font-semibold flex items-center space-x-1">
+            <span>📋</span>
+            <span>📋 ROTINA / ANDAMENTO: ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
         }
 
@@ -4717,13 +4873,14 @@
       }
     }
 
-    document.getElementById('btn-salvar-fluxo').addEventListener('click', () => salvarConfiguracaoCompleta(false));
-    document.getElementById('btn-salvar-agenda').addEventListener('click', () => salvarConfiguracaoCompleta(false));
-    document.getElementById('btn-limpar-logs').addEventListener('click', () => {
-      document.getElementById('logs-box').innerHTML = '<div class="text-slate-500 text-xs text-center py-16">Histórico limpo.</div>';
+    safeOn('btn-salvar-fluxo', 'click', () => salvarConfiguracaoCompleta(false));
+    safeOn('btn-salvar-agenda', 'click', () => salvarConfiguracaoCompleta(false));
+    safeOn('btn-limpar-logs', 'click', () => {
+      const logsBox = document.getElementById('logs-box');
+      if (logsBox) logsBox.innerHTML = '<div class="text-slate-500 text-xs text-center py-16">Histórico limpo.</div>';
     });
 
-    document.getElementById('btn-reconnect').addEventListener('click', async () => {
+    safeOn('btn-reconnect', 'click', async () => {
       mostrarToast('Reiniciando motor do WhatsApp...');
       aplicarStatusConexaoNaUI('initializing', null, 'Reiniciando motor Chromium...');
       if (window.api && window.api.reiniciarBot) await window.api.reiniciarBot();
@@ -4743,22 +4900,25 @@
       }
     };
 
-    document.getElementById('btn-instalar-update').addEventListener('click', dispararInstalacaoUpdate);
-    document.getElementById('btn-header-update').addEventListener('click', dispararInstalacaoUpdate);
-    document.getElementById('btn-fechar-banner-update').addEventListener('click', () => {
-      document.getElementById('banner-update-app').classList.add('hidden');
-      document.getElementById('banner-update-app').classList.remove('flex');
+    safeOn('btn-instalar-update', 'click', dispararInstalacaoUpdate);
+    safeOn('btn-header-update', 'click', dispararInstalacaoUpdate);
+    safeOn('btn-fechar-banner-update', 'click', () => {
+      const banner = document.getElementById('banner-update-app');
+      if (banner) {
+        banner.classList.add('hidden');
+        banner.classList.remove('flex');
+      }
     });
 
-    document.getElementById('btn-exportar-dados').addEventListener('click', () => {
+    safeOn('btn-exportar-dados', 'click', () => {
       const blob = new Blob([JSON.stringify({ versao: "Beta 0.8 (1.8.0)", conta: JSON.parse(localStorage.getItem('adv_bot_user_account')||'{}'), config: configGlobal }, null, 2)], { type: "application/json" });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Backup_Advocacia_Beta08_${new Date().toISOString().slice(0,10)}.json`; a.click();
       mostrarToast("Backup baixado com sucesso!");
     });
-    document.getElementById('btn-importar-dados').addEventListener('click', () => document.getElementById('input-importar-arquivo').click());
-    document.getElementById('btn-restaurar-login').addEventListener('click', () => document.getElementById('input-importar-arquivo').click());
-    document.getElementById('input-importar-arquivo').addEventListener('change', (e) => {
-      const f = e.target.files[0]; if(!f) return;
+    safeOn('btn-importar-dados', 'click', () => document.getElementById('input-importar-arquivo')?.click());
+    safeOn('btn-restaurar-login', 'click', () => document.getElementById('input-importar-arquivo')?.click());
+    safeOn('input-importar-arquivo', 'change', (e) => {
+      const f = e.target.files ? e.target.files[0] : null; if(!f) return;
       const r = new FileReader();
       r.onload = async (ev) => {
         try {
@@ -4776,6 +4936,57 @@
       };
       r.readAsText(f);
     });
+
+    window.executarSincronizacaoNuvem = async function() {
+      const urlInput = document.getElementById('cloud-sync-url');
+      const tokenInput = document.getElementById('cloud-sync-token');
+      const badgeStatus = document.getElementById('cloud-sync-status-badge');
+      const btnSync = document.getElementById('btn-cloud-sync');
+
+      const urlServidor = (urlInput ? urlInput.value : '').trim() || 'https://advocacia-2-0.onrender.com';
+      const token = (tokenInput ? tokenInput.value : '').trim();
+
+      if (badgeStatus) {
+        badgeStatus.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse";
+        badgeStatus.innerText = "Sincronizando...";
+      }
+      if (btnSync) btnSync.disabled = true;
+
+      try {
+        const api = window.electronAPI || window.api;
+        if (!api || typeof api.sincronizarServidorNuvem !== 'function') {
+          throw new Error('Canal de sincronização nuvem não suportado no ambiente atual.');
+        }
+        const res = await api.sincronizarServidorNuvem({ urlServidor, token });
+        if (res && res.sucesso) {
+          if (badgeStatus) {
+            badgeStatus.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+            badgeStatus.innerText = "Conectado e Sincronizado";
+          }
+          if (typeof mostrarToast === 'function') {
+            mostrarToast("☁️ Dados sincronizados com o Servidor Nuvem com sucesso!");
+          }
+          if (res.pausados && typeof renderizarPausados === 'function') {
+            renderizarPausados(res.pausados);
+          }
+          return res;
+        } else {
+          throw new Error((res && res.erro) || 'Falha na resposta do servidor nuvem');
+        }
+      } catch (err) {
+        if (badgeStatus) {
+          badgeStatus.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40";
+          badgeStatus.innerText = "Erro na Conexão";
+        }
+        if (typeof mostrarToast === 'function') {
+          mostrarToast("⚠️ Erro ao sincronizar com o servidor: " + (err ? err.message : 'Erro desconhecido'));
+        }
+        return { sucesso: false, erro: err ? err.message : 'Erro desconhecido' };
+      } finally {
+        if (btnSync) btnSync.disabled = false;
+      }
+    };
+    safeOn('btn-cloud-sync', 'click', () => window.executarSincronizacaoNuvem());
 
     window.addEventListener('DOMContentLoaded', async () => {
       const temaSalvo = localStorage.getItem('adv_bot_theme') || 'dark';
@@ -4900,7 +5111,8 @@
 
             // Se o usuário está digitando na busca, atualiza contadores sem destruir o DOM da lista
             if (elAtivo && elAtivo.id === 'busca-processos') {
-              document.getElementById('badge-processos').innerText = String((configGlobal.processos.lista || []).length);
+              const elBadgeProc = document.getElementById('badge-processos');
+              if (elBadgeProc) elBadgeProc.innerText = String((configGlobal.processos.lista || []).length);
             } else {
               renderizarModuloProcessos();
             }
@@ -5371,8 +5583,15 @@
             const btnCancelar = document.getElementById('btn-cancelar-gravacao');
 
             if (mediaRecorderSimulador && mediaRecorderSimulador.state === 'recording') {
-              mediaRecorderSimulador.stop();
-              clearInterval(gravadorInterval);
+              try { mediaRecorderSimulador.stop(); } catch (e) {}
+              if (gravadorInterval) {
+                clearInterval(gravadorInterval);
+                gravadorInterval = null;
+              }
+              if (window.gravadorInterval) {
+                clearInterval(window.gravadorInterval);
+                window.gravadorInterval = null;
+              }
               if (btnMic) {
                 btnMic.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
                 btnMic.classList.add('bg-slate-800', 'text-[#e5c158]');
@@ -5426,6 +5645,7 @@
                 const s = String(gravadorSegundos % 60).padStart(2, '0');
                 if (timer) timer.innerText = `${m}:${s}`;
               }, 1000);
+              window.gravadorInterval = gravadorInterval;
             } catch (err) {
               console.error("Microfone inacessível:", err);
               alert("Não foi possível acessar o microfone. Verifique as permissões de áudio no Windows ou utilize o botão de clipe 📎 para anexar um áudio gravado.");
@@ -5435,9 +5655,16 @@
           function cancelarGravacaoSimulador() {
             if (mediaRecorderSimulador && mediaRecorderSimulador.state === 'recording') {
               audioChunksSimulador = [];
-              mediaRecorderSimulador.stop();
+              try { mediaRecorderSimulador.stop(); } catch (e) {}
             }
-            clearInterval(gravadorInterval);
+            if (gravadorInterval) {
+              clearInterval(gravadorInterval);
+              gravadorInterval = null;
+            }
+            if (window.gravadorInterval) {
+              clearInterval(window.gravadorInterval);
+              window.gravadorInterval = null;
+            }
             const btnMic = document.getElementById('btn-mic-simulador');
             const timer = document.getElementById('gravador-timer');
             const btnCancelar = document.getElementById('btn-cancelar-gravacao');
@@ -5448,6 +5675,7 @@
             if (timer) timer.classList.add('hidden');
             if (btnCancelar) btnCancelar.classList.add('hidden');
           }
+          window.cancelarGravacaoSimulador = cancelarGravacaoSimulador;
 
           function renderizarAudioNoSimulador(base64Audio) {
             const container = document.getElementById('simulador-mensagens-box') || document.querySelector('.simulador-messages');

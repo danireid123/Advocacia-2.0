@@ -197,16 +197,35 @@ function obterCaminhoNavegador() {
 
 function limparLocksTravados() {
     try {
-        const pastaSessao = path.join(AUTH_DIR, 'session-adv_studio_client');
-        const possiveisLocks = [
-            path.join(pastaSessao, 'SingletonLock'),
-            path.join(pastaSessao, 'lockfile'),
-            path.join(pastaSessao, 'Default', 'SingletonLock'),
-            path.join(pastaSessao, 'Default', 'lockfile')
-        ];
-        for (const arq of possiveisLocks) {
-            if (fs.existsSync(arq)) {
-                try { fs.unlinkSync(arq); } catch (e) {}
+        if (!fs.existsSync(AUTH_DIR)) return;
+        const pastas = ['session-advocacia-desktop-session', 'session-adv_studio_client'];
+        try {
+            const entradas = fs.readdirSync(AUTH_DIR, { withFileTypes: true });
+            for (const ent of entradas) {
+                if (ent.isDirectory() && ent.name.startsWith('session-') && !pastas.includes(ent.name)) {
+                    pastas.push(ent.name);
+                }
+            }
+        } catch (_) {}
+
+        for (const pasta of pastas) {
+            const pastaSessao = path.join(AUTH_DIR, pasta);
+            const possiveisLocks = [
+                path.join(pastaSessao, 'SingletonLock'),
+                path.join(pastaSessao, 'SingletonCookie'),
+                path.join(pastaSessao, 'SingletonSocket'),
+                path.join(pastaSessao, 'lockfile'),
+                path.join(pastaSessao, 'Default', 'SingletonLock'),
+                path.join(pastaSessao, 'Default', 'SingletonCookie'),
+                path.join(pastaSessao, 'Default', 'SingletonSocket'),
+                path.join(pastaSessao, 'Default', 'lockfile')
+            ];
+            for (const arq of possiveisLocks) {
+                try {
+                    if (fs.existsSync(arq)) {
+                        fs.unlinkSync(arq);
+                    }
+                } catch (e) {}
             }
         }
     } catch (e) {}
@@ -590,8 +609,13 @@ async function anexarMensagemOuAudioAoPausado(chave, { novaMsg = null, novoAudio
     }
 
     if (novaMsg) {
-        item.mensagens.push(novaMsg);
-        item.historicoMensagens.push(novaMsg);
+        const itemPausado = item;
+        if (!itemPausado.mensagens.includes(novaMsg)) {
+            itemPausado.mensagens.push(novaMsg);
+        }
+        if (!item.historicoMensagens.includes(novaMsg)) {
+            item.historicoMensagens.push(novaMsg);
+        }
     }
 
     if (novoAudio) {
@@ -1275,7 +1299,7 @@ async function iniciarWhatsApp(forcarReinicio = false) {
 
     client = new Client({
         authStrategy: new LocalAuth({
-            clientId: "adv_studio_client",
+            clientId: "advocacia-desktop-session",
             dataPath: AUTH_DIR
         }),
         webVersionCache: {
@@ -1394,7 +1418,10 @@ async function iniciarWhatsApp(forcarReinicio = false) {
     try {
         await client.initialize();
     } catch (e) {
+        console.error('[WhatsApp Client] Falha na inicialização da sessão (SingletonLock/Chromium):', e && e.message ? e.message : e);
+        limparLocksTravados();
         iniciandoBot = false;
+        atualizarStatusUI('disconnected', 'Reiniciando motor após detecção e liberação preventiva de SingletonLock...');
         agendarReconexaoBackoff();
     }
 }
@@ -1435,6 +1462,80 @@ ipcMain.handle('remover-pausa', (e, num) => {
     if (configEmMemoria) salvarConfigDisco(configEmMemoria, true);
     emitirPausados();
     return contatosPausados;
+});
+ipcMain.handle('sincronizar-servidor-nuvem', async (event, { urlServidor, token } = {}) => {
+    try {
+        const urlBase = String(urlServidor || 'https://advocacia-2-0.onrender.com').trim().replace(/\/+$/, '');
+        const tokenLimpo = String(token || '').trim();
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        if (tokenLimpo) {
+            headers['Authorization'] = `Bearer ${tokenLimpo}`;
+            headers['X-API-Key'] = tokenLimpo;
+        }
+
+        // 1. Consulta /status do servidor remoto
+        const resStatus = await fetch(`${urlBase}/status`, { headers });
+        if (resStatus.status === 401) {
+            return { sucesso: false, erro: 'Não autorizado: Token de segurança inválido ou ausente.' };
+        }
+        if (!resStatus.ok) {
+            return { sucesso: false, erro: `Servidor retornou erro HTTP ${resStatus.status}` };
+        }
+        const dadosStatus = await resStatus.json();
+        const statusRemoto = dadosStatus.status || dadosStatus.botStatus || 'CONNECTED';
+
+        // 2. Consulta /pausados (ou /export-config) do servidor remoto
+        let contatosRemotos = {};
+        try {
+            const resPausados = await fetch(`${urlBase}/pausados`, { headers });
+            if (resPausados.ok) {
+                const dadosPausados = await resPausados.json();
+                contatosRemotos = dadosPausados.contatosPausados || dadosPausados.pausados || {};
+            } else if (dadosStatus.contatosPausados) {
+                contatosRemotos = dadosStatus.contatosPausados;
+            }
+        } catch (_) {
+            if (dadosStatus.contatosPausados) {
+                contatosRemotos = dadosStatus.contatosPausados;
+            }
+        }
+
+        // 3. Mescla com segurança os contatos pausados remotos na fila do desktop local
+        let alterados = 0;
+        if (contatosRemotos && typeof contatosRemotos === 'object') {
+            for (const [chave, item] of Object.entries(contatosRemotos)) {
+                if (!contatosPausados[chave]) {
+                    contatosPausados[chave] = item;
+                    alterados++;
+                } else {
+                    contatosPausados[chave] = {
+                        ...contatosPausados[chave],
+                        ...item
+                    };
+                    alterados++;
+                }
+            }
+        }
+
+        if (alterados > 0) {
+            emitirPausados();
+        }
+
+        return {
+            sucesso: true,
+            status: statusRemoto,
+            statusServidor: statusRemoto,
+            contatosPausados,
+            pausados: contatosPausados,
+            totalPausadosSincronizados: Object.keys(contatosPausados).length,
+            dadosStatus
+        };
+    } catch (err) {
+        return { sucesso: false, erro: 'Falha de conexão com o servidor: ' + (err ? err.message : 'Erro desconhecido') };
+    }
 });
 ipcMain.handle('obter-ignorados', () => carregarContatosIgnorados());
 ipcMain.handle('adicionar-ignorado', (e, item) => {
@@ -1700,6 +1801,11 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
 
             if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
             historicoConversas[remetenteChave].push(novaMsg);
+
+            if (contatosPausados[remetenteChave]) {
+                if (!Array.isArray(contatosPausados[remetenteChave].mensagens)) contatosPausados[remetenteChave].mensagens = [];
+                contatosPausados[remetenteChave].mensagens.push(novaMsg);
+            }
 
             await anexarMensagemOuAudioAoPausado(remetenteChave, {
                 novaMsg,

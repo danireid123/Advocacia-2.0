@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+.git
+.env
+wwebjs_auth_session*
+config.v1.backup.*.json
+*.log

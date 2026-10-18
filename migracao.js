@@ -72,6 +72,14 @@ function criarConfigPadraoV2() {
     };
 }
 
+function extrairNumeroIgnorado(c) {
+    if (!c) return '';
+    if (typeof c === 'object' && c !== null) {
+        return String(c.numero || c.telefone || c.id || '').trim();
+    }
+    return String(c).trim();
+}
+
 /**
  * Migra qualquer configuração v1.8.x para v2.0 preservando 100% dos dados.
  * @param {Object|string} rawInput Configuração lida do disco ou objeto JSON
@@ -201,10 +209,16 @@ function migrarConfigV1ParaV2(rawInput, contatosIgnoradosExternos = []) {
     // 6. Contatos Ignorados (unificação sem duplicatas)
     const setIgnorados = new Set();
     if (Array.isArray(raw.contatosIgnorados)) {
-        raw.contatosIgnorados.forEach(c => c && setIgnorados.add(String(c).trim()));
+        raw.contatosIgnorados.forEach(c => {
+            const num = extrairNumeroIgnorado(c);
+            if (num) setIgnorados.add(num);
+        });
     }
     if (Array.isArray(contatosIgnoradosExternos)) {
-        contatosIgnoradosExternos.forEach(c => c && setIgnorados.add(String(c).trim()));
+        contatosIgnoradosExternos.forEach(c => {
+            const num = extrairNumeroIgnorado(c);
+            if (num) setIgnorados.add(num);
+        });
     }
     migrado.contatosIgnorados = Array.from(setIgnorados);
 
@@ -323,7 +337,7 @@ function validarIntegridadeConfig(configOriginal, configMigrada) {
     // 4. Valida Contatos Ignorados
     if (Array.isArray(configOriginal.contatosIgnorados)) {
         for (const c of configOriginal.contatosIgnorados) {
-            const strC = String(c).trim();
+            const strC = extrairNumeroIgnorado(c);
             if (strC && !configMigrada.contatosIgnorados.includes(strC)) {
                 erros.push(`Contato ignorado '${strC}' não foi mantido na lista migrada.`);
             }

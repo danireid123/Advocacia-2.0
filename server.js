@@ -47,6 +47,63 @@ try {
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const CONFIG_PATH = process.env.CONFIG_PATH || path.join(__dirname, 'config.json');
 const SESSION_PATH = process.env.SESSION_PATH || path.join(__dirname, 'wwebjs_auth_session_v2');
+const API_SECRET_TOKEN = (process.env.API_SECRET_TOKEN || '').trim();
+
+// Autenticação REST flexível para nuvem e containers
+function verificarAutenticacao(req, parsedUrl) {
+    const secret = (process.env.API_SECRET_TOKEN !== undefined)
+        ? String(process.env.API_SECRET_TOKEN).trim()
+        : API_SECRET_TOKEN;
+    if (!secret) return true; // Retrocompatível quando não configurado localmente
+
+    const headers = (req && req.headers) || {};
+    const authHeader = String(headers['authorization'] || headers['Authorization'] || '').trim();
+    const apiKeyHeader = String(headers['x-api-key'] || headers['X-API-KEY'] || headers['X-Api-Key'] || headers['x-api-token'] || '').trim();
+
+    let queryToken = '';
+    if (parsedUrl) {
+        if (parsedUrl.query && parsedUrl.query.token) {
+            queryToken = String(parsedUrl.query.token).trim();
+        } else if (parsedUrl.searchParams && typeof parsedUrl.searchParams.get === 'function') {
+            queryToken = String(parsedUrl.searchParams.get('token') || '').trim();
+        }
+    } else if (req && req.url) {
+        try {
+            const tempUrl = new URL(req.url, 'http://localhost');
+            queryToken = String(tempUrl.searchParams.get('token') || '').trim();
+        } catch (e) {}
+    }
+
+    const bearerToken = authHeader.toLowerCase().startsWith('bearer ') ? authHeader.slice(7).trim() : '';
+
+    return (bearerToken === secret || apiKeyHeader === secret || queryToken === secret);
+}
+
+// Leitor seguro de corpo POST (JSON) com proteção de limite de payload
+function lerCorpoJson(req, limiteBytes = 5 * 1024 * 1024) {
+    return new Promise((resolve, reject) => {
+        let tamanho = 0;
+        const chunks = [];
+        req.on('data', chunk => {
+            tamanho += chunk.length;
+            if (tamanho > limiteBytes) {
+                req.destroy(new Error('Payload Too Large'));
+                return reject(new Error('Payload Too Large'));
+            }
+            chunks.push(chunk);
+        });
+        req.on('end', () => {
+            try {
+                const raw = Buffer.concat(chunks).toString('utf-8');
+                if (!raw || !raw.trim()) return resolve({});
+                resolve(JSON.parse(raw));
+            } catch (err) {
+                reject(new Error('JSON Inválido: ' + err.message));
+            }
+        });
+        req.on('error', reject);
+    });
+}
 
 // Proteção anti-crash
 process.on('uncaughtException', (err) => {
@@ -102,10 +159,22 @@ function carregarConfig() {
 function salvarConfigDisco(cfg) {
     if (!cfg) return;
     configEmMemoria = cfg;
+    const tmpPath = `${CONFIG_PATH}.tmp`;
+    const backupPath = path.join(path.dirname(CONFIG_PATH), 'config.backup.json');
     try {
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf-8');
+        const payload = JSON.stringify(cfg, null, 2);
+        fs.writeFileSync(tmpPath, payload, 'utf-8');
+        if (fs.existsSync(CONFIG_PATH)) {
+            try {
+                fs.copyFileSync(CONFIG_PATH, backupPath);
+            } catch (errBackup) {}
+        }
+        fs.renameSync(tmpPath, CONFIG_PATH);
     } catch (e) {
         console.error('[Server] Erro ao gravar config.json no disco:', e);
+        try {
+            if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+        } catch (errClean) {}
     }
 }
 
@@ -163,7 +232,7 @@ function montarTextoEtapa(etapa) {
 }
 
 function buscarProcessoPorNumero(config, digitosBusca) {
-    if (!config.processos) return null;
+    if (!config || !config.processos) return null;
     const lista = Array.isArray(config.processos) ? config.processos : (Array.isArray(config.processos.lista) ? config.processos.lista : []);
     if (!lista || lista.length === 0) return null;
     if (!digitosBusca || digitosBusca.length < 5) return null;
@@ -556,6 +625,14 @@ function obterCaminhoNavegador() {
 // Inicialização do WhatsApp Client
 async function iniciarBotHeadless() {
     console.log('[Headless] Configurando cliente WhatsApp Web com LocalAuth e flags de produção...');
+    if (client) {
+        try {
+            await client.destroy();
+        } catch (e) {
+            console.warn('[Headless] Aviso ao destruir cliente anterior:', e.message);
+        }
+        client = null;
+    }
     statusConexao = 'DISCONNECTED';
 
     const puppeteerArgs = [
@@ -618,7 +695,11 @@ async function iniciarBotHeadless() {
     });
 
     client.on('message', async (msg) => {
-        await processarMensagemEntrada(msg);
+        try {
+            await processarMensagemEntrada(msg);
+        } catch (err) {
+            console.error('[Headless] Erro ao processar mensagem de entrada:', err);
+        }
     });
 
     try {
@@ -629,131 +710,232 @@ async function iniciarBotHeadless() {
     }
 }
 
-// Servidor HTTP embutido para monitoramento e health check
+// Servidor HTTP embutido para monitoramento, sincronização e health check
 const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    try {
+        const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
-    // Helper res.json compatível com Express
-    res.json = (data, statusCode = 200) => {
-        res.writeHead(statusCode, {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        });
-        res.end(JSON.stringify(data, null, 2));
-    };
+        // Helper res.json compatível com Express e CORS completo
+        res.json = (data, statusCode = 200) => {
+            res.writeHead(statusCode, {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, X-API-Key'
+            });
+            res.end(JSON.stringify(data, null, 2));
+        };
 
-    if (req.method === 'OPTIONS') {
-        res.writeHead(204, {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        });
-        res.end();
-        return;
-    }
-
-    // 1. Endpoints de Verificação e Status (/status e /health)
-    if (url.pathname === '/status' || url.pathname === '/health') {
-        const cfg = carregarConfig();
-        const listaProcessos = cfg.processos?.lista || [];
-        return res.json({
-            status: statusConexao,
-            uptime: process.uptime(),
-            uptimeSegundos: Math.floor(process.uptime()),
-            timestamp: new Date().toISOString(),
-            botStatus: statusConexao,
-            momentoConexao,
-            totalProcessosCadastrados: listaProcessos.length,
-            totalMensagensProcessadas,
-            contatosPausadosQtd: Object.keys(contatosPausados).length,
-            contatosPausados
-        });
-    }
-
-    // 2. Endpoint /qr-status
-    if (url.pathname === '/qr-status') {
-        return res.json({
-            status: statusConexao,
-            qr: qrCodeAtual,
-            qrDataUrl: ultimoQrDataUrl
-        });
-    }
-
-    // 3. Endpoint /pausados (sincronização remota)
-    if (url.pathname === '/pausados') {
-        return res.json({
-            sucesso: true,
-            total: Object.keys(contatosPausados).length,
-            contatosPausados
-        });
-    }
-
-    // 4. Endpoint /qr (Interface visual para escanear QR Code)
-    if (url.pathname === '/qr') {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        if (statusConexao === 'CONNECTED') {
-            res.end(`
-                <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
-                    <h1 style="color:#2ea043;">✅ WhatsApp Conectado e Operante!</h1>
-                    <p>O robô já está atendendo normalmente 24/7.</p>
-                    <a href="/status" style="color:#58a6ff;">Ver Status da API</a>
-                </body></html>
-            `);
-        } else if (ultimoQrDataUrl) {
-            res.end(`
-                <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
-                    <h1 style="color:#e5c158;">📱 Escaneie o QR Code do WhatsApp</h1>
-                    <p>Abra seu WhatsApp > Dispositivos conectados > Conectar dispositivo</p>
-                    <img src="${ultimoQrDataUrl}" style="border:8px solid #fff;border-radius:12px;margin:20px auto;display:block;" />
-                    <script>setTimeout(() => location.reload(), 15000);</script>
-                </body></html>
-            `);
-        } else {
-            res.end(`
-                <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
-                    <h1>Aguardando geração do QR Code...</h1>
-                    <p>Status atual: <strong>${statusConexao}</strong></p>
-                    <p>Recarregando em 3 segundos...</p>
-                    <script>setTimeout(() => location.reload(), 3000);</script>
-                </body></html>
-            `);
+        if (req.method === 'OPTIONS') {
+            res.writeHead(204, {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, X-API-Key'
+            });
+            res.end();
+            return;
         }
-        return;
-    }
 
-    // Dashboard minimalista raiz
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Advocacia Studio Pro v2.0 - Headless Server</title>
-            <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f1f5f9; padding: 40px; margin: 0; }
-                .card { background: #151d2d; border: 1px solid #1e293b; border-radius: 16px; padding: 24px; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-                h1 { color: #d4af37; font-size: 20px; margin-top: 0; }
-                .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
-                .status-ready { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
-                .status-wait { background: rgba(234,179,8,0.2); color: #facc15; border: 1px solid rgba(234,179,8,0.4); }
-                .btn { display: inline-block; background: linear-gradient(135deg, #d4af37, #aa820a); color: #000; font-weight: bold; text-decoration: none; padding: 10px 20px; border-radius: 10px; margin-top: 15px; }
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <h1>Advocacia Studio Pro v2.0 • Headless Cloud</h1>
-                <p>Status: <span class="status-badge ${statusConexao === 'CONNECTED' ? 'status-ready' : 'status-wait'}">${statusConexao}</span></p>
-                <p>Uptime: ${Math.floor(process.uptime())} segundos</p>
-                <p>Mensagens atendidas: ${totalMensagensProcessadas}</p>
-                <p>Contatos em fila humana: ${Object.keys(contatosPausados).length}</p>
-                <a class="btn" href="/qr">Ver QR Code</a>
-                <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/status">API /status</a>
-                <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/qr-status">API /qr-status</a>
-            </div>
-        </body>
-        </html>
-    `);
+        // 1. Endpoint /health (100% público para Health Check de Containers, Docker e Render Ping)
+        if (url.pathname === '/health') {
+            return res.json({
+                status: 'online',
+                porta: PORT,
+                uptime: process.uptime(),
+                uptimeSegundos: Math.floor(process.uptime()),
+                timestamp: new Date().toISOString(),
+                botStatus: statusConexao
+            });
+        }
+
+        // 2. Endpoint /status (Protegido por token)
+        if (url.pathname === '/status') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            const cfg = carregarConfig();
+            const listaProcessos = (cfg && cfg.processos && Array.isArray(cfg.processos.lista)) ? cfg.processos.lista : [];
+            return res.json({
+                status: statusConexao,
+                uptime: process.uptime(),
+                uptimeSegundos: Math.floor(process.uptime()),
+                timestamp: new Date().toISOString(),
+                botStatus: statusConexao,
+                momentoConexao,
+                totalProcessosCadastrados: listaProcessos.length,
+                totalMensagensProcessadas,
+                contatosPausadosQtd: Object.keys(contatosPausados).length,
+                contatosPausados
+            });
+        }
+
+        // 3. Endpoint /qr-status (Protegido por token)
+        if (url.pathname === '/qr-status') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            return res.json({
+                status: statusConexao,
+                qr: qrCodeAtual,
+                qrDataUrl: ultimoQrDataUrl
+            });
+        }
+
+        // 4. Endpoint /pausados (Protegido por token para sincronização com Desktop)
+        if (url.pathname === '/pausados') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            return res.json({
+                sucesso: true,
+                total: Object.keys(contatosPausados).length,
+                contatosPausados
+            });
+        }
+
+        // 5. Endpoint /export-config (Exporta configuração persistida e contatos em atendimento)
+        if (url.pathname === '/export-config') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            return res.json({
+                sucesso: true,
+                config: carregarConfig(),
+                contatosPausados
+            });
+        }
+
+        // 6. Endpoint /import-config (Recebe payload JSON, sincroniza estado e grava atomicamente)
+        if (url.pathname === '/import-config') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            if (req.method !== 'POST') {
+                return res.json({ erro: 'Método não permitido. Utilize POST.' }, 405);
+            }
+            try {
+                const corpo = await lerCorpoJson(req);
+                if (!corpo || typeof corpo !== 'object') {
+                    return res.json({ erro: 'JSON inválido ou corpo vazio' }, 400);
+                }
+
+                // Mescla configurações enviadas
+                if (corpo.config && typeof corpo.config === 'object') {
+                    const configAtual = carregarConfig();
+                    configEmMemoria = {
+                        ...configAtual,
+                        ...corpo.config
+                    };
+                    salvarConfigDisco(configEmMemoria);
+                }
+
+                // Mescla contatos pausados enviados
+                if (corpo.contatosPausados && typeof corpo.contatosPausados === 'object') {
+                    for (const [chave, item] of Object.entries(corpo.contatosPausados)) {
+                        if (item && typeof item === 'object') {
+                            contatosPausados[chave] = {
+                                ...(contatosPausados[chave] || {}),
+                                ...item
+                            };
+                        }
+                    }
+                }
+
+                return res.json({
+                    sucesso: true,
+                    mensagem: 'Configuração e fila sincronizadas com sucesso'
+                });
+            } catch (errCorpo) {
+                return res.json({ erro: 'Erro ao processar corpo JSON: ' + errCorpo.message }, 400);
+            }
+        }
+
+        // 7. Endpoint /qr (Interface visual para escanear QR Code, protegida por token)
+        if (url.pathname === '/qr') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            if (statusConexao === 'CONNECTED') {
+                res.end(`
+                    <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
+                        <h1 style="color:#2ea043;">✅ WhatsApp Conectado e Operante!</h1>
+                        <p>O robô já está atendendo normalmente 24/7.</p>
+                        <a href="/status" style="color:#58a6ff;">Ver Status da API</a>
+                    </body></html>
+                `);
+            } else if (ultimoQrDataUrl) {
+                res.end(`
+                    <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
+                        <h1 style="color:#e5c158;">📱 Escaneie o QR Code do WhatsApp</h1>
+                        <p>Abra seu WhatsApp > Dispositivos conectados > Conectar dispositivo</p>
+                        <img src="${ultimoQrDataUrl}" style="border:8px solid #fff;border-radius:12px;margin:20px auto;display:block;" />
+                        <script>setTimeout(() => location.reload(), 15000);</script>
+                    </body></html>
+                `);
+            } else {
+                res.end(`
+                    <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
+                        <h1>Aguardando geração do QR Code...</h1>
+                        <p>Status atual: <strong>${statusConexao}</strong></p>
+                        <p>Recarregando em 3 segundos...</p>
+                        <script>setTimeout(() => location.reload(), 3000);</script>
+                    </body></html>
+                `);
+            }
+            return;
+        }
+
+        // Dashboard minimalista raiz
+        if (url.pathname === '/' || url.pathname === '') {
+            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+            res.end(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Advocacia Studio Pro v2.0 - Headless Server</title>
+                    <style>
+                        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #f1f5f9; padding: 40px; margin: 0; }
+                        .card { background: #151d2d; border: 1px solid #1e293b; border-radius: 16px; padding: 24px; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+                        h1 { color: #d4af37; font-size: 20px; margin-top: 0; }
+                        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+                        .status-ready { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+                        .status-wait { background: rgba(234,179,8,0.2); color: #facc15; border: 1px solid rgba(234,179,8,0.4); }
+                        .btn { display: inline-block; background: linear-gradient(135deg, #d4af37, #aa820a); color: #000; font-weight: bold; text-decoration: none; padding: 10px 20px; border-radius: 10px; margin-top: 15px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="card">
+                        <h1>Advocacia Studio Pro v2.0 • Headless Cloud</h1>
+                        <p>Status: <span class="status-badge ${statusConexao === 'CONNECTED' ? 'status-ready' : 'status-wait'}">${statusConexao}</span></p>
+                        <p>Uptime: ${Math.floor(process.uptime())} segundos</p>
+                        <p>Mensagens atendidas: ${totalMensagensProcessadas}</p>
+                        <p>Contatos em fila humana: ${Object.keys(contatosPausados).length}</p>
+                        <a class="btn" href="/qr">Ver QR Code</a>
+                        <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/status">API /status</a>
+                        <a class="btn" style="background:#1e293b;color:#94a3b8;margin-left:10px;" href="/qr-status">API /qr-status</a>
+                    </div>
+                </body>
+                </html>
+            `);
+            return;
+        }
+
+        return res.json({ erro: 'Rota não encontrada' }, 404);
+    } catch (errGlobal) {
+        console.error('[Server HTTP] Erro não tratado na requisição:', errGlobal);
+        try {
+            if (typeof res.json === 'function') {
+                res.json({ erro: 'Erro interno no servidor' }, 500);
+            } else {
+                res.writeHead(500, {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Access-Control-Allow-Origin': '*'
+                });
+                res.end(JSON.stringify({ erro: 'Erro interno no servidor' }));
+            }
+        } catch (e) {}
+    }
 });
 
 // Sistema Keep-Alive Anti-Sleep para Render Free Tier (evita suspensão após 15 min de inatividade)
@@ -776,12 +958,26 @@ function iniciarKeepAliveAntiSleep() {
     }, 10 * 60 * 1000);
 }
 
-// Inicialização
-server.listen(PORT, () => {
-    console.log(`\n🚀 [Server Headless] Servidor HTTP operando na porta ${PORT}`);
-    console.log(`   Painel: http://localhost:${PORT}`);
-    console.log(`   Status API: http://localhost:${PORT}/status`);
-    console.log(`   QR Status API: http://localhost:${PORT}/qr-status\n`);
-    iniciarBotHeadless();
-    iniciarKeepAliveAntiSleep();
-});
+// Inicialização autônoma se executado diretamente
+if (require.main === module) {
+    server.listen(PORT, () => {
+        console.log(`\n🚀 [Server Headless] Servidor HTTP operando na porta ${PORT}`);
+        console.log(`   Painel: http://localhost:${PORT}`);
+        console.log(`   Status API: http://localhost:${PORT}/status`);
+        console.log(`   QR Status API: http://localhost:${PORT}/qr-status\n`);
+        iniciarBotHeadless();
+        iniciarKeepAliveAntiSleep();
+    });
+}
+
+module.exports = {
+    server,
+    verificarAutenticacao,
+    salvarConfigDisco,
+    carregarConfig,
+    lerCorpoJson,
+    iniciarBotHeadless,
+    contatosPausados,
+    buscarProcessoPorNumero,
+    isContactIgnored
+};

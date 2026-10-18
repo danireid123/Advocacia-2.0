@@ -2,6 +2,10 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
+const TIMEOUT_PADRAO_TEXTO = 3500;       // 3.5s para textos rápidos
+const TIMEOUT_MULTIMODAL_AUDIO = 20000;  // 20s para transcrição + copilot + cronologia de áudio
+const MODELOS_GEMINI_PADRAO = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-1.5-flash'];
+
 // Auto-carrega .env da raiz do projeto caso ainda não tenha sido carregado
 try {
     const envPath = path.resolve(__dirname, '../../.env');
@@ -87,7 +91,14 @@ function salvarCacheDisco() {
         for (const [k, v] of cacheEmMemoria.entries()) {
             obj[k] = v;
         }
-        fs.writeFileSync(cacheFilePath, JSON.stringify(obj, null, 2), 'utf-8');
+        const tmpPath = `${cacheFilePath}.tmp`;
+        fs.writeFileSync(tmpPath, JSON.stringify(obj, null, 2), 'utf-8');
+        try {
+            fs.renameSync(tmpPath, cacheFilePath);
+        } catch (errRename) {
+            fs.copyFileSync(tmpPath, cacheFilePath);
+            try { fs.unlinkSync(tmpPath); } catch (_) {}
+        }
     } catch (e) {
         // Silencioso se não conseguir persistir
     }
@@ -129,8 +140,6 @@ INSTRUÇÕES OBRIGATÓRIAS:
  * @param {boolean} [opcoes.desativarPersistencia=false] - Desativa gravação em disco se true
  * @returns {Promise<{ texto: string, fonte: 'cache' | 'ia' | 'fallback', duracaoMs: number }>}
  */
-const MODELOS_GEMINI_PADRAO = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-1.5-flash'];
-
 async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const inicio = Date.now();
 
@@ -172,12 +181,15 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
         };
     }
 
-    // 3. Chamada REST pura para o Gemini 1.5 Flash com AbortController (timeout 2.8s)
-    const timeoutMs = opcoes.timeoutMs || 7000;
+    // 3. Chamada REST pura para o Gemini com AbortController (timeout 3.5s texto ou 20s áudio/inlineData)
+    const timeoutPadrao = (opcoes.inlineData || (opcoes.parts && opcoes.parts.some(p => p.inlineData)))
+        ? TIMEOUT_MULTIMODAL_AUDIO
+        : TIMEOUT_PADRAO_TEXTO;
+    const timeoutMs = opcoes.timeoutMs || timeoutPadrao;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    // Cadeia de modelos: o 1.5/2.0 foram descontinuados na API; tenta os atuais em ordem.
+    // Cadeia de modelos: tenta os atuais em ordem.
     const modelosCandidatos = [opcoes.modelo, process.env.GEMINI_MODEL, ...MODELOS_GEMINI_PADRAO]
         .filter(Boolean)
         .filter((m, i, arr) => arr.indexOf(m) === i);
@@ -505,7 +517,7 @@ function detectarUrgenciaECronologiaLocal(texto, contexto = {}) {
   }
 
   // 1. Detecção de Urgência Crítica (Furador de Fila)
-  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(de\s+)?conta|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
+  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(de\s+)?conta|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
 
   // 2. Detecção de Oportunidade Comercial / Fechamento
   const regexComercial = /(fechar\s+contrato|assinar\s+contrato|proposta\s+de\s+honor[aá]rios?|quanto\s+custa|pagar\s+honor[aá]rios?|dar\s+entrada\s+(hoje|urgente|no\s+processo)|documentos?\s+para\s+iniciar|fechamento|contratar|quero\s+contratar)/i;
@@ -574,7 +586,9 @@ async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/web
 
   const fallbackLocal = detectarUrgenciaECronologiaLocal(contextoCliente.texto || contextoCliente.mensagens || '', contextoCliente);
 
-  const apiKey = (contextoCliente && contextoCliente.apiKey) || process.env.GEMINI_API_KEY;
+  const apiKey = (contextoCliente && contextoCliente.apiKey !== undefined && contextoCliente.apiKey !== null)
+    ? String(contextoCliente.apiKey).trim()
+    : (process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) {
     return {
       sucesso: false,
@@ -629,53 +643,61 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
 }
 `;
 
+  const timeoutMs = (contextoCliente && contextoCliente.timeoutMs) || TIMEOUT_MULTIMODAL_AUDIO;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const modelosCandidatos = [
+      (contextoCliente && contextoCliente.modelo),
       process.env.GEMINI_MODEL,
-      'gemini-3.5-flash',
-      'gemini-3.5-flash-lite',
-      'gemini-flash-lite-latest',
-      'gemini-1.5-flash'
+      ...MODELOS_GEMINI_PADRAO
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
     let data = null;
     let ultimoErro = null;
 
-    for (const mod of modelosCandidatos) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: promptInstrucao },
-                {
-                  inlineData: {
-                    mimeType: mimeType,
-                    data: base64Data
+    try {
+      for (const mod of modelosCandidatos) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: promptInstrucao },
+                  {
+                    inlineData: {
+                      mimeType: mimeType,
+                      data: base64Data
+                    }
                   }
-                }
-              ]
-            }],
-            generationConfig: {
-              temperature: 0.2,
-              responseMimeType: "application/json"
-            }
-          })
-        });
+                ]
+              }],
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: "application/json"
+              }
+            }),
+            signal: controller.signal
+          });
 
-        const respJson = await response.json();
-        if (respJson && respJson.candidates && respJson.candidates[0] && respJson.candidates[0].content) {
-          data = respJson;
-          break;
-        } else {
-          ultimoErro = new Error(JSON.stringify(respJson.error || respJson));
+          const respJson = await response.json();
+          if (respJson && respJson.candidates && respJson.candidates[0] && respJson.candidates[0].content) {
+            data = respJson;
+            break;
+          } else {
+            ultimoErro = new Error(JSON.stringify(respJson.error || respJson));
+          }
+        } catch (errLoop) {
+          ultimoErro = errLoop;
+          if (controller.signal.aborted) break;
         }
-      } catch (errLoop) {
-        ultimoErro = errLoop;
       }
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     if (!data) {
@@ -726,7 +748,9 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
  */
 async function analisarUrgenciaECronologia(textoCompleto, contexto = {}) {
   const textoLimpo = String(textoCompleto || '').trim();
-  const apiKey = (contexto && contexto.apiKey) || process.env.GEMINI_API_KEY || (contexto && contexto.config && contexto.config.gemini_api_key);
+  const apiKey = (contexto && contexto.apiKey !== undefined && contexto.apiKey !== null)
+    ? String(contexto.apiKey).trim()
+    : (((contexto && contexto.config && contexto.config.gemini_api_key) || process.env.GEMINI_API_KEY || '')).trim();
   const fallback = detectarUrgenciaECronologiaLocal(textoLimpo, contexto);
 
   if (!textoLimpo || !apiKey) {
@@ -782,53 +806,61 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
 }
 `;
 
+  const timeoutMs = (contexto && contexto.timeoutMs) || TIMEOUT_PADRAO_TEXTO;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   const modelosCandidatos = [
+    (contexto && contexto.modelo),
     process.env.GEMINI_MODEL,
-    'gemini-3.5-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-flash-lite-latest',
-    'gemini-1.5-flash'
+    ...MODELOS_GEMINI_PADRAO
   ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
-  for (const mod of modelosCandidatos) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: promptInstrucao }]
-          }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json"
-          }
-        })
-      });
+  try {
+    for (const mod of modelosCandidatos) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: promptInstrucao }]
+            }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json"
+            }
+          }),
+          signal: controller.signal
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        const jsonTexto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (jsonTexto) {
-          const parsed = JSON.parse(jsonTexto);
-          return {
-            sucesso: true,
-            resumo: parsed.resumo || fallback.resumo,
-            nivelUrgencia: ['CRITICA', 'COMERCIAL', 'ROTINA'].includes(parsed.nivelUrgencia) ? parsed.nivelUrgencia : fallback.nivelUrgencia,
-            motivoUrgencia: parsed.motivoUrgencia || fallback.motivoUrgencia,
-            cronologiaFatos: Array.isArray(parsed.cronologiaFatos) && parsed.cronologiaFatos.length > 0 ? parsed.cronologiaFatos : fallback.cronologiaFatos,
-            sugestoesResposta: Array.isArray(parsed.sugestoesResposta) && parsed.sugestoesResposta.length === 3 ? parsed.sugestoesResposta : [
-              "Olá! Recebi suas mensagens e já estou analisando o histórico completo.",
-              "Poderia nos confirmar mais detalhes sobre a documentação?",
-              "Entendido perfeitamente. Vamos verificar as medidas cabíveis de imediato."
-            ]
-          };
+        if (response.ok) {
+          const data = await response.json();
+          const jsonTexto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (jsonTexto) {
+            const parsed = JSON.parse(jsonTexto);
+            return {
+              sucesso: true,
+              resumo: parsed.resumo || fallback.resumo,
+              nivelUrgencia: ['CRITICA', 'COMERCIAL', 'ROTINA'].includes(parsed.nivelUrgencia) ? parsed.nivelUrgencia : fallback.nivelUrgencia,
+              motivoUrgencia: parsed.motivoUrgencia || fallback.motivoUrgencia,
+              cronologiaFatos: Array.isArray(parsed.cronologiaFatos) && parsed.cronologiaFatos.length > 0 ? parsed.cronologiaFatos : fallback.cronologiaFatos,
+              sugestoesResposta: Array.isArray(parsed.sugestoesResposta) && parsed.sugestoesResposta.length === 3 ? parsed.sugestoesResposta : [
+                "Olá! Recebi suas mensagens e já estou analisando o histórico completo.",
+                "Poderia nos confirmar mais detalhes sobre a documentação?",
+                "Entendido perfeitamente. Vamos verificar as medidas cabíveis de imediato."
+              ]
+            };
+          }
         }
+      } catch (e) {
+        if (controller.signal.aborted) break;
+        // Tenta próximo modelo ou cai no fallback
       }
-    } catch (e) {
-      // Tenta próximo modelo ou cai no fallback
     }
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   return {
@@ -974,17 +1006,14 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
         };
     }
 
-    const timeoutMs = (contexto && contexto.timeoutMs) || 6500;
+    const timeoutMs = (contexto && contexto.timeoutMs) || TIMEOUT_PADRAO_TEXTO;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     const modelosCandidatos = [
         contexto.modelo,
         process.env.GEMINI_MODEL,
-        'gemini-3.5-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-flash-lite-latest',
-        'gemini-1.5-flash'
+        ...MODELOS_GEMINI_PADRAO
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
     const promptUsuario = `Aprimore a seguinte mensagem jurídica para WhatsApp mantendo termos técnicos acessíveis, emojis adequados e interação gentil com o cliente:\n\n"""\n${textoLimpo}\n"""`;
@@ -1065,6 +1094,9 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
 }
 
 module.exports = {
+    TIMEOUT_PADRAO_TEXTO,
+    TIMEOUT_MULTIMODAL_AUDIO,
+    MODELOS_GEMINI_PADRAO,
     traduzirAndamentoJuridico,
     traduzirAndamentoParaCliente,
     catalogarPecaProcessual,
