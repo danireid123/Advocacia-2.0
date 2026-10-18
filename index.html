@@ -1609,10 +1609,10 @@
                 <button type="button" id="btn-simulador-testar-ia" class="px-3 py-1.5 bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Testa a conexão ao vivo com a API Google Gemini e exibe a tradução no chat">
                   <span>✨ Testar IA Gemini</span>
                 </button>
-                <button type="button" id="btn-simulador-reset" class="px-3 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Restaura a sessão e despausa o robô se estiver aguardando advogado">
+                <button type="button" id="btn-simulador-reset" onclick="window.resetarConversaSimuladorUI && window.resetarConversaSimuladorUI()" class="px-3 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Restaura a sessão e despausa o robô se estiver aguardando advogado">
                   <span>🔄 Resetar Conversa / Despausar Robô</span>
                 </button>
-                <button type="button" id="btn-simulador-limpar" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                <button type="button" id="btn-simulador-limpar" onclick="window.limparTelaSimuladorUI && window.limparTelaSimuladorUI()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
                   <span>Limpar Tela</span>
                 </button>
@@ -1641,10 +1641,10 @@
                   <span class="text-[10px] text-slate-400 font-semibold block mb-0.5">Cenários Rápidos:</span>
                 </div>
                 <div class="flex items-center space-x-1.5 overflow-x-auto">
-                  <button type="button" id="btn-cenario-ola" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">"Olá"</button>
-                  <button type="button" id="btn-cenario-proc" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[#e5c158] rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Opção "1"</button>
-                  <button type="button" id="btn-cenario-cpf" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">CPF Válido</button>
-                  <button type="button" id="btn-cenario-adv" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Chamar Advogado</button>
+                  <button type="button" id="btn-cenario-ola" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('Olá')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">"Olá"</button>
+                  <button type="button" id="btn-cenario-proc" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('1')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[#e5c158] rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Opção "1"</button>
+                  <button type="button" id="btn-cenario-cpf" onmousedown="event.preventDefault()" onclick="window.enviarCenarioCpfSimulador && window.enviarCenarioCpfSimulador()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">CPF Válido</button>
+                  <button type="button" id="btn-cenario-adv" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('falar com advogado')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Chamar Advogado</button>
                 </div>
               </div>
             </div>
@@ -2120,9 +2120,12 @@
         processarArquivoBuffer: async () => ({ success: false, error: 'Modo navegador' }),
         processarArquivoIngestao: async () => ({ success: false, error: 'Modo navegador' }),
         salvarProcessosIngeridos: async (lista) => ({ success: true, adicionados: lista.length, atualizados: 0 }),
-        baixarPlanilhaModelo: async () => ({ success: true }),
-        simuladorEnviarMensagem: async () => ({ sucesso: false, resposta: 'Simulador disponível ao executar com Electron.' }),
-        higienizarBaseProcessos: async () => ({ sucesso: true, duplicatasRemovidas: 0 }),
+        simuladorEnviarMensagem: async (dados) => {
+          if (typeof window.simularRespostaFluxoLocal === 'function') {
+            return window.simularRespostaFluxoLocal(dados?.texto, dados);
+          }
+          return { sucesso: true, success: true, resposta: 'Olá! Seja bem-vindo ao escritório de advocacia. Digite *0* para ver o menu de opções.' };
+        },
         catalogarPecaProcessual: async () => ({ sucesso: false, erro: 'Modo navegador' }),
         processarAudioCopilot: async (dados) => ({
           sucesso: true,
@@ -3771,6 +3774,7 @@
       }
 
       const nomeExibicao = (elNome && document.activeElement === elNome && elNome.value) ? elNome.value : (p.nome || 'Cliente');
+      const iniciais = (nomeExibicao || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
       const avatarFicha = document.getElementById('avatar-ficha-proc');
       if (avatarFicha) avatarFicha.innerText = iniciais || 'CL';
       const formTitulo = document.getElementById('form-proc-titulo');
@@ -5812,8 +5816,15 @@
         });
       }
 
-      if (configGlobal.processos.lista.length > 0) {
-        selecionarProcessoNaLista(configGlobal.processos.lista[0].id);
+      const listaProcInit = (configGlobal && configGlobal.processos && Array.isArray(configGlobal.processos.lista))
+        ? configGlobal.processos.lista
+        : (Array.isArray(configGlobal.processos) ? configGlobal.processos : []);
+      if (listaProcInit.length > 0 && typeof selecionarProcessoNaLista === 'function') {
+        try {
+          selecionarProcessoNaLista(listaProcInit[0].id);
+        } catch (errProc) {
+          console.warn('Aviso ao inicializar primeiro processo na lista:', errProc);
+        }
       }
 
       if (window.api) {
@@ -6033,11 +6044,130 @@
             while(homeLogs.children.length > 4) homeLogs.removeChild(homeLogs.lastElementChild);
           }
         });
+      } // Fim de if (window.api)
 
-        // =========================================================================
-        // INICIALIZAÇÃO DO SIMULADOR DE ATENDIMENTO WHATSAPP (SANDBOX LOCAL)
-        // =========================================================================
-        function inicializarSimuladorChat() {
+      // =========================================================================
+      // MOTOR SANDBOX PURO JS: SIMULAÇÃO LOCAL AUTÔNOMA DO FLUXO
+      // (Garante funcionamento 100% no Electron, navegador, headless e offline)
+      // =========================================================================
+      function simularRespostaFluxoLocal(texto, payload = {}) {
+        const txtLimpo = (texto || '').trim();
+        const lower = txtLimpo.toLowerCase();
+        const cfg = (typeof configGlobal !== 'undefined' && configGlobal) ? configGlobal : {};
+        const fluxo = (cfg.fluxo && typeof cfg.fluxo === 'object') ? cfg.fluxo : {};
+        const raiz = fluxo.raiz || { mensagem: 'Olá! Seja bem-vindo ao escritório.', opcoes: [] };
+
+        // 1. Saudação ou reinício ("olá", "oi", "menu", "0", "inicio", "voltar", "reset")
+        if (['0', 'menu', 'inicio', 'início', 'voltar', 'reset', 'reiniciar', 'ola', 'olá', 'oi', 'bom dia', 'boa tarde', 'boa noite'].includes(lower) || !txtLimpo) {
+          let msg = raiz.mensagem || 'Olá! Seja bem-vindo ao nosso escritório de advocacia. Como podemos lhe ajudar hoje?';
+          if (Array.isArray(raiz.opcoes) && raiz.opcoes.length > 0) {
+            msg += '\n\n' + raiz.opcoes.map((op, idx) => `*${op.gatilho || (idx + 1)}* - ${op.rotulo || op.texto || 'Opção'}`).join('\n');
+          }
+          return {
+            sucesso: true,
+            success: true,
+            resposta: msg,
+            transbordo: false,
+            pausado: false
+          };
+        }
+
+        // 2. Falar com advogado / Transbordo Humano
+        if (lower.includes('advogado') || lower.includes('humano') || lower.includes('falar com') || lower.includes('atendente')) {
+          return {
+            sucesso: true,
+            success: true,
+            resposta: "👨‍⚖️ *Atendimento com Advogado Solicitado!*\n\nO robô pausou o autoatendimento e o advogado responsável já foi notificado.\n\n💡 _Dica:_ Você pode digitar o relato do seu caso ou enviar documentos e áudios enquanto aguarda.",
+            transbordo: true,
+            pausado: true,
+            podeDespausar: true
+          };
+        }
+
+        // 3. Consulta de processo por CPF ou Número CNJ
+        const digitos = txtLimpo.replace(/\D/g, '');
+        if (digitos.length >= 9) {
+          const listaProc = (cfg.processos && Array.isArray(cfg.processos.lista)) ? cfg.processos.lista : [];
+          const procEncontrado = listaProc.find(p => {
+            const cDig = (p.cpf || '').replace(/\D/g, '');
+            const nDig = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+            return (cDig && cDig.includes(digitos)) || (digitos.includes(cDig) && cDig.length >= 9) ||
+                   (nDig && nDig.includes(digitos)) || (digitos.includes(nDig) && nDig.length >= 9);
+          });
+
+          if (procEncontrado) {
+            const resumo = procEncontrado.resumo || 'Processo em andamento regular junto à vara competente.';
+            const numProc = procEncontrado.numero || procEncontrado.numeroProcesso || 'Em tramitação';
+            return {
+              sucesso: true,
+              success: true,
+              resposta: `📋 *Consulta Processual Localizada!*\n\n👤 *Cliente:* ${procEncontrado.nome || 'Cliente'}\n⚖️ *Processo:* ${numProc}\n📌 *Andamento:* ${resumo}\n\n💡 Digite *0* a qualquer momento para retornar ao Menu Principal.`,
+              transbordo: false,
+              pausado: false
+            };
+          } else {
+            return {
+              sucesso: true,
+              success: true,
+              resposta: `🔍 Não localizamos nenhum processo ativo com os dados informados (*${txtLimpo}*).\n\nPor favor, confira o número do CPF ou Processo e digite novamente, ou digite *falar com advogado* para atendimento com a equipe.`,
+              transbordo: false,
+              pausado: false
+            };
+          }
+        }
+
+        // 4. Opção numérica ou de texto nas opções do fluxo
+        if (Array.isArray(raiz.opcoes)) {
+          const op = raiz.opcoes.find(o => String(o.gatilho || '').trim().toLowerCase() === lower || (o.rotulo && o.rotulo.toLowerCase().includes(lower)));
+          if (op) {
+            const acoes = op.acoes || {};
+            const deveFila = Boolean(acoes.encaminharFilaHumana || op.tipo === 'humano' || acoes.pausarRobo);
+            if (deveFila) {
+              return {
+                sucesso: true,
+                success: true,
+                resposta: op.resposta || "👨‍⚖️ Encaminhando para a Fila de Atendimento do advogado...",
+                transbordo: true,
+                pausado: true,
+                podeDespausar: true
+              };
+            }
+            if (op.tipo === 'processo') {
+              return {
+                sucesso: true,
+                success: true,
+                resposta: (cfg.processos && cfg.processos.mensagens && cfg.processos.mensagens.msg_solicitar_cpf) || "🔍 Para consultar o andamento do seu processo, por favor digite o seu *CPF* ou o *Número dos Autos*.",
+                transbordo: false,
+                pausado: false
+              };
+            }
+            if (op.resposta) {
+              return {
+                sucesso: true,
+                success: true,
+                resposta: op.resposta,
+                transbordo: false,
+                pausado: false
+              };
+            }
+          }
+        }
+
+        // 5. Resposta padrão inteligente
+        return {
+          sucesso: true,
+          success: true,
+          resposta: `Olá! Recebemos sua mensagem: _"${txtLimpo}"_.\n\nDigite *0* para ver o *Menu Principal* ou digite seu *CPF* para consultar o andamento do seu processo.`,
+          transbordo: false,
+          pausado: false
+        };
+      }
+      window.simularRespostaFluxoLocal = simularRespostaFluxoLocal;
+
+      // =========================================================================
+      // INICIALIZAÇÃO DO SIMULADOR DE ATENDIMENTO WHATSAPP (SANDBOX LOCAL)
+      // =========================================================================
+      function inicializarSimuladorChat() {
           const boxMensagens = document.getElementById('simulador-mensagens-box');
           const inputMsg = document.getElementById('simulador-input-msg');
           const btnEnviar = document.getElementById('btn-simulador-enviar');
@@ -6107,7 +6237,7 @@
             scrollAoFinal();
           }
 
-          function adicionarBalaoBot(texto, transbordo = false) {
+          function adicionarBalaoBot(texto, transbordo = false, podeDespausar = false) {
             const divWrap = document.createElement('div');
             divWrap.className = 'flex justify-start mb-2.5';
             divWrap.innerHTML = `
@@ -6117,6 +6247,14 @@
                   <span class="text-slate-400 font-normal">• Robô Automático</span>
                 </div>
                 <div class="leading-relaxed break-words">${formatarTextoZap(texto)}</div>
+                ${(podeDespausar || transbordo) ? `
+                  <div class="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between">
+                    <span class="text-[10px] text-amber-300 font-medium">⏸️ Robô em pausa</span>
+                    <button type="button" onclick="window.resetarConversaSimuladorUI && window.resetarConversaSimuladorUI()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold flex items-center space-x-1 cursor-pointer transition shadow">
+                      <span>🔄 Despausar Robô</span>
+                    </button>
+                  </div>
+                ` : ''}
                 <div class="text-[9px] text-slate-400 text-right mt-1 font-mono">
                   ${obterHoraAtual()}
                 </div>
@@ -6182,65 +6320,72 @@
 
             try {
               const api = window.api || window.electronAPI;
-              if (api && api.simuladorEnviarMensagem) {
-                const res = await api.simuladorEnviarMensagem({
-                  texto: texto,
-                  telefone: telefone,
-                  nome: nome
-                });
+              let res = null;
+              if (api && typeof api.simuladorEnviarMensagem === 'function') {
+                try {
+                  res = await api.simuladorEnviarMensagem({
+                    texto: texto,
+                    telefone: telefone,
+                    nome: nome
+                  });
+                } catch (eIpc) {
+                  console.warn('Aviso no envio IPC do simulador:', eIpc);
+                }
+              }
 
-                removerIndicadorDigitando();
+              // Se a resposta veio vazia ou com o texto de mock do navegador, ativa a simulação local pura JS
+              if (!res || !res.sucesso || !res.resposta || res.resposta.includes('disponível ao executar com Electron')) {
+                res = simularRespostaFluxoLocal(texto, { telefone, nome });
+              }
 
-                // Atualiza IMEDIATAMENTE a lista de clientes pausados na tela se houver transbordo ou pausa
-                if (res && (res.transbordo || res.pausado)) {
+              removerIndicadorDigitando();
+
+              // Atualiza IMEDIATAMENTE a lista de clientes pausados na tela se houver transbordo ou pausa
+              if (res && (res.transbordo || res.pausado)) {
+                try {
+                  const apiPausados = window.api || window.electronAPI;
+                  if (apiPausados && apiPausados.obterPausados) {
+                    const mapaPausados = await apiPausados.obterPausados();
+                    if (mapaPausados && typeof renderizarPausados === 'function') {
+                      renderizarPausados(mapaPausados);
+                    }
+                  }
+                } catch (ePausados) {
+                  console.warn('Erro ao atualizar lista de pausados na tela:', ePausados);
+                }
+              }
+
+              if (res && res.sucesso && res.resposta) {
+                adicionarBalaoBot(res.resposta, res.transbordo === true, res.podeDespausar === true || res.pausado === true);
+
+                if (res.transbordo) {
                   try {
-                    const apiPausados = window.api || window.electronAPI;
-                    if (apiPausados && apiPausados.obterPausados) {
-                      const mapaPausados = await apiPausados.obterPausados();
-                      if (mapaPausados && typeof renderizarPausados === 'function') {
-                        renderizarPausados(mapaPausados);
-                      }
+                    if (alertaSinoTransbordo && typeof alertaSinoTransbordo.playTransbordoChime === 'function') {
+                      alertaSinoTransbordo.playTransbordoChime();
                     }
-                  } catch (ePausados) {
-                    console.warn('Erro ao atualizar lista de pausados na tela:', ePausados);
+                  } catch (e) {
+                    console.warn('Erro ao reproduzir sino de transbordo:', e);
                   }
+                  mostrarToast(`🔔 Transbordo Humano: ${nome} solicitou falar com o advogado!`);
                 }
-
-                if (res && res.sucesso && res.resposta) {
-                  adicionarBalaoBot(res.resposta, res.transbordo === true);
-
-                  if (res.transbordo) {
-                    try {
-                      if (alertaSinoTransbordo) {
-                        alertaSinoTransbordo.playTransbordoChime();
-                      }
-                    } catch (e) {
-                      console.warn('Erro ao reproduzir sino de transbordo:', e);
-                    }
-                    mostrarToast(`🔔 Transbordo Humano: ${nome} solicitou falar com o advogado!`);
+              } else if (res && res.pausado) {
+                const numLimpo = telefone.replace(/\D/g, '');
+                if (window.dadosFilaCopilot && window.dadosFilaCopilot[numLimpo]) {
+                  if (!Array.isArray(window.dadosFilaCopilot[numLimpo].mensagens)) {
+                    window.dadosFilaCopilot[numLimpo].mensagens = [];
                   }
-                } else if (res && res.pausado) {
-                  const numLimpo = telefone.replace(/\D/g, '');
-                  if (window.dadosFilaCopilot && window.dadosFilaCopilot[numLimpo]) {
-                    if (!Array.isArray(window.dadosFilaCopilot[numLimpo].mensagens)) {
-                      window.dadosFilaCopilot[numLimpo].mensagens = [];
-                    }
-                    window.dadosFilaCopilot[numLimpo].mensagens.push({
-                      de: 'cliente',
-                      texto: texto,
-                      hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    });
-                  }
-                  adicionarBalaoBot("⏸️ *Mensagem registrada:* O robô permanece em pausa pois o contato está na *Fila de Espera*. A mensagem foi anexada à ficha para o advogado.");
-                  mostrarToast("📨 Mensagem entregue ao advogado na Fila de Espera!");
-                } else if (res && res.resposta) {
-                  adicionarBalaoBot(res.resposta);
-                } else {
-                  adicionarBalaoBot("⚠️ Nenhuma resposta gerada pelo fluxo para esta mensagem.");
+                  window.dadosFilaCopilot[numLimpo].mensagens.push({
+                    de: 'cliente',
+                    texto: texto,
+                    hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  });
                 }
+                adicionarBalaoBot("⏸️ *Mensagem registrada:* O robô permanece em pausa pois o contato está na *Fila de Espera* do advogado.\n\n💡 _Dica:_ Digite *0* ou clique no botão abaixo para despausar e retornar ao Menu Inicial.", false, true);
+                mostrarToast("📨 Mensagem entregue ao advogado na Fila de Espera!");
+              } else if (res && res.resposta) {
+                adicionarBalaoBot(res.resposta);
               } else {
-                removerIndicadorDigitando();
-                adicionarBalaoBot("⚠️ A API do simulador requer o aplicativo em execução via Electron.");
+                adicionarBalaoBot("⚠️ Nenhuma resposta gerada pelo fluxo para esta mensagem.");
               }
             } catch (err) {
               removerIndicadorDigitando();
@@ -6260,6 +6405,56 @@
                 inputMsg.focus();
               }
             }
+          }
+
+          async function resetarConversaSimuladorUI() {
+            const api = window.api || window.electronAPI;
+            const telefone = (inputTel?.value || '+55 (11) 98765-4321').trim();
+            if (api && api.simuladorResetarConversa) {
+              try {
+                await api.simuladorResetarConversa({ telefone });
+              } catch (e) {}
+            }
+            const numLimpo = telefone.replace(/\D/g, '');
+            if (window.dadosFilaCopilot && window.dadosFilaCopilot[numLimpo]) {
+              delete window.dadosFilaCopilot[numLimpo];
+            }
+            boxMensagens.innerHTML = `
+              <div class="text-center my-2">
+                <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
+                  🔒 Sessão reiniciada e robô despausado. Simulação pronta.
+                </span>
+              </div>
+            `;
+            mostrarToast('Conversa resetada e robô despausado!');
+            setTimeout(() => {
+              enviarMensagemSimulada('Olá');
+            }, 250);
+          }
+
+          function limparTelaSimuladorUI() {
+            boxMensagens.innerHTML = `
+              <div class="text-center my-2">
+                <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
+                  🔒 Conversa reiniciada. Mensagens em ambiente local e seguro.
+                </span>
+              </div>
+            `;
+            mostrarToast('Histórico do simulador limpo.');
+          }
+
+          function enviarCenarioCpfSimulador() {
+            const lista = (configGlobal && configGlobal.processos && Array.isArray(configGlobal.processos.lista))
+              ? configGlobal.processos.lista
+              : (Array.isArray(configGlobal.processos) ? configGlobal.processos : []);
+            let cpfEnvio = '123.456.789-00';
+            if (lista.length > 0) {
+              const procComCpf = lista.find(p => p.cpf && String(p.cpf).replace(/\D/g, '').length >= 9);
+              const procComNum = lista.find(p => (p.numero || p.numeroProcesso) && String(p.numero || p.numeroProcesso).replace(/\D/g, '').length >= 9);
+              if (procComCpf) cpfEnvio = procComCpf.cpf;
+              else if (procComNum) cpfEnvio = procComNum.numero || procComNum.numeroProcesso;
+            }
+            enviarMensagemSimulada(cpfEnvio);
           }
 
           btnEnviar.addEventListener('click', () => enviarMensagemSimulada());
@@ -6302,37 +6497,11 @@
 
           const btnReset = document.getElementById('btn-simulador-reset');
           if (btnReset) {
-            btnReset.addEventListener('click', async () => {
-              const api = window.api || window.electronAPI;
-              const telefone = (inputTel?.value || '+55 (11) 98765-4321').trim();
-              if (api && api.simuladorResetarConversa) {
-                await api.simuladorResetarConversa({ telefone });
-              }
-              boxMensagens.innerHTML = `
-                <div class="text-center my-2">
-                  <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
-                    🔒 Sessão reiniciada e robô despausado. Simulação pronta.
-                  </span>
-                </div>
-              `;
-              mostrarToast('Conversa resetada e robô despausado!');
-              setTimeout(() => {
-                enviarMensagemSimulada('Olá');
-              }, 250);
-            });
+            btnReset.addEventListener('click', () => resetarConversaSimuladorUI());
           }
 
           if (btnLimpar) {
-            btnLimpar.addEventListener('click', () => {
-              boxMensagens.innerHTML = `
-                <div class="text-center my-2">
-                  <span class="text-[10px] text-slate-500 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
-                    🔒 Conversa reiniciada. Mensagens em ambiente local e seguro.
-                  </span>
-                </div>
-              `;
-              mostrarToast('Histórico do simulador limpo.');
-            });
+            btnLimpar.addEventListener('click', () => limparTelaSimuladorUI());
           }
 
           // Cenários rápidos
@@ -6343,17 +6512,7 @@
             btnCenarioProc.addEventListener('click', () => enviarMensagemSimulada('1'));
           }
           if (btnCenarioCpf) {
-            btnCenarioCpf.addEventListener('click', () => {
-              const lista = configGlobal?.processos?.lista || [];
-              let cpfEnvio = '123.456.789-00';
-              if (lista.length > 0) {
-                const procComCpf = lista.find(p => p.cpf && String(p.cpf).replace(/\D/g, '').length >= 9);
-                const procComNum = lista.find(p => (p.numero || p.numeroProcesso) && String(p.numero || p.numeroProcesso).replace(/\D/g, '').length >= 9);
-                if (procComCpf) cpfEnvio = procComCpf.cpf;
-                else if (procComNum) cpfEnvio = procComNum.numero || procComNum.numeroProcesso;
-              }
-              enviarMensagemSimulada(cpfEnvio);
-            });
+            btnCenarioCpf.addEventListener('click', () => enviarCenarioCpfSimulador());
           }
           if (btnCenarioAdv) {
             btnCenarioAdv.addEventListener('click', () => enviarMensagemSimulada('falar com advogado'));
@@ -6954,7 +7113,11 @@
           window.enviarAudioArquivoSimulador = enviarAudioArquivoSimulador;
           window.enviarDocumentoArquivoSimulador = enviarDocumentoArquivoSimulador;
           window.despacharDocumentoParaSimulador = despacharDocumentoParaSimulador;
-          window.enviarMensagemSimulador = () => enviarMensagemSimulada();
+          window.enviarMensagemSimulada = (txt) => enviarMensagemSimulada(txt);
+          window.enviarMensagemSimulador = (txt) => enviarMensagemSimulada(txt);
+          window.resetarConversaSimuladorUI = resetarConversaSimuladorUI;
+          window.limparTelaSimuladorUI = limparTelaSimuladorUI;
+          window.enviarCenarioCpfSimulador = enviarCenarioCpfSimulador;
           window.despacharAudioParaIAEFila = despacharAudioParaIAEFila;
           window.adicionarCardFilaComAudioECopilot = adicionarCardFilaComAudioECopilot;
           window.aplicarSugestaoCopilot = aplicarSugestaoCopilot;
@@ -6972,7 +7135,6 @@
 
         window.inicializarSimuladorChat = inicializarSimuladorChat;
         inicializarSimuladorChat();
-      }
     });
   </script>
 </body>

@@ -1883,7 +1883,7 @@ async function executarSimulacaoMensagem(payload = {}) {
                 const resPix = await processarComprovanteRecebido(remetenteChave, buffer, mimeType, apiKey, config);
                 salvarConfigDisco(config, true);
                 if (resPix && resPix.resultadoBaixa && resPix.resultadoBaixa.success) {
-                    if (mainWindow && !mainWindow.isDestroyed()) {
+                    if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
                         mainWindow.webContents.send('notificacao-pagamento', resPix.resultadoBaixa);
                     }
                 }
@@ -1897,47 +1897,56 @@ async function executarSimulacaoMensagem(payload = {}) {
         }
 
         // Espelha o fluxo real: contato pausado (aguardando advogado)
-        const regPausaSim = contatosPausados[remetenteChave];
-        const tsPausaSim = regPausaSim && (typeof regPausaSim === 'object' ? regPausaSim.timestamp : regPausaSim);
-        if (tsPausaSim && (Date.now() - tsPausaSim < 24 * 60 * 60 * 1000)) {
-            const horaAtual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const novaMsg = {
-                de: 'cliente',
-                texto: mockMsg.body,
-                hora: horaAtual
-            };
-
-            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
-            historicoConversas[remetenteChave].push(novaMsg);
-
-            if (contatosPausados[remetenteChave]) {
-                if (!Array.isArray(contatosPausados[remetenteChave].mensagens)) contatosPausados[remetenteChave].mensagens = [];
-                contatosPausados[remetenteChave].mensagens.push(novaMsg);
-            }
-
-            await anexarMensagemOuAudioAoPausado(remetenteChave, {
-                novaMsg,
-                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
-            });
-
-            if (mainWindow && !mainWindow.isDestroyed()) {
-                mainWindow.webContents.send('bot-log', {
-                    numero: identidade.telefoneFormatado,
-                    nome: identidade.nomeCliente || '',
-                    exibicao: identidade.exibicao,
-                    msg: `[Fila Humana] ${mockMsg.body}`,
+        // No simulador, se o usuário digitar 0, reiniciar, menu ou pedir despausa, libera imediatamente
+        const querDespausar = ['0', 'reiniciar', 'reset', 'menu', 'voltar', 'inicio', 'início'].includes(gatilhoDigitado) || Boolean(payload && payload.despausarSePausado);
+        if (querDespausar && contatosPausados[remetenteChave]) {
+            delete contatosPausados[remetenteChave];
+            delete estadosUsuarios[remetenteChave];
+            emitirPausados();
+        } else {
+            const regPausaSim = contatosPausados[remetenteChave];
+            const tsPausaSim = regPausaSim && (typeof regPausaSim === 'object' ? regPausaSim.timestamp : regPausaSim);
+            if (tsPausaSim && (Date.now() - tsPausaSim < 24 * 60 * 60 * 1000)) {
+                const horaAtual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const novaMsg = {
+                    de: 'cliente',
+                    texto: mockMsg.body,
                     hora: horaAtual
-                });
-            }
+                };
 
-            return {
-                success: true,
-                sucesso: true,
-                resposta: "⏸️ *Mensagem registrada:* O robô permanece em pausa pois o contato está na *Fila de Espera*. A mensagem foi anexada à ficha para o advogado.",
-                pausado: true,
-                transbordo: false,
-                itemPausado: contatosPausados[remetenteChave]
-            };
+                if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+                historicoConversas[remetenteChave].push(novaMsg);
+
+                if (contatosPausados[remetenteChave]) {
+                    if (!Array.isArray(contatosPausados[remetenteChave].mensagens)) contatosPausados[remetenteChave].mensagens = [];
+                    contatosPausados[remetenteChave].mensagens.push(novaMsg);
+                }
+
+                await anexarMensagemOuAudioAoPausado(remetenteChave, {
+                    novaMsg,
+                    contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
+                });
+
+                if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('bot-log', {
+                        numero: identidade.telefoneFormatado,
+                        nome: identidade.nomeCliente || '',
+                        exibicao: identidade.exibicao,
+                        msg: `[Fila Humana] ${mockMsg.body}`,
+                        hora: horaAtual
+                    });
+                }
+
+                return {
+                    success: true,
+                    sucesso: true,
+                    resposta: "⏸️ *Mensagem registrada:* O robô permanece em pausa pois o contato está na *Fila de Espera* do advogado.\n\n💡 _Dica do Simulador:_ Digite *0* ou clique no botão *🔄 Resetar Conversa* no topo para despausar e retornar ao Menu Inicial.",
+                    pausado: true,
+                    transbordo: false,
+                    podeDespausar: true,
+                    itemPausado: contatosPausados[remetenteChave]
+                };
+            }
         }
 
         // Métricas do topo + Histórico de Mensagens (mesmo caminho do WhatsApp real)
@@ -1949,7 +1958,7 @@ async function executarSimulacaoMensagem(payload = {}) {
         }
         salvarConfigDisco(config, false);
         const horaLog = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('bot-log', {
                 numero: identidade.telefoneFormatado,
                 nome: identidade.nomeCliente || '',
@@ -1975,7 +1984,7 @@ async function executarSimulacaoMensagem(payload = {}) {
             respostaSimulada = prefixoHorario + txt;
         };
         const finalizarSimulacao = () => {
-            if (respostaSimulada && mainWindow && !mainWindow.isDestroyed()) {
+            if (respostaSimulada && mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
                 mainWindow.webContents.send('bot-log', {
                     numero: identidade.telefoneFormatado,
                     nome: '🤖 Robô → ' + (identidade.nomeCliente || 'Cliente'),
