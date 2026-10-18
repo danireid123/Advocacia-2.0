@@ -10,6 +10,7 @@ function criarConfigPadraoV2() {
     const msgPadraoAtualizacao = "⚖️ *Andamento Processual Localizado*\n\nOlá, *{nome}*!\nReferente ao processo nº *{processo}* (CPF: *{cpf}*):\n\n📋 *Resumo da Atualização ({data}):*\n{resumo}\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
     const msgPadraoJaVisto = "⚖️ *Consulta Processual*\n\nOlá, *{nome}*! Verificamos a pasta do seu processo nº *{processo}* e informamos que *não houve novas movimentações* desde a sua última consulta em *{ultima_consulta}*.\n\n📌 *Último resumo registrado ({data}):*\n{resumo}\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
     const msgPadraoSemAtualizacao = "⚖️ *Consulta Processual*\n\nOlá, *{nome}*! Seu processo nº *{processo}* está devidamente cadastrado em nosso sistema, porém ainda não possui movimentações ou resumos lançados até o momento.\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
+    const msgPadraoDocs = "⚖️ *Solicitação de Documentos — {preset}*\n\nOlá, *{nome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seguintes documentos:\n\n{documentos}\n\n💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas. Nossa Inteligência Artificial conferirá cada documento automaticamente assim que você enviar!";
 
     return {
         versao_config: "2.0.0-alpha.1",
@@ -18,6 +19,7 @@ function criarConfigPadraoV2() {
         primeiraConexaoTimestamp: 0,
         ultimoDesligamentoTimestamp: 0,
         ultimoInicioTimestamp: 0,
+        modeloMensagemSolicitacaoDocs: msgPadraoDocs,
         agenda: {
             "0": { nome: "Domingo", ativo: false, abertura: "08:00", fechamento: "18:00" },
             "1": { nome: "Segunda-feira", ativo: true, abertura: "08:00", fechamento: "18:00" },
@@ -270,6 +272,10 @@ function migrarConfigV1ParaV2(rawInput, contatosIgnoradosExternos = []) {
     migrado.onboardingSessoes = (raw.onboardingSessoes && typeof raw.onboardingSessoes === 'object' && !Array.isArray(raw.onboardingSessoes))
         ? { ...raw.onboardingSessoes }
         : {};
+
+    migrado.modeloMensagemSolicitacaoDocs = typeof raw.modeloMensagemSolicitacaoDocs === 'string' && raw.modeloMensagemSolicitacaoDocs.trim()
+        ? raw.modeloMensagemSolicitacaoDocs
+        : padrao.modeloMensagemSolicitacaoDocs;
 
     migrado.configuracaoCobranca = {
         ...padrao.configuracaoCobranca,

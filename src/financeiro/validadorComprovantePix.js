@@ -176,10 +176,14 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
 
   const str = buffer.toString('utf-8');
   const strLower = str.toLowerCase();
+  const strLatin1 = buffer.toString('latin1').toLowerCase();
 
   // Testes de rejeição explícita
-  if (strLower.includes('invalido') || strLower.includes('ilegivel') || strLower.includes('corrompido')) {
+  if (strLower.includes('invalido') || strLower.includes('ilegivel') || strLower.includes('corrompido') || strLower.includes('[defect:')) {
     return {
+      ehComprovantePix: false,
+      ehDocumentoCivil: false,
+      tipoDetectado: 'DOCUMENTO_ILEGIVEL',
       valorPago: 0,
       dataTransacao: '',
       bancoOrigem: '',
@@ -189,9 +193,21 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
     };
   }
 
-  // Detecção de documento civil/pessoal (RG, CNH, Comprovante de Residência)
-  const ehDocPessoal = (strLower.includes('rg') || strLower.includes('cnh') || strLower.includes('filiacao') || strLower.includes('filiação') || strLower.includes('orgao') || strLower.includes('órgão') || strLower.includes('residencia') || strLower.includes('residência') || strLower.includes('ctps') || strLower.includes('certidao') || strLower.includes('certidão') || strLower.includes('ssp/')) &&
-    !strLower.includes('pix') && !strLower.includes('transferencia') && !strLower.includes('transferência') && !strLower.includes('comprovante de pagamento');
+  // Detecção abrangente de documento civil / pessoal / fatura de consumo
+  const termosDocumentoCivil = [
+    'rg', 'cnh', 'cpf', 'ctps', 'filiacao', 'filiação', 'orgao', 'órgão', 'emissor',
+    'residencia', 'residência', 'habilitacao', 'habilitação', 'registro geral',
+    'republica federativa', 'república federativa', 'carteira nacional', 'carteira de trabalho',
+    'certidao', 'certidão', 'nascimento', 'casamento', 'eleitoral', 'titulo de eleitor',
+    'ssp/', 'ssp-sp', 'detran', 'policia civil', 'polícia civil', 'ministerio',
+    'fatura', 'conta de consumo', 'energia eletrica', 'energia elétrica', 'enel', 'sabesp',
+    'cpfl', 'cemig', 'copel', 'light', 'claro', 'vivo', 'tim', 'codigo de barras', 'linha digitavel'
+  ];
+
+  const contemTermoCivil = termosDocumentoCivil.some(t => strLower.includes(t) || strLatin1.includes(t));
+  const contemTermoPixDireto = strLower.includes('pix') || strLower.includes('transferencia') || strLower.includes('transferência') || strLower.includes('comprovante de transferencia') || strLower.includes('comprovante de pagamento');
+
+  const ehDocPessoal = contemTermoCivil && (!contemTermoPixDireto || strLower.includes('cnh') || strLower.includes('rg') || strLower.includes('fatura') || strLower.includes('residencia') || strLower.includes('residência'));
 
   if (ehDocPessoal) {
     return {
@@ -226,6 +242,9 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
     const matchBanco = str.match(/(?:BANCO)[:\s]*([A-Za-z0-9\s.]+?)(?=\s+DATA|\s+VALOR|$|\n)/i);
 
     return {
+      ehComprovantePix: true,
+      ehDocumentoCivil: false,
+      tipoDetectado: 'COMPROVANTE_PIX',
       valorPago: pagoDivergente,
       dataTransacao: formatarDataAtual(),
       bancoOrigem: matchBanco ? matchBanco[1].trim() : 'Banco Simulado S.A.',
@@ -240,6 +259,25 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
   const matchValor = str.match(/(?:VALOR\s+PAGO[:\s]*R?\$?\s*|R\$\s*|VALOR[:\s]*R?\$?\s*)([0-9]+[0-9.,]*)/i);
   if (matchValor && matchValor[1]) {
     valorPago = normalizarValorMonetario(matchValor[1]);
+  }
+
+  const matchId = str.match(/(?:ID\s+TRANSACAO|ID|TRANSAÇÃO|AUTENTICAÇÃO|PROTOCOLO|E2E)[:\s]*([E0-9A-Za-z\-_]{8,40})/i) ||
+                  str.match(/\b(E\d{8,35}[A-Za-z0-9]+)\b/);
+
+  // Se não foi detectado valor monetário ou não há evidência explícita de PIX, rejeita sem alucinações
+  const temEvidenciaPix = contemTermoPixDireto || Boolean(matchId) || strLower.includes('instituição') || strLower.includes('pagamento');
+  if (valorPago <= 0 || !temEvidenciaPix) {
+    return {
+      ehComprovantePix: false,
+      ehDocumentoCivil: contemTermoCivil,
+      tipoDetectado: contemTermoCivil ? 'DOCUMENTO_PESSOAL' : 'DOCUMENTO_DESCONHECIDO',
+      valorPago: 0,
+      dataTransacao: '',
+      bancoOrigem: '',
+      idTransacao: '',
+      nomePagador: '',
+      comprovanteLegivel: false
+    };
   }
 
   // Regex de Data
@@ -268,8 +306,6 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
 
   // ID da transação
   let idTransacao = '';
-  const matchId = str.match(/(?:ID\s+TRANSACAO|ID|TRANSAÇÃO|AUTENTICAÇÃO|PROTOCOLO|E2E)[:\s]*([E0-9A-Za-z\-_]{10,40})/i) ||
-                  str.match(/\b(E\d{8,35}[A-Za-z0-9]+)\b/);
   if (matchId && matchId[1]) {
     idTransacao = matchId[1].trim();
   } else {
@@ -285,13 +321,10 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
     nomePagador = clienteNome || 'Titular da Conta';
   }
 
-  // Fallback quando buffer binário sem texto legível
-  if (valorPago <= 0) {
-    const esp = normalizarValorMonetario(valorEsperado);
-    valorPago = esp > 0 ? esp : 150.00;
-  }
-
   return {
+    ehComprovantePix: true,
+    ehDocumentoCivil: false,
+    tipoDetectado: 'COMPROVANTE_PIX',
     valorPago,
     dataTransacao,
     bancoOrigem,
@@ -311,8 +344,17 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
 function validarDivergenciaPix(dadosLidos, valorEsperado = 0, clienteNome = '') {
   const pago = normalizarValorMonetario(dadosLidos?.valorPago);
   const esperado = normalizarValorMonetario(valorEsperado);
+  const idTransacao = String(dadosLidos?.idTransacao || '').trim();
+  const bancoOrigem = String(dadosLidos?.bancoOrigem || '').trim();
+  const ehCivil = Boolean(
+    dadosLidos?.ehComprovantePix === false ||
+    dadosLidos?.ehDocumentoCivil ||
+    dadosLidos?.tipoDetectado === 'DOCUMENTO_PESSOAL' ||
+    dadosLidos?.tipoDetectado === 'DOCUMENTO_CIVIL'
+  );
 
-  if (dadosLidos?.ehComprovantePix === false || dadosLidos?.ehDocumentoCivil || dadosLidos?.tipoDetectado === 'DOCUMENTO_PESSOAL') {
+  // Trava 1: Se for documento civil ou explicitamente não-PIX
+  if (ehCivil) {
     return {
       comprovanteValido: false,
       ehDocumentoCivil: true,
@@ -321,7 +363,8 @@ function validarDivergenciaPix(dadosLidos, valorEsperado = 0, clienteNome = '') 
     };
   }
 
-  if (!dadosLidos?.comprovanteLegivel && pago <= 0) {
+  // Trava 2: Valor pago deve ser estritamente positivo
+  if (pago <= 0) {
     return {
       comprovanteValido: false,
       divergencia: 'Não foi possível identificar o valor pago no comprovante PIX ou o comprovante está ilegível.',
@@ -329,10 +372,20 @@ function validarDivergenciaPix(dadosLidos, valorEsperado = 0, clienteNome = '') 
     };
   }
 
-  if (pago <= 0) {
+  // Trava 3: ID de transação deve existir e ter pelo menos 8 caracteres (padrão PIX E2E / protocolo)
+  if (!idTransacao || idTransacao.length < 8) {
     return {
       comprovanteValido: false,
-      divergencia: 'Valor pago nulo ou não reconhecido no documento.',
+      divergencia: 'Identificador de transação (ID E2E / Autenticação) ausente ou inválido.',
+      diferenca: esperado
+    };
+  }
+
+  // Trava 4: Banco / Instituição de origem obrigatória
+  if (!bancoOrigem || bancoOrigem.toLowerCase() === 'desconhecido') {
+    return {
+      comprovanteValido: false,
+      divergencia: 'Instituição bancária emissora não identificada no comprovante.',
       diferenca: esperado
     };
   }
@@ -499,6 +552,8 @@ async function auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado = 0
     );
     return {
       comprovanteValido: validacao.comprovanteValido,
+      ehDocumentoCivil: Boolean(validacao.ehDocumentoCivil || dadosLocal.ehDocumentoCivil),
+      tipoDetectado: dadosLocal.tipoDetectado || (dadosLocal.ehDocumentoCivil ? 'DOCUMENTO_PESSOAL' : (dadosLocal.ehComprovantePix ? 'COMPROVANTE_PIX' : 'DOCUMENTO_DESCONHECIDO')),
       dadosLidos: {
         valorPago: dadosLocal.valorPago,
         dataTransacao: dadosLocal.dataTransacao,
@@ -519,12 +574,21 @@ async function auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado = 0
 Você é um perito documental e auditor financeiro do escritório de advocacia.
 Analise a imagem anexada com rigor pericial.
 
+DIRETIVAS NEGATIVAS ESTRITAS (BLINDAGEM ANTI-ALUCINAÇÃO):
+- NUNCA classifique como comprovante PIX ou de transferência:
+  1. Documentos civis ou pessoais (RG, CNH, CPF, CTPS, Passaporte, Certidão de Casamento/Nascimento, Título Eleitoral).
+  2. Faturas de consumo ou contas mensais (energia elétrica, água, gás, internet, telefone, boleto bancário, IPTU, IPVA), mesmo que contenham a frase "Pague com Pix", "Chave Pix" ou código QR. Faturas de consumo NÃO são comprovantes de transferência/quitação de honorários advocatícios!
+  3. Contratos, procurações, petições, recibos manuais sem autenticação bancária ou folhas de cheque.
+- Se a imagem for qualquer documento civil, pessoal ou fatura de consumo:
+  Classifique OBRIGATORIAMENTE com "ehComprovantePix": false, "ehDocumentoCivil": true, "tipoDetectado": "DOCUMENTO_PESSOAL", "valorPago": 0.0, "idTransacao": "", "bancoOrigem": "", "comprovanteLegivel": false.
+- NUNCA invente banco, data, código de transação ou valor se eles não estiverem explicitamente impressos como comprovante de transferência concluída com sucesso.
+
 ETAPA 1 - CLASSIFICAÇÃO TIPOLÓGICA:
 Verifique se a imagem é:
 (A) Um COMPROVANTE DE TRANSFERÊNCIA BANCÁRIA / PIX / PAGAMENTO; OU
 (B) Um DOCUMENTO PESSOAL / CIVIL (como RG, CNH, CPF, Carteira de Trabalho, Comprovante de Residência/Endereço, Certidão, etc.).
 
-Se a imagem for um DOCUMENTO PESSOAL / CIVIL (RG, CNH, CPF, Endereço, etc.) e NÃO for comprovante bancário:
+Se a imagem for um DOCUMENTO PESSOAL / CIVIL (RG, CNH, CPF, Endereço, Fatura de Consumo, etc.) e NÃO for comprovante bancário:
 Retorne ESTRITAMENTE o JSON:
 {
   "ehComprovantePix": false,
@@ -546,7 +610,7 @@ Extraia as seguintes propriedades:
 3. "tipoDetectado": "COMPROVANTE_PIX"
 4. "valorPago": número decimal puro (ex: 150.00). Remova "R$", separadores de milhar e use ponto (.) decimal. Se não encontrar, retorne 0.
 5. "dataTransacao": data e horário da transação (ex: "18/10/2026 14:35").
-6. "bancoOrigem": instituição financeira pagadora (ex: Nubank, Banco do Brasil, Itaú, Bradesco, Caixa, Inter, etc).
+6. "bancoOrigem": instituição financeira pagadora (ex: Nubank, Banco do Brasil, Itaú, Bradesco, Caixa, Inter, etc). Se não constar, retorne "".
 7. "idTransacao": ID da transação PIX, código de autenticação ou protocolo.
 8. "nomePagador": nome completo do titular pagador/debitado.
 9. "nomeRecebedor": nome do recebedor/beneficiário, se visível.
@@ -628,15 +692,20 @@ Retorne ESTRITAMENTE o JSON:
 
   // 4. Se a IA respondeu com sucesso, processa a resposta estruturada
   if (respostaData && typeof respostaData === 'object') {
-    const ehDocCivil = respostaData.ehComprovantePix === false || respostaData.ehDocumentoCivil === true || respostaData.tipoDetectado === 'DOCUMENTO_PESSOAL';
+    const ehDocCivil = Boolean(
+      respostaData.ehComprovantePix === false ||
+      respostaData.ehDocumentoCivil === true ||
+      respostaData.tipoDetectado === 'DOCUMENTO_PESSOAL' ||
+      respostaData.tipoDetectado === 'DOCUMENTO_CIVIL'
+    );
     const dadosExtraidos = {
       ehComprovantePix: !ehDocCivil,
       ehDocumentoCivil: ehDocCivil,
       tipoDetectado: respostaData.tipoDetectado || (ehDocCivil ? 'DOCUMENTO_PESSOAL' : 'COMPROVANTE_PIX'),
-      valorPago: normalizarValorMonetario(respostaData.valorPago),
-      dataTransacao: String(respostaData.dataTransacao || formatarDataAtual()).trim(),
-      bancoOrigem: String(respostaData.bancoOrigem || 'Instituição Financeira PIX').trim(),
-      idTransacao: String(respostaData.idTransacao || '').trim(),
+      valorPago: ehDocCivil ? 0 : normalizarValorMonetario(respostaData.valorPago),
+      dataTransacao: ehDocCivil ? '' : String(respostaData.dataTransacao || formatarDataAtual()).trim(),
+      bancoOrigem: ehDocCivil ? '' : String(respostaData.bancoOrigem || '').trim(),
+      idTransacao: ehDocCivil ? '' : String(respostaData.idTransacao || '').trim(),
       nomePagador: String(respostaData.nomePagador || clienteNome || 'Titular da Conta').trim(),
       comprovanteLegivel: Boolean(respostaData.comprovanteLegivel !== false && !ehDocCivil)
     };
@@ -681,6 +750,8 @@ Retorne ESTRITAMENTE o JSON:
 
   return {
     comprovanteValido: validacao.comprovanteValido,
+    ehDocumentoCivil: Boolean(validacao.ehDocumentoCivil || dadosLocal.ehDocumentoCivil),
+    tipoDetectado: dadosLocal.tipoDetectado || (dadosLocal.ehDocumentoCivil ? 'DOCUMENTO_PESSOAL' : (dadosLocal.ehComprovantePix ? 'COMPROVANTE_PIX' : 'DOCUMENTO_DESCONHECIDO')),
     dadosLidos: {
       valorPago: dadosLocal.valorPago,
       dataTransacao: dadosLocal.dataTransacao,

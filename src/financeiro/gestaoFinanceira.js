@@ -279,7 +279,29 @@ function darBaixaParcela(parcelaId, config, dadosBaixa = {}) {
  * Processa um comprovante recebido por imagem de um cliente no WhatsApp,
  * audita via visão computacional e, se válido, dá baixa automática na parcela.
  */
-async function processarComprovanteRecebido(clienteTelefone, buffer, mimetype, apiKey, config) {
+async function processarComprovanteRecebido(clienteTelefoneOuObj, bufferArg, mimetypeArg, apiKeyArg, configArg) {
+    let clienteTelefone = '';
+    let clienteNome = '';
+    let buffer = null;
+    let mimetype = 'image/jpeg';
+    let apiKey = '';
+    let config = null;
+
+    if (clienteTelefoneOuObj && typeof clienteTelefoneOuObj === 'object' && !Buffer.isBuffer(clienteTelefoneOuObj)) {
+        clienteTelefone = clienteTelefoneOuObj.clienteTelefone || clienteTelefoneOuObj.telefone || '';
+        clienteNome = clienteTelefoneOuObj.clienteNome || clienteTelefoneOuObj.nome || '';
+        buffer = clienteTelefoneOuObj.buffer;
+        mimetype = clienteTelefoneOuObj.mimetype || clienteTelefoneOuObj.mimeType || 'image/jpeg';
+        apiKey = clienteTelefoneOuObj.apiKey || '';
+        config = bufferArg || clienteTelefoneOuObj.config || configArg;
+    } else {
+        clienteTelefone = clienteTelefoneOuObj || '';
+        buffer = bufferArg;
+        mimetype = mimetypeArg || 'image/jpeg';
+        apiKey = apiKeyArg || '';
+        config = configArg;
+    }
+
     garantirEstruturaFinanceira(config);
     const telLimpo = apenasNumeros(clienteTelefone);
 
@@ -287,44 +309,73 @@ async function processarComprovanteRecebido(clienteTelefone, buffer, mimetype, a
         const status = String(p.status || 'PENDENTE').toUpperCase();
         if (status === 'PAGO' || status === 'ARQUIVADO') return false;
         const pTel = apenasNumeros(p.clienteTelefone || p.telefone || '');
-        return !telLimpo || !pTel || pTel === telLimpo || pTel.endsWith(telLimpo) || telLimpo.endsWith(pTel);
+        if (!telLimpo || !pTel) return false;
+        return pTel === telLimpo;
     });
 
     const valorEsperado = parcelaPendente ? Number(parcelaPendente.valor || 0) : 0;
-    const nomeCliente = parcelaPendente ? (parcelaPendente.clienteNome || 'Cliente') : 'Cliente';
+    const nomeCliente = clienteNome || (parcelaPendente ? (parcelaPendente.clienteNome || 'Cliente') : 'Cliente');
 
     const laudo = await auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado, nomeCliente);
 
-    const registroComprovante = {
-        id: `comp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        parcelaId: parcelaPendente ? parcelaPendente.id : null,
-        clienteTelefone: telLimpo || clienteTelefone,
-        clienteNome: nomeCliente,
-        valorEsperado,
-        comprovanteValido: laudo.comprovanteValido,
-        dadosLidos: laudo.dadosLidos,
-        divergencia: laudo.divergencia,
-        recebidoEm: new Date().toISOString()
-    };
+    const ehDocCivil = Boolean(
+        laudo.ehDocumentoCivil ||
+        laudo.dadosLidos?.ehDocumentoCivil ||
+        laudo.tipoDetectado === 'DOCUMENTO_PESSOAL' ||
+        laudo.tipoDetectado === 'DOCUMENTO_CIVIL' ||
+        laudo.divergencia === 'DOCUMENTO_PESSOAL_NAO_PIX'
+    );
 
-    config.financeiro.comprovantesRecebidos.unshift(registroComprovante);
-
+    let registroComprovante = null;
     let parcelaBaixada = null;
     let resultadoBaixa = null;
-    if (laudo.comprovanteValido && parcelaPendente) {
-        resultadoBaixa = darBaixaParcela(parcelaPendente.id, config, {
-            ...(laudo.dadosLidos || {}),
-            origem: 'IA_COMPROVANTE'
-        });
-        if (resultadoBaixa.success) {
-            parcelaBaixada = resultadoBaixa.parcela;
+
+    // Se NÃO for documento civil e o comprovante for válido, registra e dá baixa
+    if (!ehDocCivil && laudo.comprovanteValido) {
+        registroComprovante = {
+            id: `comp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            parcelaId: parcelaPendente ? parcelaPendente.id : null,
+            clienteTelefone: telLimpo || clienteTelefone,
+            clienteNome: nomeCliente,
+            valorEsperado,
+            comprovanteValido: true,
+            dadosLidos: laudo.dadosLidos,
+            divergencia: laudo.divergencia,
+            recebidoEm: new Date().toISOString()
+        };
+        config.financeiro.comprovantesRecebidos.unshift(registroComprovante);
+
+        if (parcelaPendente) {
+            resultadoBaixa = darBaixaParcela(parcelaPendente.id, config, {
+                ...(laudo.dadosLidos || {}),
+                origem: 'IA_COMPROVANTE'
+            });
+            if (resultadoBaixa.success) {
+                parcelaBaixada = resultadoBaixa.parcela;
+            }
         }
+    } else if (!ehDocCivil && laudo.ehComprovantePix !== false) {
+        // Comprovante PIX inválido ou com divergência financeira (registrado para histórico)
+        registroComprovante = {
+            id: `comp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            parcelaId: parcelaPendente ? parcelaPendente.id : null,
+            clienteTelefone: telLimpo || clienteTelefone,
+            clienteNome: nomeCliente,
+            valorEsperado,
+            comprovanteValido: false,
+            dadosLidos: laudo.dadosLidos,
+            divergencia: laudo.divergencia,
+            recebidoEm: new Date().toISOString()
+        };
+        config.financeiro.comprovantesRecebidos.unshift(registroComprovante);
     }
 
     return {
         success: true,
         sucesso: true,
-        comprovanteValido: laudo.comprovanteValido,
+        comprovanteValido: Boolean(laudo.comprovanteValido && !ehDocCivil),
+        ehDocumentoCivil: ehDocCivil,
+        rotearParaDossie: ehDocCivil,
         laudo,
         parcelaBaixada,
         resultadoBaixa,

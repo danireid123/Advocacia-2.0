@@ -1178,6 +1178,9 @@
                       <button type="button" id="btn-ver-dossie-proc" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/40 rounded-xl text-[11px] font-bold transition flex items-center space-x-1" title="Visualizar histórico de andamentos e documentos anexados">
                         <span>🗂️ Ver Dossiê</span>
                       </button>
+                      <button type="button" id="btn-solicitar-docs-proc" class="hidden px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 rounded-xl text-[11px] font-bold transition flex items-center space-x-1" title="Solicitar Documentos deste Cliente no WhatsApp">
+                        <span>📄 Solicitar Docs</span>
+                      </button>
                       <button type="button" id="btn-resetar-visto-ficha" class="hidden px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-700/50 rounded-xl text-[11px] font-bold transition flex items-center space-x-1">
                         <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
                         <span>Liberar Reenvio</span>
@@ -1645,6 +1648,7 @@
                   <button type="button" id="btn-cenario-proc" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('1')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[#e5c158] rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Opção "1"</button>
                   <button type="button" id="btn-cenario-cpf" onmousedown="event.preventDefault()" onclick="window.enviarCenarioCpfSimulador && window.enviarCenarioCpfSimulador()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">CPF Válido</button>
                   <button type="button" id="btn-cenario-adv" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('falar com advogado')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Chamar Advogado</button>
+                  <button type="button" id="btn-cenario-solicitar-docs" onmousedown="event.preventDefault()" onclick="window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos(document.getElementById('simulador-tel')?.value, document.getElementById('simulador-nome')?.value)" class="px-2.5 py-1 bg-amber-950/60 hover:bg-amber-900/70 text-[#f3e5ab] border border-amber-500/40 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer" title="Solicitar documentos forenses no chat simulado">📄 Solicitar Docs</button>
                 </div>
               </div>
             </div>
@@ -1749,9 +1753,14 @@
                       <span class="text-[10px] font-bold uppercase tracking-wider text-[#e5c158] block">Qualificação Civil Completa (Art. 319, II do CPC)</span>
                       <h3 id="dossie-cliente-titulo" class="text-sm font-bold text-white mt-0.5">Selecione um cliente ao lado</h3>
                     </div>
-                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-4 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-slate-950 shadow-lg flex items-center space-x-1.5 transition cursor-pointer">
-                      <span>📋 Copiar Qualificação Civil (CPC)</span>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                      <button type="button" id="btn-solicitar-docs-dossie-topo" onclick="window.solicitarDocsClienteDossieAtual && window.solicitarDocsClienteDossieAtual()" class="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-[#f3e5ab] border border-amber-500/40 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer" title="Solicitar documentos no WhatsApp deste cliente">
+                        <span>📄 Solicitar Documentos</span>
+                      </button>
+                      <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-4 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-slate-950 shadow-lg flex items-center space-x-1.5 transition cursor-pointer">
+                        <span>📋 Copiar Qualificação Civil (CPC)</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div class="grid grid-cols-12 gap-3 text-xs">
@@ -1804,6 +1813,30 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Configuração Permanente do Modelo de Mensagem de Solicitação de Documentos -->
+            <div id="card-config-template-onboarding" class="p-5 rounded-2xl bg-gradient-to-r from-slate-900/90 via-[#0d121f] to-slate-900/90 border border-[#d4af37]/30 space-y-3.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#e5c158]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Modelo Padrão de Solicitação de Documentos</h4>
+                    <p class="text-[11px] text-slate-400">Personalize a mensagem enviada aos clientes. Variáveis disponíveis: <code class="text-[#e5c158]">{nome}</code>, <code class="text-[#e5c158]">{preset}</code>, <code class="text-[#e5c158]">{documentos}</code></p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button type="button" id="btn-melhorar-template-onboarding" class="px-3 py-1.5 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Aprimorar o modelo padrão com IA">
+                    <span>✨ Melhorar com IA</span>
+                  </button>
+                  <button type="button" id="btn-salvar-template-onboarding" onclick="window.salvarModeloTemplateOnboardingUI && window.salvarModeloTemplateOnboardingUI()" class="px-4 py-1.5 champagne-gradient rounded-xl text-xs font-bold text-slate-950 shadow flex items-center space-x-1.5 transition cursor-pointer">
+                    <span>Salvar Modelo</span>
+                  </button>
+                </div>
+              </div>
+              <textarea id="dossie-template-mensagem-docs" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none font-sans" placeholder="Digite o modelo padrão de solicitação de documentos..."></textarea>
             </div>
           </div>
         </div>
@@ -1980,6 +2013,17 @@
                   <option value="Familia">👨‍👩‍👧 Direito de Família (RG/CNH, Certidão Casamento/Nascimento, Endereço e Renda)</option>
                   <option value="Geral">📋 Geral / Kit Básico (RG ou CNH, CPF, Comprovante de Residência e Extratos)</option>
                 </select>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] text-[#e5c158] font-bold">Mensagem de Solicitação (Editável)</label>
+                  <button type="button" id="btn-melhorar-modal-onboarding" class="px-2.5 py-1 rounded-lg bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/40 text-[10px] font-semibold transition flex items-center space-x-1 cursor-pointer" title="Enriquecer a mensagem com termos jurídicos claros, tom acolhedor e emojis">
+                    <span>✨ Melhorar com IA</span>
+                  </button>
+                </div>
+                <textarea id="onboarding-modal-mensagem" rows="5" class="exec-input w-full rounded-xl p-3 text-xs resize-none font-sans" placeholder="A mensagem a ser enviada no WhatsApp do cliente..."></textarea>
+                <span class="text-[10px] text-slate-500 mt-1 block">Variáveis suportadas: <code class="text-[#e5c158]">{nome}</code>, <code class="text-[#e5c158]">{preset}</code>, <code class="text-[#e5c158]">{documentos}</code></span>
               </div>
 
               <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
@@ -3734,8 +3778,10 @@
       if (btnExcluirEl) btnExcluirEl.classList.add('hidden');
       const btnAnexar = document.getElementById('btn-anexar-peca-proc');
       const btnDossie = document.getElementById('btn-ver-dossie-proc');
+      const btnSolicitarDocs = document.getElementById('btn-solicitar-docs-proc');
       if (btnAnexar) btnAnexar.classList.add('hidden');
       if (btnDossie) btnDossie.classList.add('hidden');
+      if (btnSolicitarDocs) btnSolicitarDocs.classList.add('hidden');
       renderizarModuloProcessos();
       if (elCpf) elCpf.focus();
     }
@@ -3793,8 +3839,16 @@
 
       const btnAnexar = document.getElementById('btn-anexar-peca-proc');
       const btnDossie = document.getElementById('btn-ver-dossie-proc');
+      const btnSolicitarDocs = document.getElementById('btn-solicitar-docs-proc');
       if (btnAnexar) btnAnexar.classList.remove('hidden');
       if (btnDossie) btnDossie.classList.remove('hidden');
+      if (btnSolicitarDocs) {
+        btnSolicitarDocs.classList.remove('hidden');
+        btnSolicitarDocs.onclick = () => {
+          const telOuCpf = p.telefone || p.cpf || '';
+          window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos(telOuCpf, p.nome || 'Cliente');
+        };
+      }
 
       // Se o usuário estiver focado na caixa de busca, não destrói o DOM da lista para não interromper digitação
       if (document.activeElement !== document.getElementById('busca-processos')) {
@@ -5076,12 +5130,94 @@
     window.dossieClienteSelecionadoId = null;
     window.dossiesCache = {};
 
+    window.adicionarBalaoAdvogadoNoSimulador = function(texto) {
+      const container = document.getElementById('simulador-mensagens-box');
+      if (!container) return;
+      function formatarZap(t) {
+        if (!t) return '';
+        let seguro = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        seguro = seguro.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+        seguro = seguro.replace(/_([^_]+)_/g, '<em>$1</em>');
+        seguro = seguro.replace(/~([^~]+)~/g, '<del>$1</del>');
+        seguro = seguro.replace(/\n/g, '<br>');
+        return seguro;
+      }
+      const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const divWrap = document.createElement('div');
+      divWrap.className = 'flex justify-start mb-2.5';
+      divWrap.innerHTML = `
+        <div class="max-w-[82%] bg-[#1a2332] border border-emerald-500/50 text-slate-100 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow text-xs relative">
+          <div class="flex items-center space-x-1.5 text-[10px] text-emerald-400 font-bold mb-1">
+            <span>👨‍⚖️ Advogado Responsável</span>
+            <span class="text-slate-400 font-normal">• Resposta Humana</span>
+          </div>
+          <div class="leading-relaxed break-words">${formatarZap(texto)}</div>
+          <div class="text-[9px] text-emerald-300/60 text-right mt-1 font-mono">
+            ${hora} • Enviada pelo Advogado ✓✓
+          </div>
+        </div>
+      `;
+      container.appendChild(divWrap);
+      container.scrollTop = container.scrollHeight;
+    };
+
+    window.atualizarMensagemModalOnboarding = function() {
+      const elNome = document.getElementById('onboarding-modal-cliente-nome');
+      const elPreset = document.getElementById('onboarding-modal-preset');
+      const elMsg = document.getElementById('onboarding-modal-mensagem');
+      if (!elMsg) return;
+
+      const nomeCliente = (elNome ? elNome.value : '') || 'Cliente';
+      const presetTipo = (elPreset ? elPreset.value : '') || 'Geral';
+
+      const presetsInfo = {
+        Trabalhista: {
+          rotulo: '⚖️ Direito Trabalhista',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado (com CEP)*\n3. 📄 *Carteira de Trabalho (CTPS física ou PDF Digital)*\n4. 📄 *Termo de Rescisão (TRCT) ou últimos 3 Holerites*'
+        },
+        Previdenciario: {
+          rotulo: '🏛️ Direito Previdenciário (INSS)',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Laudos, Exames e Receitas Médicas recentes*\n4. 📄 *Extrato Previdenciário (CNIS do Meu INSS)*'
+        },
+        Civel: {
+          rotulo: '📋 Direito Cível / Consumidor',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Contrato, Nota Fiscal ou Comprovante do Negócio / Dano*'
+        },
+        Familia: {
+          rotulo: '👨‍👩‍👧 Direito de Família & Sucessões',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Certidão de Casamento ou Nascimento dos envolvidos*'
+        },
+        Geral: {
+          rotulo: '📁 Kit Geral de Qualificação Civil',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência recente com CEP*'
+        }
+      };
+
+      const preset = presetsInfo[presetTipo] || presetsInfo.Geral;
+      const tpl = (window.configGlobal && typeof window.configGlobal.modeloMensagemSolicitacaoDocs === 'string' && window.configGlobal.modeloMensagemSolicitacaoDocs.trim())
+        ? window.configGlobal.modeloMensagemSolicitacaoDocs
+        : (
+          `⚖️ *Solicitação de Documentos — {preset}*\n\n` +
+          `Olá, *${nomeCliente}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seguintes documentos:\n\n` +
+          `{documentos}\n\n` +
+          `💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas. Nossa Inteligência Artificial conferirá cada documento automaticamente assim que você enviar!`
+        );
+
+      elMsg.value = tpl
+        .replace(/\{nome\}/gi, nomeCliente)
+        .replace(/\{preset\}/gi, preset.rotulo)
+        .replace(/\{documentos\}/gi, preset.documentos);
+    };
+
     window.abrirModalSolicitarDocumentos = function(chave, nomeCliente) {
       const modal = document.getElementById('modal-solicitar-documentos');
       const elNome = document.getElementById('onboarding-modal-cliente-nome');
       const elTel = document.getElementById('onboarding-modal-cliente-tel');
       if (elNome) elNome.value = nomeCliente || chave || 'Cliente';
       if (elTel) elTel.value = chave || '';
+
+      window.atualizarMensagemModalOnboarding && window.atualizarMensagemModalOnboarding();
+
       if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -5100,45 +5236,122 @@
       const elNome = document.getElementById('onboarding-modal-cliente-nome');
       const elTel = document.getElementById('onboarding-modal-cliente-tel');
       const elPreset = document.getElementById('onboarding-modal-preset');
+      const elMsg = document.getElementById('onboarding-modal-mensagem');
       const clienteNome = elNome ? elNome.value.trim() : 'Cliente';
       const clienteTelefone = elTel ? elTel.value.trim() : '';
       const preset = elPreset ? elPreset.value : 'Geral';
+      const mensagemPersonalizada = elMsg ? elMsg.value.trim() : '';
+
+      let msgTexto = mensagemPersonalizada;
+      let sucesso = false;
+
+      // Sincroniza dados com o simulador de WhatsApp
+      const inputSimTel = document.getElementById('simulador-tel');
+      const inputSimNome = document.getElementById('simulador-nome');
+      if (inputSimTel && clienteTelefone) inputSimTel.value = clienteTelefone;
+      if (inputSimNome && clienteNome) inputSimNome.value = clienteNome;
 
       if (window.api && typeof window.api.iniciarOnboarding === 'function') {
-        const res = await window.api.iniciarOnboarding({
-          clienteTelefone,
-          clienteNome,
-          preset,
-          enviarWhatsApp: true
-        });
-        if (res && res.sucesso) {
-          const msgTexto = res.mensagemDisparo || res.mensagemSolicitacaoWhatsApp || '';
-          
-          // Sincroniza dados com o simulador de WhatsApp
-          const inputSimTel = document.getElementById('simulador-tel');
-          const inputSimNome = document.getElementById('simulador-nome');
-          if (inputSimTel && clienteTelefone) inputSimTel.value = clienteTelefone;
-          if (inputSimNome && clienteNome) inputSimNome.value = clienteNome;
-
-          // Injeta diretamente o balão de mensagem do advogado no simulador
-          if (msgTexto && typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
-            window.adicionarBalaoAdvogadoNoSimulador(msgTexto);
+        try {
+          const res = await window.api.iniciarOnboarding({
+            clienteTelefone,
+            clienteNome,
+            preset,
+            mensagemPersonalizada,
+            enviarWhatsApp: true
+          });
+          if (res && res.sucesso) {
+            sucesso = true;
+            msgTexto = res.mensagemDisparo || res.mensagemSolicitacaoWhatsApp || msgTexto;
           }
-
-          mostrarToast(`📄 Checklist (${preset}) enviado no WhatsApp de ${clienteNome}!`);
-          fecharModalSolicitarDocumentos();
-          if (typeof window.carregarERenderizarDossies === 'function') {
-            window.carregarERenderizarDossies();
-          }
-          return;
+        } catch (eIpc) {
+          console.warn('[Onboarding] Aviso ao iniciar onboarding via IPC:', eIpc);
         }
       }
-      mostrarToast(`📄 Solicitação de documentos (${preset}) registrada!`);
+
+      // Fallback local caso IPC não retorne com sucesso (cenários headless/web)
+      if (!sucesso) {
+        if (!msgTexto) {
+          msgTexto = `⚖️ *Solicitação de Documentos — ${preset}*\n\nOlá, *${clienteNome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seus documentos.\n\n💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas.`;
+        }
+        if (configGlobal) {
+          configGlobal.onboardingSessoes = configGlobal.onboardingSessoes || {};
+          const chaveTel = clienteTelefone.replace(/\D/g, '') || clienteTelefone;
+          configGlobal.onboardingSessoes[chaveTel] = {
+            id: `onb_${Date.now()}`,
+            clienteTelefone,
+            clienteNome,
+            preset,
+            status: 'DOCS_SOLICITADOS',
+            mensagemDisparo: msgTexto,
+            atualizadoEm: new Date().toISOString()
+          };
+          marcarAlteracaoPendente();
+        }
+      }
+
+      // Injeta imediatamente o balão de mensagem do advogado no simulador
+      if (msgTexto && typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
+        window.adicionarBalaoAdvogadoNoSimulador(msgTexto);
+      }
+
+      mostrarToast(`📄 Checklist (${preset}) enviado no WhatsApp de ${clienteNome}!`);
       fecharModalSolicitarDocumentos();
+      if (typeof window.carregarERenderizarDossies === 'function') {
+        window.carregarERenderizarDossies();
+      }
+    };
+
+    window.solicitarDocsClienteDossieAtual = function() {
+      if (!window.dossieClienteSelecionadoId) {
+        mostrarToast('Selecione um cliente primeiro para solicitar documentos.');
+        return;
+      }
+      const dossie = window.dossiesCache && window.dossiesCache[window.dossieClienteSelecionadoId];
+      const nome = dossie?.clienteNome || dossie?.civil?.nomeCompleto || 'Cliente';
+      window.abrirModalSolicitarDocumentos(window.dossieClienteSelecionadoId, nome);
+    };
+
+    window.carregarModeloTemplateOnboardingUI = function() {
+      const ta = document.getElementById('dossie-template-mensagem-docs');
+      if (!ta) return;
+      const tpl = (configGlobal && typeof configGlobal.modeloMensagemSolicitacaoDocs === 'string' && configGlobal.modeloMensagemSolicitacaoDocs.trim())
+        ? configGlobal.modeloMensagemSolicitacaoDocs
+        : (
+          `⚖️ *Solicitação de Documentos — {preset}*\n\n` +
+          `Olá, *{nome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seguintes documentos:\n\n` +
+          `{documentos}\n\n` +
+          `💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas. Nossa Inteligência Artificial conferirá cada documento automaticamente assim que você enviar!`
+        );
+      ta.value = tpl;
+    };
+
+    window.salvarModeloTemplateOnboardingUI = async function() {
+      const ta = document.getElementById('dossie-template-mensagem-docs');
+      if (!ta) return;
+      const novoModelo = ta.value.trim();
+      if (!novoModelo) {
+        mostrarToast('O modelo de mensagem não pode ficar vazio.');
+        return;
+      }
+      if (configGlobal) {
+        configGlobal.modeloMensagemSolicitacaoDocs = novoModelo;
+        marcarAlteracaoPendente();
+        if (window.api && typeof window.api.salvarConfig === 'function') {
+          try {
+            await window.api.salvarConfig(configGlobal);
+          } catch (e) {
+            console.warn('[Config] Erro ao salvar config:', e);
+          }
+        }
+      }
+      mostrarToast('💾 Modelo padrão de solicitação salvo com sucesso!');
     };
 
     window.carregarERenderizarDossies = async function() {
       try {
+        window.carregarModeloTemplateOnboardingUI && window.carregarModeloTemplateOnboardingUI();
+
         let dados = { lista: [], mapa: {}, sessoesOnboarding: {} };
         if (window.api && typeof window.api.obterDossies === 'function') {
           dados = await window.api.obterDossies();
@@ -5177,6 +5390,11 @@
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>
             </div>
             <span class="text-[10px] font-mono text-[#e5c158] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
+            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-end">
+              <button type="button" onclick="event.stopPropagation(); window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos('${escaparHtmlTexto(id)}', '${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-[#f3e5ab] border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer" title="Solicitar novos documentos pelo WhatsApp">
+                📄 Solicitar Docs
+              </button>
+            </div>
           `;
           container.appendChild(card);
         });

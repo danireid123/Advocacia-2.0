@@ -112,19 +112,46 @@ function documentoSatisfazItem(tipoDetectado, itemPendente) {
 /**
  * Inicia uma sessão de coleta de documentos para o cliente no WhatsApp.
  */
-function iniciarSessaoOnboarding(clienteTelefone, clienteNome, presetTipo = 'Geral', config = {}) {
+function iniciarSessaoOnboarding(clienteTelefone, clienteNome, presetTipo = 'Geral', config = {}, opcoes = {}) {
     garantirEstruturaOnboarding(config);
     const chaveTel = String(clienteTelefone || '').trim();
     const keyPreset = normalizarPresetKey(presetTipo);
     const preset = PRESETS_ONBOARDING[keyPreset] || PRESETS_ONBOARDING.Geral;
     const nomeLimpo = String(clienteNome || 'Cliente').trim();
 
-    const listaTexto = preset.descricoes.map((d, idx) => `${idx + 1}. 📄 *${d}*`).join('\n');
-    const mensagemSolicitacaoWhatsApp =
-        `⚖️ *Solicitação de Documentos — ${preset.rotulo}*\n\n` +
-        `Olá, *${nomeLimpo}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seguintes documentos:\n\n` +
-        `${listaTexto}\n\n` +
-        `💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas. Nossa Inteligência Artificial conferirá cada documento automaticamente assim que você enviar!`;
+    let mensagemCustomizada = '';
+    let itensPersonalizados = null;
+    if (typeof opcoes === 'string') {
+        mensagemCustomizada = opcoes;
+    } else if (Array.isArray(opcoes)) {
+        itensPersonalizados = opcoes;
+    } else if (opcoes && typeof opcoes === 'object') {
+        mensagemCustomizada = opcoes.mensagemPersonalizada || opcoes.mensagem || '';
+        itensPersonalizados = opcoes.itensPersonalizados || null;
+    }
+
+    const descricoes = (itensPersonalizados && itensPersonalizados.length > 0)
+        ? itensPersonalizados
+        : preset.descricoes;
+    const listaTexto = descricoes.map((d, idx) => `${idx + 1}. 📄 *${d}*`).join('\n');
+
+    const templatePadrao = (config && typeof config.modeloMensagemSolicitacaoDocs === 'string' && config.modeloMensagemSolicitacaoDocs.trim())
+        ? config.modeloMensagemSolicitacaoDocs
+        : (
+            `⚖️ *Solicitação de Documentos — {preset}*\n\n` +
+            `Olá, *{nome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seguintes documentos:\n\n` +
+            `{documentos}\n\n` +
+            `💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas. Nossa Inteligência Artificial conferirá cada documento automaticamente assim que você enviar!`
+        );
+
+    const baseTexto = (mensagemCustomizada && mensagemCustomizada.trim())
+        ? mensagemCustomizada
+        : templatePadrao;
+
+    const mensagemSolicitacaoWhatsApp = baseTexto
+        .replace(/\{nome\}/gi, nomeLimpo)
+        .replace(/\{preset\}/gi, preset.rotulo || keyPreset)
+        .replace(/\{documentos\}/gi, listaTexto);
 
     const sessao = {
         id: `onb_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,

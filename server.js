@@ -438,6 +438,23 @@ async function processarMensagemEntrada(msg) {
                             apiKey
                         }, config);
                         salvarConfigDisco(config);
+
+                        // Se o validador identificou documento civil, roteia para o Dossiê do Cliente
+                        if (resPix && (resPix.ehDocumentoCivil || resPix.rotearParaDossie || (resPix.laudo && resPix.laudo.ehDocumentoCivil))) {
+                            const resOnb = await processarMidiaOnboarding({
+                                clienteTelefone: remetenteChave,
+                                clienteNome: config.mapaNomes?.[remetenteChave] || 'Cliente WhatsApp',
+                                buffer: bufferMidia,
+                                mimetype: mimeType,
+                                apiKey
+                            }, config);
+                            salvarConfigDisco(config);
+                            if (resOnb && resOnb.mensagemFeedbackWhatsApp && client) {
+                                await client.sendMessage(msg.from, resOnb.mensagemFeedbackWhatsApp);
+                            }
+                            return true;
+                        }
+
                         if (resPix && resPix.mensagemFeedbackWhatsApp && client) {
                             await client.sendMessage(msg.from, resPix.mensagemFeedbackWhatsApp);
                         }

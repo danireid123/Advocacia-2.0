@@ -2575,8 +2575,12 @@ ipcMain.handle('iniciar-onboarding', async (event, payload = {}) => {
         const clienteNome = payload.clienteNome || payload.nome || 'Cliente';
         const preset = payload.preset || 'Geral';
         const itensPersonalizados = Array.isArray(payload.itensPersonalizados) ? payload.itensPersonalizados : null;
+        const mensagemPersonalizada = payload.mensagemPersonalizada || payload.mensagem || '';
 
-        const sessao = iniciarSessaoOnboarding(clienteTelefone, clienteNome, preset, cfg, itensPersonalizados);
+        const sessao = iniciarSessaoOnboarding(clienteTelefone, clienteNome, preset, cfg, {
+            mensagemPersonalizada,
+            itensPersonalizados
+        });
         salvarConfigDisco(cfg);
 
         const msgTextoDisparo = sessao.mensagemDisparo || sessao.mensagemSolicitacaoWhatsApp || '';
@@ -2610,11 +2614,12 @@ ipcMain.handle('iniciar-onboarding', async (event, payload = {}) => {
         // Notifica o Simulador de WhatsApp na tela para exibir o balão do advogado imediatamente
         if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed() && msgTextoDisparo) {
             try {
-                mainWindow.webContents.send('resposta-advogado-simulador', {
+                mainWindow.webContents.send('simulador-resposta-advogado', {
                     telefone: clienteTelefone,
                     chave,
                     texto: msgTextoDisparo,
-                    tipo: 'onboarding_solicitacao'
+                    tipo: 'onboarding_solicitacao',
+                    timestamp: Date.now()
                 });
             } catch (errSim) {
                 console.warn('[Onboarding] Aviso ao notificar simulador:', errSim.message);
