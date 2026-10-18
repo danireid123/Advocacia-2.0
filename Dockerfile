@@ -43,4 +43,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
-CMD ["npm", "run", "server"]
+# Inicia o servidor com limite estrito de memória heap no Node (256MB) e coleta de lixo ativada (--expose-gc)
+CMD ["node", "--max-old-space-size=256", "--expose-gc", "server.js"]

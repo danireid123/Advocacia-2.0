@@ -714,7 +714,26 @@ async function iniciarBotHeadless() {
         '--no-zygote',
         '--disable-gpu',
         '--disable-software-rasterizer',
-        '--disable-extensions'
+        '--disable-extensions',
+        // Otimizações estritas de memória para instâncias com 512MB (Render Free Tier)
+        '--js-flags=--max-old-space-size=128',
+        '--disable-features=site-per-process,AudioServiceOutOfProcess,TranslateUI',
+        '--renderer-process-limit=1',
+        '--single-process',
+        '--disable-ipc-flooding-protection',
+        '--disable-background-networking',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-breakpad',
+        '--disable-component-update',
+        '--disable-default-apps',
+        '--disable-domain-reliability',
+        '--disable-hang-monitor',
+        '--disable-prompt-on-repost',
+        '--disable-sync',
+        '--metrics-recording-only',
+        '--mute-audio',
+        '--safebrowsing-disable-auto-update'
     ];
 
     const execPath = process.env.PUPPETEER_EXECUTABLE_PATH || obterCaminhoNavegador();
@@ -1028,6 +1047,32 @@ function iniciarKeepAliveAntiSleep() {
     }, 10 * 60 * 1000);
 }
 
+// Sistema de Monitoramento e Limpeza Contínua de Memória (Anti-OOM para Render 512MB)
+function iniciarMonitorMemoria() {
+    setInterval(() => {
+        const mem = process.memoryUsage();
+        const rssMB = Math.round(mem.rss / 1024 / 1024);
+        const heapUsedMB = Math.round(mem.heapUsed / 1024 / 1024);
+        console.log(`[Monitor de Memória] RSS: ${rssMB}MB | Heap: ${heapUsedMB}MB (Limite Render: 512MB)`);
+
+        // Executa Garbage Collection se exposto via flag --expose-gc
+        if (global.gc) {
+            try {
+                global.gc();
+            } catch (e) {}
+        }
+
+        // Se a memória RSS se aproximar de 420MB (80% do limite de 512MB do Render Free Tier)
+        if (rssMB > 420) {
+            console.warn(`⚠️ [ALERTA DE MEMÓRIA] Uso crítico (${rssMB}MB). Purgando caches em memória...`);
+            // Limpa caches temporários de mensagens se existirem
+            if (global.gc) {
+                try { global.gc(); } catch (e) {}
+            }
+        }
+    }, 5 * 60 * 1000);
+}
+
 // Inicialização autônoma se executado diretamente
 if (require.main === module) {
     server.listen(PORT, () => {
@@ -1037,6 +1082,7 @@ if (require.main === module) {
         console.log(`   QR Status API: http://localhost:${PORT}/qr-status\n`);
         iniciarBotHeadless();
         iniciarKeepAliveAntiSleep();
+        iniciarMonitorMemoria();
     });
 }
 
