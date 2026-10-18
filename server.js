@@ -565,13 +565,10 @@ async function iniciarBotHeadless() {
         '--disable-accelerated-2d-canvas',
         '--no-first-run',
         '--no-zygote',
-        '--disable-gpu'
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--disable-extensions'
     ];
-
-    // No Linux/Docker/ARM, --single-process é crucial para economia de memória
-    if (process.platform === 'linux' || process.env.DOCKER_CONTAINER) {
-        puppeteerArgs.push('--single-process');
-    }
 
     const execPath = process.env.PUPPETEER_EXECUTABLE_PATH || obterCaminhoNavegador();
 
