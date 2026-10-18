@@ -2102,15 +2102,36 @@ ipcMain.handle('responder-cliente-pausado', async (event, { chave, textoResposta
 });
 
 // MELHORAR MENSAGEM COM IA (TERMOS TÉCNICOS ACESSÍVEIS, EMOJIS E INTERAÇÕES)
-ipcMain.handle('ia-melhorar-mensagem', async (event, { texto, contexto } = {}) => {
-    const { melhorarMensagemComIA } = require('./src/ia/tradutorJuridico');
-    const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
-    const contextoFinal = {
-        config: cfg,
-        apiKey: (contexto && contexto.apiKey) || cfg.gemini_api_key || (cfg.ia && cfg.ia.gemini_api_key) || process.env.GEMINI_API_KEY,
-        ...(contexto || {})
-    };
-    return await melhorarMensagemComIA(texto, contextoFinal);
+ipcMain.handle('ia-melhorar-mensagem', async (event, dados = {}) => {
+    try {
+        const texto = typeof dados === 'string' ? dados : (dados && dados.texto ? dados.texto : '');
+        const contexto = (dados && typeof dados === 'object' && dados.contexto) ? dados.contexto : (typeof dados === 'object' ? dados : {});
+        const { melhorarMensagemComIA, melhorarMensagemLocalmente } = require('./src/ia/tradutorJuridico');
+        const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
+        const chaveResolvida = (contexto && contexto.apiKey) || cfg.gemini_api_key || (cfg.ia && cfg.ia.gemini_api_key) || (cfg.processos && cfg.processos.gemini_api_key) || process.env.GEMINI_API_KEY || '';
+        const contextoFinal = {
+            config: cfg,
+            apiKey: chaveResolvida,
+            ...(contexto || {})
+        };
+        const resultado = await melhorarMensagemComIA(texto, contextoFinal);
+        return {
+            sucesso: true,
+            texto: (resultado && resultado.texto) ? String(resultado.texto) : (typeof resultado === 'string' ? resultado : ''),
+            fonte: (resultado && resultado.fonte) || 'ia',
+            duracaoMs: (resultado && resultado.duracaoMs) || 0
+        };
+    } catch (err) {
+        console.error('[IA] Falha ao melhorar mensagem no main process, aplicando fallback gracioso:', err.message);
+        try {
+            const { melhorarMensagemLocalmente } = require('./src/ia/tradutorJuridico');
+            const textoLimpo = typeof dados === 'string' ? dados : (dados && dados.texto ? dados.texto : '');
+            const fallback = melhorarMensagemLocalmente(textoLimpo);
+            return { sucesso: true, texto: String(fallback), fonte: 'fallback', duracaoMs: 0 };
+        } catch (e2) {
+            return { sucesso: true, texto: typeof dados === 'string' ? dados : (dados?.texto || ''), fonte: 'original', duracaoMs: 0 };
+        }
+    }
 });
 
 module.exports = {

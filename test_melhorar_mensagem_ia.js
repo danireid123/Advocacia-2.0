@@ -76,8 +76,10 @@ async function executarTestes() {
     const temCTA = /áudio|audio|documento|fotos|passos|disposição/i.test(resFallback.texto);
     assert.ok(temCTA, 'Texto deve sugerir interação gentil (áudio, documentos ou contato)');
 
-    // Checagem de compatibilidade com string
-    assert.strictEqual(String(resFallback), resFallback.texto, 'resFallback.toString() deve retornar o texto enriquecido');
+    // Checagem de compatibilidade com serialização IPC (Structured Clone)
+    const v8 = require('v8');
+    assert.doesNotThrow(() => v8.serialize(resFallback), 'resFallback deve ser perfeitamente serializável por IPC sem falha de clone');
+    assert.ok(typeof resFallback.texto === 'string' && resFallback.texto.length > 0, 'resFallback.texto deve ser string válida');
 
     registrarSucesso(`Fallback local comprovado com enriquecimento técnico, emojis e CTA:\n"${resFallback.texto.split('\n')[0]}..."`);
 

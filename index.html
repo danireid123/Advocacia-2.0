@@ -3070,6 +3070,53 @@
     // =========================================================================
     // MELHORAR MENSAGEM COM IA (TERMOS TÉCNICOS ACESSÍVEIS, EMOJIS E INTERAÇÕES)
     // =========================================================================
+    window.aplicarMelhoriaMensagemLocalmente = (textoOriginal) => {
+      if (!textoOriginal || typeof textoOriginal !== 'string' || !textoOriginal.trim()) {
+        return "⚖️ *Olá! Seja muito bem-vindo(a) ao nosso escritório.* 🏛️\n\nNossa equipe jurídica está à disposição para o devido *resguardo e defesa de seus direitos* ⚖️.\n\n📲 *Como podemos lhe ajudar?* Fique à vontade para nos enviar uma mensagem de texto, áudio com seu relato ou fotos de documentos para análise dos autos. 🤝✨";
+      }
+
+      let texto = textoOriginal.trim();
+      const dicionarioTermos = [
+        { padrao: /\b(dar\s+entrada|entrar\s+com\s+o?\s*processo|abrir\s+processo|ingressar\s+com\s+a\s+ação)\b/gi, subst: 'distribuição da petição inicial para resguardo de direitos ⚖️' },
+        { padrao: /\b(olhar|analisar|conferir|olhando|verificando)\s+(o\s+)?(seu\s+)?processo\b/gi, subst: 'criteriosa análise dos autos do processo 🏛️' },
+        { padrao: /\b(provas|papéis|papeis)\b/gi, subst: 'instrução probatória e documentos comprobatórios 📁' },
+        { padrao: /\b(perícia|pericia|médico\s+do\s+juiz|perito)\b/gi, subst: 'análise pericial técnica especializada 👨‍⚖️' },
+        { padrao: /\b(garantir|proteger)\s+(seus?\s+)?direitos?\b/gi, subst: 'efetivo resguardo e defesa de seus direitos ⚖️' },
+        { padrao: /\b(resposta\s+do\s+juiz|decisão\s+do\s+juiz|decisao\s+do\s+juiz)\b/gi, subst: 'manifestação e despacho judicial nos autos 🏛️' },
+        { padrao: /\b(documentos?)\b/gi, subst: 'documentos pertinentes 📋' }
+      ];
+
+      for (const item of dicionarioTermos) {
+        texto = texto.replace(item.padrao, item.subst);
+      }
+
+      const temSaudacao = /^(olá|ola|bom dia|boa tarde|boa noite|prezado|prezada|bem-vindo|bem vindo|salve)/i.test(texto);
+      let cabecalho = '';
+      if (!temSaudacao) {
+        cabecalho = '⚖️ *Olá! Seja bem-vindo(a) ao nosso atendimento.* 🏛️\n\n';
+      } else if (!texto.includes('⚖️')) {
+        texto = '⚖️ ' + texto;
+      }
+
+      if (!texto.includes('🏛️') && !texto.includes('📋') && !texto.includes('⚖️')) {
+        texto = texto + ' ⚖️';
+      }
+
+      const temAudioOuDoc = /(áudio|audio|documento|fotos?|anexo)/i.test(texto);
+      let rodape = '';
+      if (!temAudioOuDoc) {
+        rodape = '\n\n📲 *Próximos passos:* Se preferir, envie uma mensagem de áudio ou fotos dos seus documentos pertinentes para agilizarmos a análise dos autos. Nossa equipe jurídica segue à sua disposição! 🤝✨';
+      } else if (!texto.includes('🤝') && !texto.includes('✨')) {
+        rodape = '\n\n📲 Nossa equipe jurídica está atenta ao acompanhamento processual para o pleno resguardo e defesa de seus direitos. 🤝✨';
+      }
+
+      let resultadoFinal = (cabecalho + texto + rodape).trim();
+      if (!resultadoFinal.includes('autos') && !resultadoFinal.includes('resguardo de direitos') && !resultadoFinal.includes('instrução probatória') && !resultadoFinal.includes('petição inicial')) {
+        resultadoFinal = resultadoFinal.replace(/🤝✨$/, 'para o devido *resguardo e defesa de seus direitos*! 🤝✨');
+      }
+      return resultadoFinal;
+    };
+
     window.executarMelhoriaMensagemGenerica = async (textarea, callbackAtualizar, btn) => {
       if (!textarea) return;
       const textoOriginal = textarea.value || '';
@@ -3086,15 +3133,27 @@
 
       try {
         const api = window.api || window.electronAPI;
-        if (!api || !api.melhorarMensagemIA) {
-          mostrarToast("Recurso de IA disponível apenas no aplicativo desktop.");
-          return;
+        let textoAprimorado = '';
+
+        // Resolução ativa da chave do Gemini a partir do DOM ou configGlobal
+        const chaveAtiva = document.getElementById('proc-gemini-api-key')?.value?.trim() || 
+                           (window.configGlobal && window.configGlobal.gemini_api_key) || 
+                           (window.configGlobal && window.configGlobal.processos && window.configGlobal.processos.gemini_api_key) || '';
+
+        if (api && typeof api.melhorarMensagemIA === 'function') {
+          const res = await api.melhorarMensagemIA({ 
+            texto: textoOriginal, 
+            contexto: { apiKey: chaveAtiva } 
+          });
+          textoAprimorado = (res && typeof res === 'object' && res.texto)
+            ? res.texto
+            : (typeof res === 'string' ? res : '');
         }
 
-        const res = await api.melhorarMensagemIA({ texto: textoOriginal });
-        const textoAprimorado = (res && typeof res === 'object' && res.texto)
-          ? res.texto
-          : (typeof res === 'string' ? res : '');
+        // Fallback gracioso no renderer caso não tenha retornado texto ou offline
+        if (!textoAprimorado) {
+          textoAprimorado = window.aplicarMelhoriaMensagemLocalmente(textoOriginal);
+        }
 
         if (textoAprimorado) {
           textarea.value = textoAprimorado;
@@ -3107,8 +3166,18 @@
           mostrarToast("Não foi possível aprimorar a mensagem.");
         }
       } catch (err) {
-        console.error("Erro ao aprimorar mensagem com IA:", err);
-        mostrarToast("Erro ao conectar com assistente de IA.");
+        console.error("Erro ao aprimorar mensagem com IA, acionando enriquecimento local:", err);
+        const textoFallback = window.aplicarMelhoriaMensagemLocalmente(textoOriginal);
+        if (textoFallback) {
+          textarea.value = textoFallback;
+          if (typeof callbackAtualizar === 'function') {
+            callbackAtualizar(textoFallback);
+          }
+          marcarAlteracaoPendente();
+          mostrarToast("✨ Mensagem enriquecida com termos técnicos e emojis!");
+        } else {
+          mostrarToast("Mensagem mantida com sucesso.");
+        }
       } finally {
         if (btn) {
           btn.disabled = false;

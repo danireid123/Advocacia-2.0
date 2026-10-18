@@ -114,7 +114,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
  * @param {boolean} [opcoes.desativarPersistencia=false] - Desativa gravação em disco se true
  * @returns {Promise<{ texto: string, fonte: 'cache' | 'ia' | 'fallback', duracaoMs: number }>}
  */
-const MODELOS_GEMINI_PADRAO = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
+const MODELOS_GEMINI_PADRAO = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-3.5-flash'];
 
 async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const inicio = Date.now();
@@ -457,9 +457,7 @@ function sintetizarDossieProcesso(processo, opcoes = {}) {
         sucesso: true,
         totalDocumentos: docs.length,
         totalAndamentos: hists.length,
-        resumoIntegrado: textoSintese,
-        toString() { return textoSintese; },
-        valueOf() { return textoSintese; }
+        resumoIntegrado: textoSintese
     };
 }
 
@@ -529,10 +527,10 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
   try {
     const modelosCandidatos = [
       process.env.GEMINI_MODEL,
-      'gemini-1.5-flash',
-      'gemini-flash-latest',
-      'gemini-2.5-flash-lite',
-      'gemini-flash-lite-latest'
+      'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest',
+      'gemini-3.5-flash',
+      'gemini-flash-latest'
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
     let data = null;
@@ -703,9 +701,7 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
             sucesso: true,
             texto: '',
             fonte: 'fallback',
-            duracaoMs: Date.now() - inicio,
-            toString() { return this.texto; },
-            valueOf() { return this.texto; }
+            duracaoMs: Date.now() - inicio
         };
     }
 
@@ -717,29 +713,25 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
             sucesso: true,
             texto: textoCache,
             fonte: 'cache',
-            duracaoMs: Date.now() - inicio,
-            toString() { return this.texto; },
-            valueOf() { return this.texto; }
+            duracaoMs: Date.now() - inicio
         };
     }
 
-    // Resolução da Chave da API
-    const apiKey = (contexto && contexto.apiKey !== undefined)
-        ? contexto.apiKey
-        : ((contexto && contexto.config && (contexto.config.gemini_api_key || (contexto.config.ia && contexto.config.ia.gemini_api_key))) ||
-           process.env.GEMINI_API_KEY ||
-           '');
+    // Resolução robusta da Chave da API
+    const apiKey = (contexto && contexto.apiKey !== undefined && contexto.apiKey !== null)
+        ? String(contexto.apiKey).trim()
+        : (((contexto && contexto.config && (contexto.config.gemini_api_key || (contexto.config.processos && contexto.config.processos.gemini_api_key) || (contexto.config.ia && contexto.config.ia.gemini_api_key))) ||
+            process.env.GEMINI_API_KEY ||
+            '')).trim();
 
     // Se chave ausente ou offline -> fallback gracioso local instantâneo
-    if (!apiKey || !apiKey.trim()) {
+    if (!apiKey) {
         const textoFallback = melhorarMensagemLocalmente(textoLimpo, contexto);
         return {
             sucesso: true,
             texto: textoFallback,
             fonte: 'fallback',
-            duracaoMs: Date.now() - inicio,
-            toString() { return this.texto; },
-            valueOf() { return this.texto; }
+            duracaoMs: Date.now() - inicio
         };
     }
 
@@ -750,10 +742,10 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
     const modelosCandidatos = [
         contexto.modelo,
         process.env.GEMINI_MODEL,
-        'gemini-1.5-flash',
-        'gemini-flash-latest',
-        'gemini-2.5-flash-lite',
-        'gemini-flash-lite-latest'
+        'gemini-3.5-flash-lite',
+        'gemini-flash-lite-latest',
+        'gemini-3.5-flash',
+        'gemini-flash-latest'
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
     const promptUsuario = `Aprimore a seguinte mensagem jurídica para WhatsApp mantendo termos técnicos acessíveis, emojis adequados e interação gentil com o cliente:\n\n"""\n${textoLimpo}\n"""`;
@@ -778,7 +770,7 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
         let response = null;
         for (const modelo of modelosCandidatos) {
             try {
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey)}`;
                 response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -814,9 +806,7 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
                     sucesso: true,
                     texto: textoGerado,
                     fonte: 'ia',
-                    duracaoMs: Date.now() - inicio,
-                    toString() { return this.texto; },
-                    valueOf() { return this.texto; }
+                    duracaoMs: Date.now() - inicio
                 };
             }
         }
@@ -831,9 +821,7 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
         sucesso: true,
         texto: textoFallback,
         fonte: 'fallback',
-        duracaoMs: Date.now() - inicio,
-        toString() { return this.texto; },
-        valueOf() { return this.texto; }
+        duracaoMs: Date.now() - inicio
     };
 }
 

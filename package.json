@@ -23,6 +23,7 @@
       "icon.png",
       "icon.ico",
       "package.json",
+      "src/**/*",
       "node_modules/**/*"
     ],
     "win": {
