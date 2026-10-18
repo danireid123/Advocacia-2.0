@@ -3,7 +3,7 @@
 # Otimizado para Oracle Cloud Always Free (Ampere A1 ARM), AWS, DigitalOcean
 # =========================================================================
 
-FROM node:20-bullseye-slim
+FROM node:20-bookworm-slim
 
 # Evita prompts interativos durante apt-get
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,13 +11,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Instala Chromium e dependências essenciais do Puppeteer no Linux
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
-    fonts-ipafont-gothic \
-    fonts-wqy-zenhei \
-    fonts-thai-tlwg \
-    fonts-kacst \
+    fonts-liberation \
     fonts-freefont-ttf \
-    libxss1 \
-    libasound2 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
