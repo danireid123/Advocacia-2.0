@@ -756,6 +756,26 @@ const server = http.createServer(async (req, res) => {
     `);
 });
 
+// Sistema Keep-Alive Anti-Sleep para Render Free Tier (evita suspensão após 15 min de inatividade)
+const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || 'https://advocacia-2-0.onrender.com';
+function iniciarKeepAliveAntiSleep() {
+    console.log(`[Keep-Alive Anti-Sleep] Ativado para o endpoint público: ${RENDER_EXTERNAL_URL}/health`);
+    // Ping a cada 10 minutos (Render dorme com 15 min de inatividade)
+    setInterval(() => {
+        try {
+            const https = require('https');
+            const urlAlvo = `${RENDER_EXTERNAL_URL}/health`;
+            https.get(urlAlvo, (res) => {
+                console.log(`[Keep-Alive Anti-Sleep] Ping preventivo realizado com sucesso (${res.statusCode}) às ${new Date().toLocaleTimeString('pt-BR')}`);
+            }).on('error', (err) => {
+                console.warn(`[Keep-Alive Anti-Sleep] Aviso no ping: ${err.message}`);
+            });
+        } catch (e) {
+            console.warn('[Keep-Alive Anti-Sleep] Erro na execução do ping:', e.message);
+        }
+    }, 10 * 60 * 1000);
+}
+
 // Inicialização
 server.listen(PORT, () => {
     console.log(`\n🚀 [Server Headless] Servidor HTTP operando na porta ${PORT}`);
@@ -763,4 +783,5 @@ server.listen(PORT, () => {
     console.log(`   Status API: http://localhost:${PORT}/status`);
     console.log(`   QR Status API: http://localhost:${PORT}/qr-status\n`);
     iniciarBotHeadless();
+    iniciarKeepAliveAntiSleep();
 });
