@@ -1570,10 +1570,24 @@
                 </div>
               </div>
 
-              <!-- Input de Envio -->
-              <div class="p-3 bg-[#131a29] border-t border-slate-800 flex items-center space-x-2">
+              <!-- Input de Envio com Microfone e Anexo de Áudio -->
+              <div class="simulador-input-bar p-3 bg-[#131a29] border-t border-slate-800 flex items-center space-x-2">
+                <input type="file" id="simulador-audio-file" accept="audio/*" class="hidden" onchange="enviarAudioArquivoSimulador(this)">
+                <button type="button" onclick="document.getElementById('simulador-audio-file').click()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-[#e5c158] transition" title="Anexar arquivo de áudio (MP3, OGG, WAV, WEBM)">
+                  📎
+                </button>
+                
                 <input type="text" id="simulador-input-msg" placeholder="Digite uma mensagem (ex: Olá, 1, CPF, ou falar com advogado)..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
-                <button type="button" id="btn-simulador-enviar" class="px-5 py-2.5 champagne-gradient rounded-xl font-bold text-xs text-slate-950 shadow flex items-center space-x-1.5 transition">
+                
+                <button type="button" id="btn-mic-simulador" onclick="toggleGravacaoSimulador()" class="p-2.5 rounded-xl bg-slate-800 text-[#e5c158] hover:bg-slate-700 transition" title="Gravar Áudio de Voz">
+                  🎙️
+                </button>
+                <span id="gravador-timer" class="hidden text-xs text-rose-400 font-mono animate-pulse font-semibold px-2">00:00</span>
+                <button type="button" id="btn-cancelar-gravacao" onclick="cancelarGravacaoSimulador()" class="hidden p-2 text-xs text-rose-400 hover:text-rose-300" title="Cancelar Gravação">
+                  ❌
+                </button>
+
+                <button type="button" id="btn-simulador-enviar" onclick="enviarMensagemSimulador()" class="px-5 py-2.5 champagne-gradient rounded-xl font-bold text-xs text-slate-950 shadow flex items-center space-x-1.5 transition">
                   <span>Enviar</span>
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </button>
@@ -1703,7 +1717,17 @@
         baixarPlanilhaModelo: async () => ({ success: true }),
         simuladorEnviarMensagem: async () => ({ sucesso: false, resposta: 'Simulador disponível ao executar com Electron.' }),
         higienizarBaseProcessos: async () => ({ sucesso: true, duplicatasRemovidas: 0 }),
-        catalogarPecaProcessual: async () => ({ sucesso: false, erro: 'Modo navegador' })
+        catalogarPecaProcessual: async () => ({ sucesso: false, erro: 'Modo navegador' }),
+        processarAudioCopilot: async (dados) => ({
+          sucesso: true,
+          transcricao: "[Simulação Local] Áudio recebido e transcrito com sucesso em modo sandbox.",
+          resumo: "• Cliente solicitou contato com advogado.\n• Relatou urgência no andamento do processo.",
+          sugestoesResposta: [
+            "Olá! Ouvi sua mensagem de áudio e já estou analisando sua situação.",
+            "Poderia nos confirmar o seu número de CPF para localizarmos o processo?",
+            "Recebido com sucesso. Vamos verificar o andamento e retornaremos em breve."
+          ]
+        })
       };
     }
     if (!window.electronAPI) window.electronAPI = window.api;
@@ -4177,6 +4201,313 @@
           if (btnCenarioAdv) {
             btnCenarioAdv.addEventListener('click', () => enviarMensagemSimulada('falar com advogado'));
           }
+
+          // =========================================================================
+          // MÓDULO DE ÁUDIO NO SIMULADOR & COPILOT ONE-CLICK (SUBAGENTES 2 E 3)
+          // =========================================================================
+          let mediaRecorderSimulador = null;
+          let audioChunksSimulador = [];
+          let gravadorInterval = null;
+          let gravadorSegundos = 0;
+
+          async function toggleGravacaoSimulador() {
+            const btnMic = document.getElementById('btn-mic-simulador');
+            const timer = document.getElementById('gravador-timer');
+            const btnCancelar = document.getElementById('btn-cancelar-gravacao');
+
+            if (mediaRecorderSimulador && mediaRecorderSimulador.state === 'recording') {
+              mediaRecorderSimulador.stop();
+              clearInterval(gravadorInterval);
+              if (btnMic) {
+                btnMic.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
+                btnMic.classList.add('bg-slate-800', 'text-[#e5c158]');
+              }
+              if (timer) timer.classList.add('hidden');
+              if (btnCancelar) btnCancelar.classList.add('hidden');
+              return;
+            }
+
+            try {
+              if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("API de mídia de áudio não suportada neste ambiente.");
+              }
+              const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+              mediaRecorderSimulador = new MediaRecorder(stream);
+              audioChunksSimulador = [];
+
+              mediaRecorderSimulador.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) audioChunksSimulador.push(event.data);
+              };
+
+              mediaRecorderSimulador.onstop = async () => {
+                stream.getTracks().forEach(track => track.stop());
+                if (audioChunksSimulador.length === 0) return;
+
+                const audioBlob = new Blob(audioChunksSimulador, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = async () => {
+                  const base64Data = reader.result;
+                  renderizarAudioNoSimulador(base64Data);
+                  await despacharAudioParaIAEFila(base64Data, 'audio/webm');
+                };
+              };
+
+              mediaRecorderSimulador.start();
+              gravadorSegundos = 0;
+              if (timer) {
+                timer.innerText = '00:00';
+                timer.classList.remove('hidden');
+              }
+              if (btnCancelar) btnCancelar.classList.remove('hidden');
+              if (btnMic) {
+                btnMic.classList.remove('bg-slate-800', 'text-[#e5c158]');
+                btnMic.classList.add('bg-rose-600', 'text-white', 'animate-pulse');
+              }
+
+              gravadorInterval = setInterval(() => {
+                gravadorSegundos++;
+                const m = String(Math.floor(gravadorSegundos / 60)).padStart(2, '0');
+                const s = String(gravadorSegundos % 60).padStart(2, '0');
+                if (timer) timer.innerText = `${m}:${s}`;
+              }, 1000);
+            } catch (err) {
+              console.error("Microfone inacessível:", err);
+              alert("Não foi possível acessar o microfone. Verifique as permissões de áudio no Windows ou utilize o botão de clipe 📎 para anexar um áudio gravado.");
+            }
+          }
+
+          function cancelarGravacaoSimulador() {
+            if (mediaRecorderSimulador && mediaRecorderSimulador.state === 'recording') {
+              audioChunksSimulador = [];
+              mediaRecorderSimulador.stop();
+            }
+            clearInterval(gravadorInterval);
+            const btnMic = document.getElementById('btn-mic-simulador');
+            const timer = document.getElementById('gravador-timer');
+            const btnCancelar = document.getElementById('btn-cancelar-gravacao');
+            if (btnMic) {
+              btnMic.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
+              btnMic.classList.add('bg-slate-800', 'text-[#e5c158]');
+            }
+            if (timer) timer.classList.add('hidden');
+            if (btnCancelar) btnCancelar.classList.add('hidden');
+          }
+
+          function renderizarAudioNoSimulador(base64Audio) {
+            const container = document.getElementById('simulador-mensagens-box') || document.querySelector('.simulador-messages');
+            if (!container) return;
+
+            const div = document.createElement('div');
+            div.className = "flex justify-end mb-2.5";
+            div.innerHTML = `
+              <div class="max-w-[78%] bg-[#005c4b] text-white rounded-2xl rounded-tr-sm p-3 shadow text-xs relative group">
+                <div class="text-[10px] text-emerald-200/70 font-semibold mb-1 text-right">
+                  ${(document.getElementById('simulador-nome')?.value || 'Cliente').trim()} (Mensagem de Voz)
+                </div>
+                <audio controls src="${base64Audio}" class="w-60 h-8 mt-1"></audio>
+                <div class="text-[9px] text-emerald-300/60 text-right mt-1.5 font-mono">
+                  ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Enviada ✓✓
+                </div>
+              </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+          }
+
+          async function enviarAudioArquivoSimulador(input) {
+            if (!input || !input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const mimeType = file.type || 'audio/webm';
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+              const base64Data = reader.result;
+              renderizarAudioNoSimulador(base64Data);
+              await despacharAudioParaIAEFila(base64Data, mimeType);
+              input.value = '';
+            };
+          }
+
+          async function despacharAudioParaIAEFila(base64Audio, mimeType) {
+            const nomeCliente = (document.getElementById('simulador-nome')?.value || 'Carlos Eduardo').trim();
+            const telCliente = (document.getElementById('simulador-tel')?.value || '+55 (11) 98765-4321').trim();
+            
+            if (typeof mostrarToast === 'function') {
+              mostrarToast("🎙️ Áudio enviado! O Copilot Gemini está transcrevendo e gerando sugestões...");
+            }
+
+            try {
+              if (typeof alertaSinoTransbordo !== 'undefined' && alertaSinoTransbordo && alertaSinoTransbordo.playTransbordoChime) {
+                alertaSinoTransbordo.playTransbordoChime();
+              }
+            } catch (e) {}
+
+            const api = window.api || window.electronAPI;
+            let respostaIA = {
+              sucesso: true,
+              transcricao: "[Áudio do Cliente] Olá doutor, gostaria de saber se já saiu a sentença do meu processo de indenização.",
+              resumo: "• Cliente busca informações sobre a sentença.\n• Solicita retorno do advogado responsável.",
+              sugestoesResposta: [
+                "Olá! Seu processo está concluso para julgamento com o juiz. Assim que a sentença for proferida avisamos você.",
+                "Olá! Já consultei a pasta e o processo segue em andamento normal. Deseja agendar um atendimento para tirar dúvidas?",
+                "Perfeito! Poderia nos enviar seu CPF para localizarmos sua ficha e detalharmos a última decisão?"
+              ]
+            };
+
+            if (api && api.processarAudioCopilot) {
+              try {
+                const res = await api.processarAudioCopilot({
+                  audioBase64: base64Audio,
+                  mimeType: mimeType,
+                  contexto: { nome: nomeCliente, telefone: telCliente }
+                });
+                if (res) respostaIA = res;
+              } catch (err) {
+                console.error("Erro ao chamar IPC processarAudioCopilot:", err);
+              }
+            }
+
+            adicionarCardFilaComAudioECopilot({
+              id: 'audio_' + Date.now(),
+              nome: nomeCliente,
+              telefone: telCliente,
+              horario: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              audioBase64: base64Audio,
+              transcricao: respostaIA.transcricao,
+              resumo: respostaIA.resumo,
+              sugestoes: respostaIA.sugestoesResposta || []
+            });
+          }
+
+          function adicionarCardFilaComAudioECopilot(dados) {
+            const container = document.getElementById('lista-pausados') || document.getElementById('lista-fila-espera');
+            if (!container) return;
+
+            if (container.children.length === 1 && container.children[0].classList.contains('text-center')) {
+              container.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.className = "exec-card p-5 rounded-2xl mb-4 border border-amber-500/30 bg-slate-900/90 shadow-xl space-y-4";
+            card.id = `card-fila-${dados.id}`;
+
+            const listaSugestoesHTML = (dados.sugestoes || []).map((sug) => {
+              const sugEscapada = String(sug).replace(/"/g, '&quot;');
+              return `
+              <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
+                <p class="text-xs text-slate-300 leading-relaxed italic flex-1">"${sug}"</p>
+                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', '${sugEscapada}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap">
+                  Usar Esta ⚡
+                </button>
+              </div>
+            `;}).join('');
+
+            card.innerHTML = `
+              <!-- Topo do Card -->
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">${dados.nome}</h4>
+                    <span class="text-xs text-slate-400 font-mono">${dados.telefone}</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-amber-300/80 bg-amber-950/60 border border-amber-800 px-2.5 py-0.5 rounded-full">
+                  Recebido às ${dados.horario}
+                </span>
+              </div>
+
+              <!-- Player de Áudio -->
+              <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Mensagem de Voz Recebida:</span>
+                <audio controls src="${dados.audioBase64}" class="w-full h-8"></audio>
+              </div>
+
+              <!-- Seção Transcrição e Resumo Executivo -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                  <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1">Transcrição Inteligente:</span>
+                  <p class="text-slate-300 leading-relaxed">${dados.transcricao || 'Processando transcrição...'}</p>
+                </div>
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                  <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Resumo Executivo (Copilot):</span>
+                  <div class="text-slate-300 leading-relaxed whitespace-pre-line">${dados.resumo || 'Sem resumo disponível.'}</div>
+                </div>
+              </div>
+
+              <!-- Sugestões de Resposta com 1 Clique (Copilot) -->
+              <div class="space-y-2">
+                <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                  <span>✨ Sugestões Rápidas de Resposta (1-Clique):</span>
+                </span>
+                <div class="space-y-2">
+                  ${listaSugestoesHTML}
+                </div>
+              </div>
+
+              <!-- Caixa de Resposta Manual ou Editável -->
+              <div class="pt-2 border-t border-slate-800 flex items-center space-x-2">
+                <input type="text" id="input-resposta-${dados.id}" placeholder="Escreva ou edite a resposta para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
+                <button type="button" onclick="enviarRespostaAdvogado('${dados.id}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center space-x-1.5">
+                  <span>Enviar Resposta</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+              </div>
+            `;
+
+            container.prepend(card);
+            
+            const badge = document.getElementById('badge-pausados');
+            if (badge) {
+              const totalAtual = parseInt(badge.innerText || '0', 10) + 1;
+              badge.innerText = String(totalAtual);
+            }
+          }
+
+          function aplicarSugestaoCopilot(cardId, texto) {
+            const input = document.getElementById(`input-resposta-${cardId}`);
+            if (input) {
+              input.value = texto;
+              input.focus();
+            }
+          }
+
+          function enviarRespostaAdvogado(cardId) {
+            const input = document.getElementById(`input-resposta-${cardId}`);
+            const card = document.getElementById(`card-fila-${cardId}`);
+            const texto = input ? input.value.trim() : '';
+
+            if (!texto) {
+              alert("Por favor, digite ou selecione uma sugestão de resposta antes de enviar.");
+              return;
+            }
+
+            if (typeof mostrarToast === 'function') {
+              mostrarToast("✅ Resposta enviada com sucesso ao cliente! Atendimento finalizado.");
+            }
+
+            if (card) {
+              card.remove();
+            }
+
+            const badge = document.getElementById('badge-pausados');
+            if (badge) {
+              const totalAtual = Math.max(0, parseInt(badge.innerText || '0', 10) - 1);
+              badge.innerText = String(totalAtual);
+            }
+          }
+
+          // Expor globalmente para garantir acessibilidade via eventos inline e módulos
+          window.toggleGravacaoSimulador = toggleGravacaoSimulador;
+          window.cancelarGravacaoSimulador = cancelarGravacaoSimulador;
+          window.renderizarAudioNoSimulador = renderizarAudioNoSimulador;
+          window.enviarAudioArquivoSimulador = enviarAudioArquivoSimulador;
+          window.enviarMensagemSimulador = () => enviarMensagemSimulada();
+          window.despacharAudioParaIAEFila = despacharAudioParaIAEFila;
+          window.adicionarCardFilaComAudioECopilot = adicionarCardFilaComAudioECopilot;
+          window.aplicarSugestaoCopilot = aplicarSugestaoCopilot;
+          window.enviarRespostaAdvogado = enviarRespostaAdvogado;
 
           window.aoAbrirAbaSimulador = function() {
             setTimeout(() => {

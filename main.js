@@ -1838,6 +1838,32 @@ ipcMain.handle('ia-catalogar-peca', async (event, { texto, nomeArquivo }) => {
     }
 });
 
+// TRANSCRIÇÃO DE ÁUDIO E COPILOT ONE-CLICK
+ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
+    try {
+        const { processarAudioECopilot } = require('./src/ia/tradutorJuridico');
+        const { audioBase64, mimeType, contexto } = dados;
+        const config = carregarConfig ? carregarConfig() : {};
+        const contextoFinal = {
+            ...(contexto || {}),
+            apiKey: (contexto && contexto.apiKey) || config.gemini_api_key || process.env.GEMINI_API_KEY
+        };
+        return await processarAudioECopilot(audioBase64, mimeType || 'audio/webm', contextoFinal);
+    } catch (err) {
+        return {
+            sucesso: false,
+            erro: err.message,
+            transcricao: "[Não foi possível processar o áudio]",
+            resumo: "• Erro interno ao despachar áudio.",
+            sugestoesResposta: [
+                "Olá! Recebi seu áudio e já estou verificando sua solicitação.",
+                "Poderia nos resumir o seu pedido por texto enquanto abro sua ficha?",
+                "Entendido. Em breve retornaremos com a orientação jurídica necessária."
+            ]
+        };
+    }
+});
+
 module.exports = {
     traduzirAndamentoParaCliente,
     formatarMensagemProcesso,

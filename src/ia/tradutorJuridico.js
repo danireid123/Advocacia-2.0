@@ -477,12 +477,145 @@ function limparCacheMemoria() {
     cacheEmMemoria.clear();
 }
 
+/**
+ * Processa áudio via Gemini Multimodal e gera transcrição, resumo e 3 sugestões de resposta.
+ * Suporta formatos: audio/webm, audio/ogg, audio/mp3, audio/wav.
+ */
+async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/webm', contextoCliente = {}) {
+  const base64Data = Buffer.isBuffer(audioBufferOuBase64)
+    ? audioBufferOuBase64.toString('base64')
+    : String(audioBufferOuBase64 || '').replace(/^data:audio\/\w+;base64,/, '');
+
+  const apiKey = (contextoCliente && contextoCliente.apiKey) || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return {
+      sucesso: false,
+      modoLocal: true,
+      transcricao: "[Modo Local] Chave Gemini não configurada no .env. Áudio mantido para escuta manual.",
+      resumo: "• Áudio recebido aguardando reprodução manual pelo advogado.\n• Nenhuma transcrição automática foi processada.",
+      sugestoesResposta: [
+        "Olá! Ouvi sua mensagem de áudio e já estou analisando sua situação.",
+        "Poderia nos confirmar o seu número de CPF para localizarmos o processo?",
+        "Recebido com sucesso. Vamos verificar o andamento e retornaremos em breve."
+      ]
+    };
+  }
+
+  const promptInstrucao = `
+Você é o assistente executivo de um escritório de advocacia de elite (em total conformidade com o Código de Ética e Provimento 205/2021 da OAB).
+O áudio anexo foi enviado por um cliente que solicitou atendimento humano com o advogado.
+Dados de contexto do processo/cliente: ${JSON.stringify(contextoCliente || {})}
+
+Sua tarefa:
+1. Transcreva com precisão o que foi falado no áudio.
+2. Crie um resumo executivo objetivo em 2 ou 3 tópicos: o que aconteceu e o que o cliente solicita.
+3. Elabore exatamente 3 sugestões de resposta rápida para o advogado enviar com 1 clique:
+   - Opção 1: Resposta direta e acolhedora esclarecendo o ponto ou confirmando o recebimento com os próximos passos.
+   - Opção 2: Proposta de agendamento de chamada ou atendimento presencial/remoto.
+   - Opção 3: Solicitação de documentos complementares pertinentes ao relato.
+
+Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
+{
+  "transcricao": "Texto integral...",
+  "resumo": "• Tópico 1\\n• Tópico 2",
+  "sugestoesResposta": [
+    "Sugestão 1...",
+    "Sugestão 2...",
+    "Sugestão 3..."
+  ]
+}
+`;
+
+  try {
+    const modelosCandidatos = [
+      process.env.GEMINI_MODEL,
+      'gemini-1.5-flash',
+      'gemini-flash-latest',
+      'gemini-2.5-flash-lite',
+      'gemini-flash-lite-latest'
+    ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
+
+    let data = null;
+    let ultimoErro = null;
+
+    for (const mod of modelosCandidatos) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: promptInstrucao },
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: base64Data
+                  }
+                }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        const respJson = await response.json();
+        if (respJson && respJson.candidates && respJson.candidates[0] && respJson.candidates[0].content) {
+          data = respJson;
+          break;
+        } else {
+          ultimoErro = new Error(JSON.stringify(respJson.error || respJson));
+        }
+      } catch (errLoop) {
+        ultimoErro = errLoop;
+      }
+    }
+
+    if (!data) {
+      throw ultimoErro || new Error("Não foi possível obter resposta de nenhum modelo Gemini multimodal.");
+    }
+
+    const jsonTexto = data.candidates[0].content.parts[0].text;
+    const resultado = JSON.parse(jsonTexto);
+    return {
+      sucesso: true,
+      transcricao: resultado.transcricao || "Áudio processado.",
+      resumo: resultado.resumo || "• Áudio recebido e sintetizado.",
+      sugestoesResposta: Array.isArray(resultado.sugestoesResposta) && resultado.sugestoesResposta.length === 3
+        ? resultado.sugestoesResposta
+        : [
+            "Olá! Ouvi sua mensagem e já estou acompanhando sua situação.",
+            "Poderia nos confirmar mais detalhes ou documentos pertinentes?",
+            "Recebido com sucesso. Vamos verificar o andamento e retornaremos em breve."
+          ]
+    };
+  } catch (err) {
+    console.error("Erro no processamento de áudio com Gemini:", err.message);
+    return {
+      sucesso: false,
+      erro: err.message,
+      transcricao: "[Não foi possível processar o áudio automaticamente]",
+      resumo: "• Falha de rede ou chave de API ao transcrever o áudio.\n• Utilize o player para ouvir a gravação.",
+      sugestoesResposta: [
+        "Olá! Recebi seu áudio e já estou verificando sua solicitação.",
+        "Poderia nos resumir o seu pedido por texto enquanto abro sua ficha?",
+        "Entendido. Em breve retornaremos com a orientação jurídica necessária."
+      ]
+    };
+  }
+}
+
 module.exports = {
     traduzirAndamentoJuridico,
     traduzirAndamentoParaCliente,
     catalogarPecaProcessual,
     catalogarLocalmente,
     sintetizarDossieProcesso,
+    processarAudioECopilot,
     MODELOS_GEMINI_PADRAO,
     calcularHash,
     definirCaminhoCache,
