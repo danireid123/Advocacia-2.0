@@ -727,6 +727,7 @@ async function processarMensagemEntrada(msg) {
                 aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
             };
             delete estadosUsuarios[remetenteChave];
+            salvarConfigDisco(config, true);
             emitirPausados();
             if (opcoesExtras.alertar !== false) {
                 dispararNotificacaoTransbordo({
@@ -802,7 +803,16 @@ async function processarMensagemEntrada(msg) {
 
         if (opcaoEscolhida) {
             const acoes = opcaoEscolhida.acoes || {};
-            const deveEncaminharFila = opcaoEscolhida.tipo === 'humano' || acoes.encaminharFilaHumana || acoes.pausarRobo;
+            const deveEncaminharFila = opcaoEscolhida.tipo === 'humano' || Boolean(acoes.encaminharFilaHumana) || Boolean(acoes.pausarRobo);
+
+            // Se a opção possui ações ativas (encaminharFilaHumana, humano ou pausarRobo), a ação PREVALECE!
+            if (deveEncaminharFila) {
+                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Novo Atendimento';
+                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi registrada e nossa equipe jurídica já foi notificada para lhe atender.";
+                const alertar = acoes.dispararAlertaSonoro !== false;
+                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes, alertar });
+                return true;
+            }
 
             if (opcaoEscolhida.tipo === 'submenu') {
                 const dest = opcaoEscolhida.destino || 'raiz';
@@ -814,13 +824,6 @@ async function processarMensagemEntrada(msg) {
             if (opcaoEscolhida.tipo === 'processo') {
                 estadosUsuarios[remetenteChave] = 'aguardando_processo';
                 await responderCliente(opcaoEscolhida.resposta || "Por favor, digite apenas o seu *CPF* ou o *Número do Processo*:");
-                return true;
-            }
-            if (deveEncaminharFila) {
-                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Opção com Ação Automatizada';
-                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi registrada e nossa equipe jurídica já foi notificada para lhe atender.";
-                const alertar = acoes.dispararAlertaSonoro !== false;
-                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes, alertar });
                 return true;
             }
             if (opcaoEscolhida.resposta) {
@@ -1328,7 +1331,12 @@ ipcMain.handle('reiniciar-bot', () => { tentativasReconexao = 0; iniciarWhatsApp
 ipcMain.handle('verificar-atualizacao-manual', async () => await verificarEBaixarAtualizacaoGitHub());
 ipcMain.handle('instalar-atualizacao-agora', async () => await executarInstalacaoSilenciosaUpdate());
 ipcMain.handle('obter-pausados', () => contatosPausados);
-ipcMain.handle('remover-pausa', (e, num) => { delete contatosPausados[num]; emitirPausados(); return contatosPausados; });
+ipcMain.handle('remover-pausa', (e, num) => {
+    delete contatosPausados[num];
+    if (configEmMemoria) salvarConfigDisco(configEmMemoria, true);
+    emitirPausados();
+    return contatosPausados;
+});
 ipcMain.handle('obter-ignorados', () => carregarContatosIgnorados());
 ipcMain.handle('adicionar-ignorado', (e, item) => {
     const lista = carregarContatosIgnorados();
@@ -1665,10 +1673,17 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                     hora: horaLog()
                 });
             }
-            return { success: true, sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo, pausado: false };
+            return {
+                success: true,
+                sucesso: true,
+                resposta: respostaSimulada,
+                transbordo: acaoTransbordo,
+                pausado: Boolean(contatosPausados[remetenteChave]),
+                itemPausado: contatosPausados[remetenteChave] || null
+            };
         };
 
-        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"', opcoesExtras = {}) => {
+        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Novo Atendimento', opcoesExtras = {}) => {
             acaoTransbordo = true;
             const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
             const acoesItem = opcoesExtras.acoes || null;
@@ -1694,6 +1709,7 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                 aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
             };
             delete estadosUsuarios[remetenteChave];
+            salvarConfigDisco(config, true);
             emitirPausados();
             if (opcoesExtras.alertar !== false) {
                 dispararNotificacaoTransbordo({
@@ -1783,7 +1799,16 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
 
         if (opcaoEscolhida) {
             const acoes = opcaoEscolhida.acoes || {};
-            const deveEncaminharFila = opcaoEscolhida.tipo === 'humano' || acoes.encaminharFilaHumana || acoes.pausarRobo;
+            const deveEncaminharFila = opcaoEscolhida.tipo === 'humano' || Boolean(acoes.encaminharFilaHumana) || Boolean(acoes.pausarRobo);
+
+            // Se a opção possui ações ativas (encaminharFilaHumana, humano ou pausarRobo), a ação PREVALECE!
+            if (deveEncaminharFila) {
+                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Novo Atendimento';
+                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi registrada e nossa equipe jurídica já foi notificada para lhe atender.";
+                const alertar = acoes.dispararAlertaSonoro !== false;
+                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes, alertar });
+                return finalizarSimulacao();
+            }
 
             if (opcaoEscolhida.tipo === 'submenu') {
                 const dest = opcaoEscolhida.destino || 'raiz';
@@ -1795,13 +1820,6 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
             if (opcaoEscolhida.tipo === 'processo') {
                 estadosUsuarios[remetenteChave] = 'aguardando_processo';
                 await responderCliente(opcaoEscolhida.resposta || "Por favor, digite apenas o seu *CPF* ou o *Número do Processo*:");
-                return finalizarSimulacao();
-            }
-            if (deveEncaminharFila) {
-                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Opção com Ação Automatizada';
-                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi registrada e nossa equipe jurídica já foi notificada para lhe atender.";
-                const alertar = acoes.dispararAlertaSonoro !== false;
-                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes, alertar });
                 return finalizarSimulacao();
             }
             if (opcaoEscolhida.resposta) {
@@ -2081,6 +2099,18 @@ ipcMain.handle('responder-cliente-pausado', async (event, { chave, textoResposta
     } catch (err) {
         return { sucesso: false, erro: err.message };
     }
+});
+
+// MELHORAR MENSAGEM COM IA (TERMOS TÉCNICOS ACESSÍVEIS, EMOJIS E INTERAÇÕES)
+ipcMain.handle('ia-melhorar-mensagem', async (event, { texto, contexto } = {}) => {
+    const { melhorarMensagemComIA } = require('./src/ia/tradutorJuridico');
+    const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
+    const contextoFinal = {
+        config: cfg,
+        apiKey: (contexto && contexto.apiKey) || cfg.gemini_api_key || (cfg.ia && cfg.ia.gemini_api_key) || process.env.GEMINI_API_KEY,
+        ...(contexto || {})
+    };
+    return await melhorarMensagemComIA(texto, contextoFinal);
 });
 
 module.exports = {

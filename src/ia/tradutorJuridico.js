@@ -609,6 +609,234 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
   }
 }
 
+/**
+ * Prompt do Sistema com Guardrails Éticos da OAB (Provimento 205/2021)
+ * para aprimoramento de mensagens de atendimento no WhatsApp.
+ */
+const SYSTEM_INSTRUCTION_MELHORAR_MENSAGEM = 
+`Você é um assistente especialista em comunicação jurídica para WhatsApp de escritórios de advocacia de excelência, atuando sob estrita conformidade com o Código de Ética e o Provimento 205/2021 da OAB.
+
+Sua missão é aprimorar a mensagem de atendimento enviada pelo escritório ao cliente para torná-la acolhedora, clara, profissional, segura e engajadora.
+
+DIRETRIZES OBRIGATÓRIAS:
+1. TERMOS TÉCNICOS ACESSÍVEIS: Incorpore termos jurídicos precisos quando oportuno (ex: "análise dos autos", "instrução probatória", "distribuição da petição inicial", "resguardo de direitos", "análise pericial", "manifestação processual", "cumprimento de despacho"), explicando-os brevemente com máxima empatia e sem juridiquês hermético.
+2. EMOJIS ELEGANTES E ESTRUTURAÇÃO WHATSAPP: Adicione emojis sóbrios e acolhedores no WhatsApp (ex: ⚖️, 📋, 👨‍⚖️, 🏛️, 📌, 🤝, ✨, 💬, 📲) formatando com negritos (*texto*) e tópicos (•) para tornar a leitura fluida no celular.
+3. INTERAÇÕES E CHAMADAS PARA AÇÃO (CTA): Finalize ou inclua interações claras, acolhedoras e gentis (ex: convidando o cliente a enviar documentos comprobatórios, gravar áudio relatando o ocorrido ou aguardar com tranquilidade o acompanhamento da equipe).
+4. ÉTICA OAB RIGOROSA (Provimento 205/2021):
+   - Proibição absoluta de prometer vitórias judiciais, garantia de resultado ou ganho de causa.
+   - Proibição de prometer prazos de decisões que dependam exclusivamente do Poder Judiciário/Juiz.
+5. RETORNO LIMPO: Retorne ESTRITAMENTE o texto aprimorado final pronto para ser enviado no WhatsApp, sem prefácios, sem explicações adicionais e sem aspas delimitadoras.`;
+
+/**
+ * Fallback gracioso local: enriquece mensagens com termos técnicos acessíveis, emojis e chamadas para ação
+ * sem depender de conexão de rede ou API externa.
+ */
+function melhorarMensagemLocalmente(textoOriginal, contexto = {}) {
+    if (!textoOriginal || typeof textoOriginal !== 'string' || !textoOriginal.trim()) {
+        return "⚖️ *Olá! Seja muito bem-vindo(a) ao nosso escritório.* 🏛️\n\nNossa equipe jurídica está à disposição para o devido *resguardo e defesa de seus direitos* ⚖️.\n\n📲 *Como podemos lhe ajudar?* Fique à vontade para nos enviar uma mensagem de texto, áudio com seu relato ou fotos de documentos para análise dos autos. 🤝✨";
+    }
+
+    let texto = textoOriginal.trim();
+
+    // 1. Dicionário de enriquecimento com termos técnicos precisos e acessíveis
+    const dicionarioTermos = [
+        { padrao: /\b(dar\s+entrada|entrar\s+com\s+o?\s*processo|abrir\s+processo|ingressar\s+com\s+a\s+ação)\b/gi, subst: 'distribuição da petição inicial para resguardo de direitos ⚖️' },
+        { padrao: /\b(olhar|analisar|conferir|olhando|verificando)\s+(o\s+)?(seu\s+)?processo\b/gi, subst: 'criteriosa análise dos autos do processo 🏛️' },
+        { padrao: /\b(provas|papéis|papeis)\b/gi, subst: 'instrução probatória e documentos comprobatórios 📁' },
+        { padrao: /\b(perícia|pericia|médico\s+do\s+juiz|perito)\b/gi, subst: 'análise pericial técnica especializada 👨‍⚖️' },
+        { padrao: /\b(garantir|proteger)\s+(seus?\s+)?direitos?\b/gi, subst: 'efetivo resguardo e defesa de seus direitos ⚖️' },
+        { padrao: /\b(resposta\s+do\s+juiz|decisão\s+do\s+juiz|decisao\s+do\s+juiz)\b/gi, subst: 'manifestação e despacho judicial nos autos 🏛️' },
+        { padrao: /\b(documentos?)\b/gi, subst: 'documentos pertinentes 📋' }
+    ];
+
+    for (const item of dicionarioTermos) {
+        texto = texto.replace(item.padrao, item.subst);
+    }
+
+    // 2. Cabeçalho e Saudação Elegante
+    const temSaudacao = /^(olá|ola|bom dia|boa tarde|boa noite|prezado|prezada|bem-vindo|bem vindo|salve)/i.test(texto);
+    let cabecalho = '';
+    if (!temSaudacao) {
+        cabecalho = '⚖️ *Olá! Seja bem-vindo(a) ao nosso atendimento.* 🏛️\n\n';
+    } else if (!texto.includes('⚖️')) {
+        texto = '⚖️ ' + texto;
+    }
+
+    // 3. Emojis acolhedores se faltarem
+    if (!texto.includes('🏛️') && !texto.includes('📋') && !texto.includes('⚖️')) {
+        texto = texto + ' ⚖️';
+    }
+
+    // 4. Chamada para Ação / Interação (CTA) acolhedora e gentil
+    const temAudioOuDoc = /(áudio|audio|documento|fotos?|anexo)/i.test(texto);
+    let rodape = '';
+    if (!temAudioOuDoc) {
+        rodape = '\n\n📲 *Próximos passos:* Se preferir, envie uma mensagem de áudio ou fotos dos seus documentos pertinentes para agilizarmos a análise dos autos. Nossa equipe jurídica segue à sua disposição! 🤝✨';
+    } else if (!texto.includes('🤝') && !texto.includes('✨')) {
+        rodape = '\n\n📲 Nossa equipe jurídica está atenta ao acompanhamento processual para o pleno resguardo e defesa de seus direitos. 🤝✨';
+    }
+
+    let resultadoFinal = (cabecalho + texto + rodape).trim();
+
+    // Assegura menção a termos técnicos essenciais requeridos
+    if (!resultadoFinal.includes('autos') && !resultadoFinal.includes('resguardo de direitos') && !resultadoFinal.includes('instrução probatória') && !resultadoFinal.includes('petição inicial')) {
+        resultadoFinal = resultadoFinal.replace(/🤝✨$/, 'para o devido *resguardo e defesa de seus direitos*! 🤝✨');
+    }
+
+    return resultadoFinal;
+}
+
+/**
+ * Aprimora uma mensagem jurídica de WhatsApp usando Google Gemini 1.5 Flash
+ * com Guardrails Éticos da OAB (Provimento 205/2021) e Fallback Gracioso.
+ *
+ * @param {string} textoOriginal - Texto original digitado pelo usuário
+ * @param {object} [contexto] - Contexto com config, apiKey, timeoutMs, etc.
+ * @returns {Promise<{ sucesso: boolean, texto: string, fonte: 'ia' | 'cache' | 'fallback', duracaoMs: number }>}
+ */
+async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
+    const inicio = Date.now();
+    const textoLimpo = String(textoOriginal || '').trim();
+
+    if (!textoLimpo) {
+        return {
+            sucesso: true,
+            texto: '',
+            fonte: 'fallback',
+            duracaoMs: Date.now() - inicio,
+            toString() { return this.texto; },
+            valueOf() { return this.texto; }
+        };
+    }
+
+    carregarCacheDisco();
+    const hash = 'melhoria::' + calcularHash(textoLimpo);
+    if (cacheEmMemoria.has(hash)) {
+        const textoCache = cacheEmMemoria.get(hash);
+        return {
+            sucesso: true,
+            texto: textoCache,
+            fonte: 'cache',
+            duracaoMs: Date.now() - inicio,
+            toString() { return this.texto; },
+            valueOf() { return this.texto; }
+        };
+    }
+
+    // Resolução da Chave da API
+    const apiKey = (contexto && contexto.apiKey !== undefined)
+        ? contexto.apiKey
+        : ((contexto && contexto.config && (contexto.config.gemini_api_key || (contexto.config.ia && contexto.config.ia.gemini_api_key))) ||
+           process.env.GEMINI_API_KEY ||
+           '');
+
+    // Se chave ausente ou offline -> fallback gracioso local instantâneo
+    if (!apiKey || !apiKey.trim()) {
+        const textoFallback = melhorarMensagemLocalmente(textoLimpo, contexto);
+        return {
+            sucesso: true,
+            texto: textoFallback,
+            fonte: 'fallback',
+            duracaoMs: Date.now() - inicio,
+            toString() { return this.texto; },
+            valueOf() { return this.texto; }
+        };
+    }
+
+    const timeoutMs = (contexto && contexto.timeoutMs) || 6500;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    const modelosCandidatos = [
+        contexto.modelo,
+        process.env.GEMINI_MODEL,
+        'gemini-1.5-flash',
+        'gemini-flash-latest',
+        'gemini-2.5-flash-lite',
+        'gemini-flash-lite-latest'
+    ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
+
+    const promptUsuario = `Aprimore a seguinte mensagem jurídica para WhatsApp mantendo termos técnicos acessíveis, emojis adequados e interação gentil com o cliente:\n\n"""\n${textoLimpo}\n"""`;
+
+    const requestBody = {
+        contents: [
+            {
+                role: 'user',
+                parts: [{ text: promptUsuario }]
+            }
+        ],
+        system_instruction: {
+            parts: [{ text: SYSTEM_INSTRUCTION_MELHORAR_MENSAGEM }]
+        },
+        generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1000
+        }
+    };
+
+    try {
+        let response = null;
+        for (const modelo of modelosCandidatos) {
+            try {
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+                response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                    signal: controller.signal
+                });
+                if (response.ok) break;
+                if (![404, 429, 500, 503].includes(response.status)) break;
+            } catch (errLoop) {
+                if (controller.signal.aborted) break;
+            }
+        }
+
+        clearTimeout(timeoutId);
+
+        if (response && response.ok) {
+            const data = await response.json();
+            const parts = data?.candidates?.[0]?.content?.parts || [];
+            let textoGerado = parts.map(p => p.text || '').filter(Boolean).join('\n').trim();
+
+            if (textoGerado) {
+                textoGerado = textoGerado.replace(/^```(?:\w+)?\s*/i, '').replace(/\s*```$/i, '').trim();
+                if (textoGerado.startsWith('"') && textoGerado.endsWith('"') && textoGerado.length > 2) {
+                    textoGerado = textoGerado.slice(1, -1).trim();
+                }
+
+                cacheEmMemoria.set(hash, textoGerado);
+                if (!contexto.desativarPersistencia) {
+                    salvarCacheDisco();
+                }
+
+                return {
+                    sucesso: true,
+                    texto: textoGerado,
+                    fonte: 'ia',
+                    duracaoMs: Date.now() - inicio,
+                    toString() { return this.texto; },
+                    valueOf() { return this.texto; }
+                };
+            }
+        }
+    } catch (err) {
+        // Ignora e cai no fallback
+    } finally {
+        clearTimeout(timeoutId);
+    }
+
+    const textoFallback = melhorarMensagemLocalmente(textoLimpo, contexto);
+    return {
+        sucesso: true,
+        texto: textoFallback,
+        fonte: 'fallback',
+        duracaoMs: Date.now() - inicio,
+        toString() { return this.texto; },
+        valueOf() { return this.texto; }
+    };
+}
+
 module.exports = {
     traduzirAndamentoJuridico,
     traduzirAndamentoParaCliente,
@@ -616,6 +844,9 @@ module.exports = {
     catalogarLocalmente,
     sintetizarDossieProcesso,
     processarAudioECopilot,
+    melhorarMensagemComIA,
+    melhorarMensagemLocalmente,
+    SYSTEM_INSTRUCTION_MELHORAR_MENSAGEM,
     MODELOS_GEMINI_PADRAO,
     calcularHash,
     definirCaminhoCache,

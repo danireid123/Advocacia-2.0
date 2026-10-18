@@ -47,6 +47,7 @@ const apiBridge = {
     testarConexaoIA: (chave) => ipcRenderer.invoke('ia-testar-conexao', chave),
     catalogarPecaProcessual: (dados) => ipcRenderer.invoke('ia-catalogar-peca', dados),
     processarAudioCopilot: (payload) => ipcRenderer.invoke('processar-audio-copilot', payload),
+    melhorarMensagemIA: (dados) => ipcRenderer.invoke('ia-melhorar-mensagem', dados),
 
     // Simulador de Chat & Higienização
     simuladorEnviarMensagem: (dados) => ipcRenderer.invoke('simulador-enviar-mensagem', dados),
