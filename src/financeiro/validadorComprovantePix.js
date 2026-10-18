@@ -193,21 +193,56 @@ function extrairDadosPixLocal(buffer, valorEsperado = 0, clienteNome = '') {
     };
   }
 
-  // Detecção abrangente de documento civil / pessoal / fatura de consumo
+  // Detecção abrangente de documento civil / pessoal / fatura de consumo (sem falsos positivos em IDs PIX ou termos financeiros)
   const termosDocumentoCivil = [
-    'rg', 'cnh', 'cpf', 'ctps', 'filiacao', 'filiação', 'orgao', 'órgão', 'emissor',
-    'residencia', 'residência', 'habilitacao', 'habilitação', 'registro geral',
-    'republica federativa', 'república federativa', 'carteira nacional', 'carteira de trabalho',
-    'certidao', 'certidão', 'nascimento', 'casamento', 'eleitoral', 'titulo de eleitor',
-    'ssp/', 'ssp-sp', 'detran', 'policia civil', 'polícia civil', 'ministerio',
-    'fatura', 'conta de consumo', 'energia eletrica', 'energia elétrica', 'enel', 'sabesp',
-    'cpfl', 'cemig', 'copel', 'light', 'claro', 'vivo', 'tim', 'codigo de barras', 'linha digitavel'
+    'registro geral', 'carteira de identidade', 'republica federativa', 'república federativa',
+    'carteira nacional de habilitacao', 'carteira nacional de habilitação', 'carteira de trabalho',
+    'certidao de nascimento', 'certidão de nascimento', 'certidao de casamento', 'certidão de casamento',
+    'titulo de eleitor', 'título de eleitor', 'filiacao', 'filiação', 'orgao emissor', 'órgão emissor',
+    'ssp/', 'ssp-sp', 'detran', 'policia civil', 'polícia civil', 'ministerio do trabalho', 'ministério do trabalho',
+    'pis/pasep', 'fatura de energia', 'conta de consumo', 'energia eletrica', 'energia elétrica',
+    'comprovante de residencia', 'comprovante de residência', 'enel', 'sabesp', 'cpfl', 'cemig', 'copel',
+    'total a pagar', 'codigo de barras', 'código de barras', 'linha digitavel', 'linha digitável', 'cnh_br'
   ];
 
-  const contemTermoCivil = termosDocumentoCivil.some(t => strLower.includes(t) || strLatin1.includes(t));
-  const contemTermoPixDireto = strLower.includes('pix') || strLower.includes('transferencia') || strLower.includes('transferência') || strLower.includes('comprovante de transferencia') || strLower.includes('comprovante de pagamento');
+  const contemTermoCivil = termosDocumentoCivil.some(t => strLower.includes(t) || strLatin1.includes(t)) ||
+                           /\b(cnh_br|ctps)\b/i.test(strLower) ||
+                           /\b(cnh|ctps)\b/i.test(str) ||
+                           /\brg[:\s._-]*[0-9]/i.test(str) ||
+                           /\b(rg)\s+(ssp|[0-9])/i.test(strLower) ||
+                           /\b(fatura|residencia|residência)\b/i.test(strLower);
 
-  const ehDocPessoal = contemTermoCivil && (!contemTermoPixDireto || strLower.includes('cnh') || strLower.includes('rg') || strLower.includes('fatura') || strLower.includes('residencia') || strLower.includes('residência'));
+  const contemTermoPixDireto = strLower.includes('comprovante de transferencia') ||
+                               strLower.includes('comprovante de transferência') ||
+                               strLower.includes('comprovante de pagamento') ||
+                               (strLower.includes('pix') && (strLower.includes('transferencia') || strLower.includes('transferência')));
+
+  const ehFaturaOuConta = strLower.includes('fatura') ||
+                          strLower.includes('conta de consumo') ||
+                          strLower.includes('energia eletrica') ||
+                          strLower.includes('energia elétrica') ||
+                          strLower.includes('comprovante de residencia') ||
+                          strLower.includes('comprovante de residência') ||
+                          strLower.includes('enel') ||
+                          strLower.includes('sabesp') ||
+                          strLower.includes('total a pagar');
+
+  const ehDocIdentidadeCivil = strLower.includes('registro geral') ||
+                               strLower.includes('carteira de identidade') ||
+                               strLower.includes('republica federativa') ||
+                               strLower.includes('república federativa') ||
+                               strLower.includes('carteira nacional') ||
+                               strLower.includes('carteira de trabalho') ||
+                               strLower.includes('cnh_br') ||
+                               strLower.includes('ssp/') ||
+                               strLower.includes('detran') ||
+                               strLower.includes('filiacao') ||
+                               strLower.includes('filiação') ||
+                               /\b(cnh|ctps)\b/i.test(str) ||
+                               /\brg[:\s._-]*[0-9]/i.test(str) ||
+                               /\b(rg)\s+(ssp|[0-9])/i.test(strLower);
+
+  const ehDocPessoal = ehFaturaOuConta || ehDocIdentidadeCivil || (contemTermoCivil && !contemTermoPixDireto);
 
   if (ehDocPessoal) {
     return {
