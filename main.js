@@ -582,8 +582,12 @@ async function processarMensagemEntrada(msg) {
         const msgId = (msg.id && (msg.id._serialized || msg.id.id)) ? (msg.id._serialized || msg.id.id) : `${msg.from}_${msg.timestamp}_${msg.body}`;
         if (mensagensJaProcessadas.has(msgId)) return false;
 
+        const ehAudio = Boolean(msg.hasMedia && (msg.type === 'ptt' || msg.type === 'audio'));
         let textoOriginal = String(msg.body || '').trim();
-        if (!textoOriginal) return false;
+        if (!textoOriginal && !ehAudio) return false;
+        if (ehAudio && !textoOriginal) {
+            textoOriginal = '[Mensagem de Voz enviada pelo cliente]';
+        }
 
         mensagensJaProcessadas.add(msgId);
         if (mensagensJaProcessadas.size > 2000) {
@@ -595,6 +599,34 @@ async function processarMensagemEntrada(msg) {
         const identidade = await resolverIdentidadeCompleta(msg, config);
         const remetenteChave = identidade.chaveCliente;
 
+        // Se for áudio do WhatsApp, faz download e processa via Gemini Multimodal
+        if (ehAudio && typeof msg.downloadMedia === 'function') {
+            try {
+                const media = await msg.downloadMedia();
+                if (media && media.data) {
+                    const audioBase64 = media.data;
+                    const mimeType = media.mimetype || 'audio/ogg';
+                    const { processarAudioECopilot } = require('./src/ia/tradutorJuridico');
+                    const resAudio = await processarAudioECopilot(audioBase64, mimeType, {
+                        nome: identidade.nomeCliente || identidade.exibicao || '',
+                        telefone: identidade.telefoneFormatado || remetenteChave
+                    });
+
+                    dadosAudiosPorContato[remetenteChave] = {
+                        audioBase64: `data:${mimeType};base64,${audioBase64}`,
+                        mimeType,
+                        transcricao: resAudio.transcricao,
+                        resumo: resAudio.resumo,
+                        sugestoesResposta: resAudio.sugestoesResposta
+                    };
+
+                    textoOriginal = `[Mensagem de Voz]: "${resAudio.transcricao || 'Áudio recebido'}"`;
+                }
+            } catch (errAudio) {
+                console.error('Erro ao baixar/processar áudio no WhatsApp:', errAudio);
+            }
+        }
+
         // Verificação redundante com número real limpo da identidade
         if (isContactIgnored(remetenteChave) || isContactIgnored(identidade.telefoneFormatado)) {
             return false;
@@ -605,6 +637,40 @@ async function processarMensagemEntrada(msg) {
         const registroPausa = contatosPausados[remetenteChave] || contatosPausados[msg.from];
         const tsPausa = typeof registroPausa === 'object' ? registroPausa.timestamp : registroPausa;
         if (tsPausa && (Date.now() - tsPausa < 24 * 60 * 60 * 1000)) {
+            // Contato já em pausa: silencia robô, mas anexa mensagem/áudio e atualiza Fila de Espera
+            const horaMsg = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const novaMsg = {
+                de: 'cliente',
+                texto: textoOriginal,
+                hora: horaMsg
+            };
+
+            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+            historicoConversas[remetenteChave].push(novaMsg);
+
+            const itemPausado = contatosPausados[remetenteChave] || contatosPausados[msg.from];
+            if (itemPausado && typeof itemPausado === 'object') {
+                if (!Array.isArray(itemPausado.mensagens)) itemPausado.mensagens = [];
+                itemPausado.mensagens.push(novaMsg);
+                if (dadosAudiosPorContato[remetenteChave]) {
+                    itemPausado.audioBase64 = dadosAudiosPorContato[remetenteChave].audioBase64;
+                    itemPausado.transcricao = dadosAudiosPorContato[remetenteChave].transcricao;
+                    itemPausado.resumo = dadosAudiosPorContato[remetenteChave].resumo;
+                    itemPausado.sugestoesResposta = dadosAudiosPorContato[remetenteChave].sugestoesResposta;
+                }
+                emitirPausados();
+            }
+
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-log', {
+                    numero: identidade.telefoneFormatado,
+                    nome: identidade.nomeCliente || '',
+                    exibicao: identidade.exibicao,
+                    msg: `[Fila Humana] ${textoOriginal}`,
+                    hora: horaMsg
+                });
+            }
+
             return false;
         }
 
@@ -1506,6 +1572,40 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
         const regPausaSim = contatosPausados[remetenteChave];
         const tsPausaSim = regPausaSim && (typeof regPausaSim === 'object' ? regPausaSim.timestamp : regPausaSim);
         if (tsPausaSim && (Date.now() - tsPausaSim < 24 * 60 * 60 * 1000)) {
+            const horaAtual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const novaMsg = {
+                de: 'cliente',
+                texto: mockMsg.body,
+                hora: horaAtual
+            };
+
+            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+            historicoConversas[remetenteChave].push(novaMsg);
+
+            if (contatosPausados[remetenteChave] && typeof contatosPausados[remetenteChave] === 'object') {
+                if (!Array.isArray(contatosPausados[remetenteChave].mensagens)) {
+                    contatosPausados[remetenteChave].mensagens = [];
+                }
+                contatosPausados[remetenteChave].mensagens.push(novaMsg);
+                if (dadosAudiosPorContato[remetenteChave]) {
+                    contatosPausados[remetenteChave].audioBase64 = dadosAudiosPorContato[remetenteChave].audioBase64;
+                    contatosPausados[remetenteChave].transcricao = dadosAudiosPorContato[remetenteChave].transcricao;
+                    contatosPausados[remetenteChave].resumo = dadosAudiosPorContato[remetenteChave].resumo;
+                    contatosPausados[remetenteChave].sugestoesResposta = dadosAudiosPorContato[remetenteChave].sugestoesResposta;
+                }
+                emitirPausados();
+            }
+
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-log', {
+                    numero: identidade.telefoneFormatado,
+                    nome: identidade.nomeCliente || '',
+                    exibicao: identidade.exibicao,
+                    msg: `[Fila Humana] ${mockMsg.body}`,
+                    hora: horaAtual
+                });
+            }
+
             return { success: true, sucesso: true, resposta: '', pausado: true, transbordo: false };
         }
 
@@ -1896,6 +1996,14 @@ ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
                 contatosPausados[telLimpo].transcricao = resultado.transcricao;
                 contatosPausados[telLimpo].resumo = resultado.resumo;
                 contatosPausados[telLimpo].sugestoesResposta = resultado.sugestoesResposta;
+                if (!Array.isArray(contatosPausados[telLimpo].mensagens)) {
+                    contatosPausados[telLimpo].mensagens = [];
+                }
+                contatosPausados[telLimpo].mensagens.push({
+                    de: 'cliente',
+                    texto: `🎙️ [Mensagem de Voz]: "${resultado.transcricao || 'Áudio enviado'}"`,
+                    hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
                 emitirPausados();
             }
         }

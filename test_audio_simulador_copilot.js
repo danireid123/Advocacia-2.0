@@ -143,6 +143,13 @@ async function executarTestesAudioECopilot() {
     assert.ok(preloadContent.includes("responderClientePausado:"), 'preload.js deve expor responderClientePausado');
   });
 
+  testar('main.js captura mensagens de texto e áudios enviados após acionamento do transbordo humano', () => {
+    const mainContent = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf-8');
+    assert.ok(mainContent.includes("itemPausado.mensagens.push(novaMsg)"), 'WhatsApp deve capturar novas mensagens durante pausa');
+    assert.ok(mainContent.includes("contatosPausados[remetenteChave].mensagens.push(novaMsg)"), 'Simulador deve capturar novas mensagens durante pausa');
+    assert.ok(mainContent.includes("ehAudio && typeof msg.downloadMedia === 'function'"), 'WhatsApp deve baixar áudios recebidos');
+  });
+
   console.log('\n================================================================');
   console.log(`RESULTADO DOS TESTES: ${testesPassados}/${totalTestes} PASSARAM`);
   console.log('================================================================');

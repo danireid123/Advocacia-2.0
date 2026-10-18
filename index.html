@@ -4267,7 +4267,19 @@
                 removerIndicadorDigitando();
 
                 if (res && res.pausado) {
-                  adicionarBalaoBot("⏸️ *Robô em Pausa (Fila de Espera):* Este contato já solicitou atendimento humano e está na aba *Fila de Espera (Advogado)*. O robô permanece em silêncio para não interromper o advogado.\n\n💡 _Clique em *🔄 Resetar Conversa / Despausar Robô* no topo para retomar os testes automáticos._");
+                  const numLimpo = telefone.replace(/\D/g, '');
+                  if (window.dadosFilaCopilot && window.dadosFilaCopilot[numLimpo]) {
+                    if (!Array.isArray(window.dadosFilaCopilot[numLimpo].mensagens)) {
+                      window.dadosFilaCopilot[numLimpo].mensagens = [];
+                    }
+                    window.dadosFilaCopilot[numLimpo].mensagens.push({
+                      de: 'cliente',
+                      texto: texto,
+                      hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                  }
+                  adicionarBalaoBot("⏸️ *Mensagem registrada:* O robô permanece em pausa pois o contato está na *Fila de Espera*. A mensagem foi anexada à ficha para o advogado.");
+                  mostrarToast("📨 Mensagem entregue ao advogado na Fila de Espera!");
                 } else if (res && res.sucesso && res.resposta) {
                   adicionarBalaoBot(res.resposta, res.transbordo === true);
 
@@ -4575,14 +4587,24 @@
 
             const numLimpo = telCliente.replace(/\D/g, '');
             window.dadosFilaCopilot = window.dadosFilaCopilot || {};
+            const msgsAnteriores = (window.dadosFilaCopilot[numLimpo] && window.dadosFilaCopilot[numLimpo].mensagens) || [];
             window.dadosFilaCopilot[numLimpo] = {
+              ...(window.dadosFilaCopilot[numLimpo] || {}),
               nome: nomeCliente,
               telefone: telCliente,
               horario: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               audioBase64: base64Audio,
               transcricao: respostaIA.transcricao,
               resumo: respostaIA.resumo,
-              sugestoesResposta: respostaIA.sugestoesResposta || []
+              sugestoesResposta: respostaIA.sugestoesResposta || [],
+              mensagens: [
+                ...msgsAnteriores,
+                {
+                  de: 'cliente',
+                  texto: `🎙️ [Mensagem de Voz]: "${respostaIA.transcricao || 'Áudio enviado'}"`,
+                  hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+              ]
             };
 
             // Se o contato já estiver na fila, re-renderizar a fila com os dados atualizados
