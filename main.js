@@ -707,28 +707,34 @@ async function processarMensagemEntrada(msg) {
             await enviarMensagemSegura(msg, msg.from, prefixoHorario + txt);
         };
 
-        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
+        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"', opcoesExtras = {}) => {
             const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
+            const acoesItem = opcoesExtras.acoes || null;
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
                 telefone: identidade.telefoneFormatado,
                 exibicao: identidade.exibicao,
+                motivo: motivo,
                 idChat: msg.from,
                 origem: 'WHATSAPP',
                 mensagens: (historicoConversas[remetenteChave] || []).slice(-10),
                 audioBase64: audioSalvo.audioBase64 || null,
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
-                sugestoesResposta: audioSalvo.sugestoesResposta || null
+                sugestoesResposta: audioSalvo.sugestoesResposta || null,
+                acoes: acoesItem,
+                aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
             };
             delete estadosUsuarios[remetenteChave];
             emitirPausados();
-            dispararNotificacaoTransbordo({
-                contatoNome: identidade.nomeCliente || identidade.exibicao || '',
-                telefone: identidade.telefoneFormatado || msg.from,
-                motivo: motivo
-            });
+            if (opcoesExtras.alertar !== false) {
+                dispararNotificacaoTransbordo({
+                    contatoNome: identidade.nomeCliente || identidade.exibicao || '',
+                    telefone: identidade.telefoneFormatado || msg.from,
+                    motivo: motivo
+                });
+            }
             await responderCliente(mensagemConfirmacao);
         };
 
@@ -795,8 +801,14 @@ async function processarMensagemEntrada(msg) {
         });
 
         if (opcaoEscolhida) {
-            if (opcaoEscolhida.tipo === 'humano') {
-                await colocarNaFilaHumana(opcaoEscolhida.resposta || "Perfeito! Um advogado da nossa equipe já está chegando para atender você.");
+            const acoes = opcaoEscolhida.acoes || {};
+            const deveEncaminharFila = opcaoEscolhida.tipo === 'humano' || acoes.encaminharFilaHumana || acoes.pausarRobo;
+
+            if (opcaoEscolhida.tipo === 'submenu') {
+                const dest = opcaoEscolhida.destino || 'raiz';
+                estadosUsuarios[remetenteChave] = dest;
+                const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
+                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
                 return true;
             }
             if (opcaoEscolhida.tipo === 'processo') {
@@ -804,11 +816,11 @@ async function processarMensagemEntrada(msg) {
                 await responderCliente(opcaoEscolhida.resposta || "Por favor, digite apenas o seu *CPF* ou o *Número do Processo*:");
                 return true;
             }
-            if (opcaoEscolhida.tipo === 'submenu') {
-                const dest = opcaoEscolhida.destino || 'raiz';
-                estadosUsuarios[remetenteChave] = dest;
-                const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
-                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
+            if (deveEncaminharFila) {
+                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Opção com Ação Automatizada';
+                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi registrada e nossa equipe jurídica já foi notificada para lhe atender.";
+                const alertar = acoes.dispararAlertaSonoro !== false;
+                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes, alertar });
                 return true;
             }
             if (opcaoEscolhida.resposta) {
@@ -1656,29 +1668,40 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
             return { success: true, sucesso: true, resposta: respostaSimulada, transbordo: acaoTransbordo, pausado: false };
         };
 
-        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
+        const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"', opcoesExtras = {}) => {
             acaoTransbordo = true;
             const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
+            const acoesItem = opcoesExtras.acoes || null;
+            const registroExistente = contatosPausados[remetenteChave];
+            const msgsIniciais = (registroExistente && Array.isArray(registroExistente.mensagens))
+                ? [...registroExistente.mensagens]
+                : (historicoConversas[remetenteChave] || []).slice(-10);
+
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
                 telefone: identidade.telefoneFormatado,
                 exibicao: identidade.exibicao,
+                motivo: motivo,
                 idChat: mockMsg.from,
                 origem: 'SIMULADOR',
-                mensagens: (historicoConversas[remetenteChave] || []).slice(-10),
+                mensagens: msgsIniciais,
                 audioBase64: audioSalvo.audioBase64 || null,
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
-                sugestoesResposta: audioSalvo.sugestoesResposta || null
+                sugestoesResposta: audioSalvo.sugestoesResposta || null,
+                acoes: acoesItem,
+                aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
             };
             delete estadosUsuarios[remetenteChave];
             emitirPausados();
-            dispararNotificacaoTransbordo({
-                contatoNome: identidade.nomeCliente || identidade.exibicao || '',
-                telefone: identidade.telefoneFormatado || mockMsg.from,
-                motivo: `[SIMULADOR] ${motivo}`
-            });
+            if (opcoesExtras.alertar !== false) {
+                dispararNotificacaoTransbordo({
+                    contatoNome: identidade.nomeCliente || identidade.exibicao || '',
+                    telefone: identidade.telefoneFormatado || mockMsg.from,
+                    motivo: `[SIMULADOR] ${motivo}`
+                });
+            }
             await responderCliente(mensagemConfirmacao);
         };
 
@@ -1759,8 +1782,14 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
         });
 
         if (opcaoEscolhida) {
-            if (opcaoEscolhida.tipo === 'humano') {
-                await colocarNaFilaHumana(opcaoEscolhida.resposta || "Perfeito! Um advogado da nossa equipe já está chegando para atender você.");
+            const acoes = opcaoEscolhida.acoes || {};
+            const deveEncaminharFila = opcaoEscolhida.tipo === 'humano' || acoes.encaminharFilaHumana || acoes.pausarRobo;
+
+            if (opcaoEscolhida.tipo === 'submenu') {
+                const dest = opcaoEscolhida.destino || 'raiz';
+                estadosUsuarios[remetenteChave] = dest;
+                const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
+                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
                 return finalizarSimulacao();
             }
             if (opcaoEscolhida.tipo === 'processo') {
@@ -1768,11 +1797,11 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                 await responderCliente(opcaoEscolhida.resposta || "Por favor, digite apenas o seu *CPF* ou o *Número do Processo*:");
                 return finalizarSimulacao();
             }
-            if (opcaoEscolhida.tipo === 'submenu') {
-                const dest = opcaoEscolhida.destino || 'raiz';
-                estadosUsuarios[remetenteChave] = dest;
-                const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
-                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
+            if (deveEncaminharFila) {
+                const motivoFila = acoes.motivoFila || opcaoEscolhida.rotulo || 'Opção com Ação Automatizada';
+                const msgConfirmacao = opcaoEscolhida.resposta || "Perfeito! Sua solicitação foi registrada e nossa equipe jurídica já foi notificada para lhe atender.";
+                const alertar = acoes.dispararAlertaSonoro !== false;
+                await colocarNaFilaHumana(msgConfirmacao, motivoFila, { acoes, alertar });
                 return finalizarSimulacao();
             }
             if (opcaoEscolhida.resposta) {
