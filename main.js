@@ -568,6 +568,88 @@ const FRASES_TRANSBORDO_DIRETO = [
     "atendimento humano", "advogado", "suporte humano", "falar diretamente com advogado"
 ];
 
+/**
+ * Concatena cumulativamente múltiplos áudios e mensagens de um cliente pausado na fila.
+ * Atualiza transcrições, histórico e aciona a IA para atualizar o Resumo Executivo,
+ * as 3 Sugestões do Copilot, Classificação de Urgência e Cronologia dos Fatos.
+ */
+async function anexarMensagemOuAudioAoPausado(chave, { novaMsg = null, novoAudio = null, contexto = {} } = {}) {
+    const item = contatosPausados[chave];
+    if (!item || typeof item !== 'object') return null;
+
+    if (!Array.isArray(item.mensagens)) item.mensagens = [];
+    if (!Array.isArray(item.historicoMensagens)) item.historicoMensagens = [...item.mensagens];
+    if (!Array.isArray(item.historicoAudios)) {
+        item.historicoAudios = item.audioBase64 ? [{
+            id: 'audio_1',
+            audioBase64: item.audioBase64,
+            mimeType: item.mimeType || 'audio/webm',
+            transcricao: item.transcricao || '',
+            hora: item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+        }] : [];
+    }
+
+    if (novaMsg) {
+        item.mensagens.push(novaMsg);
+        item.historicoMensagens.push(novaMsg);
+    }
+
+    if (novoAudio) {
+        const audioId = 'audio_' + (item.historicoAudios.length + 1);
+        item.historicoAudios.push({
+            id: audioId,
+            audioBase64: novoAudio.audioBase64,
+            mimeType: novoAudio.mimeType || 'audio/webm',
+            transcricao: novoAudio.transcricao || '',
+            hora: novoAudio.hora || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        item.audioBase64 = novoAudio.audioBase64;
+    }
+
+    // Concatena todas as transcrições de áudios existentes sem sobrescrever
+    if (item.historicoAudios.length > 0) {
+        item.transcricao = item.historicoAudios.map((a, i) => `[Áudio ${i + 1}${a.hora ? ' (' + a.hora + ')' : ''}]: "${a.transcricao || ''}"`).join('\n\n');
+    }
+
+    // Concatena totalidade das mensagens e áudios para atualizar Resumo, Copilot, Urgência e Cronologia
+    const linhasConsolidadas = [];
+    for (const m of item.historicoMensagens) {
+        linhasConsolidadas.push(`${m.de === 'cliente' ? 'Cliente' : 'Robô'}: ${m.texto}`);
+    }
+    for (let i = 0; i < item.historicoAudios.length; i++) {
+        const a = item.historicoAudios[i];
+        if (a.transcricao) {
+            linhasConsolidadas.push(`[Áudio ${i + 1} transcrito]: ${a.transcricao}`);
+        }
+    }
+
+    const textoConsolidado = linhasConsolidadas.join('\n');
+    try {
+        const { analisarUrgenciaECronologia } = require('./src/ia/tradutorJuridico');
+        const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
+        const apiKey = (contexto && contexto.apiKey) || cfg.gemini_api_key || process.env.GEMINI_API_KEY;
+        const analise = await analisarUrgenciaECronologia(textoConsolidado, {
+            apiKey,
+            nome: item.nome,
+            telefone: item.telefone,
+            motivo: item.motivo
+        });
+
+        if (analise) {
+            if (analise.resumo) item.resumo = analise.resumo;
+            if (Array.isArray(analise.sugestoesResposta)) item.sugestoesResposta = analise.sugestoesResposta;
+            if (analise.nivelUrgencia) item.nivelUrgencia = analise.nivelUrgencia;
+            if (analise.motivoUrgencia) item.motivoUrgencia = analise.motivoUrgencia;
+            if (Array.isArray(analise.cronologiaFatos)) item.cronologiaFatos = analise.cronologiaFatos;
+        }
+    } catch (errAnalise) {
+        console.error('Erro ao analisar urgência/cronologia consolidada:', errAnalise);
+    }
+
+    emitirPausados();
+    return item;
+}
+
 async function processarMensagemEntrada(msg) {
     try {
         if (!msg || msg.fromMe || msg.isStatus || msg.broadcast) return false;
@@ -617,7 +699,10 @@ async function processarMensagemEntrada(msg) {
                         mimeType,
                         transcricao: resAudio.transcricao,
                         resumo: resAudio.resumo,
-                        sugestoesResposta: resAudio.sugestoesResposta
+                        sugestoesResposta: resAudio.sugestoesResposta,
+                        nivelUrgencia: resAudio.nivelUrgencia,
+                        motivoUrgencia: resAudio.motivoUrgencia,
+                        cronologiaFatos: resAudio.cronologiaFatos
                     };
 
                     textoOriginal = `[Mensagem de Voz]: "${resAudio.transcricao || 'Áudio recebido'}"`;
@@ -637,7 +722,7 @@ async function processarMensagemEntrada(msg) {
         const registroPausa = contatosPausados[remetenteChave] || contatosPausados[msg.from];
         const tsPausa = typeof registroPausa === 'object' ? registroPausa.timestamp : registroPausa;
         if (tsPausa && (Date.now() - tsPausa < 24 * 60 * 60 * 1000)) {
-            // Contato já em pausa: silencia robô, mas anexa mensagem/áudio e atualiza Fila de Espera
+            // Contato já em pausa: silencia robô, anexa cumulativamente mensagem/áudio e reavalia urgência
             const horaMsg = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const novaMsg = {
                 de: 'cliente',
@@ -648,18 +733,18 @@ async function processarMensagemEntrada(msg) {
             if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
             historicoConversas[remetenteChave].push(novaMsg);
 
-            const itemPausado = contatosPausados[remetenteChave] || contatosPausados[msg.from];
-            if (itemPausado && typeof itemPausado === 'object') {
-                if (!Array.isArray(itemPausado.mensagens)) itemPausado.mensagens = [];
-                itemPausado.mensagens.push(novaMsg);
-                if (dadosAudiosPorContato[remetenteChave]) {
-                    itemPausado.audioBase64 = dadosAudiosPorContato[remetenteChave].audioBase64;
-                    itemPausado.transcricao = dadosAudiosPorContato[remetenteChave].transcricao;
-                    itemPausado.resumo = dadosAudiosPorContato[remetenteChave].resumo;
-                    itemPausado.sugestoesResposta = dadosAudiosPorContato[remetenteChave].sugestoesResposta;
-                }
-                emitirPausados();
-            }
+            const novoAudio = dadosAudiosPorContato[remetenteChave] ? {
+                audioBase64: dadosAudiosPorContato[remetenteChave].audioBase64,
+                mimeType: dadosAudiosPorContato[remetenteChave].mimeType,
+                transcricao: dadosAudiosPorContato[remetenteChave].transcricao,
+                hora: horaMsg
+            } : null;
+
+            await anexarMensagemOuAudioAoPausado(remetenteChave, {
+                novaMsg,
+                novoAudio,
+                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
+            });
 
             if (mainWindow && !mainWindow.isDestroyed()) {
                 mainWindow.webContents.send('bot-log', {
@@ -710,6 +795,15 @@ async function processarMensagemEntrada(msg) {
         const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"', opcoesExtras = {}) => {
             const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
             const acoesItem = opcoesExtras.acoes || null;
+            const msgsIniciais = (historicoConversas[remetenteChave] || []).slice(-10);
+            const audiosIniciais = audioSalvo.audioBase64 ? [{
+                id: 'audio_1',
+                audioBase64: audioSalvo.audioBase64,
+                mimeType: audioSalvo.mimeType || 'audio/webm',
+                transcricao: audioSalvo.transcricao || '',
+                hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }] : [];
+
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
@@ -718,11 +812,16 @@ async function processarMensagemEntrada(msg) {
                 motivo: motivo,
                 idChat: msg.from,
                 origem: 'WHATSAPP',
-                mensagens: (historicoConversas[remetenteChave] || []).slice(-10),
+                mensagens: msgsIniciais,
+                historicoMensagens: [...msgsIniciais],
+                historicoAudios: audiosIniciais,
                 audioBase64: audioSalvo.audioBase64 || null,
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
                 sugestoesResposta: audioSalvo.sugestoesResposta || null,
+                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
+                cronologiaFatos: audioSalvo.cronologiaFatos || [],
                 acoes: acoesItem,
                 aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
             };
@@ -1602,19 +1701,10 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
             if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
             historicoConversas[remetenteChave].push(novaMsg);
 
-            if (contatosPausados[remetenteChave] && typeof contatosPausados[remetenteChave] === 'object') {
-                if (!Array.isArray(contatosPausados[remetenteChave].mensagens)) {
-                    contatosPausados[remetenteChave].mensagens = [];
-                }
-                contatosPausados[remetenteChave].mensagens.push(novaMsg);
-                if (dadosAudiosPorContato[remetenteChave]) {
-                    contatosPausados[remetenteChave].audioBase64 = dadosAudiosPorContato[remetenteChave].audioBase64;
-                    contatosPausados[remetenteChave].transcricao = dadosAudiosPorContato[remetenteChave].transcricao;
-                    contatosPausados[remetenteChave].resumo = dadosAudiosPorContato[remetenteChave].resumo;
-                    contatosPausados[remetenteChave].sugestoesResposta = dadosAudiosPorContato[remetenteChave].sugestoesResposta;
-                }
-                emitirPausados();
-            }
+            await anexarMensagemOuAudioAoPausado(remetenteChave, {
+                novaMsg,
+                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
+            });
 
             if (mainWindow && !mainWindow.isDestroyed()) {
                 mainWindow.webContents.send('bot-log', {
@@ -1626,7 +1716,7 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                 });
             }
 
-            return { success: true, sucesso: true, resposta: '', pausado: true, transbordo: false };
+            return { success: true, sucesso: true, resposta: '', pausado: true, transbordo: false, itemPausado: contatosPausados[remetenteChave] };
         }
 
         // Métricas do topo + Histórico de Mensagens (mesmo caminho do WhatsApp real)
@@ -1692,6 +1782,16 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                 ? [...registroExistente.mensagens]
                 : (historicoConversas[remetenteChave] || []).slice(-10);
 
+            const audiosIniciais = (registroExistente && Array.isArray(registroExistente.historicoAudios))
+                ? [...registroExistente.historicoAudios]
+                : (audioSalvo.audioBase64 ? [{
+                    id: 'audio_1',
+                    audioBase64: audioSalvo.audioBase64,
+                    mimeType: audioSalvo.mimeType || 'audio/webm',
+                    transcricao: audioSalvo.transcricao || '',
+                    hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }] : []);
+
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
@@ -1701,10 +1801,15 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                 idChat: mockMsg.from,
                 origem: 'SIMULADOR',
                 mensagens: msgsIniciais,
+                historicoMensagens: [...msgsIniciais],
+                historicoAudios: audiosIniciais,
                 audioBase64: audioSalvo.audioBase64 || null,
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
                 sugestoesResposta: audioSalvo.sugestoesResposta || null,
+                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
+                cronologiaFatos: audioSalvo.cronologiaFatos || [],
                 acoes: acoesItem,
                 aguardandoAudioRelato: Boolean(acoesItem && acoesItem.aguardarAudioRelato)
             };
@@ -2016,7 +2121,7 @@ ipcMain.handle('ia-catalogar-peca', async (event, { texto, nomeArquivo }) => {
     }
 });
 
-// TRANSCRIÇÃO DE ÁUDIO E COPILOT ONE-CLICK
+// TRANSCRIÇÃO DE ÁUDIO E COPILOT ONE-CLICK COM URGÊNCIA & CRONOLOGIA
 ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
     try {
         const { processarAudioECopilot } = require('./src/ia/tradutorJuridico');
@@ -2028,7 +2133,7 @@ ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
         };
         const resultado = await processarAudioECopilot(audioBase64, mimeType || 'audio/webm', contextoFinal);
 
-        // Enriquecer e sincronizar com contato pausado
+        // Enriquecer e sincronizar cumulativamente com contato pausado
         const telLimpo = apenasNumeros((contexto && (contexto.telefone || contexto.numero || contexto.chave)) || '');
         if (telLimpo) {
             dadosAudiosPorContato[telLimpo] = {
@@ -2036,22 +2141,27 @@ ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
                 mimeType,
                 transcricao: resultado.transcricao,
                 resumo: resultado.resumo,
-                sugestoesResposta: resultado.sugestoesResposta
+                sugestoesResposta: resultado.sugestoesResposta,
+                nivelUrgencia: resultado.nivelUrgencia,
+                motivoUrgencia: resultado.motivoUrgencia,
+                cronologiaFatos: resultado.cronologiaFatos
             };
             if (contatosPausados[telLimpo]) {
-                contatosPausados[telLimpo].audioBase64 = audioBase64;
-                contatosPausados[telLimpo].transcricao = resultado.transcricao;
-                contatosPausados[telLimpo].resumo = resultado.resumo;
-                contatosPausados[telLimpo].sugestoesResposta = resultado.sugestoesResposta;
-                if (!Array.isArray(contatosPausados[telLimpo].mensagens)) {
-                    contatosPausados[telLimpo].mensagens = [];
-                }
-                contatosPausados[telLimpo].mensagens.push({
-                    de: 'cliente',
-                    texto: `🎙️ [Mensagem de Voz]: "${resultado.transcricao || 'Áudio enviado'}"`,
-                    hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                const horaAtual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                await anexarMensagemOuAudioAoPausado(telLimpo, {
+                    novaMsg: {
+                        de: 'cliente',
+                        texto: `🎙️ [Mensagem de Voz]: "${resultado.transcricao || 'Áudio enviado'}"`,
+                        hora: horaAtual
+                    },
+                    novoAudio: {
+                        audioBase64,
+                        mimeType,
+                        transcricao: resultado.transcricao,
+                        hora: horaAtual
+                    },
+                    contexto: contextoFinal
                 });
-                emitirPausados();
             }
         }
 
@@ -2062,11 +2172,33 @@ ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
             erro: err.message,
             transcricao: "[Não foi possível processar o áudio]",
             resumo: "• Erro interno ao despachar áudio.",
+            nivelUrgencia: "ROTINA",
+            motivoUrgencia: "Falha técnica ao processar áudio",
+            cronologiaFatos: [],
             sugestoesResposta: [
                 "Olá! Recebi seu áudio e já estou verificando sua solicitação.",
                 "Poderia nos resumir o seu pedido por texto enquanto abro sua ficha?",
                 "Entendido. Em breve retornaremos com a orientação jurídica necessária."
             ]
+        };
+    }
+});
+
+// ANALISAR URGÊNCIA E CRONOLOGIA DE MENSAGENS ACUMULADAS
+ipcMain.handle('ia-analisar-urgencia-cronologia', async (event, dados = {}) => {
+    try {
+        const { analisarUrgenciaECronologia } = require('./src/ia/tradutorJuridico');
+        const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
+        const apiKey = (dados && dados.apiKey) || cfg.gemini_api_key || process.env.GEMINI_API_KEY;
+        return await analisarUrgenciaECronologia(dados.texto || '', { ...(dados || {}), apiKey });
+    } catch (err) {
+        return {
+            sucesso: false,
+            erro: err.message,
+            nivelUrgencia: 'ROTINA',
+            motivoUrgencia: 'Consulta rotineira',
+            cronologiaFatos: [],
+            sugestoesResposta: []
         };
     }
 });

@@ -4232,9 +4232,31 @@
         .replace(/'/g, '&#39;');
     }
 
+    window.contatosCriticosAlertados = window.contatosCriticosAlertados || new Set();
+    window.copilotSugestoesMap = window.copilotSugestoesMap || {};
+    window.copilotCronologiaMap = window.copilotCronologiaMap || {};
+
     function renderizarPausados(mapa) {
       const container = document.getElementById('lista-pausados');
-      const chaves = Object.keys(mapa || {});
+      const mapaObj = mapa || {};
+      
+      // Ordenação prioritária (Furador de Fila):
+      // CRITICA (Peso 3) > COMERCIAL (Peso 2) > ROTINA (Peso 1) > Mais recente
+      const chaves = Object.keys(mapaObj).sort((a, b) => {
+        const itemA = mapaObj[a] || {};
+        const itemB = mapaObj[b] || {};
+        const obterPeso = (item) => {
+          const nivel = String(item.nivelUrgencia || '').toUpperCase();
+          if (nivel === 'CRITICA') return 3;
+          if (nivel === 'COMERCIAL') return 2;
+          return 1;
+        };
+        const pesoA = obterPeso(itemA);
+        const pesoB = obterPeso(itemB);
+        if (pesoB !== pesoA) return pesoB - pesoA;
+        return (itemB.timestamp || 0) - (itemA.timestamp || 0);
+      });
+
       document.getElementById('badge-pausados').innerText = String(chaves.length);
       atualizarPainelMetricas(chaves.length);
 
@@ -4243,10 +4265,33 @@
         return;
       }
 
+      // Detecção de urgência máxima para tocar o sino diferenciado
+      let novoCriticoDetectado = false;
+      chaves.forEach(ch => {
+        const item = mapaObj[ch] || {};
+        if (String(item.nivelUrgencia || '').toUpperCase() === 'CRITICA' && !window.contatosCriticosAlertados.has(ch)) {
+          window.contatosCriticosAlertados.add(ch);
+          novoCriticoDetectado = true;
+        }
+      });
+
+      if (novoCriticoDetectado) {
+        try {
+          const soundInstance = (typeof window.SoundAlert === 'function')
+            ? (window.alertaSinoInstancia || (window.alertaSinoInstancia = new window.SoundAlert()))
+            : null;
+          if (soundInstance && typeof soundInstance.playUrgencyAlert === 'function') {
+            soundInstance.playUrgencyAlert();
+          }
+        } catch (errSom) {
+          console.warn('Erro ao disparar som de urgência:', errSom);
+        }
+      }
+
       container.innerHTML = '';
 
       chaves.forEach((chave, index) => {
-        const item = mapa[chave];
+        const item = mapaObj[chave];
         const numLimpo = String(chave).replace(/\D/g, '');
         const cardId = `pausado_${numLimpo}_${index}`;
 
@@ -4266,7 +4311,7 @@
         const cacheLocal = (window.dadosFilaCopilot && (window.dadosFilaCopilot[numLimpo] || window.dadosFilaCopilot[chave])) || {};
 
         const audioSrc = (typeof item === 'object' && item.audioBase64) || cacheLocal.audioBase64 || null;
-        const transcricao = (typeof item === 'object' && item.transcricao) || cacheLocal.transcricao || (audioSrc ? 'Áudio aguardando processamento da IA...' : 'Cliente entrou em contato por texto solicitando atendimento com o advogado.');
+        const transcricao = (typeof item === 'object' && item.transcricao) || cacheLocal.transcricao || (audioSrc ? 'Áudio aguardando processamento da IA...' : 'Cliente entrou em contato solicitando atendimento com o advogado.');
         const resumo = (typeof item === 'object' && item.resumo) || cacheLocal.resumo || '• Cliente solicitou atendimento humano com o advogado.\n• O robô pausou o autoatendimento e aguarda intervenção.';
 
         const sugestoes = (typeof item === 'object' && Array.isArray(item.sugestoesResposta) && item.sugestoesResposta.length > 0)
@@ -4279,63 +4324,155 @@
                 "Perfeito! Poderia nos enviar seu número de CPF para localizarmos sua ficha?"
               ];
 
-        const mensagensCliente = (typeof item === 'object' && Array.isArray(item.mensagens) && item.mensagens.length > 0)
-          ? item.mensagens
-          : (Array.isArray(cacheLocal.mensagens) && cacheLocal.mensagens.length > 0)
-            ? cacheLocal.mensagens
-            : [{ de: 'cliente', texto: 'Solicitação de atendimento direto com advogado.' }];
+        // Guardar sugestões no mapa em memória para evitar quebra de aspas no DOM (Bug 2)
+        window.copilotSugestoesMap[cardId] = sugestoes;
+
+        const cronologiaFatos = (typeof item === 'object' && Array.isArray(item.cronologiaFatos) && item.cronologiaFatos.length > 0)
+          ? item.cronologiaFatos
+          : (Array.isArray(cacheLocal.cronologiaFatos) && cacheLocal.cronologiaFatos.length > 0 ? cacheLocal.cronologiaFatos : []);
+
+        // Guardar cronologia para exportação one-click na petição inicial
+        window.copilotCronologiaMap[cardId] = cronologiaFatos;
+
+        const mensagensCliente = (typeof item === 'object' && Array.isArray(item.historicoMensagens) && item.historicoMensagens.length > 0)
+          ? item.historicoMensagens
+          : ((typeof item === 'object' && Array.isArray(item.mensagens) && item.mensagens.length > 0)
+            ? item.mensagens
+            : (Array.isArray(cacheLocal.mensagens) && cacheLocal.mensagens.length > 0
+              ? cacheLocal.mensagens
+              : [{ de: 'cliente', texto: 'Solicitação de atendimento direto com advogado.' }]));
 
         const listaMsgsHTML = mensagensCliente.map(m => {
           const autor = m.de === 'cliente' ? (nomeSalvo || 'Cliente') : 'Robô';
           const cor = m.de === 'cliente' ? 'text-emerald-300 font-semibold' : 'text-slate-400';
+          const horaMsg = m.hora ? `<span class="text-[10px] text-slate-500 font-mono ml-auto">${escaparHtmlTexto(m.hora)}</span>` : '';
           return `<div class="p-2 bg-slate-900/80 rounded-lg text-xs border border-slate-800/80 flex items-start space-x-2">
             <span class="${cor} whitespace-nowrap text-[11px]">${autor}:</span>
-            <span class="text-slate-200">${escaparHtmlTexto(m.texto || '')}</span>
+            <span class="text-slate-200 flex-1">${escaparHtmlTexto(m.texto || '')}</span>
+            ${horaMsg}
           </div>`;
         }).join('');
 
-        const sugestoesHTML = sugestoes.map((sug) => {
-          const sugEscapada = String(sug).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        // Sugestões do Copilot usando index para imunidade total contra aspas (Bug 2)
+        const sugestoesHTML = sugestoes.map((sug, idx) => {
           return `
             <div class="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
               <p class="text-xs text-slate-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
-              <button type="button" onclick="aplicarSugestaoCopilot('${cardId}', '${sugEscapada}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap cursor-pointer">
+              <button type="button" onclick="aplicarSugestaoCopilot('${cardId}', ${idx})" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap cursor-pointer">
                 Usar Esta ⚡
               </button>
             </div>
           `;
         }).join('');
 
-        const playerAudioHTML = audioSrc ? `
-          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider block mb-1.5 flex items-center space-x-1.5">
-              <span>🎙️ Mensagem de Voz Enviada pelo Cliente:</span>
+        // Multi-Áudios cumulativos (Bug 1 e Subagente 2)
+        const audiosLista = (typeof item === 'object' && Array.isArray(item.historicoAudios) && item.historicoAudios.length > 0)
+          ? item.historicoAudios
+          : (audioSrc ? [{ id: 'audio_1', audioBase64: audioSrc, hora: horaChegada, transcricao }] : []);
+
+        const playerAudioHTML = audiosLista.length > 0 ? `
+          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 space-y-2.5">
+            <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider block flex items-center space-x-1.5">
+              <span>🎙️ Mensagens de Voz Recebidas (${audiosLista.length}):</span>
             </span>
-            <audio controls src="${audioSrc}" class="w-full h-8 mt-1"></audio>
+            <div class="space-y-2">
+              ${audiosLista.map((aud, aIdx) => {
+                const srcAudio = aud.audioBase64 && aud.audioBase64.startsWith('data:')
+                  ? aud.audioBase64
+                  : `data:${aud.mimeType || 'audio/webm'};base64,${aud.audioBase64 || ''}`;
+                return `
+                <div class="p-2.5 bg-slate-900/90 rounded-lg border border-slate-800/80">
+                  <div class="flex items-center justify-between text-[11px] text-slate-300 mb-1">
+                    <span class="font-semibold text-amber-300 flex items-center space-x-1">
+                      <span>🎧</span>
+                      <span>Áudio ${aIdx + 1}</span>
+                    </span>
+                    <span class="text-slate-400 font-mono text-[10px]">${aud.hora || horaChegada}</span>
+                  </div>
+                  <audio controls src="${srcAudio}" class="w-full h-8 mt-0.5"></audio>
+                  ${aud.transcricao ? `<p class="text-[11px] text-slate-300 mt-1.5 italic pl-2 border-l-2 border-amber-500/40">"${escaparHtmlTexto(aud.transcricao)}"</p>` : ''}
+                </div>
+              `;}).join('')}
+            </div>
           </div>
         ` : '';
 
-        const motivoFila = (typeof item === 'object' && item.motivo) ? item.motivo : 'Atendimento Humano';
+        // Identificação de Urgência & Estilos Dinâmicos (Furador de Fila)
+        const nivelUrgencia = String((item && item.nivelUrgencia) || 'ROTINA').toUpperCase();
+        const motivoExibicao = (item && (item.motivoUrgencia || item.motivo)) || 'Atendimento com Advogado';
         const aguardandoAudio = Boolean(typeof item === 'object' && item.aguardandoAudioRelato);
 
+        const isCritica = nivelUrgencia === 'CRITICA';
+        const isComercial = nivelUrgencia === 'COMERCIAL';
+
+        let classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
+        let dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
+        let badgeUrgenciaHTML = '';
+
+        if (isCritica) {
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 shadow-lg shadow-red-950/40 ring-1 ring-red-500/40 mb-3 transition relative";
+          dotIndicador = '<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span></span>';
+          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-300 border border-red-500/40 font-bold flex items-center space-x-1 animate-pulse">
+            <span>🚨</span>
+            <span>URGÊNCIA MÁXIMA: ${escaparHtmlTexto(motivoExibicao)}</span>
+          </span>`;
+        } else if (isComercial) {
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 shadow-md shadow-amber-950/30 ring-1 ring-amber-400/30 mb-3 transition";
+          dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
+          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center space-x-1">
+            <span>⭐</span>
+            <span>OPORTUNIDADE / FECHAMENTO: ${escaparHtmlTexto(motivoExibicao)}</span>
+          </span>`;
+        }
+
+        // Seção Linha do Tempo dos Fatos (Subagente 3)
+        const cronologiaHTML = `
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                <span>📅 Cronologia dos Fatos (Dos Fatos p/ Petição):</span>
+              </span>
+              <button type="button" onclick="copiarTopicoDosFatos('${cardId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer">
+                <span>📋 Copiar Tópico dos Fatos</span>
+              </button>
+            </div>
+            ${cronologiaFatos.length > 0 ? `
+              <div class="border-l-2 border-amber-500/40 pl-3.5 space-y-2.5 mt-2">
+                ${cronologiaFatos.map(cf => `
+                  <div class="relative text-xs">
+                    <div class="absolute -left-[19px] top-1.5 w-2 h-2 rounded-full bg-amber-400"></div>
+                    <span class="font-mono text-[10px] text-amber-400 font-bold block">${escaparHtmlTexto(cf.dataAproximada || 'Período indicado')}</span>
+                    <p class="text-slate-300 leading-relaxed">${escaparHtmlTexto(cf.fato || '')}</p>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <p class="text-slate-400 italic text-[11px] mt-1">Nenhum evento com data específica detectado. O botão acima copiará os relatos e o resumo executivo formatados para a petição.</p>
+            `}
+          </div>
+        `;
+
         const div = document.createElement('div');
-        div.className = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
+        div.className = classeCard;
         div.id = `card-pausado-${cardId}`;
         div.innerHTML = `
           <!-- Linha Principal -->
           <div class="flex items-start justify-between">
             <div>
               <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                ${dotIndicador}
                 <span class="font-bold text-white text-sm">${tituloExibicao}</span>
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Chegou às ${horaChegada}</span>
               </div>
               <span class="text-[11px] text-[#e5c158] block mt-0.5">${subtituloTel}</span>
               <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold flex items-center space-x-1">
-                  <span>🏷️</span>
-                  <span>${escaparHtmlTexto(motivoFila)}</span>
-                </span>
+                ${badgeUrgenciaHTML}
+                ${!badgeUrgenciaHTML ? `
+                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold flex items-center space-x-1">
+                    <span>🏷️</span>
+                    <span>${escaparHtmlTexto(motivoExibicao)}</span>
+                  </span>
+                ` : ''}
                 ${aguardandoAudio ? '<span class="text-[10px] px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold flex items-center space-x-1"><span>🎙️</span><span>Aguardando Áudio/Relato</span></span>' : ''}
                 <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400">Robô pausado</span>
               </div>
@@ -4378,6 +4515,9 @@
               </div>
             </div>
 
+            <!-- Cronologia dos Fatos (Subagente 3) -->
+            ${cronologiaHTML}
+
             <!-- 3 Sugestões Rápidas de Resposta (Copilot 1-Clique) -->
             <div class="space-y-2">
               <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
@@ -4403,6 +4543,54 @@
     }
 
     window.alternarResumoCliente = alternarResumoCliente;
+
+    // Subagente 3: Copiar Linha do Tempo dos Fatos no padrão de petição jurídica
+    window.copiarTopicoDosFatos = function(cardId) {
+      const cronologia = (window.copilotCronologiaMap && window.copilotCronologiaMap[cardId]) || [];
+      let textoFormatado = "DOS FATOS RELEVANTES NARRADOS PELO CLIENTE:\n\n";
+
+      if (cronologia.length > 0) {
+        cronologia.forEach((item, idx) => {
+          let prefixoData = item.dataAproximada ? `Em ${item.dataAproximada}` : (idx === 0 ? "Inicialmente" : (idx === cronologia.length - 1 ? "Por fim" : "Posteriormente"));
+          textoFormatado += `- ${prefixoData}: ${item.fato}\n`;
+        });
+      } else {
+        const resumoEl = document.querySelector(`#painel-resumo-${cardId} .whitespace-pre-line`);
+        const resumoTexto = resumoEl ? resumoEl.innerText.trim() : '';
+        if (resumoTexto) {
+          textoFormatado += `${resumoTexto}\n`;
+        } else {
+          textoFormatado += "- O cliente procurou assessoria jurídica relatando os fatos acima descritos.\n";
+        }
+      }
+
+      const copiadoSucesso = () => {
+        mostrarToast("📋 Cronologia copiada! Pronta para colar na petição.");
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textoFormatado).then(copiadoSucesso).catch(() => {
+          copiarTextoFallbackLocal(textoFormatado);
+          copiadoSucesso();
+        });
+      } else {
+        copiarTextoFallbackLocal(textoFormatado);
+        copiadoSucesso();
+      }
+    };
+
+    function copiarTextoFallbackLocal(texto) {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {}
+      document.body.removeChild(ta);
+    }
 
     window.enviarRespostaAdvogadoFila = async (cardId, chave) => {
       const input = document.getElementById(`input-resposta-${cardId}`);
@@ -4439,6 +4627,16 @@
         delete window.dadosFilaCopilot[numLimpo];
         delete window.dadosFilaCopilot[chave];
       }
+      if (window.copilotSugestoesMap) {
+        delete window.copilotSugestoesMap[cardId];
+      }
+      if (window.copilotCronologiaMap) {
+        delete window.copilotCronologiaMap[cardId];
+      }
+      if (window.contatosCriticosAlertados) {
+        window.contatosCriticosAlertados.delete(chave);
+        window.contatosCriticosAlertados.delete(numLimpo);
+      }
 
       const card = document.getElementById(`card-pausado-${cardId}`);
       if (card) {
@@ -4453,6 +4651,11 @@
 
     window.reativarCliente = async (num) => {
       if (window.api && window.api.removerPausa) {
+        const numLimpo = String(num).replace(/\D/g, '');
+        if (window.contatosCriticosAlertados) {
+          window.contatosCriticosAlertados.delete(num);
+          window.contatosCriticosAlertados.delete(numLimpo);
+        }
         const novosPausados = await window.api.removerPausa(num);
         renderizarPausados(novosPausados);
         mostrarToast("Robô reativado para este contato!");
@@ -5374,32 +5577,90 @@
               container.innerHTML = '';
             }
 
-            const card = document.createElement('div');
-            card.className = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
-            card.id = `card-pausado-${dados.id}`;
+            window.copilotSugestoesMap = window.copilotSugestoesMap || {};
+            window.copilotSugestoesMap[dados.id] = dados.sugestoes || [];
 
-            const listaSugestoesHTML = (dados.sugestoes || []).map((sug) => {
-              const sugEscapada = String(sug).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            window.copilotCronologiaMap = window.copilotCronologiaMap || {};
+            window.copilotCronologiaMap[dados.id] = dados.cronologiaFatos || [];
+
+            const isCritica = String(dados.nivelUrgencia || '').toUpperCase() === 'CRITICA';
+            const isComercial = String(dados.nivelUrgencia || '').toUpperCase() === 'COMERCIAL';
+
+            let classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
+            let dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
+            let badgeUrgenciaHTML = '';
+
+            if (isCritica) {
+              classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 shadow-lg shadow-red-950/40 ring-1 ring-red-500/40 mb-3 transition relative";
+              dotIndicador = '<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span></span>';
+              badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-300 border border-red-500/40 font-bold flex items-center space-x-1 animate-pulse">
+                <span>🚨</span>
+                <span>URGÊNCIA MÁXIMA: ${escaparHtmlTexto(dados.motivoUrgencia || 'Caso Crítico')}</span>
+              </span>`;
+            } else if (isComercial) {
+              classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 shadow-md shadow-amber-950/30 ring-1 ring-amber-400/30 mb-3 transition";
+              dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
+              badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center space-x-1">
+                <span>⭐</span>
+                <span>OPORTUNIDADE / FECHAMENTO: ${escaparHtmlTexto(dados.motivoUrgencia || 'Contratação')}</span>
+              </span>`;
+            }
+
+            const listaSugestoesHTML = (dados.sugestoes || []).map((sug, idx) => {
               return `
               <div class="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
-                <p class="text-xs text-slate-300 leading-relaxed italic flex-1">"${sug}"</p>
-                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', '${sugEscapada}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap cursor-pointer">
+                <p class="text-xs text-slate-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
+                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', ${idx})" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap cursor-pointer">
                   Usar Esta ⚡
                 </button>
               </div>
             `;}).join('');
+
+            const cronologiaFatos = dados.cronologiaFatos || [];
+            const cronologiaHTML = `
+              <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                    <span>📅 Cronologia dos Fatos (Dos Fatos p/ Petição):</span>
+                  </span>
+                  <button type="button" onclick="copiarTopicoDosFatos('${dados.id}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer">
+                    <span>📋 Copiar Tópico dos Fatos</span>
+                  </button>
+                </div>
+                ${cronologiaFatos.length > 0 ? `
+                  <div class="border-l-2 border-amber-500/40 pl-3.5 space-y-2.5 mt-2">
+                    ${cronologiaFatos.map(cf => `
+                      <div class="relative text-xs">
+                        <div class="absolute -left-[19px] top-1.5 w-2 h-2 rounded-full bg-amber-400"></div>
+                        <span class="font-mono text-[10px] text-amber-400 font-bold block">${escaparHtmlTexto(cf.dataAproximada || 'Período indicado')}</span>
+                        <p class="text-slate-300 leading-relaxed">${escaparHtmlTexto(cf.fato || '')}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : `
+                  <p class="text-slate-400 italic text-[11px] mt-1">Nenhum evento com data específica detectado. O botão acima copiará os relatos e o resumo executivo formatados para a petição.</p>
+                `}
+              </div>
+            `;
+
+            const card = document.createElement('div');
+            card.className = classeCard;
+            card.id = `card-pausado-${dados.id}`;
 
             card.innerHTML = `
               <!-- Linha Principal -->
               <div class="flex items-start justify-between">
                 <div>
                   <div class="flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    ${dotIndicador}
                     <span class="font-bold text-white text-sm">${dados.nome}</span>
                     <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Chegou às ${dados.horario}</span>
                   </div>
                   <span class="text-[11px] text-[#e5c158] block mt-0.5">Telefone: ${dados.telefone}</span>
-                  <span class="text-[10px] text-amber-400 block mt-0.5">Robô pausado • Mensagem de voz recebida</span>
+                  <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    ${badgeUrgenciaHTML}
+                    <span class="text-[10px] text-amber-400">Robô pausado • Mensagem de voz recebida</span>
+                  </div>
 
                   <!-- BOTÃO PEDIDO PELO USUÁRIO: "Ver Resumo do Cliente" -->
                   <button type="button" onclick="alternarResumoCliente('${dados.id}')" class="mt-2.5 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold transition text-xs shadow-sm cursor-pointer">
@@ -5427,13 +5688,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                   <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
                     <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1">📝 Transcrição Inteligente:</span>
-                    <p class="text-slate-300 leading-relaxed">${dados.transcricao || 'Processando transcrição...'}</p>
+                    <p class="text-slate-300 leading-relaxed">${escaparHtmlTexto(dados.transcricao || 'Processando transcrição...')}</p>
                   </div>
                   <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
                     <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">⚖️ Resumo Executivo (Copilot):</span>
-                    <div class="text-slate-300 leading-relaxed whitespace-pre-line">${dados.resumo || 'Sem resumo disponível.'}</div>
+                    <div class="text-slate-300 leading-relaxed whitespace-pre-line">${escaparHtmlTexto(dados.resumo || 'Sem resumo disponível.')}</div>
                   </div>
                 </div>
+
+                <!-- Cronologia dos Fatos (Subagente 3) -->
+                ${cronologiaHTML}
 
                 <!-- Sugestões de Resposta com 1 Clique (Copilot) -->
                 <div class="space-y-2">
@@ -5465,7 +5729,14 @@
             }
           }
 
-          function aplicarSugestaoCopilot(cardId, texto) {
+          function aplicarSugestaoCopilot(cardId, idxOuTexto) {
+            let texto = idxOuTexto;
+            if (window.copilotSugestoesMap && window.copilotSugestoesMap[cardId]) {
+              const idx = Number(idxOuTexto);
+              if (!isNaN(idx) && window.copilotSugestoesMap[cardId][idx] !== undefined) {
+                texto = window.copilotSugestoesMap[cardId][idx];
+              }
+            }
             const input = document.getElementById(`input-resposta-${cardId}`);
             if (input) {
               input.value = texto;

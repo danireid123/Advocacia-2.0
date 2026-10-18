@@ -64,10 +64,25 @@ function carregarCacheDisco() {
 
 /**
  * Salva o cache em memória no disco de forma síncrona/segura.
+ * Aplica higienização de memória: descarta payloads de áudio e limita a 500 registros úteis.
  */
 function salvarCacheDisco() {
     try {
         if (!cacheFilePath) definirCaminhoCache();
+        // Remove payloads de áudio e strings binárias longas
+        const chaves = Array.from(cacheEmMemoria.keys());
+        for (const k of chaves) {
+            const v = cacheEmMemoria.get(k);
+            if (k.startsWith('audio::') || k.startsWith('data:audio') || (typeof v === 'string' && (v.startsWith('data:audio') || v.length > 10000))) {
+                cacheEmMemoria.delete(k);
+            }
+        }
+        // Política de descarte LRU: limite de no máximo 500 registros úteis
+        const chavesValidas = Array.from(cacheEmMemoria.keys());
+        while (chavesValidas.length > 500) {
+            const maisAntiga = chavesValidas.shift();
+            cacheEmMemoria.delete(maisAntiga);
+        }
         const obj = {};
         for (const [k, v] of cacheEmMemoria.entries()) {
             obj[k] = v;
@@ -114,7 +129,7 @@ INSTRUÇÕES OBRIGATÓRIAS:
  * @param {boolean} [opcoes.desativarPersistencia=false] - Desativa gravação em disco se true
  * @returns {Promise<{ texto: string, fonte: 'cache' | 'ia' | 'fallback', duracaoMs: number }>}
  */
-const MODELOS_GEMINI_PADRAO = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-3.5-flash'];
+const MODELOS_GEMINI_PADRAO = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-1.5-flash'];
 
 async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     const inicio = Date.now();
@@ -476,13 +491,88 @@ function limparCacheMemoria() {
 }
 
 /**
- * Processa áudio via Gemini Multimodal e gera transcrição, resumo e 3 sugestões de resposta.
+ * Classificador e extrator de fatos cronológicos inteligente (Offline / Fallback)
+ * Avalia termos de urgência crítica, interesse comercial e extrai datas e fatos narrados.
+ */
+function detectarUrgenciaECronologiaLocal(texto, contexto = {}) {
+  const txt = String(texto || '').trim();
+  if (!txt) {
+    return {
+      nivelUrgencia: 'ROTINA',
+      motivoUrgencia: 'Atendimento geral e esclarecimento de dúvidas',
+      cronologiaFatos: []
+    };
+  }
+
+  // 1. Detecção de Urgência Crítica (Furador de Fila)
+  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(de\s+)?conta|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
+
+  // 2. Detecção de Oportunidade Comercial / Fechamento
+  const regexComercial = /(fechar\s+contrato|assinar\s+contrato|proposta\s+de\s+honor[aá]rios?|quanto\s+custa|pagar\s+honor[aá]rios?|dar\s+entrada\s+(hoje|urgente|no\s+processo)|documentos?\s+para\s+iniciar|fechamento|contratar|quero\s+contratar)/i;
+
+  let nivelUrgencia = 'ROTINA';
+  let motivoUrgencia = 'Consulta geral sobre andamento processual';
+
+  const matchCritico = txt.match(regexCritica);
+  if (matchCritico) {
+    nivelUrgencia = 'CRITICA';
+    const termo = matchCritico[0].toLowerCase();
+    motivoUrgencia = `Menção urgente a "${termo}" relatado pelo cliente`;
+  } else {
+    const matchComercial = txt.match(regexComercial);
+    if (matchComercial) {
+      nivelUrgencia = 'COMERCIAL';
+      motivoUrgencia = 'Interesse manifesto em contratação ou pagamento de honorários';
+    }
+  }
+
+  // 3. Extração Heurística de Cronologia de Fatos
+  const cronologiaFatos = [];
+  const frases = txt.split(/[.\n;!?]+/).map(f => f.trim()).filter(f => f.length > 8);
+
+  const regexData = /\b(\d{1,2}[\/\.-]\d{1,2}(?:[\/\.-]\d{2,4})?|\d{4}|ontem|hoje|semana\s+passada|m[eê]s\s+passado|ano\s+passado|h[aá]\s+\d+\s+(?:dias|meses|anos))\b/i;
+
+  for (const frase of frases) {
+    const matchData = frase.match(regexData);
+    if (matchData) {
+      cronologiaFatos.push({
+        dataAproximada: matchData[0],
+        fato: frase.replace(/^[-*•\s]+/, '').trim()
+      });
+    }
+  }
+
+  if (cronologiaFatos.length === 0 && frases.length > 0) {
+    cronologiaFatos.push({
+      dataAproximada: 'Fato inicial',
+      fato: frases[0].replace(/^[-*•\s]+/, '').trim()
+    });
+    if (frases.length > 1) {
+      cronologiaFatos.push({
+        dataAproximada: 'Em seguida',
+        fato: frases[frases.length - 1].replace(/^[-*•\s]+/, '').trim()
+      });
+    }
+  }
+
+  return {
+    nivelUrgencia,
+    motivoUrgencia,
+    cronologiaFatos
+  };
+}
+
+/**
+ * Processa áudio via Gemini Multimodal e gera transcrição, resumo, 3 sugestões de resposta,
+ * classificação de urgência e cronologia dos fatos.
  * Suporta formatos: audio/webm, audio/ogg, audio/mp3, audio/wav.
  */
 async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/webm', contextoCliente = {}) {
   const base64Data = Buffer.isBuffer(audioBufferOuBase64)
     ? audioBufferOuBase64.toString('base64')
     : String(audioBufferOuBase64 || '').replace(/^data:audio\/\w+;base64,/, '');
+
+  const fallbackLocal = detectarUrgenciaECronologiaLocal(contextoCliente.texto || contextoCliente.mensagens || '', contextoCliente);
 
   const apiKey = (contextoCliente && contextoCliente.apiKey) || process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -491,6 +581,9 @@ async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/web
       modoLocal: true,
       transcricao: "[Modo Local] Chave Gemini não configurada no .env. Áudio mantido para escuta manual.",
       resumo: "• Áudio recebido aguardando reprodução manual pelo advogado.\n• Nenhuma transcrição automática foi processada.",
+      nivelUrgencia: fallbackLocal.nivelUrgencia,
+      motivoUrgencia: fallbackLocal.motivoUrgencia,
+      cronologiaFatos: fallbackLocal.cronologiaFatos,
       sugestoesResposta: [
         "Olá! Ouvi sua mensagem de áudio e já estou analisando sua situação.",
         "Poderia nos confirmar o seu número de CPF para localizarmos o processo?",
@@ -500,14 +593,21 @@ async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/web
   }
 
   const promptInstrucao = `
-Você é o assistente executivo de um escritório de advocacia de elite (em total conformidade com o Código de Ética e Provimento 205/2021 da OAB).
+Você é o assistente executivo sênior de um escritório de advocacia de elite (em total conformidade com o Código de Ética e Provimento 205/2021 da OAB).
 O áudio anexo foi enviado por um cliente que solicitou atendimento humano com o advogado.
 Dados de contexto do processo/cliente: ${JSON.stringify(contextoCliente || {})}
 
 Sua tarefa:
 1. Transcreva com precisão o que foi falado no áudio.
 2. Crie um resumo executivo objetivo em 2 ou 3 tópicos: o que aconteceu e o que o cliente solicita.
-3. Elabore exatamente 3 sugestões de resposta rápida para o advogado enviar com 1 clique:
+3. Classifique o nível de urgência jurídica da demanda em estritamente um destes 3 valores:
+   - "CRITICA": Quando houver menção a oficial de justiça na porta, mandado, audiência amanhã/próxima, bloqueio judicial de conta (Sisbajud/Bacenjud), prisão, despejo, busca e apreensão, liminar ou prazo fatal hoje/amanhã.
+   - "COMERCIAL": Quando o cliente demonstrar interesse explícito em fechar contrato, pagar honorários, contratar novos serviços ou dar entrada imediata em ação.
+   - "ROTINA": Dúvidas gerais, pedidos rotineiros de andamento e consultas habituais.
+4. Forneça uma frase curta em 'motivoUrgencia' justificando a classificação atribuída.
+5. Extraia a CRONOLOGIA DOS FATOS narrados pelo cliente, ordenados por data ou sequência temporal dos acontecimentos, útil para redação da petição inicial:
+   Array de objetos: [ { "dataAproximada": "DD/MM/AAAA ou período", "fato": "Descrição objetiva e clara do fato ocorrido" } ]
+6. Elabore exatamente 3 sugestões de resposta rápida empáticas e acolhedoras para o advogado enviar com 1 clique:
    - Opção 1: Resposta direta e acolhedora esclarecendo o ponto ou confirmando o recebimento com os próximos passos.
    - Opção 2: Proposta de agendamento de chamada ou atendimento presencial/remoto.
    - Opção 3: Solicitação de documentos complementares pertinentes ao relato.
@@ -516,6 +616,11 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
 {
   "transcricao": "Texto integral...",
   "resumo": "• Tópico 1\\n• Tópico 2",
+  "nivelUrgencia": "CRITICA" | "COMERCIAL" | "ROTINA",
+  "motivoUrgencia": "Frase curta justificando...",
+  "cronologiaFatos": [
+    { "dataAproximada": "10/03/2024", "fato": "Descrição do fato..." }
+  ],
   "sugestoesResposta": [
     "Sugestão 1...",
     "Sugestão 2...",
@@ -527,10 +632,10 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
   try {
     const modelosCandidatos = [
       process.env.GEMINI_MODEL,
+      'gemini-3.5-flash',
       'gemini-3.5-flash-lite',
       'gemini-flash-lite-latest',
-      'gemini-3.5-flash',
-      'gemini-flash-latest'
+      'gemini-1.5-flash'
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
     let data = null;
@@ -579,10 +684,15 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
 
     const jsonTexto = data.candidates[0].content.parts[0].text;
     const resultado = JSON.parse(jsonTexto);
+    const fallbackSeNecessario = detectarUrgenciaECronologiaLocal((resultado.transcricao || '') + ' ' + (contextoCliente.texto || ''), contextoCliente);
+
     return {
       sucesso: true,
       transcricao: resultado.transcricao || "Áudio processado.",
       resumo: resultado.resumo || "• Áudio recebido e sintetizado.",
+      nivelUrgencia: ['CRITICA', 'COMERCIAL', 'ROTINA'].includes(resultado.nivelUrgencia) ? resultado.nivelUrgencia : fallbackSeNecessario.nivelUrgencia,
+      motivoUrgencia: resultado.motivoUrgencia || fallbackSeNecessario.motivoUrgencia,
+      cronologiaFatos: Array.isArray(resultado.cronologiaFatos) && resultado.cronologiaFatos.length > 0 ? resultado.cronologiaFatos : fallbackSeNecessario.cronologiaFatos,
       sugestoesResposta: Array.isArray(resultado.sugestoesResposta) && resultado.sugestoesResposta.length === 3
         ? resultado.sugestoesResposta
         : [
@@ -598,6 +708,9 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
       erro: err.message,
       transcricao: "[Não foi possível processar o áudio automaticamente]",
       resumo: "• Falha de rede ou chave de API ao transcrever o áudio.\n• Utilize o player para ouvir a gravação.",
+      nivelUrgencia: fallbackLocal.nivelUrgencia,
+      motivoUrgencia: fallbackLocal.motivoUrgencia,
+      cronologiaFatos: fallbackLocal.cronologiaFatos,
       sugestoesResposta: [
         "Olá! Recebi seu áudio e já estou verificando sua solicitação.",
         "Poderia nos resumir o seu pedido por texto enquanto abro sua ficha?",
@@ -605,6 +718,132 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
       ]
     };
   }
+}
+
+/**
+ * Analisa a totalidade das mensagens e relatos acumulados de um cliente para atualizar:
+ * Resumo Executivo, 3 Sugestões Copilot, Classificação de Urgência e Cronologia dos Fatos.
+ */
+async function analisarUrgenciaECronologia(textoCompleto, contexto = {}) {
+  const textoLimpo = String(textoCompleto || '').trim();
+  const apiKey = (contexto && contexto.apiKey) || process.env.GEMINI_API_KEY || (contexto && contexto.config && contexto.config.gemini_api_key);
+  const fallback = detectarUrgenciaECronologiaLocal(textoLimpo, contexto);
+
+  if (!textoLimpo || !apiKey) {
+    return {
+      sucesso: true,
+      modoLocal: true,
+      resumo: textoLimpo ? `• Relato consolidado do cliente:\n• "${textoLimpo.slice(0, 180)}..."` : "• Cliente solicitou atendimento com o advogado.",
+      nivelUrgencia: fallback.nivelUrgencia,
+      motivoUrgencia: fallback.motivoUrgencia,
+      cronologiaFatos: fallback.cronologiaFatos,
+      sugestoesResposta: [
+        "Olá! Recebi suas mensagens e já estou analisando o histórico completo.",
+        "Poderia nos confirmar mais detalhes sobre a documentação?",
+        "Entendido perfeitamente. Vamos verificar as medidas cabíveis de imediato."
+      ]
+    };
+  }
+
+  const promptInstrucao = `
+Você é o assistente executivo sênior de um escritório de advocacia de elite (em total conformidade com o Código de Ética e Provimento 205/2021 da OAB).
+Analise o histórico consolidado de mensagens enviadas por um cliente que solicitou atendimento humano.
+Dados de contexto: ${JSON.stringify(contexto || {})}
+
+Mensagens / Relatos consolidados do cliente:
+"""
+${textoLimpo}
+"""
+
+Sua tarefa:
+1. Crie um resumo executivo objetivo em 2 ou 3 tópicos considerando a TOTALIDADE das mensagens enviadas.
+2. Identifique o nível de urgência jurídica da demanda em uma destas 3 categorias:
+   - "CRITICA": Casos urgentes como oficial de justiça na porta, mandado, audiência amanhã/próxima, bloqueio judicial de conta (Sisbajud/Bacenjud), prisão, despejo, busca e apreensão, liminar ou prazo fatal hoje/amanhã.
+   - "COMERCIAL": Cliente querendo fechar contrato, pagar honorários, contratar serviços novos ou dar entrada imediata.
+   - "ROTINA": Dúvidas gerais, pedidos rotineiros de andamento processual e esclarecimentos normais.
+3. Elabore um motivo curto para a urgência (ex: "Menção a oficial de justiça e mandado recebido hoje").
+4. Extraia a CRONOLOGIA DOS FATOS relevantes narrados pelo cliente, ordenados por data ou sequência temporal, útil para a redação da petição inicial:
+   Array com objetos: [ { "dataAproximada": "DD/MM/AAAA ou período", "fato": "Descrição clara e precisa do ocorrido" } ]
+5. Elabore exatamente 3 sugestões de resposta rápida empáticas e estratégicas para o advogado enviar com 1 clique.
+
+Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
+{
+  "resumo": "• Tópico 1\\n• Tópico 2",
+  "nivelUrgencia": "CRITICA" | "COMERCIAL" | "ROTINA",
+  "motivoUrgencia": "Frase curta justificando...",
+  "cronologiaFatos": [
+    { "dataAproximada": "10/03/2024", "fato": "Ocorrência..." }
+  ],
+  "sugestoesResposta": [
+    "Sugestão 1...",
+    "Sugestão 2...",
+    "Sugestão 3..."
+  ]
+}
+`;
+
+  const modelosCandidatos = [
+    process.env.GEMINI_MODEL,
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-flash-lite-latest',
+    'gemini-1.5-flash'
+  ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
+
+  for (const mod of modelosCandidatos) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${mod}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: promptInstrucao }]
+          }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const jsonTexto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (jsonTexto) {
+          const parsed = JSON.parse(jsonTexto);
+          return {
+            sucesso: true,
+            resumo: parsed.resumo || fallback.resumo,
+            nivelUrgencia: ['CRITICA', 'COMERCIAL', 'ROTINA'].includes(parsed.nivelUrgencia) ? parsed.nivelUrgencia : fallback.nivelUrgencia,
+            motivoUrgencia: parsed.motivoUrgencia || fallback.motivoUrgencia,
+            cronologiaFatos: Array.isArray(parsed.cronologiaFatos) && parsed.cronologiaFatos.length > 0 ? parsed.cronologiaFatos : fallback.cronologiaFatos,
+            sugestoesResposta: Array.isArray(parsed.sugestoesResposta) && parsed.sugestoesResposta.length === 3 ? parsed.sugestoesResposta : [
+              "Olá! Recebi suas mensagens e já estou analisando o histórico completo.",
+              "Poderia nos confirmar mais detalhes sobre a documentação?",
+              "Entendido perfeitamente. Vamos verificar as medidas cabíveis de imediato."
+            ]
+          };
+        }
+      }
+    } catch (e) {
+      // Tenta próximo modelo ou cai no fallback
+    }
+  }
+
+  return {
+    sucesso: true,
+    modoFallback: true,
+    resumo: `• Relato consolidado:\n• "${textoLimpo.slice(0, 180)}..."`,
+    nivelUrgencia: fallback.nivelUrgencia,
+    motivoUrgencia: fallback.motivoUrgencia,
+    cronologiaFatos: fallback.cronologiaFatos,
+    sugestoesResposta: [
+      "Olá! Recebi suas mensagens e já estou analisando o histórico completo.",
+      "Poderia nos confirmar mais detalhes sobre a documentação?",
+      "Entendido perfeitamente. Vamos verificar as medidas cabíveis de imediato."
+    ]
+  };
 }
 
 /**
@@ -742,10 +981,10 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
     const modelosCandidatos = [
         contexto.modelo,
         process.env.GEMINI_MODEL,
+        'gemini-3.5-flash',
         'gemini-3.5-flash-lite',
         'gemini-flash-lite-latest',
-        'gemini-3.5-flash',
-        'gemini-flash-latest'
+        'gemini-1.5-flash'
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
     const promptUsuario = `Aprimore a seguinte mensagem jurídica para WhatsApp mantendo termos técnicos acessíveis, emojis adequados e interação gentil com o cliente:\n\n"""\n${textoLimpo}\n"""`;
@@ -832,6 +1071,8 @@ module.exports = {
     catalogarLocalmente,
     sintetizarDossieProcesso,
     processarAudioECopilot,
+    analisarUrgenciaECronologia,
+    detectarUrgenciaECronologiaLocal,
     melhorarMensagemComIA,
     melhorarMensagemLocalmente,
     SYSTEM_INSTRUCTION_MELHORAR_MENSAGEM,

@@ -57,6 +57,46 @@ class SoundAlert {
       console.warn('Alerta sonoro Web Audio API não pôde ser executado:', e);
     }
   }
+
+  /**
+   * Dispara alerta sonoro diferenciado para URGÊNCIA MÁXIMA (Furador de Fila)
+   * Sequência rápida tríade Lá5 -> Dó6 -> Mi6 com modulação marcante.
+   */
+  playUrgencyAlert() {
+    try {
+      this.init();
+      if (!this.audioCtx) return;
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      const notes = [
+        { freq: 880.00, start: now },
+        { freq: 1046.50, start: now + 0.09 },
+        { freq: 1318.51, start: now + 0.18 },
+        { freq: 1318.51, start: now + 0.32 }
+      ];
+
+      notes.forEach(({ freq, start }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.35, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.75);
+      });
+    } catch (e) {
+      console.warn('Alerta sonoro de urgência não pôde ser executado:', e);
+    }
+  }
 }
 
 if (typeof window !== 'undefined') {
