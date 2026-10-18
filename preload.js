@@ -69,6 +69,8 @@ const apiBridge = {
     copiarQualificacaoCPC: (clienteId) => ipcRenderer.invoke('copiar-qualificacao-cpc', clienteId),
     darBaixaParcela: (dados) => ipcRenderer.invoke('dar-baixa-parcela', dados),
     adicionarParcelaFinanceiro: (dados) => ipcRenderer.invoke('financeiro-adicionar-parcela', dados),
+    excluirContratoFinanceiro: (dados) => ipcRenderer.invoke('excluir-contrato-financeiro', dados),
+    obterMetricasFinanceiras: (dados) => ipcRenderer.invoke('obter-metricas-financeiras', dados),
     processarMidiaOnboarding: (dados) => ipcRenderer.invoke('onboarding-processar-midia', dados),
     consolidarDossieCliente: (telefone) => ipcRenderer.invoke('onboarding-consolidar-dossie', telefone),
 
@@ -83,6 +85,7 @@ const apiBridge = {
     aoReceberEventoUpdate: (callback) => ipcRenderer.on('bot-update-status', (_e, dados) => callback(dados)),
     aoReceberTransbordoHumano: (callback) => ipcRenderer.on('bot-transbordo-humano', (_e, dados) => callback(dados)),
     aoReceberRespostaAdvogadoSimulador: (callback) => ipcRenderer.on('simulador-resposta-advogado', (_e, dados) => callback(dados)),
+    aoReceberNotificacaoPagamento: (callback) => ipcRenderer.on('notificacao-pagamento', (_e, dados) => callback(dados)),
 
     // Helper genérico para escuta de eventos
     on: (canal, callback) => {

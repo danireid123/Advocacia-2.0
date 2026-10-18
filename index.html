@@ -779,6 +779,9 @@
     <span id="toast-texto">Configurações salvas automaticamente!</span>
   </div>
 
+  <!-- CONTAINER DE NOTIFICAÇÕES NÃO INVASIVAS DE PAGAMENTO RECEBIDO -->
+  <div id="banner-container-pagamento" class="fixed top-5 right-5 z-[120] flex flex-col space-y-3 pointer-events-none max-w-sm w-full"></div>
+
   <!-- BANNER EXECUTIVO DE ATUALIZAÇÃO DISPONÍVEL -->
   <div id="banner-update-app" class="hidden w-full bg-gradient-to-r from-amber-600 via-[#d4af37] to-amber-600 text-slate-950 px-6 py-2.5 items-center justify-between font-semibold text-xs shadow-xl z-30 transition-all duration-300">
     <div class="flex items-center space-x-2.5">
@@ -1638,10 +1641,10 @@
                   <span class="text-[10px] text-slate-400 font-semibold block mb-0.5">Cenários Rápidos:</span>
                 </div>
                 <div class="flex items-center space-x-1.5 overflow-x-auto">
-                  <button type="button" id="btn-cenario-ola" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition whitespace-nowrap">"Olá"</button>
-                  <button type="button" id="btn-cenario-proc" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[#e5c158] rounded-lg text-[10px] font-semibold transition whitespace-nowrap">Opção "1"</button>
-                  <button type="button" id="btn-cenario-cpf" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap">CPF Válido</button>
-                  <button type="button" id="btn-cenario-adv" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap">Chamar Advogado</button>
+                  <button type="button" id="btn-cenario-ola" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">"Olá"</button>
+                  <button type="button" id="btn-cenario-proc" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[#e5c158] rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Opção "1"</button>
+                  <button type="button" id="btn-cenario-cpf" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">CPF Válido</button>
+                  <button type="button" id="btn-cenario-adv" onmousedown="event.preventDefault()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-semibold transition whitespace-nowrap cursor-pointer">Chamar Advogado</button>
                 </div>
               </div>
             </div>
@@ -1674,11 +1677,16 @@
                 </div>
               </div>
 
-              <!-- Input de Envio com Microfone e Anexo de Áudio -->
+              <!-- Input de Envio com Microfone e Anexo de Áudio / Documentos -->
               <div class="simulador-input-bar p-3 bg-[#131a29] border-t border-slate-800 flex items-center space-x-2">
                 <input type="file" id="simulador-audio-file" accept="audio/*" class="hidden" onchange="enviarAudioArquivoSimulador(this)">
-                <button type="button" onclick="document.getElementById('simulador-audio-file').click()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-[#e5c158] transition" title="Anexar arquivo de áudio (MP3, OGG, WAV, WEBM)">
-                  📎
+                <input type="file" id="simulador-doc-file" accept="image/*,application/pdf" class="hidden" onchange="enviarDocumentoArquivoSimulador(this)">
+                
+                <button type="button" onmousedown="event.preventDefault()" onclick="document.getElementById('simulador-audio-file').click()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-[#e5c158] transition cursor-pointer" title="Anexar arquivo de áudio (MP3, OGG, WAV, WEBM)">
+                  🎙️
+                </button>
+                <button type="button" id="btn-simulador-anexo-doc" onmousedown="event.preventDefault()" onclick="document.getElementById('simulador-doc-file').click()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-indigo-200 transition cursor-pointer" title="Simular Envio de Documento Forense ou Comprovante PIX (Imagem / PDF)">
+                  📄
                 </button>
                 
                 <input type="text" id="simulador-input-msg" placeholder="Digite uma mensagem (ex: Olá, 1, CPF, ou falar com advogado)..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
@@ -1818,6 +1826,57 @@
               </button>
             </div>
 
+            <!-- CARDS DE KPIS FINANCEIROS EXECUTIVOS (4 MÉTRICAS-CHAVE) -->
+            <div class="grid grid-cols-12 gap-3.5">
+              <!-- KPI 1: Recebido na Última Semana (IA) -->
+              <div class="col-span-3 p-4 rounded-2xl bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-900/90 border border-emerald-500/30 shadow-lg relative overflow-hidden group">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-300">Recebido na Semana (IA)</span>
+                  <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">💰</span>
+                </div>
+                <div id="kpi-recebido-semana-ia" class="text-xl font-extrabold text-white font-mono tracking-tight">R$ 0,00</div>
+                <span class="text-[10px] text-emerald-400/80 font-medium block mt-1 flex items-center space-x-1">
+                  <span>⚡ Cobrança Ativa IA & PIX</span>
+                </span>
+              </div>
+
+              <!-- KPI 2: A Receber Esta Semana -->
+              <div class="col-span-3 p-4 rounded-2xl bg-gradient-to-br from-amber-950/40 via-slate-900/80 to-slate-900/90 border border-amber-500/30 shadow-lg relative overflow-hidden group">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">A Receber Esta Semana</span>
+                  <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">📅</span>
+                </div>
+                <div id="kpi-a-receber-semana" class="text-xl font-extrabold text-[#f3e5ab] font-mono tracking-tight">R$ 0,00</div>
+                <span class="text-[10px] text-amber-400/80 font-medium block mt-1 flex items-center space-x-1">
+                  <span>⏳ Vencimento Segunda a Domingo</span>
+                </span>
+              </div>
+
+              <!-- KPI 3: Total a Receber Geral -->
+              <div class="col-span-3 p-4 rounded-2xl bg-gradient-to-br from-indigo-950/40 via-slate-900/80 to-slate-900/90 border border-indigo-500/30 shadow-lg relative overflow-hidden group">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-300">Total a Receber Geral</span>
+                  <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs">⏳</span>
+                </div>
+                <div id="kpi-total-a-receber" class="text-xl font-extrabold text-indigo-200 font-mono tracking-tight">R$ 0,00</div>
+                <span id="kpi-qtd-pendentes" class="text-[10px] text-indigo-300/70 font-medium block mt-1">
+                  0 parcelas pendentes
+                </span>
+              </div>
+
+              <!-- KPI 4: Total Já Arrecadado / Quitado -->
+              <div class="col-span-3 p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 via-[#d4af37]/10 to-slate-900/90 border border-[#d4af37]/35 shadow-lg relative overflow-hidden group">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#e5c158]">Total Arrecadado / Quitado</span>
+                  <span class="w-7 h-7 rounded-lg bg-[#d4af37]/20 text-[#e5c158] flex items-center justify-center text-xs">📊</span>
+                </div>
+                <div id="kpi-total-arrecadado" class="text-xl font-extrabold text-[#e5c158] font-mono tracking-tight">R$ 0,00</div>
+                <span id="kpi-contratos-quitados" class="text-[10px] text-[#e5c158]/70 font-medium block mt-1">
+                  0 contratos 100% quitados
+                </span>
+              </div>
+            </div>
+
             <!-- Painel de Configuração da Régua de Cobrança Semanal -->
             <div id="painel-cobranca-semanal" class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <div class="flex items-center justify-between">
@@ -1875,12 +1934,16 @@
               </div>
               <div class="grid grid-cols-12 gap-2.5 p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
                 <input type="text" id="fin-novo-nome" placeholder="Nome do Cliente" class="col-span-3 exec-input rounded-xl px-3 py-2 text-xs">
-                <input type="text" id="fin-novo-tel" placeholder="WhatsApp (Ex: 5511999999999)" class="col-span-3 exec-input rounded-xl px-3 py-2 text-xs font-mono">
+                <input type="text" id="fin-novo-tel" placeholder="WhatsApp (Ex: 5511999999999)" class="col-span-2 exec-input rounded-xl px-3 py-2 text-xs font-mono">
                 <input type="number" step="0.01" id="fin-novo-valor" placeholder="Valor R$ (Ex: 750.00)" class="col-span-2 exec-input rounded-xl px-3 py-2 text-xs font-mono">
                 <input type="date" id="fin-novo-vencimento" class="col-span-2 exec-input rounded-xl px-3 py-2 text-xs">
+                <div class="col-span-1 flex items-center space-x-1">
+                  <input type="number" min="1" max="36" id="fin-novo-total-parcelas" value="1" title="Quantidade de parcelas (ex: 1, 3, 6, 12)" placeholder="1x" class="exec-input w-full rounded-xl px-2 py-2 text-xs font-mono text-center">
+                </div>
                 <button type="button" onclick="adicionarParcelaFinanceiroUI()" class="col-span-2 champagne-gradient rounded-xl font-bold text-slate-950 text-xs shadow transition cursor-pointer">
                   + Lançar Parcela
                 </button>
+              </div>
               </div>
 
               <div id="tabela-parcelas" class="space-y-2 max-h-80 overflow-y-auto pr-1">
@@ -5209,6 +5272,34 @@
           if (res && res.financeiro) fin = res.financeiro;
         }
 
+        // Atualização dinâmica dos 4 KPIs Financeiros
+        if (window.api && typeof window.api.obterMetricasFinanceiras === 'function') {
+          try {
+            const met = await window.api.obterMetricasFinanceiras();
+            if (met) {
+              const elRec = document.getElementById('kpi-recebido-semana-ia');
+              if (elRec) elRec.innerText = `R$ ${met.formatados?.recebidoSemanaIA || '0,00'}`;
+
+              const elARec = document.getElementById('kpi-a-receber-semana');
+              if (elARec) elARec.innerText = `R$ ${met.formatados?.aReceberEstaSemana || '0,00'}`;
+
+              const elTotARec = document.getElementById('kpi-total-a-receber');
+              if (elTotARec) elTotARec.innerText = `R$ ${met.formatados?.totalAReceberGeral || '0,00'}`;
+
+              const elQtdPend = document.getElementById('kpi-qtd-pendentes');
+              if (elQtdPend) elQtdPend.innerText = `${met.totalParcelasPendentes || 0} parcela(s) pendente(s)`;
+
+              const elTotArr = document.getElementById('kpi-total-arrecadado');
+              if (elTotArr) elTotArr.innerText = `R$ ${met.formatados?.totalArrecadadoGeral || '0,00'}`;
+
+              const elContrQuit = document.getElementById('kpi-contratos-quitados');
+              if (elContrQuit) elContrQuit.innerText = `${met.contratosQuitados || 0} contrato(s) 100% quitado(s)`;
+            }
+          } catch (eMet) {
+            console.warn('Erro ao carregar métricas financeiras:', eMet);
+          }
+        }
+
         const elFreq = document.getElementById('frequenciaSemanal');
         if (elFreq && cfgCob.frequenciaSemanal) elFreq.value = String(cfgCob.frequenciaSemanal);
         const elPix = document.getElementById('chavePix');
@@ -5233,27 +5324,71 @@
         return;
       }
 
-      container.innerHTML = parcelas.map(p => {
-        const pago = p.status === 'PAGO';
-        const badge = pago
+      // Agrupamento por contrato para detecção de quitação total
+      const contratosMap = {};
+      parcelas.forEach(p => {
+        if (!p || p.status === 'ARQUIVADO') return;
+        const cId = p.contratoId || (p.clienteTelefone ? `tel_${String(p.clienteTelefone).replace(/\D/g, '')}` : p.id);
+        if (!contratosMap[cId]) contratosMap[cId] = [];
+        contratosMap[cId].push(p);
+      });
+
+      const parcelasAtivas = parcelas.filter(p => p && p.status !== 'ARQUIVADO');
+      if (parcelasAtivas.length === 0) {
+        container.innerHTML = '<div class="p-6 text-center text-xs text-slate-500 border border-slate-800/80 rounded-xl">Todos os contratos arquivados. Registre novas parcelas acima.</div>';
+        return;
+      }
+
+      container.innerHTML = parcelasAtivas.map(p => {
+        const pago = p.status === 'PAGO' || p.status === 'QUITADO';
+        const numParc = p.parcelaNumero || 1;
+        const totParc = p.totalParcelas || 1;
+        const cId = p.contratoId || (p.clienteTelefone ? `tel_${String(p.clienteTelefone).replace(/\D/g, '')}` : p.id);
+        const listaContrato = contratosMap[cId] || [p];
+        const contratoQuitado = listaContrato.length > 0 && listaContrato.every(item => item.status === 'PAGO' || item.status === 'QUITADO');
+        const ehUltimaPendente = !pago && numParc === totParc;
+
+        const badgeStatus = pago
           ? '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 PAGO</span>'
           : '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">⏳ PENDENTE</span>';
+
+        const badgeParcela = `<span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-bold">Parcela ${numParc} de ${totParc}</span>`;
+        const badgeUltima = ehUltimaPendente ? '<span class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">⚠️ Última Pendente</span>' : '';
+        const badgeQuitadoTotal = contratoQuitado ? '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-500/50 font-extrabold animate-pulse">🎉 CONTRATO TOTALMENTE QUITADO (100% PAGO)</span>' : '';
+
         return `
-          <div class="p-3.5 rounded-xl exec-card flex items-center justify-between text-xs border-l-4 ${pago ? 'border-emerald-500' : 'border-amber-400'}">
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="font-bold text-white">${escaparHtmlTexto(p.clienteNome || 'Cliente')}</span>
-                ${badge}
-                <span class="text-[11px] font-mono text-[#e5c158] font-bold">R$ ${Number(p.valor || 0).toFixed(2).replace('.', ',')}</span>
+          <div class="p-3.5 rounded-xl exec-card flex items-center justify-between text-xs border-l-4 ${pago ? 'border-emerald-500' : (ehUltimaPendente ? 'border-amber-400' : 'border-indigo-400')} ${contratoQuitado ? 'bg-emerald-950/20 border-emerald-500' : ''}">
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                <span class="font-bold text-white text-sm">${escaparHtmlTexto(p.clienteNome || 'Cliente')}</span>
+                ${badgeParcela}
+                ${badgeStatus}
+                ${badgeUltima}
+                ${badgeQuitadoTotal}
+                <span class="text-[12px] font-mono text-[#e5c158] font-extrabold">R$ ${Number(p.valor || 0).toFixed(2).replace('.', ',')}</span>
               </div>
-              <span class="text-[10px] text-slate-400 font-mono block mt-0.5">Tel: +${escaparHtmlTexto(p.clienteTelefone || '')} • Vencimento: ${escaparHtmlTexto(p.vencimento || '-')}</span>
+              <div class="text-[10px] text-slate-400 font-mono flex items-center space-x-3">
+                <span>📱 Tel: +${escaparHtmlTexto(p.clienteTelefone || '')}</span>
+                <span>📅 Vencimento: ${escaparHtmlTexto(p.vencimento || '-')}</span>
+                ${p.dataPagamento ? `<span class="text-emerald-400">✓ Liquidado em: ${escaparHtmlTexto(new Date(p.dataPagamento).toLocaleDateString('pt-BR'))}</span>` : ''}
+              </div>
             </div>
             <div class="flex items-center space-x-2">
               ${!pago ? `
-                <button type="button" onclick="darBaixaParcelaUI('${p.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] transition cursor-pointer">
-                  ✓ Dar Baixa Manual
+                <button type="button" onclick="darBaixaParcelaUI('${p.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] transition cursor-pointer shadow flex items-center space-x-1">
+                  <span>✓</span>
+                  <span>Dar Baixa Manual</span>
                 </button>
-              ` : `<span class="text-[10px] text-emerald-400 font-semibold">Liquidado</span>`}
+              ` : `
+                <span class="text-[11px] text-emerald-400 font-bold flex items-center space-x-1">
+                  <span>✓ Liquidado</span>
+                </span>
+              `}
+              ${contratoQuitado ? `
+                <button type="button" onclick="excluirContratoFinanceiroUI('${p.contratoId || p.id}')" class="px-2.5 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800 text-[10px] font-bold transition cursor-pointer shadow" title="Arquivar ou Excluir Contrato e Parcelas Liquidadas">
+                  🗑️ Arquivar / Excluir Contrato
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
@@ -5279,6 +5414,7 @@
       const clienteTelefone = (document.getElementById('fin-novo-tel')?.value || '').trim();
       const valor = Number(document.getElementById('fin-novo-valor')?.value || 0);
       const vencimento = document.getElementById('fin-novo-vencimento')?.value || '';
+      const totalParcelas = Math.max(1, parseInt(document.getElementById('fin-novo-total-parcelas')?.value || 1, 10));
 
       if (!clienteNome || !valor) {
         mostrarToast('⚠️ Informe o nome do cliente e o valor da parcela.');
@@ -5286,20 +5422,109 @@
       }
 
       if (window.api && typeof window.api.adicionarParcelaFinanceiro === 'function') {
-        const res = await window.api.adicionarParcelaFinanceiro({ clienteNome, clienteTelefone, valor, vencimento });
+        const res = await window.api.adicionarParcelaFinanceiro({
+          clienteNome,
+          clienteTelefone,
+          valor,
+          vencimento,
+          totalParcelas,
+          criarTodasParcelas: totalParcelas > 1
+        });
         if (res && res.parcelas) {
           renderizarTabelaParcelas(res.parcelas);
         }
       }
-      mostrarToast('✅ Parcela de honorários adicionada!');
+      mostrarToast(`✅ Honorário lançado com sucesso (${totalParcelas}x)!`);
+      await window.carregarERenderizarFinanceiro();
     };
 
     window.darBaixaParcelaUI = async function(parcelaId) {
       if (window.api && typeof window.api.darBaixaParcela === 'function') {
-        await window.api.darBaixaParcela({ parcelaId });
+        const resultado = await window.api.darBaixaParcela({ parcelaId });
+        if (resultado && resultado.success) {
+          window.exibirNotificacaoPagamento(resultado);
+        }
         await window.carregarERenderizarFinanceiro();
       }
       mostrarToast('🟢 Baixa registrada com sucesso na parcela!');
+    };
+
+    window.excluirContratoFinanceiroUI = async function(identificador) {
+      if (!confirm('Deseja arquivar e encerrar este contrato totalmente quitado? As parcelas pagas serão arquivadas do painel ativo.')) {
+        return;
+      }
+      if (window.api && typeof window.api.excluirContratoFinanceiro === 'function') {
+        const res = await window.api.excluirContratoFinanceiro({ identificador, arquivar: true });
+        if (res && res.sucesso) {
+          mostrarToast(`🎉 Contrato arquivado com sucesso (${res.parcelasAfetadas || 0} parcelas)!`);
+        }
+      }
+      await window.carregarERenderizarFinanceiro();
+    };
+
+    window.exibirNotificacaoPagamento = function(dados) {
+      if (!dados) return;
+      const container = document.getElementById('banner-container-pagamento');
+      if (!container) return;
+
+      // Alerta sonoro suave (Web Audio API triádico harmonioso de sino executivo)
+      try {
+        const som = window.alertaSinoInstancia || (typeof window.SoundAlert === 'function' ? (window.alertaSinoInstancia = new window.SoundAlert()) : null);
+        if (som && typeof som.tocarSinoSucesso === 'function') {
+          som.tocarSinoSucesso();
+        } else if (som && typeof som.playPaymentReceivedChime === 'function') {
+          som.playPaymentReceivedChime();
+        }
+      } catch (eSom) {
+        console.warn('Erro ao tocar sino de pagamento:', eSom);
+      }
+
+      const ehQuitacao = Boolean(dados.quitacaoTotal);
+      const valorFormatado = Number(dados.valorPago || dados.parcela?.valor || 0).toFixed(2).replace('.', ',');
+      const nomeCliente = dados.parcela?.clienteNome || 'Cliente';
+      const parcNum = dados.parcelasPagas || dados.parcela?.parcelaNumero || 1;
+      const parcTot = dados.totalParcelas || dados.parcela?.totalParcelas || 1;
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto p-4 rounded-2xl shadow-2xl border backdrop-blur-md transition-all duration-500 transform translate-y-0 opacity-100 ${
+        ehQuitacao
+          ? 'bg-gradient-to-r from-emerald-950/95 via-slate-900/95 to-amber-950/95 border-[#d4af37] text-white shadow-emerald-900/40'
+          : 'bg-[#121c2d]/95 border-emerald-500/50 text-white shadow-emerald-950/50'
+      }`;
+
+      toast.innerHTML = `
+        <div class="flex items-start justify-between space-x-3">
+          <div class="text-2xl">${ehQuitacao ? '🎉' : '💰'}</div>
+          <div class="flex-1 space-y-1">
+            <div class="flex items-center space-x-2">
+              <strong class="text-xs font-bold ${ehQuitacao ? 'text-[#f3e5ab]' : 'text-emerald-300'}">
+                ${ehQuitacao ? 'CONTRATO TOTALMENTE QUITADO!' : 'PAGAMENTO DE HONORÁRIO RECEBIDO!'}
+              </strong>
+            </div>
+            <p class="text-xs text-slate-200">
+              <span class="font-bold text-white">${escaparHtmlTexto(nomeCliente)}</span> realizou o pagamento de <span class="font-mono font-bold text-[#e5c158]">R$ ${valorFormatado}</span>.
+            </p>
+            <div class="text-[10px] text-slate-400 font-mono">
+              Status: Parcela ${parcNum} de ${parcTot} liquidada com sucesso!
+            </div>
+            ${ehQuitacao ? '<div class="text-[10px] text-emerald-300 font-bold">✨ Todos os honorários deste contrato foram 100% liquidados!</div>' : ''}
+          </div>
+          <button type="button" class="text-slate-400 hover:text-white text-xs font-bold p-1 cursor-pointer" onclick="this.closest('.pointer-events-auto').remove()">✕</button>
+        </div>
+        <div class="mt-2.5 pt-2 border-t border-slate-700/50 flex items-center justify-end space-x-2">
+          <button type="button" class="px-3 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 hover:text-white text-[11px] font-bold transition cursor-pointer" onclick="if (typeof ativarAba === 'function') { ativarAba('financeiro'); } this.closest('.pointer-events-auto').remove();">
+            Ver no Financeiro →
+          </button>
+        </div>
+      `;
+
+      container.appendChild(toast);
+
+      // Auto-dismiss suave em 5 segundos
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-4');
+        setTimeout(() => toast.remove(), 500);
+      }, 5000);
     };
 
     window.dispararReguaCobrancaUI = async function() {
@@ -6277,6 +6502,106 @@
             };
           }
 
+          function renderizarDocumentoNoSimulador(base64Doc, mimeType, nomeArquivo) {
+            const container = document.getElementById('simulador-mensagens-box');
+            if (!container) return;
+
+            const isPdf = (mimeType || '').includes('pdf') || (nomeArquivo || '').toLowerCase().endsWith('.pdf');
+            const div = document.createElement('div');
+            div.className = "flex justify-end mb-2.5";
+            div.innerHTML = `
+              <div class="max-w-[78%] bg-[#005c4b] text-white rounded-2xl rounded-tr-sm p-3 shadow text-xs relative group">
+                <div class="text-[10px] text-emerald-200/70 font-semibold mb-1 text-right">
+                  ${(document.getElementById('simulador-nome')?.value || 'Cliente').trim()} (Documento/Comprovante)
+                </div>
+                ${isPdf ? `
+                  <div class="p-3 bg-red-950/60 border border-red-500/40 rounded-xl flex items-center space-x-2 text-white">
+                    <span class="text-xl">📄</span>
+                    <div class="truncate flex-1">
+                      <strong class="block truncate">${escaparHtmlTexto(nomeArquivo || 'documento.pdf')}</strong>
+                      <span class="text-[9px] text-slate-300">Documento PDF anexado</span>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="rounded-xl overflow-hidden border border-emerald-400/30 max-h-48 flex items-center justify-center bg-black/40">
+                    <img src="${base64Doc}" alt="Documento enviado" class="max-h-48 w-auto object-contain rounded-lg">
+                  </div>
+                  <div class="text-[9px] text-emerald-200/80 mt-1 truncate">📎 ${escaparHtmlTexto(nomeArquivo || 'comprovante.jpg')}</div>
+                `}
+                <div class="text-[9px] text-emerald-300/60 text-right mt-1.5 font-mono">
+                  ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Enviado ✓✓
+                </div>
+              </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+          }
+
+          async function enviarDocumentoArquivoSimulador(input) {
+            if (!input || !input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const mimeType = file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
+            const nomeArquivo = file.name || 'documento.jpg';
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+              const base64Data = reader.result;
+              renderizarDocumentoNoSimulador(base64Data, mimeType, nomeArquivo);
+              await despacharDocumentoParaSimulador(base64Data, mimeType, nomeArquivo);
+              input.value = '';
+            };
+          }
+
+          async function despacharDocumentoParaSimulador(base64Doc, mimeType, nomeArquivo) {
+            const nomeCliente = (document.getElementById('simulador-nome')?.value || 'Carlos Eduardo').trim();
+            const telCliente = (document.getElementById('simulador-tel')?.value || '+55 (11) 98765-4321').trim();
+
+            mostrarToast("📄 Documento enviado! A Inteligência Artificial Gemini está auditando...");
+            adicionarIndicadorDigitando();
+            btnEnviar.disabled = true;
+
+            const api = window.api || window.electronAPI;
+            try {
+              if (api && api.simuladorEnviarMensagem) {
+                const rawBase64 = base64Doc.includes(',') ? base64Doc.split(',')[1] : base64Doc;
+                const res = await api.simuladorEnviarMensagem({
+                  texto: `Envio de documento/comprovante: ${nomeArquivo}`,
+                  telefone: telCliente,
+                  nome: nomeCliente,
+                  midia: {
+                    base64: rawBase64,
+                    mimetype: mimeType,
+                    filename: nomeArquivo
+                  }
+                });
+
+                removerIndicadorDigitando();
+
+                if (res && res.sucesso && res.resposta) {
+                  adicionarBalaoBot(res.resposta, res.transbordo === true);
+                } else if (res && res.resposta) {
+                  adicionarBalaoBot(res.resposta);
+                } else {
+                  adicionarBalaoBot("📄 Documento recebido com sucesso na simulação local.");
+                }
+
+                if (res && res.pix && res.pix.resultadoBaixa && res.pix.resultadoBaixa.success) {
+                  window.exibirNotificacaoPagamento(res.pix.resultadoBaixa);
+                  await window.carregarERenderizarFinanceiro();
+                }
+              } else {
+                removerIndicadorDigitando();
+                adicionarBalaoBot("⚠️ A API do simulador requer o aplicativo em execução via Electron.");
+              }
+            } catch (err) {
+              removerIndicadorDigitando();
+              adicionarBalaoBot(`❌ Erro ao processar documento: ${err.message}`);
+            } finally {
+              btnEnviar.disabled = false;
+              scrollAoFinal();
+            }
+          }
+
           async function despacharAudioParaIAEFila(base64Audio, mimeType) {
             const nomeCliente = (document.getElementById('simulador-nome')?.value || 'Carlos Eduardo').trim();
             const telCliente = (document.getElementById('simulador-tel')?.value || '+55 (11) 98765-4321').trim();
@@ -6610,11 +6935,25 @@
             });
           }
 
+          if (apiObj && apiObj.aoReceberNotificacaoPagamento) {
+            apiObj.aoReceberNotificacaoPagamento((dados) => {
+              if (typeof window.exibirNotificacaoPagamento === 'function') {
+                window.exibirNotificacaoPagamento(dados);
+              }
+              if (typeof window.carregarERenderizarFinanceiro === 'function') {
+                window.carregarERenderizarFinanceiro();
+              }
+            });
+          }
+
           // Expor globalmente para garantir acessibilidade via eventos inline e módulos
           window.toggleGravacaoSimulador = toggleGravacaoSimulador;
           window.cancelarGravacaoSimulador = cancelarGravacaoSimulador;
           window.renderizarAudioNoSimulador = renderizarAudioNoSimulador;
+          window.renderizarDocumentoNoSimulador = renderizarDocumentoNoSimulador;
           window.enviarAudioArquivoSimulador = enviarAudioArquivoSimulador;
+          window.enviarDocumentoArquivoSimulador = enviarDocumentoArquivoSimulador;
+          window.despacharDocumentoParaSimulador = despacharDocumentoParaSimulador;
           window.enviarMensagemSimulador = () => enviarMensagemSimulada();
           window.despacharAudioParaIAEFila = despacharAudioParaIAEFila;
           window.adicionarCardFilaComAudioECopilot = adicionarCardFilaComAudioECopilot;
@@ -6631,6 +6970,7 @@
           };
         }
 
+        window.inicializarSimuladorChat = inicializarSimuladorChat;
         inicializarSimuladorChat();
       }
     });

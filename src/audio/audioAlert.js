@@ -102,6 +102,51 @@ class SoundAlert {
       console.warn('Alerta sonoro de urgência não pôde ser executado:', e);
     }
   }
+
+  /**
+   * Dispara sino suave e harmonioso de confirmação de pagamento recebido
+   * Acorde tríade Dó5 -> Mi5 -> Sol5 (523.25Hz -> 659.25Hz -> 783.99Hz)
+   * Timbre elegante de sino executivo com envelope aveludado e não invasivo.
+   */
+  playPaymentReceivedChime() {
+    try {
+      this.init();
+      if (!this.audioCtx) return;
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+
+      const chord = [
+        { freq: 523.25, start: now, gain: 0.22 },        // Dó5
+        { freq: 659.25, start: now + 0.08, gain: 0.25 }, // Mi5
+        { freq: 783.99, start: now + 0.16, gain: 0.28 }, // Sol5
+        { freq: 1046.50, start: now + 0.28, gain: 0.18 } // Dó6 (brilho suave)
+      ];
+
+      chord.forEach(({ freq, start, gain: maxGain }) => {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+
+        gainNode.gain.setValueAtTime(0, start);
+        gainNode.gain.linearRampToValueAtTime(maxGain, start + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, start + 1.4);
+
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + 1.45);
+      });
+    } catch (e) {
+      console.warn('Alerta sonoro de pagamento não pôde ser executado:', e);
+    }
+  }
+
+  tocarSinoSucesso() {
+    this.playPaymentReceivedChime();
+  }
 }
 
 if (typeof window !== 'undefined') {

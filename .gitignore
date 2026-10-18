@@ -16,4 +16,7 @@ metadata.json
 .env.*.local
 gemini_cache.json
 test_fixtures_temp/
+config.json
+config.backup.json
+documentos_clientes/
 

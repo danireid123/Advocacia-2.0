@@ -1815,8 +1815,9 @@ ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
 });
 
 // SIMULADOR DE CHAT CLIENTE (SANDBOX LOCAL — FUNCIONA 100% SEM WHATSAPP CONECTADO)
-async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
+async function executarSimulacaoMensagem(payload = {}) {
     try {
+        const { texto, telefone, nome } = payload;
         const telLimpo = (telefone || '5511999998888').replace(/\D/g, '') || '5511999998888';
         const nomeCliente = (nome || 'Cliente Teste').trim();
         const chatId = `${telLimpo}@c.us`;
@@ -1846,7 +1847,56 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
         const remetenteChave = identidade.chaveCliente;
         const gatilhoDigitado = extrairGatilhoLimpo(mockMsg.body);
 
-        // Espelha o fluxo real: contato pausado (aguardando advogado) não recebe resposta do robô
+        // Simulação Real de Envio de Documentos e Comprovantes PIX (Subagente 1)
+        if (payload && (payload.midia || payload.arquivoBase64 || payload.buffer)) {
+            const midiaObj = payload.midia || {};
+            const rawBase64 = midiaObj.base64 || payload.arquivoBase64 || (Buffer.isBuffer(payload.buffer) ? payload.buffer.toString('base64') : '');
+            const mimeType = midiaObj.mimetype || payload.mimetype || 'image/jpeg';
+            const nomeArquivo = midiaObj.filename || payload.nomeOriginal || `midia_sim_${Date.now()}.${mimeType.includes('pdf') ? 'pdf' : 'jpg'}`;
+            const buffer = Buffer.from(rawBase64, 'base64');
+            const apiKey = config.gemini_api_key || process.env.GEMINI_API_KEY;
+
+            const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
+            const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
+
+            const sessaoAtiva = obterSessaoAtiva(remetenteChave, config);
+            const corpoMin = String(mockMsg.body || '').toLowerCase();
+            const parecePix = corpoMin.includes('pix') || corpoMin.includes('comprovante') || corpoMin.includes('pagamento');
+
+            if (sessaoAtiva && !parecePix) {
+                const resOnb = await processarMidiaOnboarding({
+                    clienteTelefone: remetenteChave,
+                    clienteNome: identidade.nomeCliente || 'Cliente',
+                    buffer,
+                    mimetype: mimeType,
+                    nomeOriginal: nomeArquivo,
+                    apiKey
+                }, config);
+                salvarConfigDisco(config, true);
+                return {
+                    success: true,
+                    sucesso: true,
+                    resposta: resOnb.mensagemFeedbackWhatsApp || "📄 Documento recebido e auditado pela IA!",
+                    onboarding: resOnb
+                };
+            } else {
+                const resPix = await processarComprovanteRecebido(remetenteChave, buffer, mimeType, apiKey, config);
+                salvarConfigDisco(config, true);
+                if (resPix && resPix.resultadoBaixa && resPix.resultadoBaixa.success) {
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('notificacao-pagamento', resPix.resultadoBaixa);
+                    }
+                }
+                return {
+                    success: true,
+                    sucesso: true,
+                    resposta: resPix.mensagemFeedbackWhatsApp || (resPix.comprovanteValido ? "✅ Comprovante PIX validado com sucesso!" : "⚠️ Comprovante com divergência."),
+                    pix: resPix
+                };
+            }
+        }
+
+        // Espelha o fluxo real: contato pausado (aguardando advogado)
         const regPausaSim = contatosPausados[remetenteChave];
         const tsPausaSim = regPausaSim && (typeof regPausaSim === 'object' ? regPausaSim.timestamp : regPausaSim);
         if (tsPausaSim && (Date.now() - tsPausaSim < 24 * 60 * 60 * 1000)) {
@@ -1880,7 +1930,14 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
                 });
             }
 
-            return { success: true, sucesso: true, resposta: '', pausado: true, transbordo: false, itemPausado: contatosPausados[remetenteChave] };
+            return {
+                success: true,
+                sucesso: true,
+                resposta: "⏸️ *Mensagem registrada:* O robô permanece em pausa pois o contato está na *Fila de Espera*. A mensagem foi anexada à ficha para o advogado.",
+                pausado: true,
+                transbordo: false,
+                itemPausado: contatosPausados[remetenteChave]
+            };
         }
 
         // Métricas do topo + Histórico de Mensagens (mesmo caminho do WhatsApp real)
@@ -2569,10 +2626,50 @@ ipcMain.handle('dar-baixa-parcela', async (event, payload = {}) => {
         const resultado = darBaixaParcela(parcelaId, cfg, dadosPagamento);
         if (resultado.sucesso) {
             salvarConfigDisco(cfg);
+            // Notificação suave para a interface
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('notificacao-pagamento', resultado);
+            }
+            // Notificação nativa não invasiva do Windows
+            try {
+                if (Notification && typeof Notification.isSupported === 'function' && Notification.isSupported()) {
+                    new Notification({
+                        title: resultado.quitacaoTotal ? '🎉 Honorários Totalmente Quitados!' : '💰 Pagamento Recebido',
+                        body: resultado.mensagemNotificacao || `${resultado.clienteNome} pagou R$ ${resultado.valorPago}`
+                    }).show();
+                }
+            } catch (errNotif) {}
         }
         return resultado;
     } catch (err) {
         console.error('[IPC dar-baixa-parcela] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('obter-metricas-financeiras', async () => {
+    try {
+        const { obterMetricasFinanceiras } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const metricas = obterMetricasFinanceiras(cfg);
+        return { sucesso: true, success: true, metricas };
+    } catch (err) {
+        console.error('[IPC obter-metricas-financeiras] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('excluir-contrato-financeiro', async (event, payload = {}) => {
+    try {
+        const { excluirContratoFinanceiro } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const identificador = typeof payload === 'string' ? payload : (payload.contratoId || payload.id || payload.clienteTelefone);
+        const arquivar = payload.arquivar !== false;
+        const res = excluirContratoFinanceiro(identificador, cfg, arquivar);
+        salvarConfigDisco(cfg);
+        return { sucesso: true, success: true, ...res };
+    } catch (err) {
+        console.error('[IPC excluir-contrato-financeiro] Erro:', err);
         return { sucesso: false, erro: err.message };
     }
 });

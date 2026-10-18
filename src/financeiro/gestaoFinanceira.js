@@ -206,6 +206,7 @@ async function dispararReguaCobranca(config, opcoesEnvio = {}) {
 
 /**
  * Liquida (dá baixa) em uma parcela pelo seu ID e registra os dados do comprovante.
+ * Detecta quitação total do contrato quando todas as parcelas forem pagas.
  */
 function darBaixaParcela(parcelaId, config, dadosBaixa = {}) {
     garantirEstruturaFinanceira(config);
@@ -225,10 +226,52 @@ function darBaixaParcela(parcelaId, config, dadosBaixa = {}) {
     parcela.idTransacao = dadosBaixa.idTransacao || parcela.idTransacao || `BAIXA_${Date.now()}`;
     parcela.bancoOrigem = dadosBaixa.bancoOrigem || parcela.bancoOrigem || 'Manual / Confirmado';
     parcela.nomePagador = dadosBaixa.nomePagador || parcela.clienteNome || '';
+    if (dadosBaixa.origem) parcela.origemPagamento = dadosBaixa.origem;
+
+    // Localiza todas as parcelas do mesmo contrato ou mesmo cliente
+    const contratoId = parcela.contratoId;
+    const clienteTel = apenasNumeros(parcela.clienteTelefone || parcela.telefone || '');
+    
+    const parcelasIrmas = config.financeiro.parcelas.filter(p => {
+        if (p.status === 'ARQUIVADO') return false;
+        if (contratoId && p.contratoId) return p.contratoId === contratoId;
+        if (clienteTel) {
+            const pTel = apenasNumeros(p.clienteTelefone || p.telefone || '');
+            return pTel === clienteTel;
+        }
+        return false;
+    });
+
+    const totalParcelasContrato = parcelasIrmas.length || Number(parcela.totalParcelas || 1);
+    const pagas = parcelasIrmas.filter(p => p.status === 'PAGO');
+    const todasPagas = parcelasIrmas.length > 0 && parcelasIrmas.every(p => p.status === 'PAGO');
+    const quitacaoTotal = todasPagas;
+
+    if (todasPagas) {
+        parcelasIrmas.forEach(p => {
+            p.statusContrato = 'TOTALMENTE_QUITADO';
+        });
+    }
+
+    const valorTotalContrato = parcelasIrmas.reduce((acc, curr) => acc + Number(curr.valor || 0), 0);
+    const parcelaNum = parcela.parcelaNumero || (parcelasIrmas.indexOf(parcela) + 1);
 
     return {
         success: true,
-        parcela
+        sucesso: true,
+        parcela,
+        quitacaoTotal,
+        contratoId: contratoId || `cont_${clienteTel || 'geral'}`,
+        clienteNome: parcela.clienteNome,
+        clienteTelefone: parcela.clienteTelefone,
+        valorPago: parcela.valorPago,
+        totalContrato: valorTotalContrato,
+        parcelasPagas: pagas.length,
+        totalParcelas: totalParcelasContrato,
+        parcelaNumero: parcelaNum,
+        mensagemNotificacao: quitacaoTotal
+            ? `🎉 CONTRATO TOTALMENTE QUITADO (100% PAGO)! ${parcela.clienteNome} quitou todas as ${totalParcelasContrato} parcelas (Total: R$ ${formatarMoedaBR(valorTotalContrato)})`
+            : `💰 Pagamento Recebido: ${parcela.clienteNome} pagou R$ ${formatarMoedaBR(parcela.valorPago)} (Parcela ${parcelaNum} de ${totalParcelasContrato})`
     };
 }
 
@@ -242,7 +285,7 @@ async function processarComprovanteRecebido(clienteTelefone, buffer, mimetype, a
 
     const parcelaPendente = config.financeiro.parcelas.find(p => {
         const status = String(p.status || 'PENDENTE').toUpperCase();
-        if (status === 'PAGO') return false;
+        if (status === 'PAGO' || status === 'ARQUIVADO') return false;
         const pTel = apenasNumeros(p.clienteTelefone || p.telefone || '');
         return !telLimpo || !pTel || pTel === telLimpo || pTel.endsWith(telLimpo) || telLimpo.endsWith(pTel);
     });
@@ -267,38 +310,225 @@ async function processarComprovanteRecebido(clienteTelefone, buffer, mimetype, a
     config.financeiro.comprovantesRecebidos.unshift(registroComprovante);
 
     let parcelaBaixada = null;
+    let resultadoBaixa = null;
     if (laudo.comprovanteValido && parcelaPendente) {
-        const resBaixa = darBaixaParcela(parcelaPendente.id, config, laudo.dadosLidos || {});
-        if (resBaixa.success) {
-            parcelaBaixada = resBaixa.parcela;
+        resultadoBaixa = darBaixaParcela(parcelaPendente.id, config, {
+            ...(laudo.dadosLidos || {}),
+            origem: 'IA_COMPROVANTE'
+        });
+        if (resultadoBaixa.success) {
+            parcelaBaixada = resultadoBaixa.parcela;
         }
     }
 
     return {
         success: true,
+        sucesso: true,
         comprovanteValido: laudo.comprovanteValido,
         laudo,
         parcelaBaixada,
+        resultadoBaixa,
         registroComprovante,
         mensagemFeedbackWhatsApp: laudo.mensagemFeedbackWhatsApp
     };
 }
 
+/**
+ * Adiciona uma ou múltiplas parcelas (X de Y) para um contrato de honorários.
+ */
 function adicionarParcela(dadosParcela, config) {
     garantirEstruturaFinanceira(config);
+    const totalParcelas = Math.max(1, parseInt(dadosParcela.totalParcelas || dadosParcela.parcelasQtd || 1, 10));
+    const contratoId = dadosParcela.contratoId || `cont_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const valorTotal = Number(dadosParcela.valor || 0);
+    const parcelasCriadas = [];
+
+    // Se o usuário solicitou criar todas as N parcelas de uma vez
+    if (totalParcelas > 1 && dadosParcela.criarTodasParcelas) {
+        const valorPorParcela = Number((valorTotal / totalParcelas).toFixed(2));
+        const dtBase = dadosParcela.vencimento ? new Date(dadosParcela.vencimento) : new Date();
+
+        for (let i = 1; i <= totalParcelas; i++) {
+            const dtVenc = new Date(dtBase);
+            dtVenc.setMonth(dtVenc.getMonth() + (i - 1));
+            const nova = {
+                id: `parc_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 6)}`,
+                contratoId,
+                parcelaNumero: i,
+                totalParcelas,
+                clienteNome: String(dadosParcela.clienteNome || dadosParcela.nome || 'Cliente').trim(),
+                clienteTelefone: String(dadosParcela.clienteTelefone || dadosParcela.telefone || '').trim(),
+                descricao: String(dadosParcela.descricao || 'Honorários Advocatícios').trim(),
+                valor: valorPorParcela,
+                vencimento: dtVenc.toISOString().slice(0, 10),
+                status: 'PENDENTE',
+                statusContrato: 'EM_ANDAMENTO',
+                cobrancasNaSemana: 0,
+                criadoEm: new Date().toISOString()
+            };
+            config.financeiro.parcelas.push(nova);
+            parcelasCriadas.push(nova);
+        }
+        return parcelasCriadas[0];
+    }
+
     const nova = {
         id: dadosParcela.id || `parc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        contratoId,
+        parcelaNumero: parseInt(dadosParcela.parcelaNumero || 1, 10),
+        totalParcelas,
         clienteNome: String(dadosParcela.clienteNome || dadosParcela.nome || 'Cliente').trim(),
         clienteTelefone: String(dadosParcela.clienteTelefone || dadosParcela.telefone || '').trim(),
         descricao: String(dadosParcela.descricao || 'Honorários Advocatícios').trim(),
-        valor: Number(dadosParcela.valor || 0),
+        valor: valorTotal,
         vencimento: String(dadosParcela.vencimento || new Date().toISOString().slice(0, 10)).trim(),
         status: String(dadosParcela.status || 'PENDENTE').toUpperCase(),
+        statusContrato: 'EM_ANDAMENTO',
         cobrancasNaSemana: 0,
         criadoEm: new Date().toISOString()
     };
     config.financeiro.parcelas.push(nova);
     return nova;
+}
+
+/**
+ * Arquiva ou exclui com 1 clique todas as parcelas de um contrato totalmente quitado.
+ */
+function excluirContratoFinanceiro(identificador, config, arquivar = true) {
+    garantirEstruturaFinanceira(config);
+    const idLimpo = String(identificador || '').trim();
+    const telLimpo = apenasNumeros(idLimpo);
+
+    let parcelasAfetadas = 0;
+    if (arquivar) {
+        config.financeiro.parcelas.forEach(p => {
+            const coincideContrato = p.contratoId && p.contratoId === idLimpo;
+            const coincideId = p.id === idLimpo;
+            const coincideTel = telLimpo && apenasNumeros(p.clienteTelefone || p.telefone || '') === telLimpo;
+            if (coincideContrato || coincideId || coincideTel) {
+                p.status = 'ARQUIVADO';
+                p.arquivadoEm = new Date().toISOString();
+                parcelasAfetadas++;
+            }
+        });
+    } else {
+        const antes = config.financeiro.parcelas.length;
+        config.financeiro.parcelas = config.financeiro.parcelas.filter(p => {
+            const coincideContrato = p.contratoId && p.contratoId === idLimpo;
+            const coincideId = p.id === idLimpo;
+            const coincideTel = telLimpo && apenasNumeros(p.clienteTelefone || p.telefone || '') === telLimpo;
+            return !(coincideContrato || coincideId || coincideTel);
+        });
+        parcelasAfetadas = antes - config.financeiro.parcelas.length;
+    }
+
+    return {
+        success: true,
+        sucesso: true,
+        arquivado: Boolean(arquivar),
+        parcelasAfetadas
+    };
+}
+
+/**
+ * Calcula em tempo real os 4 KPIs do Dashboard Financeiro Executivo:
+ * 1. Recebido na Última Semana (Cobrado via IA)
+ * 2. A Receber Esta Semana (Segunda a Domingo corrente)
+ * 3. Total a Receber (Geral)
+ * 4. Total Já Arrecadado / Quitado (Acumulado)
+ */
+function obterMetricasFinanceiras(config, dataReferencia = null) {
+    garantirEstruturaFinanceira(config);
+    const parcelas = config.financeiro.parcelas || [];
+    const agora = dataReferencia ? new Date(dataReferencia) : new Date();
+
+    // Início e fim da semana corrente (segunda a domingo)
+    const diaSemanaHoje = agora.getDay(); // 0 = Domingo, 1 = Segunda
+    const diffParaSegunda = agora.getDate() - (diaSemanaHoje === 0 ? 6 : diaSemanaHoje - 1);
+    const inicioSemana = new Date(agora);
+    inicioSemana.setDate(diffParaSegunda);
+    inicioSemana.setHours(0, 0, 0, 0);
+
+    const fimSemana = new Date(inicioSemana);
+    fimSemana.setDate(fimSemana.getDate() + 6);
+    fimSemana.setHours(23, 59, 59, 999);
+
+    const seteDiasAtras = new Date(agora.getTime() - (7 * 24 * 60 * 60 * 1000));
+
+    let recebidoSemanaIA = 0;
+    let aReceberEstaSemana = 0;
+    let totalAReceberGeral = 0;
+    let totalArrecadadoGeral = 0;
+    let totalParcelasPagas = 0;
+    let totalParcelasPendentes = 0;
+    let contratosQuitados = 0;
+
+    const contratosMap = {};
+
+    parcelas.forEach(p => {
+        if (!p || typeof p !== 'object' || p.status === 'ARQUIVADO') return;
+        const status = String(p.status || 'PENDENTE').toUpperCase();
+        const valor = Number(p.valor || 0);
+        const valorPago = Number(p.valorPago !== undefined ? p.valorPago : valor);
+
+        // Agrupamento por contrato para detecção de quitação
+        const cId = p.contratoId || (p.clienteTelefone ? `tel_${apenasNumeros(p.clienteTelefone)}` : p.id);
+        if (!contratosMap[cId]) contratosMap[cId] = [];
+        contratosMap[cId].push(p);
+
+        if (status === 'PAGO' || status === 'QUITADO') {
+            totalArrecadadoGeral += valorPago;
+            totalParcelasPagas++;
+
+            // Recebido na última semana com intermediação de IA
+            let dataPagto = p.dataPagamento ? new Date(p.dataPagamento) : null;
+            if (!dataPagto || isNaN(dataPagto.getTime())) dataPagto = agora;
+
+            const intermediadoIA = Boolean(
+                p.origemPagamento === 'IA' ||
+                p.origemPagamento === 'IA_COMPROVANTE' ||
+                p.cobrancasNaSemana > 0 ||
+                p.intermediadoIA ||
+                p.idTransacao
+            );
+
+            if (dataPagto >= seteDiasAtras && intermediadoIA) {
+                recebidoSemanaIA += valorPago;
+            }
+        } else if (status === 'PENDENTE' || status === 'ATRASADO') {
+            totalAReceberGeral += valor;
+            totalParcelasPendentes++;
+
+            if (p.vencimento) {
+                const dtVenc = new Date(p.vencimento + 'T12:00:00');
+                if (!isNaN(dtVenc.getTime()) && dtVenc >= inicioSemana && dtVenc <= fimSemana) {
+                    aReceberEstaSemana += valor;
+                }
+            }
+        }
+    });
+
+    Object.values(contratosMap).forEach(lista => {
+        if (lista.length > 0 && lista.every(item => item.status === 'PAGO' || item.status === 'QUITADO')) {
+            contratosQuitados++;
+        }
+    });
+
+    return {
+        recebidoSemanaIA: Number(recebidoSemanaIA.toFixed(2)),
+        aReceberEstaSemana: Number(aReceberEstaSemana.toFixed(2)),
+        totalAReceberGeral: Number(totalAReceberGeral.toFixed(2)),
+        totalArrecadadoGeral: Number(totalArrecadadoGeral.toFixed(2)),
+        totalParcelasPagas,
+        totalParcelasPendentes,
+        contratosQuitados,
+        formatados: {
+            recebidoSemanaIA: formatarMoedaBR(recebidoSemanaIA),
+            aReceberEstaSemana: formatarMoedaBR(aReceberEstaSemana),
+            totalAReceberGeral: formatarMoedaBR(totalAReceberGeral),
+            totalArrecadadoGeral: formatarMoedaBR(totalArrecadadoGeral)
+        }
+    };
 }
 
 function salvarConfiguracaoCobranca(novaConfigCobranca, config) {
@@ -320,6 +550,8 @@ module.exports = {
     darBaixaParcela,
     processarComprovanteRecebido,
     adicionarParcela,
+    excluirContratoFinanceiro,
+    obterMetricasFinanceiras,
     salvarConfiguracaoCobranca,
     garantirEstruturaFinanceira
 };
