@@ -129,10 +129,18 @@ async function executarTestesAudioECopilot() {
     assert.ok(indexContent.includes('function enviarRespostaAdvogado'), 'Deve implementar enviarRespostaAdvogado');
   });
 
-  testar('index.html garante compatibilidade do botão enviar e container de pausados', () => {
+  testar('index.html contém botão "Ver Resumo do Cliente" e alternarResumoCliente', () => {
     const indexContent = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
-    assert.ok(indexContent.includes('window.enviarMensagemSimulador'), 'Deve expor window.enviarMensagemSimulador');
-    assert.ok(indexContent.includes('id="lista-pausados"'), 'Deve possuir container lista-pausados');
+    assert.ok(indexContent.includes('Ver Resumo do Cliente'), 'Deve conter texto do botão Ver Resumo do Cliente');
+    assert.ok(indexContent.includes('alternarResumoCliente'), 'Deve implementar a função alternarResumoCliente');
+    assert.ok(indexContent.includes('painel-resumo-'), 'Deve possuir container expansível de resumo e transcrição');
+  });
+
+  testar('main.js e preload.js possuem canal IPC "responder-cliente-pausado"', () => {
+    const mainContent = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf-8');
+    const preloadContent = fs.readFileSync(path.join(__dirname, 'preload.js'), 'utf-8');
+    assert.ok(mainContent.includes("ipcMain.handle('responder-cliente-pausado'"), 'main.js deve conter o handler responder-cliente-pausado');
+    assert.ok(preloadContent.includes("responderClientePausado:"), 'preload.js deve expor responderClientePausado');
   });
 
   console.log('\n================================================================');

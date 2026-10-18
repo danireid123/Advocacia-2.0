@@ -43,16 +43,17 @@ const apiBridge = {
     // Transbordo Humano & IA
     notificarTransbordoHumano: (dados) => ipcRenderer.invoke('notify-transbordo-humano', dados),
     atenderClienteFila: (telefone) => ipcRenderer.invoke('remover-pausa', telefone),
+    responderClientePausado: (dados) => ipcRenderer.invoke('responder-cliente-pausado', dados),
     testarConexaoIA: (chave) => ipcRenderer.invoke('ia-testar-conexao', chave),
     catalogarPecaProcessual: (dados) => ipcRenderer.invoke('ia-catalogar-peca', dados),
     processarAudioCopilot: (payload) => ipcRenderer.invoke('processar-audio-copilot', payload),
 
     // Simulador de Chat & Higienização
     simuladorEnviarMensagem: (dados) => ipcRenderer.invoke('simulador-enviar-mensagem', dados),
-  simuladorResetarConversa: (dados) => ipcRenderer.invoke('simulador-resetar-conversa', dados),
-  salvarProcessoManual: (registro) => ipcRenderer.invoke('processo-salvar-manual', registro),
-  anexarPecasProcesso: (dados) => ipcRenderer.invoke('processo-anexar-pecas', dados),
-  anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
+    simuladorResetarConversa: (dados) => ipcRenderer.invoke('simulador-resetar-conversa', dados),
+    salvarProcessoManual: (registro) => ipcRenderer.invoke('processo-salvar-manual', registro),
+    anexarPecasProcesso: (dados) => ipcRenderer.invoke('processo-anexar-pecas', dados),
+    anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
     higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
 
     // Listeners Específicos Legados
@@ -65,6 +66,7 @@ const apiBridge = {
     aoAtualizarIgnorados: (callback) => ipcRenderer.on('bot-ignorados-sync', (_e, lista) => callback(lista)),
     aoReceberEventoUpdate: (callback) => ipcRenderer.on('bot-update-status', (_e, dados) => callback(dados)),
     aoReceberTransbordoHumano: (callback) => ipcRenderer.on('bot-transbordo-humano', (_e, dados) => callback(dados)),
+    aoReceberRespostaAdvogadoSimulador: (callback) => ipcRenderer.on('simulador-resposta-advogado', (_e, dados) => callback(dados)),
 
     // Helper genérico para escuta de eventos
     on: (canal, callback) => {

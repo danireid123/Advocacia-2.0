@@ -35,6 +35,8 @@ let mainWindow;
 let client = null;
 let configEmMemoria = null;
 let contatosPausados = {};
+let historicoConversas = {};
+let dadosAudiosPorContato = {};
 let estadosUsuarios = {};
 let avisoForaHorarioRecente = {};
 let mensagensJaProcessadas = new Set();
@@ -627,18 +629,32 @@ async function processarMensagemEntrada(msg) {
             });
         }
 
+        if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+        historicoConversas[remetenteChave].push({
+            de: 'cliente',
+            texto: textoOriginal,
+            hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+
         const prefixoHorario = obterPrefixoHorario(config, remetenteChave);
         const responderCliente = async (txt) => {
             await enviarMensagemSegura(msg, msg.from, prefixoHorario + txt);
         };
 
         const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
+            const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
                 telefone: identidade.telefoneFormatado,
                 exibicao: identidade.exibicao,
-                idChat: msg.from
+                idChat: msg.from,
+                origem: 'WHATSAPP',
+                mensagens: (historicoConversas[remetenteChave] || []).slice(-10),
+                audioBase64: audioSalvo.audioBase64 || null,
+                transcricao: audioSalvo.transcricao || null,
+                resumo: audioSalvo.resumo || null,
+                sugestoesResposta: audioSalvo.sugestoesResposta || null
             };
             delete estadosUsuarios[remetenteChave];
             emitirPausados();
@@ -1516,6 +1532,13 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
             });
         }
 
+        if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+        historicoConversas[remetenteChave].push({
+            de: 'cliente',
+            texto: mockMsg.body,
+            hora: horaLog()
+        });
+
         const prefixoHorario = obterPrefixoHorario(config, remetenteChave);
         const responderCliente = async (txt) => {
             respostaSimulada = prefixoHorario + txt;
@@ -1535,13 +1558,19 @@ async function executarSimulacaoMensagem({ texto, telefone, nome } = {}) {
 
         const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"') => {
             acaoTransbordo = true;
+            const audioSalvo = dadosAudiosPorContato[remetenteChave] || {};
             contatosPausados[remetenteChave] = {
                 timestamp: Date.now(),
                 nome: identidade.nomeCliente || '',
                 telefone: identidade.telefoneFormatado,
                 exibicao: identidade.exibicao,
                 idChat: mockMsg.from,
-                origem: 'SIMULADOR'
+                origem: 'SIMULADOR',
+                mensagens: (historicoConversas[remetenteChave] || []).slice(-10),
+                audioBase64: audioSalvo.audioBase64 || null,
+                transcricao: audioSalvo.transcricao || null,
+                resumo: audioSalvo.resumo || null,
+                sugestoesResposta: audioSalvo.sugestoesResposta || null
             };
             delete estadosUsuarios[remetenteChave];
             emitirPausados();
@@ -1685,6 +1714,8 @@ async function resetarConversaSimulador(dados = {}) {
     let despausado = false;
     [tel, `${tel}@c.us`].forEach(k => {
         delete estadosUsuarios[k];
+        delete historicoConversas[k];
+        delete dadosAudiosPorContato[k];
         if (contatosPausados[k]) { delete contatosPausados[k]; despausado = true; }
     });
     // Libera o reenvio de andamentos para este contato (permite testar "novo andamento" de novo)
@@ -1848,7 +1879,28 @@ ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
             ...(contexto || {}),
             apiKey: (contexto && contexto.apiKey) || config.gemini_api_key || process.env.GEMINI_API_KEY
         };
-        return await processarAudioECopilot(audioBase64, mimeType || 'audio/webm', contextoFinal);
+        const resultado = await processarAudioECopilot(audioBase64, mimeType || 'audio/webm', contextoFinal);
+
+        // Enriquecer e sincronizar com contato pausado
+        const telLimpo = apenasNumeros((contexto && (contexto.telefone || contexto.numero || contexto.chave)) || '');
+        if (telLimpo) {
+            dadosAudiosPorContato[telLimpo] = {
+                audioBase64,
+                mimeType,
+                transcricao: resultado.transcricao,
+                resumo: resultado.resumo,
+                sugestoesResposta: resultado.sugestoesResposta
+            };
+            if (contatosPausados[telLimpo]) {
+                contatosPausados[telLimpo].audioBase64 = audioBase64;
+                contatosPausados[telLimpo].transcricao = resultado.transcricao;
+                contatosPausados[telLimpo].resumo = resultado.resumo;
+                contatosPausados[telLimpo].sugestoesResposta = resultado.sugestoesResposta;
+                emitirPausados();
+            }
+        }
+
+        return resultado;
     } catch (err) {
         return {
             sucesso: false,
@@ -1861,6 +1913,36 @@ ipcMain.handle('processar-audio-copilot', async (event, dados = {}) => {
                 "Entendido. Em breve retornaremos com a orientação jurídica necessária."
             ]
         };
+    }
+});
+
+// RESPONDER CLIENTE PAUSADO (FINALIZA ATENDIMENTO NA FILA)
+ipcMain.handle('responder-cliente-pausado', async (event, { chave, textoResposta }) => {
+    try {
+        const numLimpo = apenasNumeros(chave);
+        const item = contatosPausados[numLimpo] || contatosPausados[chave];
+        if (item) {
+            if (item.origem === 'WHATSAPP' && client && item.idChat) {
+                try {
+                    await client.sendMessage(item.idChat, `👨‍⚖️ *Mensagem do Advogado:*\n\n${textoResposta}`);
+                } catch (e) {
+                    console.error('Erro ao enviar mensagem pelo WhatsApp:', e);
+                }
+            } else if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('simulador-resposta-advogado', {
+                    chave: numLimpo,
+                    texto: textoResposta,
+                    nomeAdvogado: 'Advogado Responsável'
+                });
+            }
+            delete contatosPausados[numLimpo];
+            delete contatosPausados[chave];
+            emitirPausados();
+            return { sucesso: true, despausado: true };
+        }
+        return { sucesso: false, erro: 'Contato não localizado na fila.' };
+    } catch (err) {
+        return { sucesso: false, erro: err.message };
     }
 });
 

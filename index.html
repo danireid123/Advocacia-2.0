@@ -1526,8 +1526,11 @@
                 <input type="text" id="simulador-nome" value="Carlos Eduardo Teste" class="exec-input w-full rounded-xl px-3 py-1.5 text-xs">
               </div>
               <div class="col-span-3">
-                <label class="text-[11px] font-bold text-indigo-300 block mb-1">Chave Google Gemini API</label>
-                <input type="password" id="proc-gemini-api-key" placeholder="AQ.Ab8... ou AIzaSy..." class="exec-input w-full rounded-xl px-3 py-1.5 text-xs font-mono" title="Chave oficial da Google AI Studio para tradução leiga de andamentos">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-bold text-indigo-300">Chave Google Gemini</label>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium">✓ IA Ativa de Fábrica</span>
+                </div>
+                <input type="password" id="proc-gemini-api-key" placeholder="✓ Chave interna já ativa (Opcional)" class="exec-input w-full rounded-xl px-3 py-1.5 text-xs font-mono" title="O sistema já possui a inteligência artificial pronta e ativa de fábrica. Preencha aqui apenas se quiser usar uma chave própria opcional.">
               </div>
               <div class="col-span-3 flex flex-col justify-end">
                 <div class="flex items-center space-x-1.5">
@@ -1727,7 +1730,9 @@
             "Poderia nos confirmar o seu número de CPF para localizarmos o processo?",
             "Recebido com sucesso. Vamos verificar o andamento e retornaremos em breve."
           ]
-        })
+        }),
+        responderClientePausado: async () => ({ sucesso: true, despausado: true }),
+        aoReceberRespostaAdvogadoSimulador: () => {}
       };
     }
     if (!window.electronAPI) window.electronAPI = window.api;
@@ -3489,16 +3494,52 @@
       mostrarToast(e.target.checked ? 'Início automático com o PC ativado!' : 'Início com o PC desativado.');
     });
 
+    function alternarResumoCliente(cardId) {
+      const painel = document.getElementById(`painel-resumo-${cardId}`);
+      const label = document.getElementById(`label-resumo-${cardId}`);
+      const seta = document.getElementById(`seta-resumo-${cardId}`);
+      if (!painel) return;
+
+      const estaOculto = painel.classList.contains('hidden');
+      if (estaOculto) {
+        painel.classList.remove('hidden');
+        if (label) label.innerText = 'Ocultar Resumo do Cliente';
+        if (seta) seta.classList.add('rotate-180');
+      } else {
+        painel.classList.add('hidden');
+        if (label) label.innerText = 'Ver Resumo do Cliente';
+        if (seta) seta.classList.remove('rotate-180');
+      }
+    }
+
+    function escaparHtmlTexto(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     function renderizarPausados(mapa) {
       const container = document.getElementById('lista-pausados');
       const chaves = Object.keys(mapa || {});
       document.getElementById('badge-pausados').innerText = String(chaves.length);
       atualizarPainelMetricas(chaves.length);
-      container.innerHTML = chaves.length === 0 ? '<div class="exec-card p-10 rounded-2xl text-center text-xs text-slate-400">Nenhum cliente aguardando advogado no momento.</div>' : '';
-      
-      chaves.forEach(chave => {
+
+      if (chaves.length === 0) {
+        container.innerHTML = '<div class="exec-card p-10 rounded-2xl text-center text-xs text-slate-400">Nenhum cliente aguardando advogado no momento.</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      chaves.forEach((chave, index) => {
         const item = mapa[chave];
         const numLimpo = String(chave).replace(/\D/g, '');
+        const cardId = `pausado_${numLimpo}_${index}`;
+
         const nomeSalvo = (typeof item === 'object' && item.nome)
           ? item.nome
           : ((configGlobal.mapaNomes && configGlobal.mapaNomes[numLimpo]) || '');
@@ -3508,23 +3549,187 @@
 
         const tituloExibicao = nomeSalvo ? `${nomeSalvo}` : telFormatado;
         const subtituloTel = nomeSalvo ? `Telefone: ${telFormatado}` : 'Contato aguardando atendimento';
+        const horaChegada = (typeof item === 'object' && item.timestamp)
+          ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const cacheLocal = (window.dadosFilaCopilot && (window.dadosFilaCopilot[numLimpo] || window.dadosFilaCopilot[chave])) || {};
+
+        const audioSrc = (typeof item === 'object' && item.audioBase64) || cacheLocal.audioBase64 || null;
+        const transcricao = (typeof item === 'object' && item.transcricao) || cacheLocal.transcricao || (audioSrc ? 'Áudio aguardando processamento da IA...' : 'Cliente entrou em contato por texto solicitando atendimento com o advogado.');
+        const resumo = (typeof item === 'object' && item.resumo) || cacheLocal.resumo || '• Cliente solicitou atendimento humano com o advogado.\n• O robô pausou o autoatendimento e aguarda intervenção.';
+
+        const sugestoes = (typeof item === 'object' && Array.isArray(item.sugestoesResposta) && item.sugestoesResposta.length > 0)
+          ? item.sugestoesResposta
+          : (Array.isArray(cacheLocal.sugestoesResposta) && cacheLocal.sugestoesResposta.length > 0)
+            ? cacheLocal.sugestoesResposta
+            : [
+                "Olá! Já estou abrindo sua pasta processual e retornarei com todos os detalhes.",
+                "Olá! Recebi sua mensagem. Como posso orientar você sobre o seu caso hoje?",
+                "Perfeito! Poderia nos enviar seu número de CPF para localizarmos sua ficha?"
+              ];
+
+        const mensagensCliente = (typeof item === 'object' && Array.isArray(item.mensagens) && item.mensagens.length > 0)
+          ? item.mensagens
+          : (Array.isArray(cacheLocal.mensagens) && cacheLocal.mensagens.length > 0)
+            ? cacheLocal.mensagens
+            : [{ de: 'cliente', texto: 'Solicitação de atendimento direto com advogado.' }];
+
+        const listaMsgsHTML = mensagensCliente.map(m => {
+          const autor = m.de === 'cliente' ? (nomeSalvo || 'Cliente') : 'Robô';
+          const cor = m.de === 'cliente' ? 'text-emerald-300 font-semibold' : 'text-slate-400';
+          return `<div class="p-2 bg-slate-900/80 rounded-lg text-xs border border-slate-800/80 flex items-start space-x-2">
+            <span class="${cor} whitespace-nowrap text-[11px]">${autor}:</span>
+            <span class="text-slate-200">${escaparHtmlTexto(m.texto || '')}</span>
+          </div>`;
+        }).join('');
+
+        const sugestoesHTML = sugestoes.map((sug) => {
+          const sugEscapada = String(sug).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+          return `
+            <div class="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
+              <p class="text-xs text-slate-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
+              <button type="button" onclick="aplicarSugestaoCopilot('${cardId}', '${sugEscapada}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap cursor-pointer">
+                Usar Esta ⚡
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        const playerAudioHTML = audioSrc ? `
+          <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider block mb-1.5 flex items-center space-x-1.5">
+              <span>🎙️ Mensagem de Voz Enviada pelo Cliente:</span>
+            </span>
+            <audio controls src="${audioSrc}" class="w-full h-8 mt-1"></audio>
+          </div>
+        ` : '';
 
         const div = document.createElement('div');
-        div.className = "exec-card p-4 rounded-xl flex items-center justify-between text-xs border-l-4 border-amber-400";
+        div.className = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
+        div.id = `card-pausado-${cardId}`;
         div.innerHTML = `
-          <div>
-            <span class="font-bold text-white text-sm block">${tituloExibicao}</span>
-            <span class="text-[11px] text-[#e5c158] block">${subtituloTel}</span>
-            <span class="text-[10px] text-amber-400">Robô pausado para atendimento pessoal do advogado</span>
+          <!-- Linha Principal -->
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span class="font-bold text-white text-sm">${tituloExibicao}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Chegou às ${horaChegada}</span>
+              </div>
+              <span class="text-[11px] text-[#e5c158] block mt-0.5">${subtituloTel}</span>
+              <span class="text-[10px] text-amber-400 block mt-0.5">Robô pausado para atendimento pessoal do advogado</span>
+
+              <!-- BOTÃO PEDIDO PELO USUÁRIO: "Ver Resumo do Cliente" -->
+              <button type="button" onclick="alternarResumoCliente('${cardId}')" class="mt-2.5 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold transition text-xs shadow-sm cursor-pointer">
+                <span>📋</span>
+                <span id="label-resumo-${cardId}">Ver Resumo do Cliente</span>
+                <svg id="seta-resumo-${cardId}" class="w-3.5 h-3.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+            </div>
+
+            <button onclick="reativarCliente('${chave}')" class="px-3.5 py-2 champagne-gradient font-bold rounded-xl transition shadow flex items-center space-x-1.5 text-slate-950 text-xs hover:opacity-90 cursor-pointer">
+              <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
+              <span>Reativar Robô</span>
+            </button>
           </div>
-          <button onclick="reativarCliente('${chave}')" class="px-4 py-2 champagne-gradient font-bold rounded-xl transition shadow flex items-center space-x-1.5">
-            <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
-            <span>Reativar Robô Agora</span>
-          </button>
+
+          <!-- PAINEL EXPANSÍVEL: RESUMO, TRANSCRIÇÃO DE ÁUDIO/MENSAGENS E SUGESTÕES COPILOT -->
+          <div id="painel-resumo-${cardId}" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-3.5">
+            ${playerAudioHTML}
+
+            <!-- Mensagens do Cliente -->
+            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1.5">💬 Histórico de Mensagens Enviadas:</span>
+              <div class="space-y-1.5">
+                ${listaMsgsHTML}
+              </div>
+            </div>
+
+            <!-- Transcrição e Resumo -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1">📝 Transcrição Inteligente (Áudio / Mensagens):</span>
+                <p class="text-slate-300 leading-relaxed">${escaparHtmlTexto(transcricao)}</p>
+              </div>
+              <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">⚖️ Resumo Executivo (Copilot):</span>
+                <div class="text-slate-300 leading-relaxed whitespace-pre-line">${escaparHtmlTexto(resumo)}</div>
+              </div>
+            </div>
+
+            <!-- 3 Sugestões Rápidas de Resposta (Copilot 1-Clique) -->
+            <div class="space-y-2">
+              <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                <span>✨ Sugestões Rápidas de Resposta (Copilot 1-Clique):</span>
+              </span>
+              <div class="space-y-2">
+                ${sugestoesHTML}
+              </div>
+            </div>
+
+            <!-- Caixa de Resposta e Envio pelo Advogado -->
+            <div class="pt-2 border-t border-slate-800/80 flex items-center space-x-2">
+              <input type="text" id="input-resposta-${cardId}" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
+              <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                <span>Enviar Resposta</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+            </div>
+          </div>
         `;
         container.appendChild(div);
       });
     }
+
+    window.alternarResumoCliente = alternarResumoCliente;
+
+    window.enviarRespostaAdvogadoFila = async (cardId, chave) => {
+      const input = document.getElementById(`input-resposta-${cardId}`);
+      const texto = input ? input.value.trim() : '';
+
+      if (!texto) {
+        alert("Por favor, digite ou selecione uma sugestão de resposta rápida antes de enviar.");
+        return;
+      }
+
+      const api = window.api || window.electronAPI;
+      let sucessoEnvio = false;
+
+      if (api && api.responderClientePausado) {
+        try {
+          const res = await api.responderClientePausado({ chave, textoResposta: texto });
+          if (res && res.sucesso) sucessoEnvio = true;
+        } catch (e) {
+          console.error("Erro no responderClientePausado:", e);
+        }
+      }
+
+      if (!sucessoEnvio && api && api.removerPausa) {
+        await api.removerPausa(chave);
+        sucessoEnvio = true;
+      }
+
+      if (typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
+        window.adicionarBalaoAdvogadoNoSimulador(texto);
+      }
+
+      const numLimpo = String(chave).replace(/\D/g, '');
+      if (window.dadosFilaCopilot) {
+        delete window.dadosFilaCopilot[numLimpo];
+        delete window.dadosFilaCopilot[chave];
+      }
+
+      const card = document.getElementById(`card-pausado-${cardId}`);
+      if (card) {
+        card.style.transition = 'all 0.3s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-10px)';
+        setTimeout(() => card.remove(), 300);
+      }
+
+      mostrarToast("✅ Resposta enviada com sucesso ao cliente! Atendimento concluído e robô reativado.");
+    };
 
     window.reativarCliente = async (num) => {
       if (window.api && window.api.removerPausa) {
@@ -4368,8 +4573,32 @@
               }
             }
 
+            const numLimpo = telCliente.replace(/\D/g, '');
+            window.dadosFilaCopilot = window.dadosFilaCopilot || {};
+            window.dadosFilaCopilot[numLimpo] = {
+              nome: nomeCliente,
+              telefone: telCliente,
+              horario: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              audioBase64: base64Audio,
+              transcricao: respostaIA.transcricao,
+              resumo: respostaIA.resumo,
+              sugestoesResposta: respostaIA.sugestoesResposta || []
+            };
+
+            // Se o contato já estiver na fila, re-renderizar a fila com os dados atualizados
+            if (api && api.obterPausados) {
+              try {
+                const mapaAtual = await api.obterPausados();
+                if (mapaAtual && Object.keys(mapaAtual).length > 0) {
+                  renderizarPausados(mapaAtual);
+                  return;
+                }
+              } catch (e) {}
+            }
+
             adicionarCardFilaComAudioECopilot({
               id: 'audio_' + Date.now(),
+              chave: numLimpo,
               nome: nomeCliente,
               telefone: telCliente,
               horario: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -4389,70 +4618,84 @@
             }
 
             const card = document.createElement('div');
-            card.className = "exec-card p-5 rounded-2xl mb-4 border border-amber-500/30 bg-slate-900/90 shadow-xl space-y-4";
-            card.id = `card-fila-${dados.id}`;
+            card.className = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-400 mb-3 shadow transition";
+            card.id = `card-pausado-${dados.id}`;
 
             const listaSugestoesHTML = (dados.sugestoes || []).map((sug) => {
-              const sugEscapada = String(sug).replace(/"/g, '&quot;');
+              const sugEscapada = String(sug).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
               return `
-              <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
+              <div class="p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
                 <p class="text-xs text-slate-300 leading-relaxed italic flex-1">"${sug}"</p>
-                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', '${sugEscapada}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap">
+                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', '${sugEscapada}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-slate-950 transition whitespace-nowrap cursor-pointer">
                   Usar Esta ⚡
                 </button>
               </div>
             `;}).join('');
 
             card.innerHTML = `
-              <!-- Topo do Card -->
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div class="flex items-center space-x-3">
-                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  <div>
-                    <h4 class="text-sm font-bold text-white">${dados.nome}</h4>
-                    <span class="text-xs text-slate-400 font-mono">${dados.telefone}</span>
+              <!-- Linha Principal -->
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="font-bold text-white text-sm">${dados.nome}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Chegou às ${dados.horario}</span>
+                  </div>
+                  <span class="text-[11px] text-[#e5c158] block mt-0.5">Telefone: ${dados.telefone}</span>
+                  <span class="text-[10px] text-amber-400 block mt-0.5">Robô pausado • Mensagem de voz recebida</span>
+
+                  <!-- BOTÃO PEDIDO PELO USUÁRIO: "Ver Resumo do Cliente" -->
+                  <button type="button" onclick="alternarResumoCliente('${dados.id}')" class="mt-2.5 inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold transition text-xs shadow-sm cursor-pointer">
+                    <span>📋</span>
+                    <span id="label-resumo-${dados.id}">Ver Resumo do Cliente</span>
+                    <svg id="seta-resumo-${dados.id}" class="w-3.5 h-3.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                  </button>
+                </div>
+
+                <button onclick="reativarCliente('${dados.chave || dados.telefone}')" class="px-3.5 py-2 champagne-gradient font-bold rounded-xl transition shadow flex items-center space-x-1.5 text-slate-950 text-xs hover:opacity-90 cursor-pointer">
+                  <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
+                  <span>Reativar Robô</span>
+                </button>
+              </div>
+
+              <!-- PAINEL EXPANSÍVEL: RESUMO, TRANSCRIÇÃO E SUGESTÕES COPILOT -->
+              <div id="painel-resumo-${dados.id}" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-3.5">
+                <!-- Player de Áudio -->
+                <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                  <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider block mb-1.5">🎙️ Mensagem de Voz Recebida:</span>
+                  <audio controls src="${dados.audioBase64}" class="w-full h-8 mt-1"></audio>
+                </div>
+
+                <!-- Seção Transcrição e Resumo Executivo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1">📝 Transcrição Inteligente:</span>
+                    <p class="text-slate-300 leading-relaxed">${dados.transcricao || 'Processando transcrição...'}</p>
+                  </div>
+                  <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">⚖️ Resumo Executivo (Copilot):</span>
+                    <div class="text-slate-300 leading-relaxed whitespace-pre-line">${dados.resumo || 'Sem resumo disponível.'}</div>
                   </div>
                 </div>
-                <span class="text-[10px] text-amber-300/80 bg-amber-950/60 border border-amber-800 px-2.5 py-0.5 rounded-full">
-                  Recebido às ${dados.horario}
-                </span>
-              </div>
 
-              <!-- Player de Áudio -->
-              <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Mensagem de Voz Recebida:</span>
-                <audio controls src="${dados.audioBase64}" class="w-full h-8"></audio>
-              </div>
-
-              <!-- Seção Transcrição e Resumo Executivo -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
-                  <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1">Transcrição Inteligente:</span>
-                  <p class="text-slate-300 leading-relaxed">${dados.transcricao || 'Processando transcrição...'}</p>
-                </div>
-                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
-                  <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Resumo Executivo (Copilot):</span>
-                  <div class="text-slate-300 leading-relaxed whitespace-pre-line">${dados.resumo || 'Sem resumo disponível.'}</div>
-                </div>
-              </div>
-
-              <!-- Sugestões de Resposta com 1 Clique (Copilot) -->
-              <div class="space-y-2">
-                <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
-                  <span>✨ Sugestões Rápidas de Resposta (1-Clique):</span>
-                </span>
+                <!-- Sugestões de Resposta com 1 Clique (Copilot) -->
                 <div class="space-y-2">
-                  ${listaSugestoesHTML}
+                  <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                    <span>✨ Sugestões Rápidas de Resposta (1-Clique):</span>
+                  </span>
+                  <div class="space-y-2">
+                    ${listaSugestoesHTML}
+                  </div>
                 </div>
-              </div>
 
-              <!-- Caixa de Resposta Manual ou Editável -->
-              <div class="pt-2 border-t border-slate-800 flex items-center space-x-2">
-                <input type="text" id="input-resposta-${dados.id}" placeholder="Escreva ou edite a resposta para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
-                <button type="button" onclick="enviarRespostaAdvogado('${dados.id}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center space-x-1.5">
-                  <span>Enviar Resposta</span>
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </button>
+                <!-- Caixa de Resposta e Envio pelo Advogado -->
+                <div class="pt-2 border-t border-slate-800/80 flex items-center space-x-2">
+                  <input type="text" id="input-resposta-${dados.id}" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
+                  <button type="button" onclick="enviarRespostaAdvogado('${dados.id}', '${dados.chave || dados.telefone}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <span>Enviar Resposta</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                  </button>
+                </div>
               </div>
             `;
 
@@ -4470,17 +4713,34 @@
             if (input) {
               input.value = texto;
               input.focus();
+              input.classList.add('ring-2', 'ring-[#e5c158]');
+              setTimeout(() => input.classList.remove('ring-2', 'ring-[#e5c158]'), 800);
             }
           }
 
-          function enviarRespostaAdvogado(cardId) {
+          async function enviarRespostaAdvogado(cardId, chave) {
             const input = document.getElementById(`input-resposta-${cardId}`);
-            const card = document.getElementById(`card-fila-${cardId}`);
+            const card = document.getElementById(`card-pausado-${cardId}`) || document.getElementById(`card-fila-${cardId}`);
             const texto = input ? input.value.trim() : '';
 
             if (!texto) {
               alert("Por favor, digite ou selecione uma sugestão de resposta antes de enviar.");
               return;
+            }
+
+            const api = window.api || window.electronAPI;
+            if (chave) {
+              if (api && api.responderClientePausado) {
+                try {
+                  await api.responderClientePausado({ chave, textoResposta: texto });
+                } catch (e) {}
+              } else if (api && api.removerPausa) {
+                await api.removerPausa(chave);
+              }
+            }
+
+            if (typeof window.adicionarBalaoAdvogadoNoSimulador === 'function') {
+              window.adicionarBalaoAdvogadoNoSimulador(texto);
             }
 
             if (typeof mostrarToast === 'function') {
@@ -4496,6 +4756,37 @@
               const totalAtual = Math.max(0, parseInt(badge.innerText || '0', 10) - 1);
               badge.innerText = String(totalAtual);
             }
+          }
+
+          function adicionarBalaoAdvogado(texto) {
+            if (!boxMensagens) return;
+            const divWrap = document.createElement('div');
+            divWrap.className = 'flex justify-start mb-2.5';
+            divWrap.innerHTML = `
+              <div class="max-w-[82%] bg-[#1a2332] border border-emerald-500/50 text-slate-100 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow text-xs relative">
+                <div class="flex items-center space-x-1.5 text-[10px] text-emerald-400 font-bold mb-1">
+                  <span>👨‍⚖️ Advogado Responsável</span>
+                  <span class="text-slate-400 font-normal">• Resposta Humana</span>
+                </div>
+                <div class="leading-relaxed break-words">${formatarTextoZap(texto)}</div>
+                <div class="text-[9px] text-emerald-300/60 text-right mt-1 font-mono">
+                  ${obterHoraAtual()} • Enviada pelo Advogado ✓✓
+                </div>
+              </div>
+            `;
+            boxMensagens.appendChild(divWrap);
+            scrollAoFinal();
+          }
+
+          window.adicionarBalaoAdvogadoNoSimulador = adicionarBalaoAdvogado;
+
+          const apiObj = window.api || window.electronAPI;
+          if (apiObj && apiObj.aoReceberRespostaAdvogadoSimulador) {
+            apiObj.aoReceberRespostaAdvogadoSimulador((dados) => {
+              if (dados && dados.texto) {
+                adicionarBalaoAdvogado(dados.texto);
+              }
+            });
           }
 
           // Expor globalmente para garantir acessibilidade via eventos inline e módulos
