@@ -251,16 +251,16 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
         };
     }
 
-    // Salva documento validado fisicamente
-    const ext = String(mimetype || '').includes('pdf') ? 'pdf' : 'jpg';
-    const nomeArquivo = `${laudo.tipoDocumento || 'DOC'}_${Date.now()}.${ext}`;
+    // Salva documento validado fisicamente com extensão real e sem duplicar timestamps
+    const ext = String(mimetype || '').includes('pdf') ? 'pdf' : (String(mimetype || '').includes('png') ? 'png' : 'jpg');
+    const nomeArquivo = `${laudo.tipoDocumento || 'DOC'}.${ext}`;
     const arquivoSalvo = salvarDocumentoCliente(chaveTel, nomeArquivo, buffer, laudo);
 
     const docRegistrado = {
         id: arquivoSalvo.idDocumento,
         tipo: laudo.tipoDocumento || 'DOCUMENTO',
         tipoRotulo: laudo.tipoRotulo || laudo.tipoDocumento || 'Documento Validado',
-        nomeArquivo: nomeArquivo,
+        nomeArquivo: arquivoSalvo.nomeArquivoSalvo || nomeArquivo,
         caminhoRelativo: arquivoSalvo.caminhoRelativo,
         caminhoAbsoluto: arquivoSalvo.caminhoAbsoluto,
         mimetype: mimetype || 'image/jpeg',
@@ -276,30 +276,65 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
     if (!Array.isArray(sessao.documentosRecebidos)) sessao.documentosRecebidos = [];
     sessao.documentosRecebidos.push(docRegistrado);
 
-    // Mescla dados cadastrais extraídos
+    // Mescla acumulativa de qualificação civil preservando valores anteriores se o novo for vazio
     const extraidos = laudo.dadosExtraidos || {};
+    const qualAtual = sessao.qualificacaoAcumulada || {};
+    const endAtual = qualAtual.endereco || {};
+    const endNovo = extraidos.endereco || {};
+
     sessao.qualificacaoAcumulada = {
-        ...sessao.qualificacaoAcumulada,
-        ...(extraidos.nomeCompleto ? { nomeCompleto: extraidos.nomeCompleto } : {}),
-        ...(extraidos.cpf ? { cpf: extraidos.cpf } : {}),
-        ...(extraidos.rg ? { rg: extraidos.rg } : {}),
-        ...(extraidos.rgOrgaoEmissor ? { rgOrgaoEmissor: extraidos.rgOrgaoEmissor } : {}),
-        ...(extraidos.filiacaoMae ? { filiacaoMae: extraidos.filiacaoMae } : {}),
-        ...(extraidos.filiacaoPai ? { filiacaoPai: extraidos.filiacaoPai } : {}),
-        ...(extraidos.dataNascimento ? { dataNascimento: extraidos.dataNascimento } : {}),
-        ...(extraidos.endereco && Object.keys(extraidos.endereco).length > 0 ? { endereco: { ...(sessao.qualificacaoAcumulada?.endereco || {}), ...extraidos.endereco } } : {})
+        ...qualAtual,
+        nomeCompleto: (extraidos.nomeCompleto && extraidos.nomeCompleto.trim()) || qualAtual.nomeCompleto || sessao.clienteNome || '',
+        cpf: (extraidos.cpf && extraidos.cpf.trim()) || qualAtual.cpf || '',
+        rg: (extraidos.rg && extraidos.rg.trim()) || qualAtual.rg || '',
+        rgOrgaoEmissor: (extraidos.rgOrgaoEmissor && extraidos.rgOrgaoEmissor.trim()) || qualAtual.rgOrgaoEmissor || '',
+        filiacaoMae: (extraidos.filiacaoMae && extraidos.filiacaoMae.trim()) || qualAtual.filiacaoMae || '',
+        filiacaoPai: (extraidos.filiacaoPai && extraidos.filiacaoPai.trim()) || qualAtual.filiacaoPai || '',
+        dataNascimento: (extraidos.dataNascimento && extraidos.dataNascimento.trim()) || qualAtual.dataNascimento || '',
+        endereco: {
+            logradouro: (endNovo.logradouro && endNovo.logradouro.trim()) || endAtual.logradouro || '',
+            numero: (endNovo.numero && endNovo.numero.trim()) || endAtual.numero || '',
+            complemento: (endNovo.complemento && endNovo.complemento.trim()) || endAtual.complemento || '',
+            bairro: (endNovo.bairro && endNovo.bairro.trim()) || endAtual.bairro || '',
+            cidade: (endNovo.cidade && endNovo.cidade.trim()) || endAtual.cidade || '',
+            uf: (endNovo.uf && endNovo.uf.trim()) || endAtual.uf || '',
+            cep: (endNovo.cep && endNovo.cep.trim()) || endAtual.cep || ''
+        }
     };
 
-    // Atualiza lista de pendentes
-    let removeu = false;
+    // Baixa inteligente "2 em 1":
+    // 1. RG_FRENTE, RG_VERSO, RG_COMPLETO ou CNH quita RG, CNH, RG_OU_CNH e variações.
+    // 2. Se o RG ou CNH tiver CPF válido extraído pela IA, quita também o CPF da lista sem exigir foto separada!
+    // 3. Comprovante de Residência quita COMPROVANTE_RESIDENCIA e ENDERECO.
+    const tipo = String(laudo.tipoDocumento || '').toUpperCase();
+    const ehIdentidade = ['RG_FRENTE', 'RG_VERSO', 'RG_COMPLETO', 'CNH'].includes(tipo) || tipo.includes('RG') || tipo.includes('CNH');
+    const cpfLimpo = String(extraidos.cpf || qualAtual.cpf || '').replace(/\D/g, '');
+    const temCpfValido = cpfLimpo.length === 11;
+    const ehResidencia = tipo.includes('RESIDENCIA') || tipo.includes('ENDERECO');
+
+    let removeuAoMenosUm = false;
     sessao.documentosPendentes = (sessao.documentosPendentes || []).filter(item => {
-        if (!removeu && documentoSatisfazItem(laudo.tipoDocumento, item)) {
-            removeu = true;
+        const itemUp = String(item || '').toUpperCase();
+        if (ehIdentidade && (itemUp === 'RG' || itemUp === 'CNH' || itemUp === 'RG_OU_CNH' || itemUp === 'RG_FRENTE' || itemUp === 'RG_VERSO')) {
+            removeuAoMenosUm = true;
+            return false;
+        }
+        if (ehIdentidade && temCpfValido && itemUp === 'CPF') {
+            removeuAoMenosUm = true;
+            return false;
+        }
+        if (ehResidencia && (itemUp.includes('RESIDENCIA') || itemUp.includes('ENDERECO'))) {
+            removeuAoMenosUm = true;
+            return false;
+        }
+        if (documentoSatisfazItem(laudo.tipoDocumento, item)) {
+            removeuAoMenosUm = true;
             return false;
         }
         return true;
     });
-    if (!removeu && sessao.documentosPendentes.length > 0) {
+
+    if (!removeuAoMenosUm && sessao.documentosPendentes.length > 0) {
         sessao.documentosPendentes.shift();
     }
     sessao.itensPendentes = [...sessao.documentosPendentes];

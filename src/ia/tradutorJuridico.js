@@ -24,6 +24,48 @@ try {
     }
 } catch (e) {}
 
+/**
+ * Obtém a chave ativa da API Gemini resolvendo em cascata com alta resiliência:
+ * 1. Chave passada explicitamente por parâmetro
+ * 2. process.env.GEMINI_API_KEY
+ * 3. Objeto config (ou arquivo config.json na raiz do projeto)
+ * 4. Leitura síncrona direta do arquivo .env na raiz do projeto
+ * 
+ * @param {string} [apiKeyPassada]
+ * @param {object} [config]
+ * @returns {string}
+ */
+function obterApiKeyAtiva(apiKeyPassada, config = null) {
+    if (typeof apiKeyPassada === 'string') {
+        if (apiKeyPassada.trim().length > 0) {
+            return apiKeyPassada.trim();
+        }
+        if (apiKeyPassada === '') {
+            return '';
+        }
+    }
+    if (process.env.GEMINI_API_KEY && typeof process.env.GEMINI_API_KEY === 'string' && process.env.GEMINI_API_KEY.trim()) {
+        return process.env.GEMINI_API_KEY.trim();
+    }
+    if (config && typeof config === 'object') {
+        const c = config.gemini_api_key || config.geminiApiKey || config.ia?.apiKey || config.ia?.gemini_api_key || config.ia?.chave || config.processos?.gemini_api_key;
+        if (c && typeof c === 'string' && c.trim()) {
+            return c.trim();
+        }
+    }
+    try {
+        const configPath = path.resolve(__dirname, '../../config.json');
+        if (fs.existsSync(configPath)) {
+            const parsed = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+            const c = parsed?.gemini_api_key || parsed?.geminiApiKey || parsed?.ia?.apiKey || parsed?.ia?.gemini_api_key || parsed?.ia?.chave || parsed?.processos?.gemini_api_key;
+            if (c && typeof c === 'string' && c.trim()) {
+                return c.trim();
+            }
+        }
+    } catch (_) {}
+    return '';
+}
+
 // Cache em memória (Map: md5Hash -> textoTraduzido)
 const cacheEmMemoria = new Map();
 
@@ -167,10 +209,7 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
     }
 
     // 2. Resolução da Chave da API Gemini
-    const apiKey = opcoes.apiKey || 
-                   (opcoes.config && (opcoes.config.gemini_api_key || (opcoes.config.ia && opcoes.config.ia.gemini_api_key))) ||
-                   process.env.GEMINI_API_KEY ||
-                   '';
+    const apiKey = obterApiKeyAtiva(opcoes.apiKey, opcoes.config);
 
     if (!apiKey || !apiKey.trim()) {
         // Fallback instantâneo gracioso (< 5ms)
@@ -586,9 +625,7 @@ async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/web
 
   const fallbackLocal = detectarUrgenciaECronologiaLocal(contextoCliente.texto || contextoCliente.mensagens || '', contextoCliente);
 
-  const apiKey = (contextoCliente && contextoCliente.apiKey !== undefined && contextoCliente.apiKey !== null)
-    ? String(contextoCliente.apiKey).trim()
-    : (process.env.GEMINI_API_KEY || '').trim();
+  const apiKey = obterApiKeyAtiva(contextoCliente?.apiKey, contextoCliente?.config);
   if (!apiKey) {
     return {
       sucesso: false,
@@ -748,9 +785,7 @@ Retorne ESTRITAMENTE um objeto JSON válido (sem blocos markdown adicionais):
  */
 async function analisarUrgenciaECronologia(textoCompleto, contexto = {}) {
   const textoLimpo = String(textoCompleto || '').trim();
-  const apiKey = (contexto && contexto.apiKey !== undefined && contexto.apiKey !== null)
-    ? String(contexto.apiKey).trim()
-    : (((contexto && contexto.config && contexto.config.gemini_api_key) || process.env.GEMINI_API_KEY || '')).trim();
+  const apiKey = obterApiKeyAtiva(contexto?.apiKey, contexto?.config);
   const fallback = detectarUrgenciaECronologiaLocal(textoLimpo, contexto);
 
   if (!textoLimpo || !apiKey) {
@@ -989,11 +1024,7 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
     }
 
     // Resolução robusta da Chave da API
-    const apiKey = (contexto && contexto.apiKey !== undefined && contexto.apiKey !== null)
-        ? String(contexto.apiKey).trim()
-        : (((contexto && contexto.config && (contexto.config.gemini_api_key || (contexto.config.processos && contexto.config.processos.gemini_api_key) || (contexto.config.ia && contexto.config.ia.gemini_api_key))) ||
-            process.env.GEMINI_API_KEY ||
-            '')).trim();
+    const apiKey = obterApiKeyAtiva(contexto?.apiKey, contexto?.config);
 
     // Se chave ausente ou offline -> fallback gracioso local instantâneo
     if (!apiKey) {
@@ -1113,5 +1144,6 @@ module.exports = {
     definirCaminhoCache,
     obterEstatisticasCache,
     limparCacheMemoria,
-    SYSTEM_INSTRUCTION_OAB
+    SYSTEM_INSTRUCTION_OAB,
+    obterApiKeyAtiva
 };

@@ -1880,11 +1880,40 @@ async function executarSimulacaoMensagem(payload = {}) {
         // Simulação Real de Envio de Documentos e Comprovantes PIX (Subagente 1)
         if (payload && (payload.midia || payload.arquivoBase64 || payload.buffer)) {
             const midiaObj = payload.midia || {};
-            const rawBase64 = midiaObj.base64 || payload.arquivoBase64 || (Buffer.isBuffer(payload.buffer) ? payload.buffer.toString('base64') : '');
-            const mimeType = midiaObj.mimetype || payload.mimetype || 'image/jpeg';
-            const nomeArquivo = midiaObj.filename || payload.nomeOriginal || `midia_sim_${Date.now()}.${mimeType.includes('pdf') ? 'pdf' : 'jpg'}`;
+            let rawBase64 = String(midiaObj.base64 || payload.arquivoBase64 || (Buffer.isBuffer(payload.buffer) ? payload.buffer.toString('base64') : '')).trim();
+            let mimeDetectado = midiaObj.mimetype || payload.mimetype || '';
+
+            // Sanitiza prefixo data:...;base64, se presente
+            if (rawBase64.startsWith('data:')) {
+                const virgulaIdx = rawBase64.indexOf(',');
+                if (virgulaIdx !== -1) {
+                    const matchMime = rawBase64.slice(0, virgulaIdx).match(/^data:([^;]+);base64/i);
+                    if (matchMime && matchMime[1]) {
+                        mimeDetectado = matchMime[1].trim();
+                    }
+                    rawBase64 = rawBase64.slice(virgulaIdx + 1).trim();
+                }
+            }
             const buffer = Buffer.from(rawBase64, 'base64');
-            const apiKey = config.gemini_api_key || process.env.GEMINI_API_KEY;
+
+            // Detecção rigorosa por Magic Bytes (prevalece sobre extensões ou rótulos genéricos)
+            if (buffer.length >= 4) {
+                if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+                    mimeDetectado = 'image/png';
+                } else if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) {
+                    mimeDetectado = 'image/jpeg';
+                } else if (buffer.slice(0, 4).toString('utf-8') === '%PDF') {
+                    mimeDetectado = 'application/pdf';
+                } else if (buffer.slice(0, 4).toString('utf-8') === 'RIFF') {
+                    mimeDetectado = 'image/webp';
+                }
+            }
+            const mimeType = mimeDetectado || 'image/jpeg';
+            const extFinal = mimeType.includes('pdf') ? 'pdf' : (mimeType.includes('png') ? 'png' : 'jpg');
+            const nomeArquivo = midiaObj.filename || payload.nomeOriginal || `midia_sim_${Date.now()}.${extFinal}`;
+
+            const { obterApiKeyAtiva } = require('./src/ia/tradutorJuridico');
+            const apiKey = obterApiKeyAtiva(payload.apiKey || midiaObj.apiKey, config);
 
             const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
             const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');

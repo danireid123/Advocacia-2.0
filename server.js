@@ -8,7 +8,7 @@
  * - Docker / Docker Compose / Kubernetes / PM2
  * - Servidor HTTP embutido com /status, /qr-status, /health, /qr, /pausados para monitoramento remoto
  * - Persistência de Sessão WhatsApp LocalAuth em ./wwebjs_auth_session_v2
- * - Puppeteer headless otimizado com flag --single-process para VPS/ARM
+ * - Puppeteer headless otimizado com flags homologadas seguras para Linux/Debian/Render
  * - Captura e transcrição multimodal de áudios de clientes com IA Gemini
  * - Fila de transbordo humano cumulativa com Detector de Urgência e Cronologia dos Fatos
  * - Resiliência e auto-recuperação anti-crash
@@ -715,12 +715,6 @@ async function iniciarBotHeadless() {
         '--disable-gpu',
         '--disable-software-rasterizer',
         '--disable-extensions',
-        // Otimizações estritas de memória para instâncias com 512MB (Render Free Tier)
-        '--js-flags=--max-old-space-size=128',
-        '--disable-features=site-per-process,AudioServiceOutOfProcess,TranslateUI',
-        '--renderer-process-limit=1',
-        '--single-process',
-        '--disable-ipc-flooding-protection',
         '--disable-background-networking',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',

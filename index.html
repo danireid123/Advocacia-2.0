@@ -6926,7 +6926,8 @@
           async function enviarDocumentoArquivoSimulador(input) {
             if (!input || !input.files || input.files.length === 0) return;
             const file = input.files[0];
-            const mimeType = file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
+            const lowerName = (file.name || '').toLowerCase();
+            const mimeType = file.type || (lowerName.endsWith('.pdf') ? 'application/pdf' : (lowerName.endsWith('.png') ? 'image/png' : 'image/jpeg'));
             const nomeArquivo = file.name || 'documento.jpg';
             const reader = new FileReader();
             reader.readAsDataURL(file);

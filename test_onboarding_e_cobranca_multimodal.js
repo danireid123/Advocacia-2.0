@@ -868,6 +868,15 @@ async function executarBateriaCompletaE2E() {
         console.log('='.repeat(78));
     }
 
+    // Limpeza de pastas de teste em documentos_clientes para manter a base limpa
+    try {
+        const pastasParaLimpar = ['11966667777', '5511988880003', '5511999998888', 'teste_temp_dedup'];
+        pastasParaLimpar.forEach(p => {
+            const dir = path.join(__dirname, 'documentos_clientes', p);
+            if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+        });
+    } catch (_) {}
+
     process.exit(testesFalhados === 0 ? 0 : 1);
 }
 

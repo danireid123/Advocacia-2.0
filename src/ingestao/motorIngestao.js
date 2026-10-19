@@ -528,6 +528,128 @@ async function parseDocx(filePathOrBuffer, fileName = 'documento.docx') {
 }
 
 /**
+ * Extrai dados estruturados de um Dossiê Civil em formato de blocos de texto (.txt)
+ * Reconhece campos de qualificação: NOME COMPLETO, CPF, RG, ESTADO CIVIL, PROFISSÃO, ENDEREÇO, TELEFONE, PROCESSO, RESUMO e LINHA DO TEMPO
+ * @param {string} rawText
+ * @param {string} fileName
+ * @returns {Array|null}
+ */
+function extrairDossieTxtEstruturado(rawText, fileName = 'dossie.txt') {
+  if (!rawText || typeof rawText !== 'string') return null;
+
+  const linhas = rawText.split(/\r?\n/);
+  const mapaCampos = {};
+  let chaveAtual = null;
+  let valorBuffer = [];
+
+  const REGEX_CHAVE = /^\s*(NOME\s*COMPLETO|NOME|CLIENTE|PARTE\s*AUTORA|CPF|RG|ESTADO\s*CIVIL|PROFISSAO|PROFISSÃO|ENDERE[CÇ]O\s*(?:COMPLETO)?|TELEFONE|CELULAR|WHATSAPP|CONTATO|N[UÚ]MERO\s*(?:DO\s*)?PROCESSO|PROCESSO|AUTOS|RESUMO\s*(?:EXECUTIVO)?|RESUMO|ANDAMENTO|LINHA\s*DO\s*TEMPO|CRONOLOGIA(?:\s*DOS\s*FATOS)?|FATOS)\s*[:=-]\s*(.*)$/i;
+
+  for (let i = 0; i < linhas.length; i++) {
+    const linha = linhas[i];
+    const match = linha.match(REGEX_CHAVE);
+    if (match) {
+      if (chaveAtual) {
+        mapaCampos[chaveAtual] = valorBuffer.join('\n').trim();
+      }
+      chaveAtual = match[1].toUpperCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '_');
+      valorBuffer = [match[2] || ''];
+    } else if (chaveAtual) {
+      valorBuffer.push(linha);
+    }
+  }
+  if (chaveAtual) {
+    mapaCampos[chaveAtual] = valorBuffer.join('\n').trim();
+  }
+
+  // Verifica se temos campos estruturados suficientes para caracterizar Dossiê
+  const chavesIdentificadas = Object.keys(mapaCampos);
+  const temNome = chavesIdentificadas.some(c => c.includes('NOME') || c.includes('CLIENTE') || c.includes('AUTORA'));
+  const temCpfOuProc = chavesIdentificadas.some(c => c.includes('CPF') || c.includes('PROCESSO') || c.includes('AUTOS'));
+  const temQualificacao = chavesIdentificadas.some(c => c.includes('RG') || c.includes('ESTADO_CIVIL') || c.includes('PROFISSAO') || c.includes('ENDERECO'));
+
+  if (!temNome || (!temCpfOuProc && !temQualificacao && chavesIdentificadas.length < 3)) {
+    return null; // Não é dossiê estruturado, segue para chunkTextByCNJ tradicional
+  }
+
+  const extrairCampo = (padroes) => {
+    for (const p of padroes) {
+      for (const [k, v] of Object.entries(mapaCampos)) {
+        if (k.includes(p) && v) return v.trim();
+      }
+    }
+    return '';
+  };
+
+  const nome = extrairCampo(['NOME_COMPLETO', 'NOME', 'PARTE_AUTORA', 'CLIENTE']);
+  const cpfBruto = extrairCampo(['CPF']);
+  const rg = extrairCampo(['RG']);
+  const estadoCivil = extrairCampo(['ESTADO_CIVIL']);
+  const profissao = extrairCampo(['PROFISSAO']);
+  const endereco = extrairCampo(['ENDERECO']);
+  const telefone = extrairCampo(['TELEFONE', 'WHATSAPP', 'CELULAR', 'CONTATO']);
+  const numProcessoBruto = extrairCampo(['NUMERO_DO_PROCESSO', 'NUMERO_PROCESSO', 'PROCESSO', 'AUTOS']);
+  const resumo = extrairCampo(['RESUMO_EXECUTIVO', 'RESUMO', 'ANDAMENTO']);
+  const cronologiaTexto = extrairCampo(['LINHA_DO_TEMPO', 'CRONOLOGIA', 'FATOS']);
+
+  const cronologiaFatos = [];
+  if (cronologiaTexto) {
+    const linhasCrono = cronologiaTexto.split(/\r?\n/);
+    for (const lc of linhasCrono) {
+      const trimmed = lc.trim().replace(/^[-*•]\s*/, '');
+      if (!trimmed) continue;
+      const matchData = trimmed.match(/^([0-3]?[0-9][\/\-][0-1]?[0-9][\/\-][12][09][0-9]{2}|[\wçãõ]+(?:\/\d{4})?)\s*[:=-]\s*(.+)$/i);
+      if (matchData) {
+        cronologiaFatos.push({ dataAproximada: matchData[1].trim(), fato: matchData[2].trim() });
+      } else {
+        cronologiaFatos.push({ dataAproximada: '', fato: trimmed });
+      }
+    }
+  }
+
+  const cpfSanitizado = sanitizarCPF(cpfBruto);
+  const cnjSanitizado = sanitizarNumeroProcesso(numProcessoBruto) || "Não informado no dossiê";
+
+  const processoEstruturado = {
+    id: `proc_dossie_${Date.now()}`,
+    numeroProcesso: cnjSanitizado,
+    numero: cnjSanitizado,
+    numeroProcessoFormatado: cnjSanitizado,
+    cpf: cpfSanitizado,
+    nome: nome || "Cliente Identificado no Dossiê",
+    resumo: resumo || (cronologiaFatos.length > 0 ? cronologiaFatos.map(f => `• ${f.fato}`).join('\n') : "Dossiê do cliente cadastrado via importação estruturada."),
+    data: sanitizarData(new Date()),
+    validoCNJ: validarCNJ(cnjSanitizado),
+    validoCPF: validarCPF(cpfSanitizado),
+    dadosCadastrais: {
+      rg: rg || "",
+      estadoCivil: estadoCivil || "",
+      profissao: profissao || "",
+      endereco: endereco || "",
+      telefone: telefone || ""
+    },
+    dossieCompleto: {
+      nomeCompleto: nome,
+      cpf: cpfSanitizado,
+      rg,
+      estadoCivil,
+      profissao,
+      endereco,
+      telefone,
+      cronologiaFatos,
+      resumo
+    },
+    origem: {
+      tipo: 'DOSSIE_TXT',
+      arquivo: path.basename(fileName)
+    }
+  };
+
+  return [processoEstruturado];
+}
+
+/**
  * Parser de Arquivos de Texto (.txt)
  */
 async function parseTxt(filePathOrBuffer, fileName = 'documento.txt') {
@@ -538,6 +660,13 @@ async function parseTxt(filePathOrBuffer, fileName = 'documento.txt') {
     rawText = await fs.promises.readFile(filePathOrBuffer, 'utf-8');
   }
 
+  // 1. Tenta identificar dossiê estruturado em blocos de qualificação civil
+  const resultadoDossie = extrairDossieTxtEstruturado(rawText, fileName);
+  if (resultadoDossie && resultadoDossie.length > 0) {
+    return resultadoDossie;
+  }
+
+  // 2. Fallback: chunk por processo/relatório tradicional
   return chunkTextByCNJ(rawText, fileName, 'TXT');
 }
 
@@ -743,6 +872,19 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
         consultasPorContato: {},
         _resetarVistos: true
       };
+      if (novo.dossieCompleto) {
+        if (!cfg.dossiesClientes || typeof cfg.dossiesClientes !== 'object') cfg.dossiesClientes = {};
+        const chaveDossie = cpfFormatado || (novo.dossieCompleto.telefone ? novo.dossieCompleto.telefone.replace(/\D/g, '') : '') || novo.nome;
+        if (chaveDossie) {
+          cfg.dossiesClientes[chaveDossie] = {
+            ...(cfg.dossiesClientes[chaveDossie] || {}),
+            ...novo.dossieCompleto,
+            numeroProcesso: cnjFormatado || existente.numeroProcesso || existente.numero || '',
+            atualizadoEm: new Date().toISOString()
+          };
+        }
+      }
+
       atualizados++;
     } else {
       // INSERÇÃO DE NOVO PROCESSO COM SCHEMA EXPANDIDO v2.0
@@ -776,6 +918,19 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
           }
         ] : []
       };
+
+      if (novo.dossieCompleto) {
+        if (!cfg.dossiesClientes || typeof cfg.dossiesClientes !== 'object') cfg.dossiesClientes = {};
+        const chaveDossie = cpfFormatado || (novo.dossieCompleto.telefone ? novo.dossieCompleto.telefone.replace(/\D/g, '') : '') || novo.nome;
+        if (chaveDossie) {
+          cfg.dossiesClientes[chaveDossie] = {
+            ...(cfg.dossiesClientes[chaveDossie] || {}),
+            ...novo.dossieCompleto,
+            numeroProcesso: cnjFormatado || numNovo || '',
+            atualizadoEm: new Date().toISOString()
+          };
+        }
+      }
 
       listaRef.push(itemFormatado);
       adicionados++;

@@ -9,13 +9,15 @@
 'use strict';
 
 const crypto = require('crypto');
+const { obterApiKeyAtiva } = require('../ia/tradutorJuridico');
 
 // Constantes Obrigatórias
 const TIMEOUT_MULTIMODAL_PIX = 20000; // 20 segundos
 const MODELOS_GEMINI_PIX = [
-  'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
+  'gemini-3.5-flash',
   'gemini-flash-lite-latest',
+  'gemini-2.0-flash',
   'gemini-1.5-flash'
 ];
 
@@ -119,23 +121,26 @@ function normalizarBufferMime(input, mimetypeInformado) {
     }
   }
 
-  // Inferência de MIME via Magic Bytes se não fornecido
-  if (!mimeFinal || mimeFinal === 'application/octet-stream') {
-    if (buf.length >= 4) {
-      if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) {
-        mimeFinal = 'image/png';
-      } else if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) {
-        mimeFinal = 'image/jpeg';
-      } else if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) {
-        mimeFinal = 'application/pdf';
-      } else if (buf.slice(0, 4).toString() === 'RIFF') {
-        mimeFinal = 'image/webp';
-      } else {
-        mimeFinal = 'image/jpeg';
-      }
-    } else {
+  // Detecção estrita por Magic Bytes (prevalece sobre mimetype genérico ou incorreto)
+  if (buf.length >= 4) {
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) {
+      mimeFinal = 'image/png';
+    } else if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) {
+      mimeFinal = 'image/jpeg';
+    } else if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) {
+      mimeFinal = 'application/pdf';
+    } else if (buf.slice(0, 4).toString() === 'RIFF') {
+      mimeFinal = 'image/webp';
+    } else if (!mimeFinal || mimeFinal === 'application/octet-stream') {
       mimeFinal = 'image/jpeg';
     }
+  } else if (!mimeFinal) {
+    mimeFinal = 'image/jpeg';
+  }
+
+  // Remove qualquer prefixo residual data:...;base64,
+  if (b64 && b64.includes(',')) {
+    b64 = b64.split(',').pop().trim();
   }
 
   return { buffer: buf, base64: b64, mimetype: mimeFinal };
@@ -602,7 +607,7 @@ function gerarMensagemFeedbackPix(comprovanteValido, dadosLidos, divergencia, cl
  */
 async function auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado = 0, clienteNome = '') {
   const norm = normalizarBufferMime(buffer, mimetype);
-  const chaveApi = (apiKey || process.env.GEMINI_API_KEY || '').trim();
+  const chaveApi = obterApiKeyAtiva(apiKey);
 
   // 1. Verificação de buffer nulo ou vazio
   if (!norm.buffer || norm.buffer.length === 0) {

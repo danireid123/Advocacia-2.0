@@ -167,11 +167,75 @@ function salvarDocumentoCliente(clienteId, nomeOriginal, buffer, metadados = {},
             fs.mkdirSync(pastaCliente, { recursive: true });
         }
 
+        // Cálculo do hash MD5 do buffer para deduplicação forense
+        const hashMd5 = crypto.createHash('md5').update(buf).digest('hex');
+
+        // Carrega manifesto para verificar duplicata antes de salvar novo arquivo
+        const manifestPath = path.resolve(pastaCliente, '_manifest.json');
+        let manifest = [];
+        if (fs.existsSync(manifestPath)) {
+            try {
+                manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                if (!Array.isArray(manifest)) manifest = [];
+            } catch {
+                manifest = [];
+            }
+        }
+
+        // DEDUPLICAÇÃO INTELIGENTE: Se o mesmo arquivo já foi salvo para este cliente e existe no disco
+        const docExistente = manifest.find(m => m && (m.hashMd5 === hashMd5 || (m.tamanhoBytes === buf.length && m.nomeOriginal === nomeOriginal)));
+        if (docExistente && docExistente.caminhoAbsoluto && fs.existsSync(docExistente.caminhoAbsoluto)) {
+            if (metadados && Object.keys(metadados).length > 0) {
+                docExistente.metadados = { ...(docExistente.metadados || {}), ...metadados };
+                try {
+                    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+                    fs.writeFileSync(`${docExistente.caminhoAbsoluto}.meta.json`, JSON.stringify(docExistente, null, 2), 'utf8');
+                } catch (_) {}
+            }
+            const resDuplicado = {
+                sucesso: true,
+                duplicadoIgnorado: true,
+                reutilizado: true,
+                idDocumento: docExistente.idDocumento,
+                caminhoRelativo: docExistente.caminhoRelativo,
+                caminhoAbsoluto: docExistente.caminhoAbsoluto,
+                tamanhoBytes: docExistente.tamanhoBytes,
+                dataUpload: docExistente.dataUpload,
+                hashMd5: docExistente.hashMd5 || hashMd5,
+                metadados: docExistente.metadados || metadados || {}
+            };
+            const pDup = Promise.resolve(resDuplicado);
+            Object.assign(pDup, resDuplicado);
+            return pDup;
+        }
+
+        // Detecta extensão real pelos magic bytes
+        let extReal = path.extname(nomeArquivoLimpo).toLowerCase();
+        if (buf.length >= 4) {
+            if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) {
+                extReal = '.png';
+            } else if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) {
+                extReal = '.jpg';
+            } else if (buf.slice(0, 4).toString('utf-8') === '%PDF') {
+                extReal = '.pdf';
+            } else if (buf.slice(0, 4).toString('utf-8') === 'RIFF') {
+                extReal = '.webp';
+            }
+        }
+
+        // Remove timestamps pré-existentes no nome original para evitar repetição (ex: 179..._uuid_179...)
+        let nomeBaseSemExt = path.basename(nomeArquivoLimpo, path.extname(nomeArquivoLimpo));
+        nomeBaseSemExt = nomeBaseSemExt.replace(/^\d{10,14}_[a-f0-9]{6,12}_/i, '');
+        nomeBaseSemExt = nomeBaseSemExt.replace(/^\d{10,14}_/g, '');
+        nomeBaseSemExt = nomeBaseSemExt.replace(/_\d{10,14}$/g, '');
+        if (!nomeBaseSemExt) nomeBaseSemExt = 'documento';
+        const nomeCorrigido = `${nomeBaseSemExt}${extReal}`;
+
         // Geração de ID único e nome cronológico com UUID
         const timestamp = Date.now();
         const uuidCurto = (crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(8).toString('hex')).replace(/-/g, '').slice(0, 8);
         const idDocumento = `doc_${timestamp}_${uuidCurto}`;
-        const nomeArquivoFinal = `${timestamp}_${uuidCurto}_${nomeArquivoLimpo}`;
+        const nomeArquivoFinal = `${timestamp}_${uuidCurto}_${nomeCorrigido}`;
 
         const caminhoAbsoluto = path.resolve(pastaCliente, nomeArquivoFinal);
 
@@ -189,6 +253,7 @@ function salvarDocumentoCliente(clienteId, nomeOriginal, buffer, metadados = {},
 
         const registroMeta = {
             idDocumento,
+            hashMd5,
             nomeOriginal: String(nomeOriginal || ''),
             nomeArquivoSalvo: nomeArquivoFinal,
             caminhoRelativo,
@@ -207,16 +272,6 @@ function salvarDocumentoCliente(clienteId, nomeOriginal, buffer, metadados = {},
 
         // Atualiza manifesto do cliente (_manifest.json)
         try {
-            const manifestPath = path.resolve(pastaCliente, '_manifest.json');
-            let manifest = [];
-            if (fs.existsSync(manifestPath)) {
-                try {
-                    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-                    if (!Array.isArray(manifest)) manifest = [];
-                } catch {
-                    manifest = [];
-                }
-            }
             manifest.push(registroMeta);
             fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
         } catch (errMan) {
@@ -230,6 +285,7 @@ function salvarDocumentoCliente(clienteId, nomeOriginal, buffer, metadados = {},
             caminhoAbsoluto,
             tamanhoBytes: buf.length,
             dataUpload,
+            hashMd5,
             metadados: metadados || {}
         };
 

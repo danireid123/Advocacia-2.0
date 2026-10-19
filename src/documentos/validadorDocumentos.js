@@ -9,13 +9,15 @@
 'use strict';
 
 const crypto = require('crypto');
+const { obterApiKeyAtiva } = require('../ia/tradutorJuridico');
 
 // Constantes fundamentais
 const TIMEOUT_MULTIMODAL_AUDIO = 20000; // 20s rígido via AbortController
 const MODELOS_GEMINI_PADRAO = [
-  'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
+  'gemini-3.5-flash',
   'gemini-flash-lite-latest',
+  'gemini-2.0-flash',
   'gemini-1.5-flash'
 ];
 
@@ -101,7 +103,7 @@ function normalizarBuffer(bufferOuBase64, mimetypePadrao = 'image/jpeg') {
     base64Data = '';
   }
 
-  // Detecção por magic bytes se mimetype for genérico
+  // Detecção rigorosa por magic bytes (sempre prevalece sobre rótulo genérico ou equivocado)
   if (rawBuffer.length >= 4) {
     if (rawBuffer[0] === 0xFF && rawBuffer[1] === 0xD8 && rawBuffer[2] === 0xFF) {
       resolvedMime = 'image/jpeg';
@@ -109,7 +111,14 @@ function normalizarBuffer(bufferOuBase64, mimetypePadrao = 'image/jpeg') {
       resolvedMime = 'image/png';
     } else if (rawBuffer.slice(0, 4).toString('utf-8') === '%PDF') {
       resolvedMime = 'application/pdf';
+    } else if (rawBuffer.slice(0, 4).toString('utf-8') === 'RIFF') {
+      resolvedMime = 'image/webp';
     }
+  }
+
+  // Garante que o base64 enviado ao Gemini seja limpo de qualquer prefixo data:
+  if (base64Data && base64Data.includes(',')) {
+    base64Data = base64Data.split(',').pop().trim();
   }
 
   return { base64Data, rawBuffer, mimeType: resolvedMime };
@@ -345,7 +354,7 @@ async function auditarDocumentoMultimodal(buffer, mimetype = 'image/jpeg', apiKe
   }
 
   // 2. Resolução da Chave da API
-  const chaveFinal = (apiKey || process.env.GEMINI_API_KEY || '').trim();
+  const chaveFinal = obterApiKeyAtiva(apiKey);
   if (!chaveFinal) {
     const resultadoLocal = executarHeuristicaLocal(rawBuffer, mimeType, itensEsperados, 'SEM_API_KEY');
     adicionarAoCache(chaveCache, resultadoLocal);

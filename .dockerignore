@@ -5,4 +5,10 @@ build
 .env
 wwebjs_auth_session*
 config.v1.backup.*.json
+config.backup.json
+config.corrompido.*
+documentos_clientes/*
+documentos_clientes/
+test_*.js
 *.log
+*.zip
