@@ -8,6 +8,7 @@
  */
 
 const { auditarComprovantePix } = require('./validadorComprovantePix');
+const { obterApiKeyAtiva } = require('../ia/tradutorJuridico');
 
 const MAPA_DIAS_SEMANA = {
     0: 'DOMINGO',
@@ -316,7 +317,8 @@ async function processarComprovanteRecebido(clienteTelefoneOuObj, bufferArg, mim
     const valorEsperado = parcelaPendente ? Number(parcelaPendente.valor || 0) : 0;
     const nomeCliente = clienteNome || (parcelaPendente ? (parcelaPendente.clienteNome || 'Cliente') : 'Cliente');
 
-    const laudo = await auditarComprovantePix(buffer, mimetype, apiKey, valorEsperado, nomeCliente);
+    const chaveAtiva = obterApiKeyAtiva(apiKey, config);
+    const laudo = await auditarComprovantePix(buffer, mimetype, chaveAtiva, valorEsperado, nomeCliente);
 
     // Deduplicação determinística de comprovante PIX (Prevenção de Replay Attack)
     const idTx = String(laudo?.dadosLidos?.idTransacao || '').trim();
