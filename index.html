@@ -501,7 +501,7 @@
     /* ---- Estado compacto ---- */
     body.sidebar-collapsed #main-sidebar { width: 76px; padding-left: 12px; padding-right: 12px; }
     /* backdrop-filter cria containing block para position:fixed — removido no rail para o popover do QR escapar */
-    body.sidebar-collapsed #main-sidebar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(9, 9, 11, 0.92); }
+    body.sidebar-collapsed #main-sidebar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(9, 9, 11, 0.92); position: relative; z-index: 30; }
     body.theme-light.sidebar-collapsed #main-sidebar { background: rgba(255, 255, 255, 0.95); }
     body.sidebar-collapsed #main-sidebar .sidebar-tab-item {
       justify-content: center;
