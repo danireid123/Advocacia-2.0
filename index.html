@@ -537,17 +537,33 @@
 
   <!-- SISTEMA DE NAVEGAÇÃO LATERAL RETRÁTIL (ICON-RAIL ESTILO CURSOR / VS CODE / LINEAR) -->
   <style id="icon-rail-nav-styles">
-    /* Sidebar Base */
+    /* Sidebar Base Centralizada (Estilo Ilha Flutuante / Floating Rail) */
     #main-sidebar {
-      width: 64px;
-      min-width: 64px;
-      background-color: #0c0c0e;
-      border-right: 1px solid rgba(39, 39, 42, 0.7);
-      transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 58px;
+      min-width: 58px;
+      background: rgba(14, 14, 18, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(39, 39, 42, 0.8);
+      border-radius: 22px;
+      margin: auto 0 auto 14px;
+      height: auto;
+      max-height: calc(100% - 32px);
+      box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+      transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      align-self: center;
     }
     body.sidebar-expanded #main-sidebar {
       width: 256px;
       min-width: 256px;
+    }
+
+    /* Navegação com Ícones Centralizados Verticalmente */
+    #sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8px 4px;
     }
 
     /* Itens da Sidebar */
@@ -569,9 +585,10 @@
     body:not(.sidebar-expanded) .sidebar-rail-btn {
       justify-content: center;
       padding: 0;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       margin: 2px auto;
+      border-radius: 12px;
     }
     .sidebar-rail-btn:hover {
       background: rgba(39, 39, 42, 0.65);
@@ -1464,10 +1481,10 @@
   <!-- CORPO PRINCIPAL COM SIDEBAR LATERAL RETRÁTIL + CONTEÚDO -->
   <div class="flex flex-1 min-h-0 overflow-hidden relative">
     
-    <!-- SIDEBAR ICON-RAIL RETRÁTIL (ESTILO CURSOR / VS CODE / LINEAR) -->
-    <aside id="main-sidebar" class="h-full bg-[#0c0c0e] border-r border-zinc-800/80 flex flex-col justify-between shrink-0 select-none z-20">
-      <!-- Navegação Principal com Todos os 11 Módulos Acessíveis -->
-      <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-1" aria-label="Navegação Principal">
+    <!-- SIDEBAR ICON-RAIL RETRÁTIL CENTRALIZADA (ILHA FLUTUANTE) -->
+    <aside id="main-sidebar" class="flex flex-col justify-between shrink-0 select-none z-20">
+      <!-- Navegação Principal com Todos os 11 Módulos Acessíveis e Centralizados -->
+      <nav id="sidebar-nav" class="flex-1 flex flex-col justify-center overflow-y-auto overflow-x-hidden py-3 px-1.5 space-y-1 my-auto" aria-label="Navegação Principal">
         
         <!-- GRUPO 1: OPERAÇÃO (3 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-operacao">
