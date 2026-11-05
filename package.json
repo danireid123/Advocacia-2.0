@@ -23,6 +23,7 @@
       "icon.png",
       "icon.ico",
       "package.json",
+      "assets/**/*",
       "src/**/*",
       "node_modules/**/*"
     ],
