@@ -1445,18 +1445,6 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
         </button>
       </div>
-
-      <!-- Quick Spotlight Trigger no Topo da Sidebar -->
-      <div class="sidebar-search-box px-2 pt-2 pb-1 shrink-0">
-        <button type="button" id="btn-spotlight-trigger" onclick="toggleSpotlight()" class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-zinc-900/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/30 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer group shadow-inner" title="Buscar processo, cliente ou comando rápido (Ctrl+K)">
-          <div class="flex items-center space-x-2 overflow-hidden mx-auto">
-            <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors shrink-0"><use href="#icon-search"/></svg>
-            <span class="sidebar-brand-text hidden text-xs text-zinc-400 group-hover:text-zinc-200 truncate">Buscar ou comando...</span>
-          </div>
-          <kbd class="sidebar-brand-text hidden inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 rounded">Ctrl K</kbd>
-        </button>
-      </div>
-
       <!-- Navegação Principal com Módulos Centralizados -->
       <nav id="sidebar-nav" class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegação Principal">
         <div class="sidebar-nav-container my-auto space-y-1 w-full">
@@ -1568,18 +1556,7 @@
               <span class="sidebar-btn-label">Horários & Almoço</span>
             </button>
 
-            <!-- Cópia de Segurança -->
-            <button type="button" id="nav-btn-backup" data-desc="Exportar e importar dados locais em .JSON" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
-              <span class="sidebar-btn-label">Cópia de Segurança</span>
-            </button>
-
-            <!-- Configurações Gerais -->
-            <button type="button" id="nav-btn-configuracoes" data-desc="Conexão WhatsApp, tema visual e preferências do sistema" class="sidebar-rail-btn" title="Configurações">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-settings"/></svg></div>
-              <span class="sidebar-btn-label">Configurações</span>
-            </button>
-          </div>
+            </div>
         </div>
         </div>
       </nav>
@@ -1592,8 +1569,24 @@
         </button>
       </div>
     </aside>
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main id="main-content-area" class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-28">
+    <!-- ÁREA DE CONTEÚDO COM TOPO RESPONSIVO & BOTÃO DE CONFIGURAÇÕES NO TOPO DIREITO -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <!-- Barra Superior Minimalista -->
+      <div class="h-14 px-6 lg:px-8 flex items-center justify-between shrink-0 border-b border-zinc-800/60 bg-zinc-950/40 backdrop-blur-md z-10">
+        <div class="flex items-center space-x-2.5">
+          <span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+          <span id="top-bar-page-name" class="font-serif-legal font-bold text-zinc-200 text-sm tracking-wide">Visão Geral</span>
+        </div>
+
+        <!-- Botão Configurações no Topo Superior Direito -->
+        <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 text-xs font-medium transition-all shadow-sm active:scale-95 cursor-pointer group" title="Configurações do Sistema">
+          <svg class="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-settings"/></svg>
+          <span>Configurações</span>
+        </button>
+      </div>
+
+      <!-- CONTEÚDO PRINCIPAL COM RESPIRO PERFEITO -->
+      <main id="main-content-area" class="flex-1 p-6 sm:p-8 lg:p-10 overflow-y-auto pb-28">
       <div class="w-full max-w-7xl mx-auto space-y-6">
         
         <!-- ================= ABA 0: VISÃO GERAL (NOVO COCKPIT EXECUTIVO) ================= -->
@@ -3406,6 +3399,7 @@
 
       </div>
     </main>
+    </div>
   </div>
 
   <script src="./src/audio/audioAlert.js"></script>
@@ -4421,6 +4415,31 @@
         if (breadcrumbDesc && btnAtivo.dataset.desc) {
           breadcrumbDesc.textContent = btnAtivo.dataset.desc;
         }
+      }
+      const btnTopConfig = document.getElementById('btn-top-configuracoes');
+      if (btnTopConfig) {
+        const isConfig = (abaNome === 'configuracoes');
+        btnTopConfig.classList.toggle('bg-amber-500/20', isConfig);
+        btnTopConfig.classList.toggle('border-amber-500/50', isConfig);
+        btnTopConfig.classList.toggle('text-amber-300', isConfig);
+      }
+      const topBarName = document.getElementById('top-bar-page-name');
+      if (topBarName) {
+        const mapaNomes = {
+          'inicio': 'Visão Geral',
+          'processos': 'Consultar Processos',
+          'pausados': 'Fila do Advogado',
+          'simulador': 'Simulador WhatsApp',
+          'fluxo': 'Menu Automático',
+          'dossie-clientes': 'Dossiê de Clientes',
+          'financeiro': 'Financeiro & PIX',
+          'terminal': 'Histórico de Mensagens',
+          'ignorados': 'Contatos Ignorados',
+          'agenda': 'Horários & Almoço',
+          'backup': 'Cópia de Segurança',
+          'configuracoes': 'Configurações do Sistema'
+        };
+        topBarName.textContent = mapaNomes[abaNome] || abaNome;
       }
       const mainContentAreaEl = document.getElementById('main-content-area');
       if (mainContentAreaEl) mainContentAreaEl.scrollTop = 0;
