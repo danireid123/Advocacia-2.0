@@ -41,3 +41,17 @@ Para inspecionar suas alterações visuais sem precisar abrir todo o Electron, o
 
 ### 5. Ativação de Skills Recomendadas
 Nesta worktree, aplique por padrão as diretrizes de `/tailwind-designer` e `/micro-interactions`.
+
+### 6. Auditoria Holística de UI (Markup Estático + Templates Dinâmicos em JS)
+- Ao redesenhar ou padronizar qualquer aba, **NUNCA** analise apenas o HTML estático.
+- É obrigatório inspecionar e atualizar todas as funções JavaScript que geram HTML dinâmico via `innerHTML`, `document.createElement` ou template literals (ex: `adicionarBalao*`, `renderizarPausados`, `renderizarOpcoesDaEtapa`, toasts e modais).
+- Antes de considerar qualquer refatoração visual concluída, execute uma varredura regex no arquivo para garantir que nenhuma cor hexadecimal legada (`#080b12`, `#090d16`, `#0b0f17`, `#1a2332`, etc.) permaneça no código.
+
+### 7. Coesão Estrita do Design System (Padrão Linear / Stripe)
+- Proibido fragmentar a paleta com acentos aleatórios (como botões roxos/azuis não mapeados ou emojis crus como ícones de ação).
+- Toda ação interativa principal deve usar a paleta de ardósia executiva (`zinc-950`, `zinc-900`, `zinc-800`), acentos em Champagne Gold (`amber-400` / `amber-500`), Esmeralda (`emerald-400`) para financeiro/sucesso e ícones vetoriais SVG nítidos com feedback tátil (`.btn-tactile`).
+- A aba ativa na sidebar deve sempre utilizar gradiente sutil com barra lateral luminosa de 3px, nunca preenchimento sólido chapado.
+
+### 8. Responsividade e Conforto Visual em Formulários de Entrada
+- Proibido comprimir múltiplos campos de entrada (`<input>`, `<select>`) em uma única linha rígida de 12 colunas sem suporte a telas menores.
+- Sempre utilize grid responsivo inteligente (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-12`) com rótulos de alto contraste (`text-zinc-300 font-semibold`) e estados visuais completos (`:hover`, `:focus`, `::placeholder` e `color-scheme: dark`).
