@@ -480,6 +480,129 @@
       box-shadow: 0 0 20px rgba(212, 175, 55, 0.45);
     }
   </style>
+
+  <!-- SIDEBAR RECOLHÍVEL (RAIL COMPACTO) -->
+  <style id="sidebar-rail-styles">
+    #main-sidebar {
+      width: 272px;
+      flex-shrink: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), padding 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #main-sidebar .sidebar-tab-item > div > span,
+    #main-sidebar #sidebar-nav > div > span:first-child,
+    #main-sidebar .sidebar-tab-item > span {
+      transition: opacity 0.18s ease;
+      white-space: nowrap;
+    }
+    #sidebar-qr-trigger { display: none; }
+
+    /* ---- Estado compacto ---- */
+    body.sidebar-collapsed #main-sidebar { width: 76px; padding-left: 12px; padding-right: 12px; }
+    /* backdrop-filter cria containing block para position:fixed — removido no rail para o popover do QR escapar */
+    body.sidebar-collapsed #main-sidebar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(9, 9, 11, 0.92); }
+    body.theme-light.sidebar-collapsed #main-sidebar { background: rgba(255, 255, 255, 0.95); }
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item {
+      justify-content: center;
+      padding: 10px 0 !important;
+      transform: none !important;
+    }
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > div > span { display: none; }
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > div { margin: 0; }
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item svg { width: 18px; height: 18px; }
+
+    /* Títulos de seção viram um divisor discreto */
+    body.sidebar-collapsed #main-sidebar #sidebar-nav > div > span:first-child {
+      display: block;
+      height: 1px;
+      margin: 6px 10px 8px;
+      padding: 0;
+      font-size: 0;
+      background: rgba(113, 113, 122, 0.35);
+    }
+    body.sidebar-collapsed #main-sidebar #sidebar-nav > div:first-child > span:first-child { display: none; }
+
+    /* Badges viram contadores flutuantes no canto do ícone */
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > span {
+      position: absolute;
+      top: 3px;
+      right: 6px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px !important;
+      font-size: 9px !important;
+      line-height: 16px;
+      text-align: center;
+      border-radius: 9999px;
+      box-shadow: 0 0 0 2px #09090b;
+    }
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > span:not([id]),
+    body.sidebar-collapsed #main-sidebar #badge-financeiro,
+    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > span[data-empty="1"] { display: none; }
+
+    /* QR vira gatilho compacto + popover flutuante */
+    body.sidebar-collapsed #sidebar-qr-trigger { display: flex; }
+    body.sidebar-collapsed #tour-qr-card {
+      position: fixed;
+      left: 88px;
+      bottom: 16px;
+      width: 220px;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-8px) scale(0.98);
+      transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+      background: #111113 !important;
+      border-color: rgba(212, 175, 55, 0.3) !important;
+    }
+    body.theme-light.sidebar-collapsed #tour-qr-card { background: #ffffff !important; }
+    body.sidebar-collapsed #tour-qr-card.qr-popover-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0) scale(1);
+    }
+
+    /* Tooltip do rail */
+    #sidebar-rail-tooltip {
+      position: fixed;
+      z-index: 70;
+      pointer-events: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #f4f4f5;
+      background: #18181b;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.12s ease, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+    #sidebar-rail-tooltip.visible { opacity: 1; transform: translateX(0); }
+    #sidebar-rail-tooltip kbd {
+      margin-left: 8px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: ui-monospace, monospace;
+      color: #a1a1aa;
+      background: #27272a;
+    }
+
+    #btn-toggle-sidebar svg { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    body.sidebar-collapsed #btn-toggle-sidebar svg { transform: scaleX(-1); }
+
+    body.theme-light #sidebar-rail-tooltip { background: #ffffff; color: #18181b; border-color: rgba(184, 134, 11, 0.4); }
+    body.theme-light.sidebar-collapsed #main-sidebar .sidebar-tab-item > span { box-shadow: 0 0 0 2px #ffffff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #main-sidebar, #tour-qr-card, #sidebar-rail-tooltip, #btn-toggle-sidebar svg { transition: none !important; }
+    }
+  </style>
 </head>
 <body class="h-screen flex flex-col relative theme-dark">
 
@@ -973,6 +1096,9 @@
   <!-- HEADER EXECUTIVO -->
   <header id="main-header" class="h-16 exec-card border-b border-zinc-800/80 px-6 flex items-center justify-between z-20 bg-zinc-950/80 backdrop-blur-xl">
     <div class="flex items-center space-x-3.5">
+      <button type="button" id="btn-toggle-sidebar" aria-label="Recolher ou expandir menu lateral" aria-controls="main-sidebar" aria-expanded="true" title="Recolher menu (Ctrl+B)" class="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-amber-300 hover:bg-zinc-900/80 border border-transparent hover:border-zinc-800 active:scale-95 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40">
+        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path stroke-linecap="round" d="M9 4v16"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l-2 2 2 2"/></svg>
+      </button>
       <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-zinc-950 shadow-md shadow-amber-500/20 active:scale-95 transition-transform duration-150">
         <svg class="w-5 h-5"><use href="#icon-scales"/></svg>
       </div>
@@ -1094,7 +1220,12 @@
         </div>
       </div>
 
-      <!-- Card QR Code WhatsApp + Substatus Detalhado -->
+      <div class="sidebar-qr-wrap">
+      <!-- Gatilho compacto do QR (somente no modo recolhido) -->
+      <button type="button" id="sidebar-qr-trigger" aria-label="Conexão WhatsApp" class="relative w-full h-11 rounded-xl items-center justify-center text-amber-400 bg-zinc-900/70 border border-zinc-800/80 hover:border-amber-500/40 active:scale-95 transition-all cursor-pointer">
+        <svg class="w-[18px] h-[18px]"><use href="#icon-qr"/></svg>
+        <span class="absolute top-2 right-3 w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+      </button>
       <div id="tour-qr-card" class="exec-card p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/60 flex flex-col items-center text-center shadow-md">
         <div class="flex items-center space-x-1.5 mb-2.5">
           <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-qr"/></svg>
@@ -1104,6 +1235,7 @@
           <span class="text-[11px] text-zinc-500 text-center leading-tight font-mono">Iniciando motor...</span>
         </div>
         <p id="qr-substatus-text" class="text-[10px] text-zinc-400 mt-2 leading-tight font-mono">Aguardando Chromium...</p>
+      </div>
       </div>
     </aside>
 
@@ -8040,6 +8172,106 @@
         window.inicializarSimuladorChat = inicializarSimuladorChat;
         inicializarSimuladorChat();
     });
+  </script>
+
+  <!-- CONTROLADOR DO MENU LATERAL RECOLHÍVEL -->
+  <script>
+  (function () {
+    const STORAGE_KEY = 'advocacia.sidebarCollapsed';
+    const body = document.body;
+    const btn = document.getElementById('btn-toggle-sidebar');
+    const sidebar = document.getElementById('main-sidebar');
+    const qrCard = document.getElementById('tour-qr-card');
+    const qrTrigger = document.getElementById('sidebar-qr-trigger');
+    if (!btn || !sidebar) return;
+
+    const tip = document.createElement('div');
+    tip.id = 'sidebar-rail-tooltip';
+    tip.setAttribute('role', 'tooltip');
+    document.body.appendChild(tip);
+
+    function aplicar(recolhido, salvar) {
+      body.classList.toggle('sidebar-collapsed', recolhido);
+      btn.setAttribute('aria-expanded', String(!recolhido));
+      btn.title = recolhido ? 'Expandir menu (Ctrl+B)' : 'Recolher menu (Ctrl+B)';
+      if (!recolhido) { esconderTip(); qrCard && qrCard.classList.remove('qr-popover-open'); }
+      if (salvar) { try { localStorage.setItem(STORAGE_KEY, recolhido ? '1' : '0'); } catch (e) {} }
+    }
+
+    function estadoInicial() {
+      let salvo = null;
+      try { salvo = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+      if (salvo === '1' || salvo === '0') return salvo === '1';
+      return window.innerWidth < 1280; // telas menores começam compactas
+    }
+
+    // Tooltips no modo compacto
+    function mostrarTip(el, texto) {
+      if (!body.classList.contains('sidebar-collapsed') || !texto) return;
+      tip.textContent = texto;
+      const r = el.getBoundingClientRect();
+      tip.style.left = (r.right + 10) + 'px';
+      tip.style.top = (r.top + r.height / 2 - 14) + 'px';
+      tip.classList.add('visible');
+    }
+    function esconderTip() { tip.classList.remove('visible'); }
+
+    sidebar.addEventListener('mouseover', (e) => {
+      const item = e.target.closest('.sidebar-tab-item, #sidebar-qr-trigger');
+      if (!item) return;
+      const label = item.id === 'sidebar-qr-trigger'
+        ? 'Conexão WhatsApp'
+        : (item.querySelector(':scope > div > span') || {}).textContent;
+      mostrarTip(item, (label || '').trim());
+    });
+    sidebar.addEventListener('mouseout', (e) => {
+      if (!e.relatedTarget || !sidebar.contains(e.relatedTarget) || !e.relatedTarget.closest('.sidebar-tab-item, #sidebar-qr-trigger')) esconderTip();
+    });
+    sidebar.addEventListener('focusin', (e) => {
+      const item = e.target.closest('.sidebar-tab-item');
+      if (item) mostrarTip(item, ((item.querySelector(':scope > div > span') || {}).textContent || '').trim());
+    });
+    sidebar.addEventListener('focusout', esconderTip);
+    sidebar.addEventListener('click', esconderTip);
+
+    // Popover do QR no modo compacto
+    if (qrTrigger && qrCard) {
+      qrTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        esconderTip();
+        qrCard.classList.toggle('qr-popover-open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!qrCard.contains(e.target) && e.target !== qrTrigger) qrCard.classList.remove('qr-popover-open');
+      });
+    }
+
+    // Badges zerados não poluem o rail
+    function marcarBadges() {
+      sidebar.querySelectorAll('.sidebar-tab-item > span[id]').forEach((b) => {
+        const t = (b.textContent || '').trim();
+        b.dataset.empty = (t === '' || t === '0') ? '1' : '0';
+      });
+    }
+    marcarBadges();
+    new MutationObserver(marcarBadges).observe(sidebar, { subtree: true, childList: true, characterData: true });
+
+    btn.addEventListener('click', () => aplicar(!body.classList.contains('sidebar-collapsed'), true));
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'b' || e.key === 'B')) {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+        e.preventDefault();
+        aplicar(!body.classList.contains('sidebar-collapsed'), true);
+      }
+      if (e.key === 'Escape' && qrCard) qrCard.classList.remove('qr-popover-open');
+    });
+
+    // Aplica sem animação no carregamento
+    sidebar.style.transition = 'none';
+    aplicar(estadoInicial(), false);
+    requestAnimationFrame(() => requestAnimationFrame(() => { sidebar.style.transition = ''; }));
+  })();
   </script>
 </body>
 </html>
