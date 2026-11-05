@@ -431,10 +431,14 @@
     #lexbot-wrapper {
       position: fixed;
       z-index: 1000;
+      display: none; /* Oculto por padrao para evitar cobrir a tela; abre no Tour */
       transition: top 0.42s cubic-bezier(0.22, 1, 0.36, 1), 
                   left 0.42s cubic-bezier(0.22, 1, 0.36, 1), 
                   bottom 0.42s cubic-bezier(0.22, 1, 0.36, 1), 
                   right 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #lexbot-wrapper.tour-running {
+      display: flex !important;
     }
 
     #tour-backdrop {
@@ -490,8 +494,8 @@
       transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
     }
     body.sidebar-expanded #main-sidebar {
-      width: 256px;
-      min-width: 256px;
+      width: 268px;
+      min-width: 268px;
     }
 
     /* Itens da Sidebar */
@@ -501,7 +505,7 @@
       align-items: center;
       width: 100%;
       height: 42px;
-      padding: 0 12px;
+      padding: 0 10px;
       border-radius: 12px;
       color: #a1a1aa;
       background: transparent;
@@ -551,8 +555,8 @@
     }
     .sidebar-btn-label {
       display: none;
-      margin-left: 11px;
-      font-size: 12px;
+      margin-left: 9px;
+      font-size: 11.5px;
       font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
@@ -563,11 +567,34 @@
     body.sidebar-expanded .sidebar-btn-label {
       display: inline-block;
     }
+    .sidebar-category-group {
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.sidebar-expanded .sidebar-category-group {
+      background: rgba(18, 18, 22, 0.5);
+      border: 1px solid rgba(39, 39, 42, 0.7);
+      border-radius: 16px;
+      padding: 6px;
+      margin-bottom: 8px;
+    }
+    .sidebar-collapsed-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 0;
+    }
+    body.sidebar-expanded .sidebar-collapsed-indicator {
+      display: none !important;
+    }
+    body.sidebar-expanded .sidebar-group-header {
+      display: flex !important;
+    }
     .sidebar-group-header {
       display: none;
     }
-    body.sidebar-expanded .sidebar-group-header {
-      display: block;
+    body.sidebar-expanded .sidebar-divider {
+      display: none !important;
     }
 
     /* Badges no modo colapsado vs expandido */
@@ -589,8 +616,8 @@
     }
     body.sidebar-expanded .sidebar-btn-badge {
       position: static;
-      font-size: 9.5px;
-      padding: 2.5px 7px;
+      font-size: 8.5px;
+      padding: 2px 5px;
       box-shadow: none;
     }
 
@@ -1246,99 +1273,151 @@
     <!-- SIDEBAR ICON-RAIL RETRÁTIL (ESTILO CURSOR / VS CODE / LINEAR) -->
     <aside id="main-sidebar" class="h-full bg-zinc-950/95 border-r border-zinc-800/80 flex flex-col justify-between shrink-0 select-none z-20">
       <!-- Navegação Principal com Todos os 11 Módulos Acessíveis -->
-      <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-1" aria-label="Navegação Principal">
+      <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-2" aria-label="Navegação Principal">
         
-        <!-- SEÇÃO: OPERAÇÃO -->
-        <div class="sidebar-group-header px-2.5 pt-1 pb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-500">Operação</div>
-        
-        <!-- Visão Geral -->
-        <button type="button" id="nav-btn-inicio" data-desc="Painel executivo de indicadores e atalhos" class="sidebar-rail-btn active" title="Visão Geral">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-home"/></svg></div>
-          <span class="sidebar-btn-label">Visão Geral</span>
-        </button>
-
-        <!-- Consultar Processos -->
-        <button type="button" id="nav-btn-processos" data-desc="Busca instantânea por CPF/CNJ e importação Smart" class="sidebar-rail-btn" title="Consultar Processos">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
-          <span class="sidebar-btn-label">Consultar Processos</span>
-          <span id="badge-processos" class="sidebar-btn-badge bg-zinc-800 text-amber-300">0</span>
-        </button>
-
-        <!-- Fila do Advogado -->
-        <button type="button" id="nav-btn-pausados" data-desc="Transbordo humano com triagem de urgência e Copilot IA" class="sidebar-rail-btn" title="Fila do Advogado">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
-          <span class="sidebar-btn-label">Fila do Advogado</span>
-          <span id="badge-pausados" class="sidebar-btn-badge bg-amber-500/20 text-amber-300">0</span>
-        </button>
-
-        <div class="my-2 border-t border-zinc-800/80"></div>
-
-        <!-- SEÇÃO: AUTOMAÇÃO & IA -->
-        <div class="sidebar-group-header px-2.5 pt-1 pb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-500">Automação & IA</div>
-
-        <!-- Simulador WhatsApp -->
-        <button type="button" id="nav-btn-simulador" data-desc="Ambiente Sandbox isolado para testar conversas e IA" class="sidebar-rail-btn" title="Simulador WhatsApp Sandbox">
-          <div class="sidebar-btn-icon text-emerald-400">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        <!-- GRUPO 1: OPERAÇÃO JURÍDICA (3 MÓDULOS) -->
+        <div class="sidebar-category-group">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              Operação Jurídica
+            </span>
+            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">3</span>
           </div>
-          <span class="sidebar-btn-label">Simulador WhatsApp</span>
-          <span class="sidebar-btn-badge bg-emerald-500/20 text-emerald-300">SANDBOX</span>
-        </button>
+          <div class="sidebar-collapsed-indicator" title="Operação Jurídica">
+            <span class="w-2 h-0.5 rounded-full bg-amber-400/50"></span>
+          </div>
+          
+          <div class="space-y-1">
+            <!-- Visão Geral -->
+            <button type="button" id="nav-btn-inicio" data-desc="Painel executivo de indicadores e cockpit" class="sidebar-rail-btn active" title="Visão Geral">
+              <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-home"/></svg></div>
+              <span class="sidebar-btn-label">Visão Geral</span>
+            </button>
 
-        <!-- Menu Automático -->
-        <button type="button" id="nav-btn-fluxo" data-desc="Árvore interativa de atendimento e ações pré-programadas" class="sidebar-rail-btn" title="Menu Automático">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
-          <span class="sidebar-btn-label">Menu Automático</span>
-        </button>
+            <!-- Consultar Processos -->
+            <button type="button" id="nav-btn-processos" data-desc="Busca instantânea por CPF/CNJ e importação Smart" class="sidebar-rail-btn" title="Consultar Processos">
+              <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
+              <span class="sidebar-btn-label">Consultar Processos</span>
+              <span id="badge-processos" class="sidebar-btn-badge bg-zinc-800 text-amber-300">0</span>
+            </button>
 
-        <!-- Dossiê de Clientes -->
-        <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil Art. 319 CPC e galeria forense OCR" class="sidebar-rail-btn" title="Dossiê de Clientes">
-          <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-users"/></svg></div>
-          <span class="sidebar-btn-label">Dossiê de Clientes</span>
-          <span id="badge-dossies" class="sidebar-btn-badge bg-zinc-800 text-amber-300">0</span>
-        </button>
+            <!-- Fila do Advogado -->
+            <button type="button" id="nav-btn-pausados" data-desc="Transbordo humano com triagem de urgência e Copilot IA" class="sidebar-rail-btn" title="Fila do Advogado">
+              <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
+              <span class="sidebar-btn-label">Fila do Advogado</span>
+              <span id="badge-pausados" class="sidebar-btn-badge bg-amber-500/20 text-amber-300">0</span>
+            </button>
+          </div>
+        </div>
 
-        <div class="my-2 border-t border-zinc-800/80"></div>
+        <div class="sidebar-divider my-1.5 border-t border-zinc-800/80"></div>
 
-        <!-- SEÇÃO: CONTROLADORIA -->
-        <div class="sidebar-group-header px-2.5 pt-1 pb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-500">Controladoria</div>
+        <!-- GRUPO 2: AUTOMAÇÃO & IA (3 MÓDULOS) -->
+        <div class="sidebar-category-group">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Automação & IA
+            </span>
+            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">3</span>
+          </div>
+          <div class="sidebar-collapsed-indicator" title="Automação & IA">
+            <span class="w-2 h-0.5 rounded-full bg-emerald-400/50"></span>
+          </div>
 
-        <!-- Financeiro & PIX -->
-        <button type="button" id="nav-btn-financeiro" data-desc="Gestão de honorários, régua semanal e auditoria PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
-          <div class="sidebar-btn-icon text-emerald-400"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
-          <span class="sidebar-btn-label">Financeiro & PIX</span>
-          <span id="badge-financeiro" class="sidebar-btn-badge bg-emerald-500/20 text-emerald-300">PIX</span>
-        </button>
+          <div class="space-y-1">
+            <!-- Simulador WhatsApp -->
+            <button type="button" id="nav-btn-simulador" data-desc="Ambiente Sandbox isolado para testar conversas e IA" class="sidebar-rail-btn" title="Simulador WhatsApp Sandbox">
+              <div class="sidebar-btn-icon text-emerald-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              </div>
+              <span class="sidebar-btn-label">Simulador WhatsApp</span>
+              <span class="sidebar-btn-badge bg-emerald-500/20 text-emerald-300">SANDBOX</span>
+            </button>
 
-        <!-- Histórico de Mensagens -->
-        <button type="button" id="nav-btn-terminal" data-desc="Auditoria forense e histórico cronológico de mensagens" class="sidebar-rail-btn" title="Histórico de Mensagens">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
-          <span class="sidebar-btn-label">Histórico Mensagens</span>
-        </button>
+            <!-- Menu Automático -->
+            <button type="button" id="nav-btn-fluxo" data-desc="Árvore interativa de atendimento e ações pré-programadas" class="sidebar-rail-btn" title="Menu Automático">
+              <div class="sidebar-btn-icon text-emerald-400"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
+              <span class="sidebar-btn-label">Menu Automático</span>
+            </button>
 
-        <!-- Contatos Ignorados -->
-        <button type="button" id="nav-btn-ignorados" data-desc="Escudo VIP e bloqueio absoluto de disparos automáticos" class="sidebar-rail-btn" title="Contatos Ignorados">
-          <div class="sidebar-btn-icon text-rose-400"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
-          <span class="sidebar-btn-label">Contatos Ignorados</span>
-          <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-rose-300">0</span>
-        </button>
+            <!-- Dossiê de Clientes -->
+            <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil Art. 319 CPC e galeria forense OCR" class="sidebar-rail-btn" title="Dossiê de Clientes">
+              <div class="sidebar-btn-icon text-emerald-400"><svg class="w-4 h-4"><use href="#icon-users"/></svg></div>
+              <span class="sidebar-btn-label">Dossiê de Clientes</span>
+              <span id="badge-dossies" class="sidebar-btn-badge bg-zinc-800 text-amber-300">0</span>
+            </button>
+          </div>
+        </div>
 
-        <div class="my-2 border-t border-zinc-800/80"></div>
+        <div class="sidebar-divider my-1.5 border-t border-zinc-800/80"></div>
 
-        <!-- SEÇÃO: SISTEMA & AJUSTES -->
-        <div class="sidebar-group-header px-2.5 pt-1 pb-1 text-[9px] font-extrabold uppercase tracking-widest text-zinc-500">Sistema</div>
+        <!-- GRUPO 3: CONTROLADORIA & AUDITORIA (3 MÓDULOS) -->
+        <div class="sidebar-category-group">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-sky-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+              Controladoria
+            </span>
+            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20">3</span>
+          </div>
+          <div class="sidebar-collapsed-indicator" title="Controladoria">
+            <span class="w-2 h-0.5 rounded-full bg-sky-400/50"></span>
+          </div>
 
-        <!-- Horários & Almoço -->
-        <button type="button" id="nav-btn-agenda" data-desc="Configuração de expediente semanal e intervalo de almoço" class="sidebar-rail-btn" title="Horários & Almoço">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
-          <span class="sidebar-btn-label">Horários & Almoço</span>
-        </button>
+          <div class="space-y-1">
+            <!-- Financeiro & PIX -->
+            <button type="button" id="nav-btn-financeiro" data-desc="Gestão de honorários, régua semanal e auditoria PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
+              <div class="sidebar-btn-icon text-sky-400"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
+              <span class="sidebar-btn-label">Financeiro & PIX</span>
+              <span id="badge-financeiro" class="sidebar-btn-badge bg-emerald-500/20 text-emerald-300">PIX</span>
+            </button>
 
-        <!-- Cópia de Segurança -->
-        <button type="button" id="nav-btn-backup" data-desc="Snapshots locais .JSON e sincronização com nuvem 24/7" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
-          <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
-          <span class="sidebar-btn-label">Cópia de Segurança</span>
-        </button>
+            <!-- Histórico de Mensagens -->
+            <button type="button" id="nav-btn-terminal" data-desc="Auditoria forense e histórico cronológico de mensagens" class="sidebar-rail-btn" title="Histórico de Mensagens">
+              <div class="sidebar-btn-icon text-sky-400"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
+              <span class="sidebar-btn-label">Histórico Mensagens</span>
+            </button>
+
+            <!-- Contatos Ignorados -->
+            <button type="button" id="nav-btn-ignorados" data-desc="Escudo VIP e bloqueio absoluto de disparos automáticos" class="sidebar-rail-btn" title="Contatos Ignorados">
+              <div class="sidebar-btn-icon text-rose-400"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
+              <span class="sidebar-btn-label">Contatos Ignorados</span>
+              <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-rose-300">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-divider my-1.5 border-t border-zinc-800/80"></div>
+
+        <!-- GRUPO 4: SISTEMA (2 MÓDULOS) -->
+        <div class="sidebar-category-group">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+              Sistema
+            </span>
+            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">2</span>
+          </div>
+          <div class="sidebar-collapsed-indicator" title="Sistema">
+            <span class="w-2 h-0.5 rounded-full bg-zinc-400/50"></span>
+          </div>
+
+          <div class="space-y-1">
+            <!-- Horários & Almoço -->
+            <button type="button" id="nav-btn-agenda" data-desc="Configuração de expediente semanal e intervalo de almoço" class="sidebar-rail-btn" title="Horários & Almoço">
+              <div class="sidebar-btn-icon text-zinc-400"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
+              <span class="sidebar-btn-label">Horários & Almoço</span>
+            </button>
+
+            <!-- Cópia de Segurança -->
+            <button type="button" id="nav-btn-backup" data-desc="Snapshots locais .JSON e sincronização com nuvem 24/7" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
+              <div class="sidebar-btn-icon text-zinc-400"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
+              <span class="sidebar-btn-label">Cópia de Segurança</span>
+            </button>
+          </div>
+        </div>
       </nav>
 
       <!-- Rodapé da Sidebar: Botão de Recolher/Expandir com Atalho Ctrl+B -->
@@ -1502,108 +1581,7 @@
 
           </div>
 
-          <!-- 3. COCKPIT DE AÇÕES RÁPIDAS (8 MÓDULOS OPERACIONAIS) -->
-          <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-3.5 shadow-xl">
-            <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
-              <div class="flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-200">Ações Rápidas & Módulos Operacionais</h3>
-              </div>
-              <span class="text-[10px] text-zinc-400 font-mono">1-Clique direto</span>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
-              <!-- Ação 1: Consultar Processos -->
-              <button onclick="ativarAba('processos')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-amber-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-amber-300 block transition-colors">Processos</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Busca CPF/CNJ</span>
-                </div>
-              </button>
-
-              <!-- Ação 2: Simulador Sandbox -->
-              <button onclick="ativarAba('simulador')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-emerald-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-message"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-emerald-300 block transition-colors">Simulador</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Testar com IA</span>
-                </div>
-              </button>
-
-              <!-- Ação 3: Fila de Espera -->
-              <button onclick="ativarAba('pausados')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-amber-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-user-clock"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-amber-300 block transition-colors">Fila de Espera</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Transbordo</span>
-                </div>
-              </button>
-
-              <!-- Ação 4: Dossiê de Clientes -->
-              <button onclick="ativarAba('dossie-clientes')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-indigo-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-105 group-hover:bg-indigo-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-users"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-indigo-300 block transition-colors">Dossiê CPC</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Ficha e OCR</span>
-                </div>
-              </button>
-
-              <!-- Ação 5: Financeiro & PIX -->
-              <button onclick="ativarAba('financeiro')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-emerald-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-scales"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-emerald-300 block transition-colors">Financeiro</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Honorários PIX</span>
-                </div>
-              </button>
-
-              <!-- Ação 6: Horários & Almoço -->
-              <button onclick="ativarAba('agenda')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-sky-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-105 group-hover:bg-sky-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-sky-300 block transition-colors">Horários</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Expediente</span>
-                </div>
-              </button>
-
-              <!-- Ação 7: Árvore & Menus do Robô -->
-              <button onclick="ativarAba('fluxo')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-purple-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-105 group-hover:bg-purple-500/20 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-purple-300 block transition-colors">Fluxos</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Árvore WhatsApp</span>
-                </div>
-              </button>
-
-              <!-- Ação 8: Ledger & Terminal Forense -->
-              <button onclick="ativarAba('terminal')" class="p-3 rounded-2xl bg-zinc-950/60 hover:bg-zinc-800/70 border border-zinc-800 hover:border-zinc-500/40 text-left transition-all duration-150 group cursor-pointer flex flex-col justify-between space-y-2">
-                <div class="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 group-hover:scale-105 group-hover:bg-zinc-700 transition-all">
-                  <svg class="w-4 h-4"><use href="#icon-terminal"/></svg>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-zinc-200 group-hover:text-zinc-100 block transition-colors">Auditoria</span>
-                  <span class="text-[10px] text-zinc-400 block truncate">Ledger de Logs</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- 4. TWIN OPERATIONAL FEEDS: PASTAS RECENTES & RADAR DE MENSAGENS EM TEMPO REAL -->
+          <!-- 3. TWIN OPERATIONAL FEEDS: PASTAS RECENTES & RADAR DE MENSAGENS EM TEMPO REAL -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Coluna 1: Últimas Pastas Atualizadas -->
             <div class="lg:col-span-6 exec-card exec-card-hover p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-xl">
