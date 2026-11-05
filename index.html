@@ -182,12 +182,16 @@
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border-color);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    #main-content-area {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 28px 28px;
     }
     /* Cards padrão estáticos NUNCA ganham borda amarela no hover */
     .exec-card-hover {
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background-color 0.2s ease;
     }
     /* Apenas cards explicitamente clicáveis (com cursor-pointer ou onclick) ganham destaque no hover */
     .exec-card-hover.cursor-pointer:hover,
@@ -195,17 +199,61 @@
     button.exec-card-hover:hover,
     a.exec-card-hover:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(212, 175, 55, 0.15);
       border-color: rgba(212, 175, 55, 0.35);
     }
     .btn-tactile {
       transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
     }
     .btn-tactile:hover {
-      filter: brightness(1.05);
+      filter: brightness(1.06);
     }
     .btn-tactile:active {
       transform: scale(0.97);
+    }
+
+    /* Pílula deslizante em Segmented Controls */
+    .segmented-pill-container {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 3px;
+      border-radius: 12px;
+      background: rgba(18, 18, 22, 0.7);
+      border: 1px solid rgba(39, 39, 42, 0.8);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    .segmented-pill-glider {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      border-radius: 9px;
+      background: #27272a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .segmented-pill-tab {
+      position: relative;
+      z-index: 2;
+      padding: 5px 13px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #a1a1aa;
+      border-radius: 9px;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.18s ease;
+      background: transparent;
+      border: none;
+    }
+    .segmented-pill-tab:hover {
+      color: #f4f4f5;
+    }
+    .segmented-pill-tab.active {
+      color: #fef08a;
+      font-weight: 600;
     }
     
     .champagne-gradient { 
@@ -553,6 +601,103 @@
       border-radius: 0 3px 3px 0;
       background: #f59e0b;
       box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    }
+
+    /* Cores Temáticas Vivas & Harmoniosas por Categoria da Sidebar */
+    .sidebar-group-operacao .sidebar-rail-btn .sidebar-btn-icon {
+      color: rgba(245, 158, 11, 0.75);
+    }
+    .sidebar-group-operacao .sidebar-rail-btn:hover .sidebar-btn-icon {
+      color: #fbbf24;
+    }
+    .sidebar-group-operacao .sidebar-rail-btn.active,
+    .sidebar-group-operacao .sidebar-rail-btn.sidebar-tab-active {
+      background: rgba(245, 158, 11, 0.14) !important;
+      border: 1px solid rgba(245, 158, 11, 0.4) !important;
+      color: #fef08a !important;
+      box-shadow: 0 2px 12px -2px rgba(245, 158, 11, 0.28) !important;
+    }
+    .sidebar-group-operacao .sidebar-rail-btn.active .sidebar-btn-icon,
+    .sidebar-group-operacao .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
+      color: #fbbf24 !important;
+      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
+    }
+    .sidebar-group-operacao .sidebar-rail-btn.active::before,
+    .sidebar-group-operacao .sidebar-rail-btn.sidebar-tab-active::before {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+    }
+
+    .sidebar-group-automacao .sidebar-rail-btn .sidebar-btn-icon {
+      color: rgba(16, 185, 129, 0.78);
+    }
+    .sidebar-group-automacao .sidebar-rail-btn:hover .sidebar-btn-icon {
+      color: #34d399;
+    }
+    .sidebar-group-automacao .sidebar-rail-btn.active,
+    .sidebar-group-automacao .sidebar-rail-btn.sidebar-tab-active {
+      background: rgba(16, 185, 129, 0.14) !important;
+      border: 1px solid rgba(16, 185, 129, 0.4) !important;
+      color: #a7f3d0 !important;
+      box-shadow: 0 2px 12px -2px rgba(16, 185, 129, 0.28) !important;
+    }
+    .sidebar-group-automacao .sidebar-rail-btn.active .sidebar-btn-icon,
+    .sidebar-group-automacao .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
+      color: #34d399 !important;
+      filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.5));
+    }
+    .sidebar-group-automacao .sidebar-rail-btn.active::before,
+    .sidebar-group-automacao .sidebar-rail-btn.sidebar-tab-active::before {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    }
+
+    .sidebar-group-controladoria .sidebar-rail-btn .sidebar-btn-icon {
+      color: rgba(56, 189, 248, 0.78);
+    }
+    .sidebar-group-controladoria .sidebar-rail-btn:hover .sidebar-btn-icon {
+      color: #38bdf8;
+    }
+    .sidebar-group-controladoria .sidebar-rail-btn.active,
+    .sidebar-group-controladoria .sidebar-rail-btn.sidebar-tab-active {
+      background: rgba(14, 165, 233, 0.14) !important;
+      border: 1px solid rgba(14, 165, 233, 0.4) !important;
+      color: #bae6fd !important;
+      box-shadow: 0 2px 12px -2px rgba(14, 165, 233, 0.28) !important;
+    }
+    .sidebar-group-controladoria .sidebar-rail-btn.active .sidebar-btn-icon,
+    .sidebar-group-controladoria .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
+      color: #38bdf8 !important;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
+    }
+    .sidebar-group-controladoria .sidebar-rail-btn.active::before,
+    .sidebar-group-controladoria .sidebar-rail-btn.sidebar-tab-active::before {
+      background: #0ea5e9;
+      box-shadow: 0 0 8px rgba(14, 165, 233, 0.7);
+    }
+
+    .sidebar-group-sistema .sidebar-rail-btn .sidebar-btn-icon {
+      color: rgba(161, 161, 170, 0.75);
+    }
+    .sidebar-group-sistema .sidebar-rail-btn:hover .sidebar-btn-icon {
+      color: #f4f4f5;
+    }
+    .sidebar-group-sistema .sidebar-rail-btn.active,
+    .sidebar-group-sistema .sidebar-rail-btn.sidebar-tab-active {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      color: #f4f4f5 !important;
+      box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.5) !important;
+    }
+    .sidebar-group-sistema .sidebar-rail-btn.active .sidebar-btn-icon,
+    .sidebar-group-sistema .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
+      color: #f4f4f5 !important;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+    }
+    .sidebar-group-sistema .sidebar-rail-btn.active::before,
+    .sidebar-group-sistema .sidebar-rail-btn.sidebar-tab-active::before {
+      background: #a1a1aa;
+      box-shadow: 0 0 8px rgba(161, 161, 170, 0.6);
     }
 
     /* Ícone, Rótulo e Badges */
@@ -1179,6 +1324,24 @@
     </div>
   </div>
 
+  <!-- MODAL SPOTLIGHT COMMAND PALETTE (CTRL + K) -->
+  <div id="modal-spotlight" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-md z-[130] hidden items-start justify-center pt-20 p-4">
+    <div class="exec-card w-full max-w-xl rounded-2xl border border-zinc-800 bg-zinc-900/95 shadow-2xl overflow-hidden divide-y divide-zinc-800/80">
+      <div class="flex items-center px-4 py-3.5 space-x-3">
+        <svg class="w-4 h-4 text-amber-400 shrink-0"><use href="#icon-search"/></svg>
+        <input type="text" id="spotlight-input" placeholder="Digite um comando, cliente, CPF ou página..." class="bg-transparent border-0 outline-none text-sm text-zinc-100 placeholder-zinc-500 w-full font-sans focus:ring-0">
+        <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700 cursor-pointer" onclick="toggleSpotlight(false)">ESC</kbd>
+      </div>
+      <div id="spotlight-results" class="max-h-80 overflow-y-auto p-2 space-y-1">
+        <!-- Itens dinâmicos -->
+      </div>
+      <div class="px-4 py-2 bg-zinc-950/60 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+        <span class="flex items-center gap-2"><span>↑↓ Navegar</span><span>↵ Selecionar</span></span>
+        <span>Advocacia Studio • Command</span>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST SUTIL -->
   <div id="toast-msg" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-zinc-900 border border-amber-400/50 text-zinc-100 px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold hidden items-center space-x-2.5 z-[110]">
     <svg class="w-4 h-4 text-amber-400"><use href="#icon-check"/></svg>
@@ -1221,14 +1384,20 @@
       </div>
     </div>
 
-    <!-- Centro: Breadcrumb e Identificador da Ferramenta Ativa -->
-    <div class="hidden md:flex items-center space-x-2.5 min-w-0">
+    <!-- Centro: Breadcrumb & Spotlight Trigger (Ctrl + K) -->
+    <div class="hidden md:flex items-center space-x-3 min-w-0">
       <div class="flex items-center space-x-2 px-3 py-1 rounded-xl bg-zinc-900/60 border border-zinc-800/80 shadow-sm">
         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
         <span id="header-active-page-name" class="text-xs font-semibold text-zinc-200 uppercase tracking-wider whitespace-nowrap">Visão Geral</span>
         <span class="text-zinc-600 text-xs">/</span>
-        <span id="header-active-page-desc" class="text-[11px] text-zinc-400 truncate max-w-xs lg:max-w-md">Painel executivo de indicadores e atalhos</span>
+        <span id="header-active-page-desc" class="text-[11px] text-zinc-400 truncate max-w-[160px] lg:max-w-xs">Painel do escritório</span>
       </div>
+
+      <button type="button" id="btn-spotlight-trigger" onclick="toggleSpotlight()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer group shadow-inner shrink-0 whitespace-nowrap" title="Buscar processo, cliente ou comando rápido (Ctrl+K)">
+        <svg class="w-3.5 h-3.5 text-zinc-500 group-hover:text-amber-400 transition-colors shrink-0"><use href="#icon-search"/></svg>
+        <span class="text-xs text-zinc-400 group-hover:text-zinc-200 hidden lg:inline">Buscar ou comando...</span>
+        <kbd class="inline-flex items-center px-1.5 py-0.2 text-[9px] font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 rounded whitespace-nowrap">Ctrl K</kbd>
+      </button>
     </div>
 
     <!-- Direita: Controles de Conexão WhatsApp, Tema e Sessão -->
@@ -1301,9 +1470,9 @@
       <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-1" aria-label="Navegação Principal">
         
         <!-- GRUPO 1: OPERAÇÃO (3 MÓDULOS) -->
-        <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
-            <span>Operação</span>
+        <div class="sidebar-category-group sidebar-group-operacao">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Operação</span>
           </div>
           
           <div class="space-y-0.5">
@@ -1332,9 +1501,9 @@
         <div class="sidebar-divider"></div>
 
         <!-- GRUPO 2: AUTOMAÇÃO (3 MÓDULOS) -->
-        <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
-            <span>Automação</span>
+        <div class="sidebar-category-group sidebar-group-automacao">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Automação</span>
           </div>
 
           <div class="space-y-0.5">
@@ -1365,9 +1534,9 @@
         <div class="sidebar-divider"></div>
 
         <!-- GRUPO 3: CONTROLADORIA (3 MÓDULOS) -->
-        <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
-            <span>Controladoria</span>
+        <div class="sidebar-category-group sidebar-group-controladoria">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>Controladoria</span>
           </div>
 
           <div class="space-y-0.5">
@@ -1396,9 +1565,9 @@
         <div class="sidebar-divider"></div>
 
         <!-- GRUPO 4: SISTEMA (2 MÓDULOS) -->
-        <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
-            <span>Sistema</span>
+        <div class="sidebar-category-group sidebar-group-sistema">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>Sistema</span>
           </div>
 
           <div class="space-y-0.5">
@@ -1460,47 +1629,60 @@
               </p>
             </div>
             
-            <!-- Ações rápidas de alto impacto -->
+            <!-- Ações rápidas de alto impacto com acentos visuais equilibrados -->
             <div class="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
-              <button onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-zinc-950 active:scale-[0.98] shadow-md flex items-center space-x-2 transition-all cursor-pointer">
+              <button onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-950 active:scale-[0.98] shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center space-x-2 transition-all cursor-pointer">
                 <svg class="w-4 h-4 stroke-[2.5]"><use href="#icon-plus"/></svg>
                 <span>Cadastrar Processo</span>
               </button>
-              <button onclick="ativarAba('simulador')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Testar respostas do robô no simulador">
-                <svg class="w-4 h-4 text-zinc-400"><use href="#icon-message"/></svg>
+              <button onclick="ativarAba('simulador')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-emerald-950/40 text-zinc-200 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Testar respostas do robô no simulador">
+                <svg class="w-4 h-4 text-emerald-400"><use href="#icon-message"/></svg>
                 <span>Simulador</span>
               </button>
-              <button onclick="ativarAba('pausados')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Ver fila de espera de clientes">
+              <button onclick="ativarAba('pausados')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-amber-950/40 text-zinc-200 hover:text-amber-300 border border-zinc-800 hover:border-amber-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Ver fila de espera de clientes">
                 <svg class="w-4 h-4 text-amber-400"><use href="#icon-user-clock"/></svg>
                 <span>Fila de Atendimento</span>
               </button>
-              <button onclick="ativarAba('dossie-clientes')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
-                <svg class="w-4 h-4 text-zinc-400"><use href="#icon-users"/></svg>
+              <button onclick="ativarAba('dossie-clientes')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-sky-950/40 text-zinc-200 hover:text-sky-300 border border-zinc-800 hover:border-sky-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+                <svg class="w-4 h-4 text-sky-400"><use href="#icon-users"/></svg>
                 <span>Dossiê de Clientes</span>
               </button>
             </div>
             
             <!-- Iluminação ambiente suave de fundo -->
-            <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
-          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX UNIFICADOS) -->
+          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX VIVOS & HARMONIOSOS) -->
           <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <!-- Card 1: Processos Ativos -->
+            <!-- Card 1: Processos Ativos (Acento Dourado) -->
             <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('processos')" title="Clique para ver todos os processos">
+              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Processos Cadastrados</span>
-                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-all duration-200 shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
                 </div>
               </div>
-              <div class="space-y-1">
-                <div class="flex items-baseline gap-2">
-                  <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-extrabold text-zinc-100 tracking-tight block">0</span>
-                  <span class="text-[10px] text-zinc-500 font-mono">pastas</span>
+              <div class="space-y-2">
+                <div class="flex items-baseline justify-between">
+                  <div class="flex items-baseline gap-2">
+                    <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-extrabold text-amber-200 tracking-tight block">0</span>
+                    <span class="text-[10px] text-zinc-500 font-mono">pastas</span>
+                  </div>
+                  <!-- Mini 7-day sparkline com acento âmbar -->
+                  <div class="flex items-end gap-1 h-5 opacity-85" title="Atividade dos últimos 7 dias">
+                    <div class="w-1 bg-zinc-700 rounded-t h-2"></div>
+                    <div class="w-1 bg-zinc-600 rounded-t h-2.5"></div>
+                    <div class="w-1 bg-zinc-600 rounded-t h-2"></div>
+                    <div class="w-1 bg-amber-500/50 rounded-t h-3.5"></div>
+                    <div class="w-1 bg-amber-500/70 rounded-t h-3"></div>
+                    <div class="w-1 bg-amber-500/90 rounded-t h-4.5"></div>
+                    <div class="w-1 bg-amber-400 rounded-t h-5 shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
+                  </div>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium">
+                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
                   <span>Consultas por CPF/CNJ</span>
                   <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono">
                     <span id="metric-clientes-reais">0</span> clientes
@@ -1509,61 +1691,82 @@
               </div>
             </div>
 
-            <!-- Card 2: Fila do Advogado & Transbordo -->
+            <!-- Card 2: Fila do Advogado & Transbordo (Acento Coral/Âmbar) -->
             <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
+              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-rose-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Fila de Atendimento</span>
-                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 group-hover:bg-rose-500/20 group-hover:border-rose-500/40 transition-all duration-200 shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-user-clock"/></svg>
                 </div>
               </div>
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
-                  <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">Aguardando</span>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
+                    <span id="metric-fila-humana" class="hidden font-mono">0</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold">Aguardando</span>
+                  </div>
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]"></span>
+                  </span>
                 </div>
-                <span class="text-[11px] text-zinc-400 block font-medium truncate">Clientes aguardando retorno humano</span>
+                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
+                  <span class="truncate">Triagem de urgência</span>
+                  <span class="text-[10px] text-rose-400/90 font-mono font-medium">Prioritário</span>
+                </div>
               </div>
             </div>
 
-            <!-- Card 3: Automação & Mensagens -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
+            <!-- Card 3: Automação & Mensagens (Acento Esmeralda WhatsApp) -->
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
+              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Respostas Automáticas</span>
-                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 transition-all duration-200 shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
                 </div>
               </div>
-              <div class="space-y-1">
-                <div class="flex items-baseline gap-2">
-                  <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-zinc-100 tracking-tight block">0</span>
-                  <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 font-semibold font-mono">0.0 h poupadas</span>
+              <div class="space-y-2">
+                <div class="flex items-baseline justify-between">
+                  <div class="flex items-baseline gap-2">
+                    <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-emerald-200 tracking-tight block">0</span>
+                    <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">0.0 h poupadas</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">94% auto</span>
                 </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium">
-                  <span>Atendimento automático 24/7</span>
-                  <span class="text-[10px] text-zinc-500"><span id="home-card-menus">2</span> fluxos</span>
+                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
+                  <span>Atendimento 24/7</span>
+                  <span class="text-[10px] text-emerald-400/90 font-mono"><span id="home-card-menus">2</span> fluxos ativos</span>
                 </div>
               </div>
             </div>
 
-            <!-- Card 4: Expediente & Horário Hoje -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
+            <!-- Card 4: Expediente & Horário Hoje (Acento Azul Safira / Esmeralda) -->
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-sky-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
+              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Expediente Hoje</span>
-                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/20 group-hover:border-sky-500/40 transition-all duration-200 shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
                 </div>
               </div>
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span id="home-card-expediente" class="text-base font-bold text-emerald-400 tracking-tight block">Verificando...</span>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></span>
+                    </span>
+                    <span id="home-card-expediente" class="text-base font-bold text-emerald-400 tracking-tight block">Verificando...</span>
+                  </div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/25">Seg-Sex</span>
                 </div>
-                <span id="home-card-horario-detalhe" class="text-[11px] text-zinc-400 block font-medium truncate">Conforme agenda configurada</span>
+                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
+                  <span id="home-card-horario-detalhe" class="truncate">Conforme agenda</span>
+                  <span class="text-[10px] text-zinc-400 font-mono">08h-18h</span>
+                </div>
               </div>
             </div>
 
@@ -1737,11 +1940,24 @@
           <div class="grid grid-cols-12 gap-6 items-start">
             <!-- COLUNA ESQUERDA: LISTA DE PROCESSOS (5 cols) -->
             <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col h-[560px] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+              <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
+              <div class="mb-3">
+                <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
+                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 33%;"></div>
+                  <button type="button" class="segmented-pill-tab active flex-1 text-center" data-filter="todos" onclick="alternarFiltroProcessosPill('todos', this)">Todos</button>
+                  <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="audiencia" onclick="alternarFiltroProcessosPill('audiencia', this)">Audiências</button>
+                  <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="recente" onclick="alternarFiltroProcessosPill('recente', this)">Recentes</button>
+                </div>
+              </div>
+
               <div class="flex items-center space-x-2 mb-2.5">
                 <div class="relative flex-1">
                   <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5"><use href="#icon-search"/></svg>
                   <input type="text" id="busca-processos" placeholder="Buscar CPF, Nº ou Nome..." class="exec-input w-full rounded-xl pl-9 pr-3 py-2 text-xs">
                 </div>
+                <button type="button" onclick="carregarDadosDemonstracao()" class="p-2 bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 hover:border-amber-500/30 rounded-xl text-xs font-bold transition flex-shrink-0 cursor-pointer shadow-sm" title="Carregar casos reais de exemplo">
+                  <svg class="w-4 h-4"><use href="#icon-sparkles"/></svg>
+                </button>
                 <button type="button" id="btn-limpar-form-proc" class="px-3.5 py-2 champagne-gradient rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm active:scale-[0.98] flex-shrink-0 transition cursor-pointer">
                   <svg class="w-3.5 h-3.5"><use href="#icon-plus"/></svg>
                   <span>Novo</span>
@@ -3479,15 +3695,38 @@
       if (boxUltimos) {
         boxUltimos.innerHTML = '';
         if (lista.length === 0) {
-          boxUltimos.innerHTML = '<div class="text-xs text-zinc-500 text-center py-8">Nenhum processo cadastrado ainda.</div>';
+          boxUltimos.innerHTML = `
+            <div class="p-6 text-center rounded-2xl bg-zinc-950/60 border border-zinc-800/80 flex flex-col items-center justify-center space-y-3 shadow-inner">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-inner">
+                <svg class="w-5 h-5"><use href="#icon-folder"/></svg>
+              </div>
+              <div>
+                <h4 class="text-xs font-semibold text-zinc-200">Nenhum processo ativo no momento</h4>
+                <p class="text-[11px] text-zinc-400 mt-1 max-w-xs leading-relaxed">Carregue dados de exemplo para testar as consultas por CPF, andamentos e alertas.</p>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <button type="button" onclick="carregarDadosDemonstracao()" class="btn-tactile px-3.5 py-1.5 rounded-xl text-xs font-bold champagne-gradient text-zinc-950 shadow-md cursor-pointer flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5"><use href="#icon-sparkles"/></svg>
+                  <span>Carregar Demonstração</span>
+                </button>
+                <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 cursor-pointer">
+                  <span>+ Criar Manual</span>
+                </button>
+              </div>
+            </div>
+          `;
         } else {
           lista.slice(0, 4).forEach(p => {
             const d = document.createElement('div');
             d.className = "group p-3 rounded-xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/40 hover:bg-zinc-800/60 flex items-center justify-between cursor-pointer transition-all duration-150 hover:-translate-y-0.5 shadow-sm";
             d.onclick = () => { ativarAba('processos'); selecionarProcessoNaLista(p.id); };
+            const tagHtml = p.tag ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${obterEstiloTag(p.tag)} whitespace-nowrap">${p.tag}</span>` : '';
             d.innerHTML = `
               <div class="truncate pr-2">
-                <span class="text-xs font-semibold text-zinc-100 group-hover:text-amber-300 transition-colors block truncate">${p.nome || 'Cliente'}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-semibold text-zinc-100 group-hover:text-amber-300 transition-colors block truncate">${p.nome || 'Cliente'}</span>
+                  ${tagHtml}
+                </div>
                 <span class="text-[11px] font-mono text-zinc-400 mt-0.5 block truncate">CPF: <span class="text-zinc-300">${p.cpf || '-'}</span> • Proc: <span class="text-amber-400/90">${p.numero || '-'}</span></span>
               </div>
               <span class="text-xs text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all">➔</span>
@@ -3498,10 +3737,237 @@
       }
     }
 
+    window.obterEstiloTag = function(tag) {
+      if (!tag) return '';
+      const t = tag.toLowerCase();
+      if (t.includes('audiência') || t.includes('audiencia') || t.includes('urgente') || t.includes('prazo')) {
+        return 'bg-amber-500/15 text-amber-300 border border-amber-500/30';
+      }
+      if (t.includes('acordo') || t.includes('ganho') || t.includes('homologado') || t.includes('pago') || t.includes('conclu')) {
+        return 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+      }
+      if (t.includes('inicial') || t.includes('distribuição') || t.includes('distribuicao') || t.includes('cita')) {
+        return 'bg-sky-500/15 text-sky-300 border border-sky-500/30';
+      }
+      return 'bg-purple-500/15 text-purple-300 border border-purple-500/30';
+    };
+
     window.irParaNovoProcessoDireto = function() {
       ativarAba('processos');
       limparFormularioProcesso();
     };
+
+    // Quick-Start: Injetar 3 Processos Realistas e Histórico de WhatsApp
+    window.carregarDadosDemonstracao = function() {
+      if (!configGlobal.processos) configGlobal.processos = { lista: [] };
+      const exemplos = [
+        {
+          id: "demo_1",
+          nome: "Dr. Roberto Silva Santos",
+          cpf: "123.456.789-01",
+          numero: "1002345-89.2024.8.26.0100",
+          vara: "12ª Vara Cível Central de São Paulo",
+          resumo: "Petição inicial distribuída com sucesso. Custas recolhidas e aguardando citação da parte ré.",
+          dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
+          tag: "Fase Inicial"
+        },
+        {
+          id: "demo_2",
+          nome: "Mariana Vasconcelos",
+          cpf: "234.567.890-12",
+          numero: "0014589-32.2023.5.02.0045",
+          vara: "45ª Vara do Trabalho de SP",
+          resumo: "Audiência UNA designada para 18/11/2026 às 14h00. Testemunhas intimadas.",
+          dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
+          tag: "Audiência Próxima"
+        },
+        {
+          id: "demo_3",
+          nome: "Construtora Horizonte Ltda",
+          cpf: "34.567.890/0001-23",
+          numero: "5001290-11.2024.4.03.6100",
+          vara: "3ª Vara Federal Cível de SP",
+          resumo: "Acordo homologado por sentença com trânsito em julgado. Alvará de levantamento expedido.",
+          dataAtualizacao: new Date().toLocaleDateString('pt-BR'),
+          tag: "Acordo Homologado"
+        }
+      ];
+      configGlobal.processos.lista = exemplos;
+      try {
+        if (typeof salvarConfig === 'function') salvarConfig();
+        if (typeof renderizarProcessos === 'function') renderizarProcessos();
+        if (typeof atualizarHome === 'function') atualizarHome();
+      } catch (e) {}
+
+      // Injetar mensagens simuladas no ledger
+      const agoraHora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const homeLogs = document.getElementById('home-ultimos-logs');
+      if (homeLogs) {
+        homeLogs.innerHTML = `
+          <div class="group p-3 rounded-xl border border-zinc-800/80 bg-zinc-900/40 flex items-center justify-between text-xs transition">
+            <div class="truncate pr-2">
+              <span class="font-semibold text-amber-400 block truncate">Mariana Vasconcelos</span>
+              <span class="text-zinc-300 truncate block text-[11px] mt-0.5">Doutor, você viu a nova publicação sobre a audiência do dia 18?</span>
+            </div>
+            <span class="text-[10px] font-mono text-zinc-500 whitespace-nowrap">${agoraHora}</span>
+          </div>
+          <div class="group p-3 rounded-xl border border-zinc-800/80 bg-zinc-900/40 flex items-center justify-between text-xs transition">
+            <div class="truncate pr-2">
+              <span class="font-semibold text-zinc-300 block truncate">Dr. Roberto Silva Santos</span>
+              <span class="text-zinc-300 truncate block text-[11px] mt-0.5">Recebi a confirmação da taxa judiciária, muito obrigado pelo envio!</span>
+            </div>
+            <span class="text-[10px] font-mono text-zinc-500 whitespace-nowrap">Há 15 min</span>
+          </div>
+        `;
+      }
+
+      if (typeof mostrarToast === 'function') mostrarToast('3 processos e conversas de demonstração carregados!');
+    };
+
+    window.limparBaseProcessos = function() {
+      if (confirm('Deseja limpar todos os processos cadastrados?')) {
+        configGlobal.processos = { lista: [] };
+        try {
+          if (typeof salvarConfig === 'function') salvarConfig();
+          if (typeof renderizarProcessos === 'function') renderizarProcessos();
+          if (typeof atualizarHome === 'function') atualizarHome();
+        } catch (e) {}
+        if (typeof mostrarToast === 'function') mostrarToast('Base de processos limpa.');
+      }
+    };
+
+    // Segmented Control Pill Interativo com física suave
+    window.alternarFiltroProcessosPill = function(filtro, btn) {
+      const container = document.getElementById('segmented-filter-processos');
+      const glider = document.getElementById('glider-filter-processos');
+      if (container && glider && btn) {
+        const parentRect = container.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        const left = btnRect.left - parentRect.left;
+        glider.style.transform = `translateX(${left}px)`;
+        glider.style.width = `${btnRect.width}px`;
+        container.querySelectorAll('.segmented-pill-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      const inputBusca = document.getElementById('busca-processos');
+      if (inputBusca) {
+        if (filtro === 'audiencia') inputBusca.value = 'Audiência';
+        else if (filtro === 'recente') inputBusca.value = '2024';
+        else inputBusca.value = '';
+        if (typeof renderizarProcessos === 'function') renderizarProcessos();
+      }
+    };
+
+    // Command Palette Spotlight (Ctrl + K)
+    const COMANDOS_SPOTLIGHT = [
+      { id: 'novo-proc', titulo: 'Cadastrar Novo Processo', desc: 'Abre o formulário de cadastro de autos e cliente', icone: 'icon-plus', acao: () => { irParaNovoProcessoDireto(); } },
+      { id: 'demo-data', titulo: 'Carregar Dados de Demonstração', desc: 'Injeta 3 processos com tags reais e histórico de WhatsApp', icone: 'icon-sparkles', acao: () => { carregarDadosDemonstracao(); } },
+      { id: 'proc', titulo: 'Consultar Processos (CPF/CNJ)', desc: 'Buscar e gerenciar processos cadastrados', icone: 'icon-folder', acao: () => { ativarAba('processos'); } },
+      { id: 'simulador', titulo: 'Simulador WhatsApp', desc: 'Testar respostas do robô em ambiente sandbox', icone: 'icon-message', acao: () => { ativarAba('simulador'); } },
+      { id: 'fila', titulo: 'Fila de Atendimento do Advogado', desc: 'Clientes aguardando atendimento humano urgente', icone: 'icon-user-clock', acao: () => { ativarAba('pausados'); } },
+      { id: 'fluxo', titulo: 'Menu Automático do Robô', desc: 'Editar opções e fluxos de atendimento', icone: 'icon-flow', acao: () => { ativarAba('fluxo'); } },
+      { id: 'dossie', titulo: 'Dossiê de Clientes (Art. 319 CPC)', desc: 'Ficha cadastral e documentos de qualificação civil', icone: 'icon-users', acao: () => { ativarAba('dossie-clientes'); } },
+      { id: 'financeiro', titulo: 'Financeiro & Cobrança PIX', desc: 'Honorários, régua semanal e conciliação', icone: 'icon-scales', acao: () => { ativarAba('financeiro'); } },
+      { id: 'backup', titulo: 'Fazer Cópia de Segurança (.JSON)', desc: 'Exportar todos os dados locais em arquivo seguro', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
+      { id: 'tema', titulo: 'Alternar Tema Claro / Escuro', desc: 'Mudar a estética do aplicativo', icone: 'icon-sun', acao: () => { const btn = document.getElementById('btn-toggle-theme'); if (btn) btn.click(); } }
+    ];
+
+    window.toggleSpotlight = function(abrir) {
+      const modal = document.getElementById('modal-spotlight');
+      const input = document.getElementById('spotlight-input');
+      if (!modal) return;
+      const show = (typeof abrir === 'boolean') ? abrir : modal.classList.contains('hidden');
+      if (show) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        renderizarSpotlightItens('');
+        setTimeout(() => { if (input) { input.value = ''; input.focus(); } }, 40);
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    function renderizarSpotlightItens(termo) {
+      const resultsBox = document.getElementById('spotlight-results');
+      if (!resultsBox) return;
+      const q = (termo || '').toLowerCase().trim();
+      const filtrados = COMANDOS_SPOTLIGHT.filter(c => {
+        return !q || c.titulo.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q);
+      });
+
+      // Incluir processos cadastrados se houver termo digitado
+      const listaProc = (configGlobal.processos && configGlobal.processos.lista) || [];
+      const procsFiltrados = q ? listaProc.filter(p => (p.nome || '').toLowerCase().includes(q) || (p.cpf || '').includes(q) || (p.numero || '').includes(q)).slice(0, 4) : [];
+
+      let html = '';
+      if (procsFiltrados.length > 0) {
+        html += `<div class="px-3 py-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider">Processos Encontrados</div>`;
+        procsFiltrados.forEach((p, idx) => {
+          html += `
+            <div role="button" tabindex="0" onclick="ativarAba('processos'); selecionarProcessoNaLista('${p.id}'); toggleSpotlight(false);" class="spotlight-item flex items-center justify-between p-2.5 rounded-xl hover:bg-zinc-800 text-zinc-200 cursor-pointer transition ${idx === 0 && !filtrados.length ? 'bg-zinc-800/80 border border-amber-500/30' : ''}">
+              <div class="flex items-center space-x-2.5 truncate">
+                <svg class="w-4 h-4 text-amber-400 shrink-0"><use href="#icon-folder"/></svg>
+                <div class="truncate">
+                  <span class="text-xs font-semibold block text-zinc-100">${p.nome || 'Cliente'}</span>
+                  <span class="text-[10px] text-zinc-400 font-mono">CPF: ${p.cpf || '-'} • Proc: ${p.numero || '-'}</span>
+                </div>
+              </div>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-950 text-amber-400 border border-zinc-800">Ver Processo ➔</span>
+            </div>
+          `;
+        });
+      }
+
+      if (filtrados.length > 0) {
+        if (procsFiltrados.length > 0) html += `<div class="px-3 pt-2 pb-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Comandos Rápidos</div>`;
+        filtrados.forEach((c, idx) => {
+          const isPrimeiro = idx === 0 && procsFiltrados.length === 0;
+          html += `
+            <div role="button" tabindex="0" onclick="COMANDOS_SPOTLIGHT.find(x => x.id === '${c.id}')?.acao(); toggleSpotlight(false);" class="spotlight-item flex items-center justify-between p-2.5 rounded-xl hover:bg-zinc-800 text-zinc-200 cursor-pointer transition ${isPrimeiro ? 'bg-zinc-800/70 border border-amber-500/25' : ''}">
+              <div class="flex items-center space-x-2.5 truncate">
+                <div class="w-7 h-7 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center text-amber-400 shrink-0">
+                  <svg class="w-3.5 h-3.5"><use href="#${c.icone}"/></svg>
+                </div>
+                <div class="truncate">
+                  <span class="text-xs font-semibold block text-zinc-100">${c.titulo}</span>
+                  <span class="text-[10px] text-zinc-400 truncate block">${c.desc}</span>
+                </div>
+              </div>
+              <span class="text-[10px] text-zinc-500 font-mono">↵</span>
+            </div>
+          `;
+        });
+      }
+
+      if (!html) {
+        html = `<div class="text-xs text-zinc-500 text-center py-6">Nenhum resultado para "${termo}". Tente outro termo.</div>`;
+      }
+      resultsBox.innerHTML = html;
+    }
+
+    const inputSpotlightEl = document.getElementById('spotlight-input');
+    if (inputSpotlightEl) {
+      inputSpotlightEl.addEventListener('input', (e) => {
+        renderizarSpotlightItens(e.target.value);
+      });
+      inputSpotlightEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const primeiroItem = document.querySelector('.spotlight-item');
+          if (primeiroItem) primeiroItem.click();
+        } else if (e.key === 'Escape') {
+          toggleSpotlight(false);
+        }
+      });
+    }
+
+    // Atalho global Ctrl + K
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        toggleSpotlight();
+      }
+    });
 
     function dispararEntradaTriunfalLexBot() {
       const modalCentro = document.getElementById('lexbot-center-modal');
@@ -5577,6 +6043,7 @@
         const qtdVistos = Object.keys(p.consultasPorContato || {}).length;
         const temConteudoAtivo = Boolean(p.temAtualizacao && p.resumo && p.resumo.trim());
         const iniciais = (p.nome || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const tagHtml = p.tag ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${obterEstiloTag(p.tag)} whitespace-nowrap ml-1">${p.tag}</span>` : '';
 
         const item = document.createElement('div');
         item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : ''}`;
@@ -5590,6 +6057,7 @@
             <div class="overflow-hidden">
               <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold truncate">${p.nome || 'Cliente'}</span>
+                ${tagHtml}
                 <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-zinc-600'}"></span>
               </div>
               <p class="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
