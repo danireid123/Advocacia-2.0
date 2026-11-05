@@ -876,8 +876,8 @@
   <!-- 3. ENTRADA DO LEXBOT (SEM QUADRADO EM VOLTA) -->
   <div id="lexbot-center-modal" class="fixed inset-0 bg-zinc-950/85 backdrop-blur-md z-[9999] hidden items-center justify-center p-4">
     <div class="exec-card w-full max-w-md rounded-3xl p-8 border-2 border-amber-400/40 text-center space-y-5 mascot-center-entry shadow-2xl">
-      <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-xl shadow-amber-500/10">
-        <svg class="w-10 h-10"><use href="#icon-scales"/></svg>
+      <div class="w-28 h-28 mx-auto rounded-3xl bg-zinc-950/90 border-2 border-amber-500/40 flex items-center justify-center p-3 shadow-2xl shadow-amber-500/20 mascot-center-entry">
+        <img src="assets/assistente.png" alt="Assistente LexBot" class="w-full h-full object-contain filter drop-shadow">
       </div>
       <div class="space-y-2">
         <span class="text-[11px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">Assistente Jurídico LexBot • Beta 0.8</span>
@@ -897,9 +897,14 @@
   <div id="lexbot-wrapper" style="bottom: 20px; right: 22px;" class="flex items-center pointer-events-none">
     <div id="lexbot-bubble" class="pointer-events-auto mr-3 w-88 max-w-[380px] exec-card border border-[#d4af37]/50 rounded-2xl p-5 hidden relative">
       <div class="flex items-center justify-between border-b border-zinc-800 pb-2.5 mb-2.5">
-        <div class="flex items-center space-x-2">
-          <span class="w-2 h-2 rounded-full bg-[#e5c158] animate-ping"></span>
-          <span id="lexbot-title" class="text-xs font-bold text-amber-300">Guia LexBot</span>
+        <div class="flex items-center space-x-2.5">
+          <div class="w-7 h-7 rounded-lg bg-zinc-950 border border-amber-500/30 flex items-center justify-center p-0.5 flex-shrink-0">
+            <img src="assets/assistente.png" alt="LexBot" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <span id="lexbot-title" class="text-xs font-bold text-amber-300 block">Guia LexBot</span>
+            <span class="text-[9px] text-emerald-400 font-medium">Assistente Inteligente</span>
+          </div>
         </div>
         <button id="btn-close-bubble" class="text-zinc-400 hover:text-white text-xs font-bold px-1.5" title="Fechar">✕</button>
       </div>
@@ -914,13 +919,13 @@
     </div>
 
     <button id="btn-lexbot-avatar" class="pointer-events-auto group relative focus:outline-none flex flex-col items-center btn-tactile cursor-pointer" title="Abrir Guia e Ajuda LexBot">
-      <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 p-[1.5px] shadow-lg shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-all duration-300">
-        <div class="w-full h-full rounded-2xl bg-zinc-950 flex items-center justify-center text-amber-400 group-hover:bg-zinc-900 transition-colors">
-          <svg class="w-5 h-5"><use href="#icon-scales"/></svg>
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400/80 via-amber-500 to-amber-600/80 p-[1.5px] shadow-xl shadow-amber-500/30 group-hover:shadow-amber-500/50 group-hover:scale-105 transition-all duration-300">
+        <div class="w-full h-full rounded-2xl bg-zinc-950 flex items-center justify-center p-1 overflow-hidden">
+          <img src="assets/assistente.png" alt="Assistente LexBot" class="w-full h-full object-contain filter drop-shadow">
         </div>
       </div>
-      <span class="-mt-1 px-2 py-0.5 rounded-full bg-zinc-900 border border-amber-500/40 text-amber-300 text-[9px] font-bold uppercase tracking-wider shadow-md">
-        Guia
+      <span class="-mt-1.5 px-2.5 py-0.5 rounded-full bg-zinc-950 border border-amber-500/50 text-amber-300 text-[9px] font-extrabold uppercase tracking-wider shadow-md">
+        LEXBOT
       </span>
     </button>
   </div>
@@ -1979,8 +1984,8 @@
               <!-- Topo do Chat -->
               <div class="bg-zinc-900/90 px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-zinc-950 shadow-sm">
-                    <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
+                  <div class="w-9 h-9 rounded-xl bg-zinc-950 border border-amber-500/30 flex items-center justify-center p-1 shadow-sm overflow-hidden flex-shrink-0">
+                    <img src="assets/assistente.png" alt="Robô de Atendimento" class="w-full h-full object-contain">
                   </div>
                   <div>
                     <span class="text-xs font-bold text-zinc-100 block">Robô de Atendimento do Escritório</span>
