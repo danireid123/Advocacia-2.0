@@ -73,6 +73,24 @@ async function run() {
     const html = fs.readFileSync(htmlPath, 'utf8');
     const lines = html.split('\n');
 
+    function extrairBlocoFuncao(nomeFuncao) {
+        const startIdx = lines.findIndex(l => l.includes(nomeFuncao));
+        if (startIdx === -1) return '';
+        let braceCount = 0;
+        let started = false;
+        const result = [];
+        for (let i = startIdx; i < lines.length; i++) {
+            const line = lines[i];
+            result.push(line);
+            for (const ch of line) {
+                if (ch === '{') { braceCount++; started = true; }
+                else if (ch === '}') { braceCount--; }
+            }
+            if (started && braceCount === 0) break;
+        }
+        return result.join('\n');
+    }
+
     // -------------------------------------------------------------------------
     // 1. DOM Static & AST Verification for Buttons & Selects
     // -------------------------------------------------------------------------
@@ -108,9 +126,9 @@ async function run() {
         const mockBtn = { disabled: false, innerHTML: 'Melhorar' };
         let toastMsg = '';
 
-        // Extract functions from lines 3522-3568 and 3569-3636
-        const fnLocalCode = lines.slice(3522, 3568).join('\n');
-        const fnExecCode = lines.slice(3569, 3637).join('\n');
+        // Extract functions dynamically
+        const fnLocalCode = extrairBlocoFuncao('aplicarMelhoriaMensagemLocalmente =');
+        const fnExecCode = extrairBlocoFuncao('executarMelhoriaMensagemGenerica =');
 
         const sandbox = {
             window: { api: null, configGlobal: {} },
@@ -139,7 +157,7 @@ async function run() {
         const mockPreset = { value: 'Trabalhista' };
         const mockMsg = { value: '' };
 
-        const fnCode = lines.slice(5163, 5210).join('\n');
+        const fnCode = extrairBlocoFuncao('atualizarMensagemModalOnboarding =');
 
         const sandbox = {
             window: { configGlobal: {} },
@@ -264,7 +282,7 @@ async function run() {
     });
 
     await testAsync('5.2 Behavioral verification: Electron IPC success does NOT trigger local balloon (zero duplicates)', async () => {
-        const fnCode = lines.slice(5234, 5299).join('\n');
+        const fnCode = extrairBlocoFuncao('confirmarDisparoOnboarding =');
 
         let localBalloonCalls = 0;
         const sandbox = {
@@ -295,7 +313,7 @@ async function run() {
     });
 
     await testAsync('5.3 Behavioral verification: Web/Headless fallback triggers local balloon exactly once', async () => {
-        const fnCode = lines.slice(5234, 5299).join('\n');
+        const fnCode = extrairBlocoFuncao('confirmarDisparoOnboarding =');
 
         let localBalloonCalls = 0;
         const sandbox = {

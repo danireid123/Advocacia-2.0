@@ -36,8 +36,8 @@ try {
  * @returns {string}
  */
 function obterApiKeyAtiva(apiKeyPassada, config = null) {
-    if (typeof apiKeyPassada === 'string' && apiKeyPassada.trim().length > 0) {
-        return apiKeyPassada.trim();
+    if (apiKeyPassada !== undefined && apiKeyPassada !== null) {
+        return typeof apiKeyPassada === 'string' ? apiKeyPassada.trim() : '';
     }
     if (process.env.GEMINI_API_KEY && typeof process.env.GEMINI_API_KEY === 'string' && process.env.GEMINI_API_KEY.trim()) {
         return process.env.GEMINI_API_KEY.trim();
