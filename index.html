@@ -1136,7 +1136,7 @@
                 <div class="flex items-center space-x-2 mb-2">
                   <div class="relative flex-1">
                     <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"><use href="#icon-search"/></svg>
-                    <input type="text" id="busca-processos" placeholder="Buscar CPF, Nº ou Nome..." class="exec-input w-full rounded-xl pl-9 pr-3 py-2 text-xs">
+                    <input type="text" id="busca-processos" placeholder="Buscar CPF, Nome, CNJ ou Telefone..." class="exec-input w-full rounded-xl pl-9 pr-3 py-2 text-xs">
                   </div>
                   <button type="button" id="btn-limpar-form-proc" class="px-3.5 py-2 champagne-gradient rounded-xl text-xs font-bold flex items-center space-x-1 shadow flex-shrink-0 transition">
                     <svg class="w-3.5 h-3.5"><use href="#icon-plus"/></svg>
@@ -7363,6 +7363,203 @@
 
         window.inicializarSimuladorChat = inicializarSimuladorChat;
         inicializarSimuladorChat();
+
+          // =========================================================================
+          // INTEGRAÇÃO UNIFICADA: BUSCA RÁPIDA (CPF, NOME, CNJ, TELEFONE) & DOSSIÊ
+          // =========================================================================
+          try {
+            const _renderizarModuloProcessosOriginal = renderizarModuloProcessos;
+            renderizarModuloProcessos = function() {
+              garantirEstruturaProcessos();
+              const lista = configGlobal.processos.lista || [];
+              const badgeProc = document.getElementById('badge-processos');
+              if (badgeProc) badgeProc.innerText = String(lista.length);
+
+              const termo = (document.getElementById('busca-processos')?.value || '').toLowerCase().trim();
+              const termoDig = termo.replace(/\D/g, '');
+              const box = document.getElementById('lista-processos-box');
+              if (!box) return;
+              box.innerHTML = '';
+
+              const dossiesMapa = (configGlobal && configGlobal.dossiesClientes) || {};
+              const dossiesValores = Object.entries(dossiesMapa).map(([k, v]) => ({ chave: k, ...v }));
+
+              let filtrados = lista.filter(p => {
+                if (!termo) return true;
+                const pNome = (p.nome || '').toLowerCase();
+                const pCpf = (p.cpf || '').toLowerCase();
+                const pCpfDig = (p.cpf || '').replace(/\D/g, '');
+                const pNum = (p.numero || p.numeroProcesso || '').toLowerCase();
+                const pNumDig = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+                const pTel = (p.telefone || p.telefoneCliente || (p.dadosCadastrais && p.dadosCadastrais.telefone) || '').toLowerCase();
+                const pTelDig = pTel.replace(/\D/g, '');
+
+                // 1. Match direto no registro do processo (Nome, CPF, CNJ ou Telefone)
+                const nMatch = pNome.includes(termo);
+                const cMatch = pCpf.includes(termo) || (termoDig && pCpfDig.includes(termoDig));
+                const pMatch = pNum.includes(termo) || (termoDig && pNumDig.includes(termoDig));
+                const tMatch = (pTel && pTel.includes(termo)) || (termoDig && pTelDig && (pTelDig.includes(termoDig) || termoDig.includes(pTelDig)));
+
+                if (nMatch || cMatch || pMatch || tMatch) return true;
+
+                // 2. Busca cruzada com o Dossiê do Cliente (dossiesClientes)
+                const dossieBate = dossiesValores.find(d => {
+                  const dNome = (d.nome || d.clienteNome || (d.civil && d.civil.nomeCompleto) || '').toLowerCase();
+                  const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+                  const dTel = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
+                  const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+
+                  const termoBateNome = dNome.includes(termo);
+                  const termoBateCpf = Boolean(termoDig && dCpf && (dCpf.includes(termoDig) || termoDig.includes(dCpf)));
+                  const termoBateTel = Boolean(termoDig && dTel && (dTel.includes(termoDig) || termoDig.includes(dTel)));
+                  const termoBateProc = Boolean(termoDig && dProc && (dProc.includes(termoDig) || termoDig.includes(dProc)));
+
+                  return termoBateNome || termoBateCpf || termoBateTel || termoBateProc;
+                });
+
+                if (dossieBate) {
+                  const dCpf = (dossieBate.cpf || (dossieBate.civil && dossieBate.civil.cpf) || '').replace(/\D/g, '');
+                  const dTel = (dossieBate.telefone || dossieBate.clienteTelefone || (dossieBate.civil && dossieBate.civil.telefone) || dossieBate.chave || '').replace(/\D/g, '');
+                  const dProc = (dossieBate.processoVinculado || dossieBate.numeroProcesso || '').replace(/\D/g, '');
+
+                  const ligaPorCpf = Boolean(dCpf && pCpfDig && dCpf === pCpfDig);
+                  const ligaPorTel = Boolean(dTel && pTelDig && (dTel.includes(pTelDig) || pTelDig.includes(dTel)));
+                  const ligaPorProc = Boolean(dProc && pNumDig && (dProc === pNumDig || pNumDig.includes(dProc)));
+
+                  if (ligaPorCpf || ligaPorTel || ligaPorProc) return true;
+                }
+
+                return false;
+              });
+
+              const selOrdem = document.getElementById('ordem-processos-select');
+              const ordemAtual = selOrdem ? selOrdem.value : 'recente';
+              filtrados.sort((a, b) => {
+                if (ordemAtual === 'alfabetica') return (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base' });
+                if (ordemAtual === 'alfabetica_desc') return (b.nome || '').localeCompare(a.nome || '', 'pt-BR', { sensitivity: 'base' });
+                if (ordemAtual === 'antiga') {
+                  const tA = a.updatedAt || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+                  const tB = b.updatedAt || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+                  return tA - tB;
+                }
+                const tA = a.updatedAt || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+                const tB = b.updatedAt || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+                return tB - tA;
+              });
+
+              if (filtrados.length === 0) {
+                box.innerHTML = '<div class="p-8 text-center text-xs text-slate-500">Nenhum processo encontrado.</div>';
+                return;
+              }
+
+              filtrados.forEach(p => {
+                const isSel = (p.id === idProcessoSelecionado);
+                const qtdVistos = Object.keys(p.consultasPorContato || {}).length;
+                const temConteudoAtivo = Boolean(p.temAtualizacao && p.resumo && p.resumo.trim());
+                const iniciais = (p.nome || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+                const pCpfD = (p.cpf || '').replace(/\D/g, '');
+                const pTelD = (p.telefone || p.telefoneCliente || '').replace(/\D/g, '');
+                const pProcD = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+                const dossieLigado = dossiesValores.find(d => {
+                  const dC = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+                  const dT = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
+                  const dP = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+                  return (pCpfD && dC === pCpfD) || (pTelD && dT === pTelD) || (pProcD && dP === pProcD);
+                });
+                const qtdDocsDossie = (dossieLigado && Array.isArray(dossieLigado.documentos)) ? dossieLigado.documentos.length : 0;
+
+                const item = document.createElement('div');
+                item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : ''}`;
+                item.onclick = () => selecionarProcessoNaLista(p.id, true);
+
+                item.innerHTML = `
+                  <div class="flex items-center space-x-3 overflow-hidden pr-2">
+                    <div class="w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-slate-950 font-extrabold text-xs flex-shrink-0 shadow">
+                      ${iniciais}
+                    </div>
+                    <div class="overflow-hidden">
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold truncate">${p.nome || 'Cliente'}</span>
+                        <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-slate-600'}"></span>
+                        ${qtdDocsDossie > 0 ? `<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#d4af37]/20 text-[#e5c158] font-bold border border-[#d4af37]/30" title="${qtdDocsDossie} documento(s) no Dossiê">📁 ${qtdDocsDossie}</span>` : ''}
+                      </div>
+                      <p class="text-[10px] font-mono text-slate-400 truncate mt-0.5">
+                        CPF: <strong class="text-[#e5c158]">${p.cpf || '-'}</strong> • Nº: <strong class="text-slate-300">${p.numero || '-'}</strong>
+                      </p>
+                    </div>
+                  </div>
+                  <span class="text-[11px] text-[#e5c158] font-bold flex-shrink-0">➔</span>
+                `;
+                box.appendChild(item);
+              });
+            };
+
+            const inputBuscaProc = document.getElementById('busca-processos');
+            if (inputBuscaProc) {
+              inputBuscaProc.addEventListener('input', () => renderizarModuloProcessos());
+            }
+
+            const _renderizarDossieOriginal = renderizarDossie;
+            renderizarDossie = function(proc) {
+              _renderizarDossieOriginal(proc);
+              if (!proc) return;
+
+              const cpfDig = (proc.cpf || '').replace(/\D/g, '');
+              const procDig = (proc.numero || proc.numeroProcesso || '').replace(/\D/g, '');
+              const telDig = (proc.telefone || proc.telefoneCliente || '').replace(/\D/g, '');
+              const dossies = (configGlobal && configGlobal.dossiesClientes) || {};
+              let dossieCli = null;
+              for (const [k, d] of Object.entries(dossies)) {
+                if (!d) continue;
+                const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+                const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+                const dTel = (d.telefone || d.clienteTelefone || k || '').replace(/\D/g, '');
+                if ((cpfDig && dCpf === cpfDig) || (procDig && dProc === procDig) || (telDig && dTel === telDig)) {
+                  dossieCli = d;
+                  break;
+                }
+              }
+
+              if (dossieCli && Array.isArray(dossieCli.documentos) && dossieCli.documentos.length > 0) {
+                const listaDocs = document.getElementById('dossie-lista-docs');
+                const countDocs = document.getElementById('dossie-count-docs');
+                if (countDocs) {
+                  const totalDocs = (proc.documentosCatalogados || []).length + dossieCli.documentos.length;
+                  countDocs.innerText = String(totalDocs);
+                }
+                if (listaDocs) {
+                  if (listaDocs.innerText.includes('Nenhuma peça processual anexada')) {
+                    listaDocs.innerHTML = '';
+                  }
+                  dossieCli.documentos.forEach(doc => {
+                    const card = document.createElement('div');
+                    card.className = "p-3 bg-slate-900/90 rounded-xl border border-[#d4af37]/30 text-xs space-y-1";
+                    const nomeDoc = doc.tipoRotulo || doc.tipo || 'Documento Forense (Dossiê Civil)';
+                    const arqDoc = doc.nomeOriginal || doc.arquivo || 'documento.bin';
+                    const dataDoc = doc.dataUpload ? new Date(doc.dataUpload).toLocaleDateString('pt-BR') : '';
+                    card.innerHTML = `
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-emerald-400 flex items-center space-x-1.5">
+                          <span>📁</span>
+                          <span>[Dossiê Civil] ${nomeDoc}</span>
+                        </span>
+                        <span class="text-[10px] font-mono text-slate-400">${arqDoc}</span>
+                      </div>
+                      <p class="text-slate-300 text-[11px] leading-relaxed">Documento civil arquivado na pasta física do cliente em <code>documentos_clientes/</code>.</p>
+                      <div class="text-[9px] text-[#e5c158] flex items-center justify-between pt-1 border-t border-slate-800/80">
+                        <span>Auditado via IA Multimodal (Qualificação Art. 319 CPC)</span>
+                        <span>${dataDoc}</span>
+                      </div>
+                    `;
+                    listaDocs.appendChild(card);
+                  });
+                }
+              }
+            };
+          } catch (eInt) {
+            console.warn('[Integração Processos Dossiê] Aviso:', eInt);
+          }
     });
   </script>
 </body>
