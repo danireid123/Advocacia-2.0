@@ -29,7 +29,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "icon.png",
+      "icon": "icon.ico",
       "verifyUpdateCodeSignature": false,
       "artifactName": "Advocacia-Studio-Pro-Setup-${version}.${ext}"
     },
