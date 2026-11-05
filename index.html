@@ -533,6 +533,30 @@
     .unsaved-glow {
       box-shadow: 0 0 20px rgba(212, 175, 55, 0.45);
     }
+  
+    /* WhatsApp Background Doodle Pattern & Styling */
+    .wa-wallpaper-dark {
+      background-color: #0b141a;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .wa-bubble-out {
+      background-color: #005c4b;
+      color: #e9edef;
+      border-radius: 12px 12px 2px 12px;
+      position: relative;
+    }
+    .wa-bubble-out::after {
+      content: '';
+      position: absolute;
+      right: -6px;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-left: 8px solid #005c4b;
+      border-top: 8px solid transparent;
+    }
+
   </style>
 
   <!-- SISTEMA DE NAVEGAÇÃO LATERAL RETRÁTIL (ICON-RAIL ESTILO CURSOR / VS CODE / LINEAR) -->
@@ -2073,21 +2097,335 @@
             </div>
           </div>
 
-          <!-- Sub-Navegação: Editor de Menus vs Central de Ações & Funções Automatizadas -->
+          <!-- Sub-Navegação: Central de Mensagens vs Editor de Menus vs Central de Ações -->
           <div class="flex items-center space-x-2 bg-zinc-950/70 p-1.5 rounded-2xl border border-zinc-800/80">
-            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm cursor-pointer">
-              <svg class="w-4 h-4"><use href="#icon-chat"/></svg>
-              <span>Editor de Menus & Mensagens</span>
+            <button type="button" id="subtab-fluxo-mensagens" onclick="alternarSubAbaFluxo('mensagens')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span>Central de Mensagens (WhatsApp Balões)</span>
+            </button>
+            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent cursor-pointer">
+              <svg class="w-4 h-4 text-amber-400"><use href="#icon-chat"/></svg>
+              <span>Editor de Menus &amp; Árvore</span>
             </button>
             <button type="button" id="subtab-fluxo-acoes" onclick="alternarSubAbaFluxo('acoes')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent cursor-pointer">
-              <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-flow"/></svg>
-              <span>Central de Ações & Funções</span>
+              <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-settings"/></svg>
+              <span>Central de Ações &amp; Funções</span>
               <span id="badge-total-acoes-ativas" class="ml-1.5 px-2 py-0.5 text-[10px] rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 font-mono">0 ativas</span>
             </button>
           </div>
 
+          <!-- PAINEL 0: CENTRAL DE MENSAGENS COM WHATSAPP BALLOON PREVIEWS -->
+          <div id="painel-fluxo-mensagens" class="space-y-6">
+            
+            <!-- SECTION TITLE & ACTION BAR -->
+            <div class="exec-card p-5 rounded-3xl bg-zinc-900/40 border border-zinc-800/80 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 inline-flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    WhatsApp Live Preview
+                  </span>
+                  <span class="text-[10px] font-mono text-zinc-400">Layout Idêntico ao Celular</span>
+                </div>
+                <h3 class="text-base font-bold text-white font-serif-legal">Central de Mensagens Pré-Programadas do Bot</h3>
+                <p class="text-xs text-zinc-400">Configure as respostas automáticas, triagem inicial e solicitação de documentos com prévia instantânea em balões do WhatsApp.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btn-salvar-tpl-processos" onclick="salvarConfiguracaoCompleta(false); typeof mostrarToast === 'function' && mostrarToast('Todas as mensagens salvas!');" class="btn-tactile px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-95 transition flex items-center space-x-1.5 cursor-pointer">
+                  <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+                  <span>Salvar Todas as Mensagens</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD GRUPO A: COLETA DE DADOS & TRIAGEM INICIAL -->
+            <div class="exec-card rounded-3xl p-6 border border-zinc-800/80 bg-zinc-900/50 shadow-xl space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-3 gap-2">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400">
+                    <svg class="w-4 h-4"><use href="#icon-chat"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Grupo A: Boas-Vindas &amp; Triagem Inicial</h4>
+                    <p class="text-[11px] text-zinc-400">Primeira mensagem enviada quando o cliente inicia contato pelo WhatsApp.</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-[10px] text-zinc-400">Inserir tag:</span>
+                  <button type="button" onclick="inserirTagNoInput('input-etapa-msg', '{nome}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {nome}</button>
+                  <button type="button" onclick="inserirTagNoInput('input-etapa-msg', '{escritorio}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {escritorio}</button>
+                  <button type="button" onclick="inserirTagNoInput('input-etapa-msg', '{cpf}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {cpf}</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-12 gap-6 items-stretch">
+                <!-- Textarea (7 cols) -->
+                <div class="col-span-12 lg:col-span-7 space-y-3 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <label class="text-xs font-semibold text-zinc-300">Mensagem da Etapa (#input-etapa-msg):</label>
+                      <button type="button" id="btn-melhorar-msg-etapa" onclick="typeof melhorarTextoAtendimentoEtapaComIA === 'function' && melhorarTextoAtendimentoEtapaComIA()" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                        <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
+                        <span>Melhorar com IA</span>
+                      </button>
+                    </div>
+                    <textarea id="input-etapa-msg" rows="5" class="exec-input w-full rounded-2xl p-4 text-xs resize-none leading-relaxed font-sans" placeholder="Olá {nome}! Seja bem-vindo ao nosso escritório..." oninput="sincronizarPreviewWhatsApp('input-etapa-msg', 'wa-preview-boasvindas')">Olá {nome}! Seja muito bem-vindo ao nosso escritório de advocacia.
+
+Como podemos ajudar você hoje?
+1️⃣ Consultar andamento de processo existente
+2️⃣ Agendar consulta com advogado especializado
+3️⃣ Enviar documentos para análise</textarea>
+                  </div>
+                  <div class="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
+                    <span>Tags suportadas: {nome}, {cpf}, {escritorio}</span>
+                    <span class="text-amber-400/80 font-mono text-[10px]">Auto-Save ativo</span>
+                  </div>
+                </div>
+
+                <!-- WhatsApp Balloon Preview (5 cols) -->
+                <div class="col-span-12 lg:col-span-5 flex flex-col">
+                  <div class="wa-wallpaper-dark rounded-2xl p-4 border border-zinc-800/90 shadow-2xl flex-1 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[10px] text-zinc-400">
+                      <span class="font-bold text-zinc-300 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        Advocacia Bot (WhatsApp)
+                      </span>
+                      <span class="font-mono text-[9px] text-emerald-400/80">ONLINE</span>
+                    </div>
+
+                    <div class="flex justify-end my-auto py-2">
+                      <div class="wa-bubble-out p-3 max-w-[90%] shadow-lg text-xs leading-relaxed">
+                        <p id="wa-preview-boasvindas" class="text-xs leading-relaxed whitespace-pre-wrap font-sans">Olá {nome}! Seja muito bem-vindo ao nosso escritório de advocacia.</p>
+                        <div class="flex items-center justify-end space-x-1 mt-1 text-[9px] text-zinc-300 font-mono">
+                          <span>10:42</span>
+                          <span class="text-sky-400 font-bold">✓✓</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-[9px] text-zinc-500 text-center pt-1 border-t border-zinc-800/50">
+                      Simulação fiel do balão de mensagem no WhatsApp do cliente
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD GRUPO B: RESPOSTAS DE CONSULTA PROCESSUAL -->
+            <div class="exec-card rounded-3xl p-6 border border-zinc-800/80 bg-zinc-900/50 shadow-xl space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-3 gap-2">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400">
+                    <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Grupo B: Mensagens de Consulta Processual (CPF / CNJ)</h4>
+                    <p class="text-[11px] text-zinc-400">Modelos enviados após o cliente digitar o CPF para acompanhar seu processo judicial.</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="text-[10px] text-zinc-400">Tags rápidas:</span>
+                  <button type="button" onclick="inserirTagAtiva('{nome}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {nome}</button>
+                  <button type="button" onclick="inserirTagAtiva('{processo}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {processo}</button>
+                  <button type="button" onclick="inserirTagAtiva('{resumo}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {resumo}</button>
+                  <button type="button" onclick="inserirTagAtiva('{data}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {data}</button>
+                </div>
+              </div>
+
+              <!-- Grid de 6 Respostas Processuais com Balões -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                <!-- 1. Com Atualização -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      1. Nova Atualização Localizada:
+                    </label>
+                  </div>
+                  <textarea id="tpl-msg-com-atualizacao" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none" oninput="sincronizarPreviewWhatsApp('tpl-msg-com-atualizacao', 'wa-prev-com-atualizacao')" placeholder="Olá {nome}, localizamos novidades no seu processo nº {processo}:"></textarea>
+                  <div class="wa-wallpaper-dark rounded-xl p-3 border border-zinc-800/80">
+                    <div class="wa-bubble-out p-2.5 max-w-[95%] ml-auto text-[11px] leading-relaxed">
+                      <p id="wa-prev-com-atualizacao" class="whitespace-pre-wrap">Olá {nome}, localizamos novidades no seu processo nº {processo}:</p>
+                      <div class="text-[8px] text-right text-zinc-300 mt-0.5 font-mono">10:43 <span class="text-sky-400">✓✓</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Já Visto -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                      2. Já Consultado Anteriormente:
+                    </label>
+                  </div>
+                  <textarea id="tpl-msg-ja-visto" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none" oninput="sincronizarPreviewWhatsApp('tpl-msg-ja-visto', 'wa-prev-ja-visto')" placeholder="Olá {nome}! Seu processo ({processo}) continua com o andamento anterior:"></textarea>
+                  <div class="wa-wallpaper-dark rounded-xl p-3 border border-zinc-800/80">
+                    <div class="wa-bubble-out p-2.5 max-w-[95%] ml-auto text-[11px] leading-relaxed">
+                      <p id="wa-prev-ja-visto" class="whitespace-pre-wrap">Olá {nome}! Seu processo ({processo}) continua com o andamento anterior:</p>
+                      <div class="text-[8px] text-right text-zinc-300 mt-0.5 font-mono">10:44 <span class="text-sky-400">✓✓</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Sem Movimentação -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                      3. Sem Movimentação Cadastrada:
+                    </label>
+                  </div>
+                  <textarea id="tpl-msg-sem-atualizacao" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none" oninput="sincronizarPreviewWhatsApp('tpl-msg-sem-atualizacao', 'wa-prev-sem-atualizacao')"></textarea>
+                  <div class="wa-wallpaper-dark rounded-xl p-3 border border-zinc-800/80">
+                    <div class="wa-bubble-out p-2.5 max-w-[95%] ml-auto text-[11px] leading-relaxed">
+                      <p id="wa-prev-sem-atualizacao" class="whitespace-pre-wrap">Olá {nome}, seu processo está em trâmite normal aguardando despacho.</p>
+                      <div class="text-[8px] text-right text-zinc-300 mt-0.5 font-mono">10:45 <span class="text-sky-400">✓✓</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Não Encontrado -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                      4. CPF ou Pasta Não Localizada:
+                    </label>
+                  </div>
+                  <textarea id="tpl-msg-nao-encontrado" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none" oninput="sincronizarPreviewWhatsApp('tpl-msg-nao-encontrado', 'wa-prev-nao-encontrado')"></textarea>
+                  <div class="wa-wallpaper-dark rounded-xl p-3 border border-zinc-800/80">
+                    <div class="wa-bubble-out p-2.5 max-w-[95%] ml-auto text-[11px] leading-relaxed">
+                      <p id="wa-prev-nao-encontrado" class="whitespace-pre-wrap">Não localizamos nenhum processo ativo com os dados informados.</p>
+                      <div class="text-[8px] text-right text-zinc-300 mt-0.5 font-mono">10:46 <span class="text-sky-400">✓✓</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Encerrar Conversa (Opção 1) -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                      5. Se o Cliente Digitar 1 (Encerrar):
+                    </label>
+                  </div>
+                  <textarea id="tpl-msg-encerrar" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none" oninput="sincronizarPreviewWhatsApp('tpl-msg-encerrar', 'wa-prev-encerrar')"></textarea>
+                  <div class="wa-wallpaper-dark rounded-xl p-3 border border-zinc-800/80">
+                    <div class="wa-bubble-out p-2.5 max-w-[95%] ml-auto text-[11px] leading-relaxed">
+                      <p id="wa-prev-encerrar" class="whitespace-pre-wrap">O escritório agradece o seu contato! Se precisar de algo, envie uma nova mensagem.</p>
+                      <div class="text-[8px] text-right text-zinc-300 mt-0.5 font-mono">10:47 <span class="text-sky-400">✓✓</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 6. Chamar Advogado (Opção 2) -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      6. Se o Cliente Digitar 2 (Falar com Advogado):
+                    </label>
+                  </div>
+                  <textarea id="tpl-msg-advogado-pos" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none" oninput="sincronizarPreviewWhatsApp('tpl-msg-advogado-pos', 'wa-prev-advogado-pos')"></textarea>
+                  <div class="wa-wallpaper-dark rounded-xl p-3 border border-zinc-800/80">
+                    <div class="wa-bubble-out p-2.5 max-w-[95%] ml-auto text-[11px] leading-relaxed">
+                      <p id="wa-prev-advogado-pos" class="whitespace-pre-wrap">Entendido! Notificamos o advogado responsável pelo seu processo. Aguarde um instante.</p>
+                      <div class="text-[8px] text-right text-zinc-300 mt-0.5 font-mono">10:48 <span class="text-sky-400">✓✓</span></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Transparent Alias Container for legacy scripts -->
+              <div id="painel-msg-processos" class="contents"></div>
+            </div>
+
+            <!-- CARD GRUPO C: ONBOARDING & SOLICITAÇÃO DE DOCUMENTOS -->
+            <div id="card-config-template-onboarding" class="exec-card rounded-3xl p-6 border border-zinc-800/80 bg-zinc-900/50 shadow-xl space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-3 gap-2">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400">
+                    <svg class="w-4 h-4"><use href="#icon-clipboard"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Grupo C: Template de Solicitação de Documentos &amp; Onboarding</h4>
+                    <p class="text-[11px] text-zinc-400">Mensagem disparada com o checklist de documentos probatórios necessários para a ação judicial.</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{nome}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {nome}</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{preset}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {preset}</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{documentos}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {documentos}</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-12 gap-6 items-stretch">
+                <!-- Textarea (7 cols) -->
+                <div class="col-span-12 lg:col-span-7 space-y-3 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <label class="text-xs font-semibold text-zinc-300">Modelo Padrão WhatsApp (#dossie-template-mensagem-docs):</label>
+                      <button type="button" id="btn-melhorar-template-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('dossie-template-mensagem-docs'), (novoTexto) => { if (window.configGlobal) { window.configGlobal.modeloMensagemSolicitacaoDocs = novoTexto; typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); } }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                        <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
+                        <span>Melhorar com IA</span>
+                      </button>
+                    </div>
+                    <textarea id="dossie-template-mensagem-docs" rows="6" class="exec-input w-full rounded-2xl p-4 text-xs resize-none leading-relaxed font-sans" oninput="sincronizarPreviewWhatsApp('dossie-template-mensagem-docs', 'wa-preview-onboarding-docs')" placeholder="Olá {nome}! Para instruirmos a sua ação judicial, precisamos dos seguintes documentos: {documentos}">Olá {nome}! Para darmos andamento à sua ação judicial com a máxima celeridade, precisamos que nos envie por aqui fotos legíveis ou PDFs dos seguintes documentos:
+
+{documentos}
+
+Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os dados civis e organizará sua pasta com segurança!</textarea>
+                  </div>
+                  <div class="flex items-center justify-between pt-1">
+                    <span class="text-[11px] text-zinc-500">Tags: {nome}, {preset}, {documentos}</span>
+                    <button type="button" id="btn-salvar-template-onboarding" onclick="window.salvarModeloTemplateOnboardingUI && window.salvarModeloTemplateOnboardingUI()" class="btn-tactile px-4 py-1.5 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow flex items-center space-x-1.5 transition cursor-pointer">
+                      <svg class="w-3.5 h-3.5"><use href="#icon-save"/></svg>
+                      <span>Salvar Template</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- WhatsApp Balloon Preview (5 cols) -->
+                <div class="col-span-12 lg:col-span-5 flex flex-col">
+                  <div class="wa-wallpaper-dark rounded-2xl p-4 border border-zinc-800/90 shadow-2xl flex-1 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[10px] text-zinc-400">
+                      <span class="font-bold text-zinc-300 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        Advocacia Bot (WhatsApp)
+                      </span>
+                      <span class="font-mono text-[9px] text-zinc-400">Solicitação de Docs</span>
+                    </div>
+
+                    <div class="flex justify-end my-auto py-2">
+                      <div class="wa-bubble-out p-3 max-w-[92%] shadow-lg text-xs leading-relaxed">
+                        <p id="wa-preview-onboarding-docs" class="text-xs leading-relaxed whitespace-pre-wrap font-sans">Olá Roberto! Para darmos andamento à sua ação judicial com a máxima celeridade, precisamos que nos envie por aqui fotos legíveis ou PDFs dos seguintes documentos:
+
+📄 Documento de Identidade (RG/CNH)
+📄 Comprovante de Residência Atualizado
+📄 Procuração Assinada</p>
+                        <div class="flex items-center justify-end space-x-1 mt-1.5 text-[9px] text-zinc-300 font-mono">
+                          <span>10:49</span>
+                          <span class="text-sky-400 font-bold">✓✓</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-[9px] text-zinc-500 text-center pt-1 border-t border-zinc-800/50">
+                      Visualização em tempo real da solicitação enviada ao cliente
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
           <!-- PAINEL 1: EDITOR DE MENUS & MENSAGENS -->
-          <div id="painel-fluxo-editor" class="grid grid-cols-12 gap-6">
+          <div id="painel-fluxo-editor" class="hidden grid grid-cols-12 gap-6">
             <div class="col-span-12 lg:col-span-7 space-y-5">
               <div id="tour-seletor-etapa" class="exec-card p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex items-center justify-between">
                 <div class="flex items-center space-x-3 flex-1">
@@ -2773,158 +3111,8 @@
           </div>
         </div>
 
-        <!-- ================= ABA DOSSIÊ DE CLIENTES (DESACOPLADO) ================= -->
-        <div id="aba-dossie-clientes" class="hidden space-y-6 tab-pane-anim">
-          <div id="tab-dossie-clientes" class="space-y-6">
-            <!-- EXECUTIVE SECTION HEADER -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Documentação de Clientes
-                  </span>
-                  <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
-                    Art. 319, II CPC
-                  </span>
-                </div>
-                <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                  <svg class="w-6 h-6 text-amber-400"><use href="#icon-users"/></svg>
-                  Dossiê de Clientes
-                </h2>
-                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                  Ficha cadastral de qualificação civil com galeria de documentos anexados (RG, CPF e comprovante de endereço).
-                </p>
-              </div>
-              <div class="flex items-center space-x-2">
-                <button type="button" id="btn-atualizar-dossies" onclick="carregarERenderizarDossies()" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold transition flex items-center space-x-2 shadow-sm active:scale-95 cursor-pointer">
-                  <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-refresh"/></svg>
-                  <span>Atualizar Dossiês</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- ASYMMETRIC MASTER-DETAIL LAYOUT -->
-            <div class="grid grid-cols-12 gap-6 items-start">
-              <!-- COLUNA ESQUERDA (4 cols): SESSÕES & CLIENTES ONBOARDING -->
-              <div class="col-span-12 lg:col-span-4 space-y-4">
-                <div class="exec-card p-5 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-4 shadow-xl">
-                  <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                      <svg class="w-4 h-4 text-amber-400"><use href="#icon-users"/></svg>
-                      Clientes Onboarding
-                    </span>
-                    <span id="contador-dossies-lista" class="text-[10px] px-2.5 py-0.5 rounded-full bg-zinc-800 text-amber-300 font-bold font-mono">0</span>
-                  </div>
-
-                  <!-- Container da Lista de Clientes -->
-                  <div id="lista-clientes-dossie" class="space-y-2.5 max-h-[580px] overflow-y-auto pr-1">
-                    <div class="p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
-                      Nenhum dossiê consolidado ainda. Clique em "Solicitar Documentos" na Fila de Espera!
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Template de Mensagem de Solicitação de Documentos -->
-                <div id="card-config-template-onboarding" class="exec-card p-5 rounded-3xl bg-zinc-900/40 border border-amber-500/30 space-y-3.5 shadow-xl">
-                  <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                    <div>
-                      <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
-                        Modelo de Solicitação WhatsApp
-                      </h4>
-                      <p class="text-[10px] text-zinc-400">Variáveis: <code class="text-amber-400">{nome}</code>, <code class="text-amber-400">{preset}</code>, <code class="text-amber-400">{documentos}</code></p>
-                    </div>
-                  </div>
-                  <textarea id="dossie-template-mensagem-docs" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none font-sans leading-relaxed" placeholder="Digite o modelo padrão de solicitação de documentos..."></textarea>
-                  <div class="flex items-center justify-end space-x-2 pt-1">
-                    <button type="button" id="btn-melhorar-template-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('dossie-template-mensagem-docs'), (novoTexto) => { if (window.configGlobal) { window.configGlobal.modeloMensagemSolicitacaoDocs = novoTexto; typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); } }, this)" class="btn-tactile px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer shadow-sm active:scale-95" title="Aprimorar o modelo padrão com IA">
-                      <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg><span>Melhorar IA</span>
-                    </button>
-                    <button type="button" id="btn-salvar-template-onboarding" onclick="window.salvarModeloTemplateOnboardingUI && window.salvarModeloTemplateOnboardingUI()" class="btn-tactile px-4 py-1.5 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow flex items-center space-x-1.5 transition cursor-pointer">
-                      <span>Salvar Modelo</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- COLUNA DIREITA (8 cols): FICHA CIVIL CPC ART. 319 & GALERIA FORENSE -->
-              <div class="col-span-12 lg:col-span-8 space-y-5">
-                <!-- Ficha Civil CPC -->
-                <div class="exec-card p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-5 shadow-xl">
-                  <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-4 gap-3">
-                    <div>
-                      <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Qualificação Civil Completa (Art. 319, II do CPC)</span>
-                      <h3 id="dossie-cliente-titulo" class="text-base font-bold text-white mt-0.5">Selecione um cliente ao lado</h3>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <button type="button" id="btn-solicitar-docs-dossie-topo" onclick="window.solicitarDocsClienteDossieAtual && window.solicitarDocsClienteDossieAtual()" class="btn-tactile px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm active:scale-95" title="Solicitar documentos no WhatsApp deste cliente">
-                        <svg class="w-3.5 h-3.5 text-amber-300"><use href="#icon-clipboard"/></svg>
-                        <span>Solicitar Docs</span>
-                      </button>
-                      <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="btn-tactile px-4 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-zinc-950 shadow-md flex items-center space-x-1.5 transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-zinc-950 inline mr-1.5"><use href="#icon-clipboard"/></svg><span>Copiar Qualificação (CPC)</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-12 gap-3.5 text-xs">
-                    <div class="col-span-12 sm:col-span-6">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">Nome Completo</label>
-                      <input type="text" id="dossie-nome" placeholder="Extraído via OCR do RG/CNH" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-semibold">
-                    </div>
-                    <div class="col-span-12 sm:col-span-3">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">CPF</label>
-                      <input type="text" id="dossie-cpf" placeholder="000.000.000-00" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold">
-                    </div>
-                    <div class="col-span-12 sm:col-span-3">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">RG / Órgão Emissor</label>
-                      <input type="text" id="dossie-rg" placeholder="00.000.000-0 SSP" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
-                    </div>
-                    <div class="col-span-12 sm:col-span-4">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">Estado Civil</label>
-                      <input type="text" id="dossie-estado-civil" placeholder="Ex: casado(a), solteiro(a)" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
-                    </div>
-                    <div class="col-span-12 sm:col-span-4">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">Profissão</label>
-                      <input type="text" id="dossie-profissao" placeholder="Extraído da CTPS / Ficha" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
-                    </div>
-                    <div class="col-span-12 sm:col-span-4">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">Filiação (Mãe / Pai)</label>
-                      <input type="text" id="dossie-filiacao" placeholder="Filiação extraída do RG" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
-                    </div>
-                    <div class="col-span-12">
-                      <label class="text-[11px] text-zinc-200 font-bold tracking-wide block mb-1">Endereço Completo com CEP</label>
-                      <input type="text" id="dossie-endereco" placeholder="Logradouro, número, bairro, cidade/UF e CEP" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
-                    </div>
-                  </div>
-
-                  <!-- Preview Formatado para Petição Inicial -->
-                  <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 shadow-inner space-y-1.5">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Prévia Formal (Cabeçalho da Petição Inicial):</span>
-                    <p id="dossie-preview-cpc" class="text-xs text-zinc-200 font-serif-legal italic leading-relaxed select-all">Selecione um dossiê ou preencha os dados acima para gerar o texto formal do Art. 319, II do CPC.</p>
-                  </div>
-                </div>
-
-                <!-- Galeria Visual de Documentos Auditados pela IA -->
-                <div class="exec-card p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-4 shadow-xl">
-                  <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                      <svg class="w-4 h-4 text-amber-400"><use href="#icon-file-text"/></svg>
-                      Galeria de Documentos Auditados (Visão Computacional)
-                    </span>
-                    <span class="text-[10px] text-zinc-400 font-mono">Pasta local: <code class="text-amber-300">./documentos_clientes/</code></span>
-                  </div>
-                  <div id="galeria-documentos-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="col-span-1 sm:col-span-2 p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
-                      Nenhum documento exibido. Selecione um cliente para visualizar as imagens e laudos forenses da IA.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- ================= ABA DOSSIÊ DE CLIENTES (ALIAS FUNCIONAL UNIFICADO NO HUB DE PROCESSOS) ================= -->
+        <div id="aba-dossie-clientes" class="hidden"></div>
 
         <!-- ================= ABA FINANCEIRO & PIX (RÉGUA SEMANAL + AUDITORIA DE COMPROVANTES) ================= -->
         <div id="aba-financeiro" class="hidden space-y-6 tab-pane-anim">
@@ -9182,5 +9370,102 @@
     } catch (e) {}
   })();
   </script>
+<script>
+    /* ========================================================================= */
+    /* UI REDESIGN CONTROLLERS: MASTER-DETAIL & WHATSAPP BALLOON PREVIEWS        */
+    /* ========================================================================= */
+    function sincronizarPreviewWhatsApp(sourceId, targetId) {
+      const src = document.getElementById(sourceId);
+      const tgt = document.getElementById(targetId);
+      if (!src || !tgt) return;
+
+      let txt = src.value || '';
+      if (txt.includes('{documentos}')) {
+        txt = txt.replace('{documentos}', '📄 Documento de Identidade (RG/CNH)\n📄 Comprovante de Residência Atualizado\n📄 Procuração Assinada');
+      }
+      tgt.textContent = txt;
+    }
+
+    function inserirTagNoInput(inputId, tag) {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      const start = el.selectionStart || el.value.length;
+      const end = el.selectionEnd || el.value.length;
+      el.value = el.value.substring(0, start) + tag + el.value.substring(end);
+      el.focus();
+      el.selectionStart = el.selectionEnd = start + tag.length;
+      el.dispatchEvent(new Event('input'));
+    }
+
+    let ultimoTextareaAtivo = null;
+    document.addEventListener('focusin', (e) => {
+      if (e.target.tagName === 'TEXTAREA') {
+        ultimoTextareaAtivo = e.target;
+      }
+    });
+
+    function inserirTagAtiva(tag) {
+      const el = ultimoTextareaAtivo || document.getElementById('tpl-msg-com-atualizacao');
+      if (el) {
+        inserirTagNoInput(el.id, tag);
+      }
+    }
+
+    function alternarHubSubAba(aba) {
+      const abas = ['processo', 'cpc', 'docs'];
+      abas.forEach(a => {
+        const btn = document.getElementById('hub-subtab-' + a);
+        const painel = document.getElementById('hub-painel-' + a);
+        if (a === aba) {
+          if (btn) btn.className = 'flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+          if (painel) painel.classList.remove('hidden');
+        } else {
+          if (btn) btn.className = 'flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 flex items-center justify-center gap-1.5 cursor-pointer';
+          if (painel) painel.classList.add('hidden');
+        }
+      });
+    }
+
+    function alternarListaModo(modo) {
+      const boxProc = document.getElementById('lista-processos-box');
+      const boxDossie = document.getElementById('lista-clientes-dossie');
+      const btnProc = document.getElementById('tab-toggle-list-proc');
+      const btnDossie = document.getElementById('tab-toggle-list-dossie');
+
+      if (modo === 'processos') {
+        if (boxProc) boxProc.classList.remove('hidden');
+        if (boxDossie) boxDossie.classList.add('hidden');
+        if (btnProc) {
+          btnProc.className = 'py-1.5 text-[11px] font-bold rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 transition text-center cursor-pointer';
+        }
+        if (btnDossie) {
+          btnDossie.className = 'py-1.5 text-[11px] font-semibold rounded-xl text-zinc-400 hover:text-zinc-200 transition text-center cursor-pointer';
+        }
+      } else {
+        if (boxProc) boxProc.classList.add('hidden');
+        if (boxDossie) boxDossie.classList.remove('hidden');
+        if (btnDossie) {
+          btnDossie.className = 'py-1.5 text-[11px] font-bold rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 transition text-center cursor-pointer';
+        }
+        if (btnProc) {
+          btnProc.className = 'py-1.5 text-[11px] font-semibold rounded-xl text-zinc-400 hover:text-zinc-200 transition text-center cursor-pointer';
+        }
+        if (typeof window.carregarERenderizarDossies === 'function') {
+          window.carregarERenderizarDossies();
+        }
+      }
+    }
+
+    function sincronizarTodosBaloesWhatsApp() {
+      sincronizarPreviewWhatsApp('input-etapa-msg', 'wa-preview-boasvindas');
+      sincronizarPreviewWhatsApp('tpl-msg-com-atualizacao', 'wa-prev-com-atualizacao');
+      sincronizarPreviewWhatsApp('tpl-msg-ja-visto', 'wa-prev-ja-visto');
+      sincronizarPreviewWhatsApp('tpl-msg-sem-atualizacao', 'wa-prev-sem-atualizacao');
+      sincronizarPreviewWhatsApp('tpl-msg-nao-encontrado', 'wa-prev-nao-encontrado');
+      sincronizarPreviewWhatsApp('tpl-msg-encerrar', 'wa-prev-encerrar');
+      sincronizarPreviewWhatsApp('tpl-msg-advogado-pos', 'wa-prev-advogado-pos');
+      sincronizarPreviewWhatsApp('dossie-template-mensagem-docs', 'wa-preview-onboarding-docs');
+    }
+</script>
 </body>
 </html>
