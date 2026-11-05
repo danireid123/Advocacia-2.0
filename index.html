@@ -481,127 +481,239 @@
     }
   </style>
 
-  <!-- SIDEBAR RECOLHÍVEL (RAIL COMPACTO) -->
-  <style id="sidebar-rail-styles">
-    #main-sidebar {
-      width: 272px;
-      flex-shrink: 0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), padding 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  <!-- SISTEMA DE NAVEGAÇÃO SUPERIOR DUAL-TIER & SUBMENUS ANIMADOS -->
+  <style id="dual-tier-nav-styles">
+    /* Macro Navigation Bar (Tier 1) */
+    #macro-nav-bar {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px;
+      border-radius: 16px;
+      background: rgba(9, 9, 11, 0.85);
+      border: 1px solid rgba(63, 63, 70, 0.55);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
     }
-    #main-sidebar .sidebar-tab-item > div > span,
-    #main-sidebar #sidebar-nav > div > span:first-child,
-    #main-sidebar .sidebar-tab-item > span {
-      transition: opacity 0.18s ease;
+    #macro-active-pill {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 0;
+      width: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(212, 175, 55, 0.07) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.48);
+      box-shadow: 0 2px 14px -2px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), width 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .macro-nav-btn {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 13px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #a1a1aa;
+      transition: color 0.2s ease, transform 0.15s ease;
+      cursor: pointer;
       white-space: nowrap;
     }
-    #sidebar-qr-trigger { display: none; }
-
-    /* ---- Estado compacto ---- */
-    body.sidebar-collapsed #main-sidebar { width: 76px; padding-left: 12px; padding-right: 12px; }
-    /* backdrop-filter cria containing block para position:fixed — removido no rail para o popover do QR escapar */
-    body.sidebar-collapsed #main-sidebar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(9, 9, 11, 0.92); position: relative; z-index: 30; }
-    body.theme-light.sidebar-collapsed #main-sidebar { background: rgba(255, 255, 255, 0.95); }
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item {
-      justify-content: center;
-      padding: 10px 0 !important;
-      transform: none !important;
+    .macro-nav-btn:hover {
+      color: #f4f4f5;
     }
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > div > span { display: none; }
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > div { margin: 0; }
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item svg { width: 18px; height: 18px; }
-
-    /* Títulos de seção viram um divisor discreto */
-    body.sidebar-collapsed #main-sidebar #sidebar-nav > div > span:first-child {
-      display: block;
-      height: 1px;
-      margin: 6px 10px 8px;
-      padding: 0;
-      font-size: 0;
-      background: rgba(113, 113, 122, 0.35);
+    .macro-nav-btn.macro-active {
+      color: #fef08a;
+      font-weight: 700;
     }
-    body.sidebar-collapsed #main-sidebar #sidebar-nav > div:first-child > span:first-child { display: none; }
-
-    /* Badges viram contadores flutuantes no canto do ícone */
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > span {
-      position: absolute;
-      top: 3px;
-      right: 6px;
-      min-width: 16px;
-      height: 16px;
-      padding: 0 4px !important;
-      font-size: 9px !important;
-      line-height: 16px;
-      text-align: center;
-      border-radius: 9999px;
-      box-shadow: 0 0 0 2px #09090b;
+    .macro-nav-btn.macro-active svg {
+      color: #fbbf24;
+      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
     }
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > span:not([id]),
-    body.sidebar-collapsed #main-sidebar #badge-financeiro,
-    body.sidebar-collapsed #main-sidebar .sidebar-tab-item > span[data-empty="1"] { display: none; }
 
-    /* QR vira gatilho compacto + popover flutuante */
-    body.sidebar-collapsed #sidebar-qr-trigger { display: flex; }
-    body.sidebar-collapsed #tour-qr-card {
+    /* Tier 2: Submenu Command Bar & Segmented Capsule */
+    #subnav-dock-wrapper {
+      position: relative;
+      z-index: 25;
+      background: rgba(9, 9, 11, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(39, 39, 42, 0.85);
+      transition: all 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Modo Ilha Flutuante (Opção 3 - macOS / Raycast Floating Dock) */
+    body.dock-floating-bottom #main-sidebar {
+      height: 0 !important;
+      overflow: visible !important;
+    }
+    body.dock-floating-bottom #subnav-dock-wrapper {
       position: fixed;
-      left: 88px;
-      bottom: 16px;
-      width: 220px;
-      z-index: 60;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: calc(100vw - 32px);
+      border-radius: 24px;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      background: rgba(12, 12, 16, 0.92);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.85), 0 0 32px -8px rgba(212, 175, 55, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      padding: 7px 14px !important;
+      z-index: 45;
+    }
+    body.dock-floating-bottom #subnav-context-left {
+      display: none !important;
+    }
+    body.dock-floating-bottom #sidebar-nav {
+      flex-shrink: 0;
+    }
+
+    /* Segmented Control Capsule */
+    #sidebar-nav {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px;
+      border-radius: 16px;
+      background: rgba(15, 15, 20, 0.92);
+      border: 1px solid rgba(63, 63, 70, 0.6);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55);
+      overflow-x: auto;
+      max-width: 100%;
+      scrollbar-width: none;
+    }
+    #sidebar-nav::-webkit-scrollbar { display: none; }
+
+    /* Hover Ghost Pill & Active Sliding Golden Pill */
+    #subnav-hover-pill {
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      left: 0;
+      width: 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
       opacity: 0;
       pointer-events: none;
-      transform: translateX(-8px) scale(0.98);
-      transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
-      background: #111113 !important;
-      border-color: rgba(212, 175, 55, 0.3) !important;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), width 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.16s ease;
+      z-index: 0;
     }
-    body.theme-light.sidebar-collapsed #tour-qr-card { background: #ffffff !important; }
-    body.sidebar-collapsed #tour-qr-card.qr-popover-open {
+    #subnav-active-pill {
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      left: 0;
+      width: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.24) 0%, rgba(212, 175, 55, 0.08) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      box-shadow: 0 4px 20px -2px rgba(212, 175, 55, 0.3), inset 0 1px 0 rgba(255, 250, 220, 0.28);
+      pointer-events: none;
+      z-index: 1;
+      transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), width 0.36s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease;
+    }
+    #subnav-active-pill::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 22%;
+      right: 22%;
+      height: 2px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, transparent, #facc15, transparent);
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+    }
+    #subnav-active-pill.pill-gliding {
+      filter: brightness(1.25) drop-shadow(0 0 12px rgba(212, 175, 55, 0.45));
+    }
+
+    /* Submenu Tab Buttons inside Segmented Capsule */
+    #sidebar-nav .sidebar-tab-item {
+      position: relative;
+      z-index: 2;
+      width: auto !important;
+      padding: 7px 14px !important;
+      border-radius: 12px !important;
+      border: 1px solid transparent !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      transform: none !important;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s ease, opacity 0.2s ease;
+    }
+    #sidebar-nav .sidebar-tab-item::before {
+      display: none !important;
+    }
+    #sidebar-nav .sidebar-tab-item.subnav-hidden-by-macro {
+      display: none !important;
+    }
+    @keyframes subnavItemCascade {
+      0% { opacity: 0; transform: translateY(5px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #sidebar-nav .sidebar-tab-item.subnav-cascade-in {
+      animation: subnavItemCascade 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    /* Directional Tab Content Transitions (Reference Video Style) */
+    @keyframes tabSlideFromRight {
+      0% { opacity: 0; transform: translate3d(34px, 0, 0) scale(0.992); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    }
+    @keyframes tabSlideFromLeft {
+      0% { opacity: 0; transform: translate3d(-34px, 0, 0) scale(0.992); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    }
+    .tab-anim-right {
+      animation: tabSlideFromRight 0.34s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+    }
+    .tab-anim-left {
+      animation: tabSlideFromLeft 0.34s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+    }
+
+    /* QR Code Popover from Header */
+    #tour-qr-card {
+      position: fixed;
+      top: 68px;
+      right: 24px;
+      width: 240px;
+      z-index: 70;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px) scale(0.97);
+      transition: opacity 0.2s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      background: #111114 !important;
+      border: 1px solid rgba(212, 175, 55, 0.4) !important;
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75), 0 0 24px -6px rgba(212, 175, 55, 0.2) !important;
+    }
+    #tour-qr-card.qr-popover-open {
       opacity: 1;
       pointer-events: auto;
-      transform: translateX(0) scale(1);
+      transform: translateY(0) scale(1);
     }
 
-    /* Tooltip do rail */
-    #sidebar-rail-tooltip {
-      position: fixed;
-      z-index: 70;
-      pointer-events: none;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #f4f4f5;
-      background: #18181b;
-      border: 1px solid rgba(212, 175, 55, 0.35);
-      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.55);
-      opacity: 0;
-      transform: translateX(-4px);
-      transition: opacity 0.12s ease, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-      white-space: nowrap;
+    /* Light Theme Adaptations */
+    body.theme-light #macro-nav-bar,
+    body.theme-light #sidebar-nav {
+      background: rgba(244, 244, 245, 0.92);
+      border-color: rgba(212, 212, 216, 0.85);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
     }
-    #sidebar-rail-tooltip.visible { opacity: 1; transform: translateX(0); }
-    #sidebar-rail-tooltip kbd {
-      margin-left: 8px;
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-family: ui-monospace, monospace;
-      color: #a1a1aa;
-      background: #27272a;
+    body.theme-light #subnav-dock-wrapper {
+      background: rgba(255, 255, 255, 0.88);
+      border-bottom-color: rgba(228, 228, 231, 0.9);
     }
-
-    #btn-toggle-sidebar svg { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
-    body.sidebar-collapsed #btn-toggle-sidebar svg { transform: scaleX(-1); }
-
-    body.theme-light #sidebar-rail-tooltip { background: #ffffff; color: #18181b; border-color: rgba(184, 134, 11, 0.4); }
-    body.theme-light.sidebar-collapsed #main-sidebar .sidebar-tab-item > span { box-shadow: 0 0 0 2px #ffffff; }
-
-    @media (prefers-reduced-motion: reduce) {
-      #main-sidebar, #tour-qr-card, #sidebar-rail-tooltip, #btn-toggle-sidebar svg { transition: none !important; }
-    }
+    body.theme-light .macro-nav-btn { color: #52525b; }
+    body.theme-light .macro-nav-btn.macro-active { color: #854d0e; }
+    body.theme-light #tour-qr-card { background: #ffffff !important; }
   </style>
 </head>
 <body class="h-screen flex flex-col relative theme-dark">
@@ -1093,34 +1205,57 @@
     </div>
   </div>
 
-  <!-- HEADER EXECUTIVO -->
-  <header id="main-header" class="h-16 exec-card border-b border-zinc-800/80 px-6 flex items-center justify-between z-20 bg-zinc-950/80 backdrop-blur-xl">
-    <div class="flex items-center space-x-3.5">
-      <button type="button" id="btn-toggle-sidebar" aria-label="Recolher ou expandir menu lateral" aria-controls="main-sidebar" aria-expanded="true" title="Recolher menu (Ctrl+B)" class="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-amber-300 hover:bg-zinc-900/80 border border-transparent hover:border-zinc-800 active:scale-95 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40">
-        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path stroke-linecap="round" d="M9 4v16"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l-2 2 2 2"/></svg>
-      </button>
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-zinc-950 shadow-md shadow-amber-500/20 active:scale-95 transition-transform duration-150">
+  <!-- HEADER EXECUTIVO (TIER 1: IDENTIDADE, MACRO-ÁREAS & STATUS) -->
+  <header id="main-header" class="h-16 shrink-0 exec-card border-b border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between gap-3 z-30 bg-zinc-950/85 backdrop-blur-xl">
+    <!-- Esquerda: Identidade da Marca -->
+    <div class="flex items-center space-x-3 shrink-0">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-zinc-950 shadow-md shadow-amber-500/20">
         <svg class="w-5 h-5"><use href="#icon-scales"/></svg>
       </div>
       <div>
-        <div class="flex items-center space-x-2.5">
-          <span class="font-serif-legal font-bold tracking-wide text-base text-zinc-100">Advocacia <span class="text-amber-400">Studio Pro</span></span>
-          <span id="badge-versao-topo" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">v2.0 Executive</span>
-          <span id="badge-autosave" class="text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Auto-Save Ativo</span>
+        <div class="flex items-center space-x-2">
+          <span class="font-serif-legal font-bold tracking-wide text-sm sm:text-base text-zinc-100 whitespace-nowrap">Advocacia <span class="text-amber-400">Studio Pro</span></span>
+          <span id="badge-versao-topo" class="hidden 2xl:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">v2.0 Executive</span>
+          <span id="badge-autosave" class="hidden 2xl:inline-block text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Auto-Save Ativo</span>
         </div>
-        <p id="header-user-info" class="text-[11px] text-zinc-400">Ambiente Corporativo Blindado</p>
+        <p id="header-user-info" class="text-[10px] text-zinc-400 leading-tight">Ambiente Corporativo Blindado</p>
       </div>
     </div>
 
-    <div class="flex items-center space-x-3">
-      <button id="btn-header-update" class="hidden items-center space-x-1.5 px-3.5 py-1.5 champagne-gradient text-xs font-bold rounded-xl shadow-md active:scale-[0.98] transition-all" title="Instalar nova atualização disponível agora">
+    <!-- Centro: Tier 1 Macro-Áreas Command Hub (4 Setores com Pill Deslizante) -->
+    <div class="flex items-center justify-center flex-1 min-w-0">
+      <div id="macro-nav-bar" role="tablist" aria-label="Setores do Escritório">
+        <div id="macro-active-pill" aria-hidden="true"></div>
+        <button type="button" id="macro-btn-operacao" data-macro="operacao" class="macro-nav-btn macro-active" title="Visão Geral, Consultar Processos e Fila do Advogado">
+          <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-home"/></svg>
+          <span>Operação</span>
+          <span id="macro-badge-operacao" class="px-1.5 py-0.2 text-[9px] rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold hidden">0</span>
+        </button>
+        <button type="button" id="macro-btn-automacao" data-macro="automacao" class="macro-nav-btn" title="Simulador WhatsApp, Menu Automático e Dossiê Forense">
+          <svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-flow"/></svg>
+          <span>Automação & IA</span>
+        </button>
+        <button type="button" id="macro-btn-controladoria" data-macro="controladoria" class="macro-nav-btn" title="Financeiro & PIX, Histórico de Mensagens e Contatos Ignorados">
+          <svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-scales"/></svg>
+          <span>Controladoria</span>
+        </button>
+        <button type="button" id="macro-btn-sistema" data-macro="sistema" class="macro-nav-btn" title="Horários & Almoço, Cópia de Segurança e Sincronização Nuvem">
+          <svg class="w-3.5 h-3.5 text-purple-400"><use href="#icon-database"/></svg>
+          <span>Sistema & Ajustes</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Direita: Controles de Conexão WhatsApp, Tema e Sessão -->
+    <div class="flex items-center space-x-2.5 shrink-0">
+      <button id="btn-header-update" class="hidden items-center space-x-1.5 px-3 py-1.5 champagne-gradient text-xs font-bold rounded-xl shadow-md active:scale-[0.98] transition-all" title="Instalar nova atualização disponível agora">
         <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
         <span>Atualizar App</span>
       </button>
 
       <!-- CONTROLE RÁPIDO: INICIAR COM O WINDOWS -->
-      <div id="tour-autostart-box" class="flex items-center space-x-2 bg-zinc-900/80 border border-zinc-800 rounded-xl px-3 py-1.5" title="Abrir o Advocacia Studio Pro automaticamente sempre que o computador ligar">
-        <span class="text-[11px] font-medium text-zinc-400">Abrir com PC</span>
+      <div id="tour-autostart-box" class="hidden lg:flex items-center space-x-2 bg-zinc-900/80 border border-zinc-800 rounded-xl px-2.5 py-1.5" title="Abrir o Advocacia Studio Pro automaticamente sempre que o computador ligar">
+        <span class="text-[10px] font-medium text-zinc-400">Abrir c/ PC</span>
         <label class="toggle-switch">
           <input type="checkbox" id="check-iniciar-windows" checked>
           <span class="toggle-slider"></span>
@@ -1133,18 +1268,23 @@
         <svg id="theme-icon-moon" class="w-4 h-4"><use href="#icon-moon"/></svg>
       </button>
 
-      <!-- STATUS VISUAL DETALHADO DO CHROMIUM NA UI -->
-      <div id="status-pill" class="flex flex-col items-end px-3.5 py-1 bg-zinc-900/80 border border-zinc-800 rounded-xl">
-        <div class="flex items-center space-x-2 text-xs font-semibold text-zinc-200">
-          <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-          <span id="status-text">Iniciando motor...</span>
+      <!-- STATUS VISUAL DETALHADO DO CHROMIUM + GATILHO POPOVER QR -->
+      <div id="status-pill" role="button" tabindex="0" title="Clique para exibir o QR Code e status da conexão WhatsApp" class="flex items-center space-x-2.5 px-3 py-1 bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-800 hover:border-amber-500/40 rounded-xl cursor-pointer transition-all">
+        <span id="sidebar-qr-trigger" class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
+          <svg class="w-3.5 h-3.5"><use href="#icon-qr"/></svg>
+        </span>
+        <div class="flex flex-col items-end">
+          <div class="flex items-center space-x-1.5 text-xs font-semibold text-zinc-200">
+            <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="status-text">Iniciando motor...</span>
+          </div>
+          <span id="substatus-text" class="text-[10px] text-zinc-400 font-mono truncate max-w-[170px]">Preparando Chromium...</span>
         </div>
-        <span id="substatus-text" class="text-[10px] text-zinc-400 font-mono truncate max-w-[220px]">Preparando Chromium...</span>
       </div>
 
-      <button id="btn-reconnect" class="flex items-center space-x-1.5 px-3.5 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs font-semibold rounded-xl active:scale-[0.98] transition-all duration-150 text-zinc-200 cursor-pointer">
+      <button id="btn-reconnect" class="flex items-center space-x-1.5 px-3 py-2 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs font-semibold rounded-xl active:scale-[0.98] transition-all duration-150 text-zinc-200 cursor-pointer" title="Reconectar motor do WhatsApp">
         <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-refresh"/></svg>
-        <span>Reconectar</span>
+        <span class="hidden sm:inline">Reconectar</span>
       </button>
       <button id="btn-logout" class="flex items-center space-x-1.5 p-2 bg-zinc-900/90 hover:bg-rose-950/40 border border-zinc-800 hover:border-rose-900/50 text-xs font-medium rounded-xl active:scale-[0.95] transition-all duration-150 text-zinc-400 hover:text-rose-400 cursor-pointer" title="Encerrar sessão de 30 dias e trocar conta">
         <svg class="w-4 h-4"><use href="#icon-logout"/></svg>
@@ -1152,93 +1292,117 @@
     </div>
   </header>
 
-  <!-- CORPO PRINCIPAL -->
-  <div class="flex flex-1 overflow-hidden">
-    
-    <!-- SIDEBAR -->
-    <aside id="main-sidebar" class="w-68 exec-card border-r border-zinc-800/80 p-3.5 flex flex-col justify-between bg-zinc-950/70 backdrop-blur-xl">
-      <div class="space-y-3">
-        <div>
-          <nav id="sidebar-nav" class="space-y-4">
-            <!-- SEÇÃO 1: OPERAÇÃO -->
-            <div class="space-y-1">
-              <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Operação</span>
-              <button id="nav-btn-inicio" class="sidebar-tab-item sidebar-tab-active w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between shadow-sm active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-home"/></svg><span>Visão Geral</span></div>
-              </button>
-              <button id="nav-btn-processos" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-folder"/></svg><span>Consultar Processos</span></div>
-                <span id="badge-processos" class="px-2 py-0.5 text-[10px] rounded-full bg-zinc-800 text-amber-300 font-mono font-bold">0</span>
-              </button>
-              <button id="nav-btn-pausados" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg><span>Fila do Advogado</span></div>
-                <span id="badge-pausados" class="px-2 py-0.5 text-[10px] rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold">0</span>
-              </button>
-            </div>
+  <!-- POPOVER FLUTUANTE DO QR CODE WHATSAPP -->
+  <div id="tour-qr-card" class="exec-card p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/95 flex flex-col items-center text-center shadow-2xl">
+    <div class="w-full flex items-center justify-between mb-2.5 pb-2 border-b border-zinc-800/80">
+      <div class="flex items-center space-x-1.5">
+        <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-qr"/></svg>
+        <span class="text-[11px] font-bold text-zinc-100">Conexão WhatsApp</span>
+      </div>
+      <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Motor v2.0</span>
+    </div>
+    <div id="qr-box" class="w-36 h-36 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-center p-2 shadow-inner">
+      <span class="text-[11px] text-zinc-500 text-center leading-tight font-mono">Iniciando motor...</span>
+    </div>
+    <p id="qr-substatus-text" class="text-[10px] text-zinc-400 mt-2.5 leading-tight font-mono">Aguardando Chromium...</p>
+  </div>
 
-            <!-- SEÇÃO 2: AUTOMAÇÃO & IA -->
-            <div class="space-y-1">
-              <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Automação & IA</span>
-              <button id="nav-btn-simulador" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer" title="Ambiente de Testes do WhatsApp em Tempo Real">
-                <div class="flex items-center space-x-3">
-                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                  <span>Simulador WhatsApp</span>
-                </div>
-                <span class="px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-300 font-bold uppercase tracking-wider">Sandbox</span>
-              </button>
-              <button id="nav-btn-fluxo" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-flow"/></svg><span>Menu Automático</span></div>
-              </button>
-              <button id="nav-btn-dossie-clientes" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer" title="Ficha Civil CPC e Galeria de Documentos Auditados pela IA">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4 text-amber-400"><use href="#icon-users"/></svg><span>Dossiê de Clientes</span></div>
-                <span id="badge-dossies" class="px-2 py-0.5 text-[10px] rounded-full bg-zinc-800 text-amber-300 font-mono font-bold">0</span>
-              </button>
-              <button id="nav-btn-agenda" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg><span>Horários & Almoço</span></div>
-              </button>
-            </div>
-
-            <!-- SEÇÃO 3: CONTROLADORIA -->
-            <div class="space-y-1">
-              <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Controladoria</span>
-              <button id="nav-btn-financeiro" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer" title="Gestão de Honorários, Régua de Cobrança Semanal e Auditoria de PIX com IA">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4 text-emerald-400"><use href="#icon-scales"/></svg><span>Financeiro & PIX</span></div>
-                <span id="badge-financeiro" class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/20 text-emerald-300 font-bold">PIX</span>
-              </button>
-              <button id="nav-btn-terminal" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-activity"/></svg><span>Histórico de Mensagens</span></div>
-              </button>
-              <button id="nav-btn-ignorados" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer" title="Contatos que nunca receberão mensagens automáticas">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg><span>Contatos Ignorados</span></div>
-                <span id="badge-ignorados" class="px-2 py-0.5 text-[10px] rounded-full bg-zinc-800 text-rose-300 font-mono font-bold">0</span>
-              </button>
-              <button id="nav-btn-backup" class="sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <div class="flex items-center space-x-3"><svg class="w-4 h-4"><use href="#icon-database"/></svg><span>Cópia de Segurança (.JSON)</span></div>
-              </button>
-            </div>
-          </nav>
+  <!-- TIER 2: SUBMENU COMMAND DOCK (SEGMENTED CONTROL COM SLIDING PILL ANIMADO) -->
+  <aside id="main-sidebar" class="w-full shrink-0">
+    <div id="subnav-dock-wrapper" class="px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
+      <!-- Esquerda: Contexto do Setor + Setas Sequenciais -->
+      <div id="subnav-context-left" class="hidden md:flex items-center space-x-3 shrink-0">
+        <div class="flex items-center space-x-1 bg-zinc-900/90 border border-zinc-800/90 rounded-xl p-1">
+          <button type="button" id="btn-subnav-prev" title="Aba anterior (Alt + ←)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-amber-300 hover:bg-zinc-800/80 active:scale-95 transition cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button type="button" id="btn-subnav-next" title="Próxima aba (Alt + →)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-amber-300 hover:bg-zinc-800/80 active:scale-95 transition cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="leading-tight">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            <span id="subnav-sector-label" class="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">Setor: Operação</span>
+          </div>
+          <p id="subnav-active-desc" class="text-[11px] text-zinc-400 truncate max-w-[230px]">Painel executivo de indicadores e atalhos</p>
         </div>
       </div>
 
-      <div class="sidebar-qr-wrap">
-      <!-- Gatilho compacto do QR (somente no modo recolhido) -->
-      <button type="button" id="sidebar-qr-trigger" aria-label="Conexão WhatsApp" class="relative w-full h-11 rounded-xl items-center justify-center text-amber-400 bg-zinc-900/70 border border-zinc-800/80 hover:border-amber-500/40 active:scale-95 transition-all cursor-pointer">
-        <svg class="w-[18px] h-[18px]"><use href="#icon-qr"/></svg>
-        <span class="absolute top-2 right-3 w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-      </button>
-      <div id="tour-qr-card" class="exec-card p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/60 flex flex-col items-center text-center shadow-md">
-        <div class="flex items-center space-x-1.5 mb-2.5">
-          <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-qr"/></svg>
-          <span class="text-[11px] font-bold text-zinc-200">Conexão WhatsApp</span>
-        </div>
-        <div id="qr-box" class="w-32 h-32 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-center p-2 shadow-inner">
-          <span class="text-[11px] text-zinc-500 text-center leading-tight font-mono">Iniciando motor...</span>
-        </div>
-        <p id="qr-substatus-text" class="text-[10px] text-zinc-400 mt-2 leading-tight font-mono">Aguardando Chromium...</p>
-      </div>
-      </div>
-    </aside>
+      <!-- Centro: Segmented Control Capsule com Pill Deslizante Dourado -->
+      <div class="flex-1 flex items-center justify-center min-w-0">
+        <nav id="sidebar-nav" aria-label="Sub-menus do Módulo">
+          <div id="subnav-hover-pill" aria-hidden="true"></div>
+          <div id="subnav-active-pill" aria-hidden="true"></div>
 
+          <!-- GRUPO 1: OPERAÇÃO -->
+          <button id="nav-btn-inicio" data-macro="operacao" data-order="0" data-desc="Painel executivo de indicadores e atalhos" class="sidebar-tab-item sidebar-tab-active text-xs font-semibold cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-home"/></svg><span>Visão Geral</span></div>
+          </button>
+          <button id="nav-btn-processos" data-macro="operacao" data-order="1" data-desc="Busca instantânea por CPF/CNJ e importação Smart" class="sidebar-tab-item sidebar-tab-inactive text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-folder"/></svg><span>Consultar Processos</span></div>
+            <span id="badge-processos" class="px-2 py-0.5 text-[10px] rounded-full bg-zinc-800 text-amber-300 font-mono font-bold">0</span>
+          </button>
+          <button id="nav-btn-pausados" data-macro="operacao" data-order="2" data-desc="Transbordo humano com triagem de urgência e Copilot IA" class="sidebar-tab-item sidebar-tab-inactive text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg><span>Fila do Advogado</span></div>
+            <span id="badge-pausados" class="px-2 py-0.5 text-[10px] rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold">0</span>
+          </button>
+
+          <!-- GRUPO 2: AUTOMAÇÃO & IA -->
+          <button id="nav-btn-simulador" data-macro="automacao" data-order="3" data-desc="Ambiente Sandbox isolado para testar conversas e IA" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer" title="Ambiente de Testes do WhatsApp em Tempo Real">
+            <div class="flex items-center space-x-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span>Simulador WhatsApp</span>
+            </div>
+            <span class="px-2 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-300 font-bold uppercase tracking-wider">Sandbox</span>
+          </button>
+          <button id="nav-btn-fluxo" data-macro="automacao" data-order="4" data-desc="Árvore interativa de atendimento e ações pré-programadas" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-flow"/></svg><span>Menu Automático</span></div>
+          </button>
+          <button id="nav-btn-dossie-clientes" data-macro="automacao" data-order="5" data-desc="Qualificação civil Art. 319 CPC e galeria forense OCR" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer" title="Ficha Civil CPC e Galeria de Documentos Auditados pela IA">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4 text-amber-400"><use href="#icon-users"/></svg><span>Dossiê de Clientes</span></div>
+            <span id="badge-dossies" class="px-2 py-0.5 text-[10px] rounded-full bg-zinc-800 text-amber-300 font-mono font-bold">0</span>
+          </button>
+
+          <!-- GRUPO 3: CONTROLADORIA -->
+          <button id="nav-btn-financeiro" data-macro="controladoria" data-order="6" data-desc="Gestão de honorários, régua semanal e auditoria PIX" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer" title="Gestão de Honorários, Régua de Cobrança Semanal e Auditoria de PIX com IA">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4 text-emerald-400"><use href="#icon-scales"/></svg><span>Financeiro & PIX</span></div>
+            <span id="badge-financeiro" class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/20 text-emerald-300 font-bold">PIX</span>
+          </button>
+          <button id="nav-btn-terminal" data-macro="controladoria" data-order="7" data-desc="Auditoria forense e histórico cronológico de mensagens" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-activity"/></svg><span>Histórico de Mensagens</span></div>
+          </button>
+          <button id="nav-btn-ignorados" data-macro="controladoria" data-order="8" data-desc="Escudo VIP e bloqueio absoluto de disparos automáticos" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer" title="Contatos que nunca receberão mensagens automáticas">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg><span>Contatos Ignorados</span></div>
+            <span id="badge-ignorados" class="px-2 py-0.5 text-[10px] rounded-full bg-zinc-800 text-rose-300 font-mono font-bold">0</span>
+          </button>
+
+          <!-- GRUPO 4: SISTEMA & AJUSTES -->
+          <button id="nav-btn-agenda" data-macro="sistema" data-order="9" data-desc="Configuração de expediente semanal e intervalo de almoço" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg><span>Horários & Almoço</span></div>
+          </button>
+          <button id="nav-btn-backup" data-macro="sistema" data-order="10" data-desc="Snapshots locais .JSON e sincronização com nuvem 24/7" class="sidebar-tab-item sidebar-tab-inactive subnav-hidden-by-macro text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer">
+            <div class="flex items-center space-x-2"><svg class="w-4 h-4"><use href="#icon-database"/></svg><span>Cópia de Segurança (.JSON)</span></div>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Direita: Controles de Modo do Submenu (Setor vs Todas | Topo vs Ilha Flutuante) -->
+      <div class="hidden lg:flex items-center space-x-2 shrink-0">
+        <button type="button" id="btn-subnav-all-mode" title="Alternar entre ver sub-abas por setor ou todas as 11 abas juntas" class="px-2.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-[11px] font-semibold text-zinc-300 hover:text-amber-300 transition flex items-center space-x-1.5 cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-flow"/></svg>
+          <span id="label-subnav-all-mode">Ver Todas (11)</span>
+        </button>
+        <button type="button" id="btn-toggle-sidebar" title="Alternar posição da barra de sub-menus: Topo ou Ilha Flutuante Inferior (Ctrl+B)" class="px-2.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-[11px] font-semibold text-zinc-300 hover:text-amber-300 transition flex items-center space-x-1.5 cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path stroke-linecap="round" d="M3 15h18"/></svg>
+          <span id="label-dock-pos">Modo Ilha</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CORPO PRINCIPAL FULL-WIDTH -->
+  <div class="flex flex-1 min-h-0 overflow-hidden">
     <!-- CONTEÚDO PRINCIPAL -->
     <main id="main-content-area" class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto pb-28">
       <div class="w-full max-w-7xl mx-auto space-y-6">
@@ -3534,18 +3698,41 @@
           window.gravadorInterval = null;
         }
       }
+      const ordemAbas = ['inicio', 'processos', 'pausados', 'simulador', 'fluxo', 'dossie-clientes', 'financeiro', 'terminal', 'ignorados', 'agenda', 'backup'];
+      const abaAnterior = window.__abaAtivaAtual || 'inicio';
+      const idxAnt = ordemAbas.indexOf(abaAnterior);
+      const idxNov = ordemAbas.indexOf(abaNome);
+      const dirClass = (idxNov >= idxAnt) ? 'tab-anim-right' : 'tab-anim-left';
+      window.__abaAtivaAtual = abaNome;
+
+      if (typeof window.sincronizarSubmenuDualTier === 'function') {
+        window.sincronizarSubmenuDualTier(abaNome);
+      }
+
       ['inicio', 'processos', 'fluxo', 'agenda', 'pausados', 'ignorados', 'simulador', 'dossie-clientes', 'financeiro', 'terminal', 'backup'].forEach(a => {
         const d = document.getElementById('aba-' + a);
         const b = document.getElementById('nav-btn-' + a);
         if (d) {
-          d.classList.toggle('hidden', a !== abaNome);
+          const mostrar = (a === abaNome);
+          d.classList.toggle('hidden', !mostrar);
+          if (mostrar && abaAnterior !== abaNome) {
+            d.classList.remove('tab-anim-right', 'tab-anim-left');
+            void d.offsetWidth;
+            d.classList.add(dirClass);
+          }
         }
         if (b) {
-          b.className = a === abaNome 
-            ? "sidebar-tab-item sidebar-tab-active w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between shadow-sm active:scale-[0.98] transition-all duration-150 cursor-pointer" 
-            : "sidebar-tab-item sidebar-tab-inactive w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-100 flex items-center justify-between active:scale-[0.98] transition-all duration-150 cursor-pointer";
+          const hiddenMacro = b.classList.contains('subnav-hidden-by-macro') ? ' subnav-hidden-by-macro' : '';
+          b.className = (a === abaNome
+            ? "sidebar-tab-item sidebar-tab-active text-xs font-semibold cursor-pointer"
+            : "sidebar-tab-item sidebar-tab-inactive text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer") + hiddenMacro;
         }
       });
+      if (typeof window.atualizarPosicaoSlidingPills === 'function') {
+        window.atualizarPosicaoSlidingPills(true);
+      }
+      const mainContentAreaEl = document.getElementById('main-content-area');
+      if (mainContentAreaEl) mainContentAreaEl.scrollTop = 0;
       if (abaNome === 'inicio') renderizarTelaInicial();
       if (abaNome === 'processos') renderizarModuloProcessos();
       if (abaNome === 'agenda') renderizarAgendaSemanal();
@@ -3992,13 +4179,21 @@
         if (btnEd) btnEd.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent cursor-pointer";
         if (btnAc) btnAc.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer";
         if (pnlEd) pnlEd.classList.add('hidden');
-        if (pnlAc) pnlAc.classList.remove('hidden');
+        if (pnlAc) {
+          pnlAc.classList.remove('hidden', 'tab-anim-left', 'tab-anim-right');
+          void pnlAc.offsetWidth;
+          pnlAc.classList.add('tab-anim-right');
+        }
         renderizarCentralAcoes();
       } else {
         if (btnEd) btnEd.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer";
         if (btnAc) btnAc.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent cursor-pointer";
         if (pnlAc) pnlAc.classList.add('hidden');
-        if (pnlEd) pnlEd.classList.remove('hidden');
+        if (pnlEd) {
+          pnlEd.classList.remove('hidden', 'tab-anim-left', 'tab-anim-right');
+          void pnlEd.offsetWidth;
+          pnlEd.classList.add('tab-anim-left');
+        }
         renderizarOpcoesDaEtapa();
       }
     };
@@ -8174,103 +8369,243 @@
     });
   </script>
 
-  <!-- CONTROLADOR DO MENU LATERAL RECOLHÍVEL -->
+  <!-- CONTROLADOR DE NAVEGAÇÃO SUPERIOR DUAL-TIER & SUBMENUS ANIMADOS -->
   <script>
   (function () {
-    const STORAGE_KEY = 'advocacia.sidebarCollapsed';
+    const STORAGE_DOCK_POS = 'advocacia.dockFloatingBottom';
+    const STORAGE_ALL_MODE = 'advocacia.subnavAllMode';
+
     const body = document.body;
-    const btn = document.getElementById('btn-toggle-sidebar');
-    const sidebar = document.getElementById('main-sidebar');
-    const qrCard = document.getElementById('tour-qr-card');
+    const macroBar = document.getElementById('macro-nav-bar');
+    const macroPill = document.getElementById('macro-active-pill');
+    const subnavBar = document.getElementById('sidebar-nav');
+    const subnavActivePill = document.getElementById('subnav-active-pill');
+    const subnavHoverPill = document.getElementById('subnav-hover-pill');
+    const sectorLabel = document.getElementById('subnav-sector-label');
+    const activeDesc = document.getElementById('subnav-active-desc');
+    const btnPrev = document.getElementById('btn-subnav-prev');
+    const btnNext = document.getElementById('btn-subnav-next');
+    const btnAllMode = document.getElementById('btn-subnav-all-mode');
+    const labelAllMode = document.getElementById('label-subnav-all-mode');
+    const btnDockPos = document.getElementById('btn-toggle-sidebar');
+    const labelDockPos = document.getElementById('label-dock-pos');
+    const statusPill = document.getElementById('status-pill');
     const qrTrigger = document.getElementById('sidebar-qr-trigger');
-    if (!btn || !sidebar) return;
+    const qrCard = document.getElementById('tour-qr-card');
 
-    const tip = document.createElement('div');
-    tip.id = 'sidebar-rail-tooltip';
-    tip.setAttribute('role', 'tooltip');
-    document.body.appendChild(tip);
+    const MACRO_META = {
+      operacao:      { titulo: 'Setor: Operação',        defaultTab: 'inicio' },
+      automacao:     { titulo: 'Setor: Automação & IA',  defaultTab: 'simulador' },
+      controladoria: { titulo: 'Setor: Controladoria',   defaultTab: 'financeiro' },
+      sistema:       { titulo: 'Setor: Sistema & Ajustes', defaultTab: 'agenda' }
+    };
 
-    function aplicar(recolhido, salvar) {
-      body.classList.toggle('sidebar-collapsed', recolhido);
-      btn.setAttribute('aria-expanded', String(!recolhido));
-      btn.title = recolhido ? 'Expandir menu (Ctrl+B)' : 'Recolher menu (Ctrl+B)';
-      if (!recolhido) { esconderTip(); qrCard && qrCard.classList.remove('qr-popover-open'); }
-      if (salvar) { try { localStorage.setItem(STORAGE_KEY, recolhido ? '1' : '0'); } catch (e) {} }
+    const TAB_TO_MACRO = {
+      'inicio': 'operacao',
+      'processos': 'operacao',
+      'pausados': 'operacao',
+      'simulador': 'automacao',
+      'fluxo': 'automacao',
+      'dossie-clientes': 'automacao',
+      'financeiro': 'controladoria',
+      'terminal': 'controladoria',
+      'ignorados': 'controladoria',
+      'agenda': 'sistema',
+      'backup': 'sistema'
+    };
+
+    const ORDEM_ABAS = ['inicio', 'processos', 'pausados', 'simulador', 'fluxo', 'dossie-clientes', 'financeiro', 'terminal', 'ignorados', 'agenda', 'backup'];
+
+    let macroAtual = 'operacao';
+    let verTodasAbas = false;
+    let glideTimer = null;
+
+    function posicionarPill(pillEl, targetEl, comPulso) {
+      if (!pillEl || !targetEl || targetEl.offsetParent === null) return;
+      const x = targetEl.offsetLeft;
+      const w = targetEl.offsetWidth;
+      pillEl.style.width = w + 'px';
+      pillEl.style.transform = 'translate3d(' + x + 'px, 0, 0)';
+      if (comPulso) {
+        pillEl.classList.add('pill-gliding');
+        clearTimeout(glideTimer);
+        glideTimer = setTimeout(() => pillEl.classList.remove('pill-gliding'), 340);
+      }
     }
 
-    function estadoInicial() {
-      let salvo = null;
-      try { salvo = localStorage.getItem(STORAGE_KEY); } catch (e) {}
-      if (salvo === '1' || salvo === '0') return salvo === '1';
-      return window.innerWidth < 1280; // telas menores começam compactas
+    function atualizarPosicaoSlidingPills(comPulso) {
+      const activeMacroBtn = macroBar ? macroBar.querySelector('.macro-nav-btn.macro-active') : null;
+      if (activeMacroBtn && macroPill) posicionarPill(macroPill, activeMacroBtn, false);
+
+      const abaAtiva = window.__abaAtivaAtual || 'inicio';
+      const activeSubBtn = document.getElementById('nav-btn-' + abaAtiva);
+      if (activeSubBtn && subnavActivePill) {
+        posicionarPill(subnavActivePill, activeSubBtn, !!comPulso);
+      }
+    }
+    window.atualizarPosicaoSlidingPills = atualizarPosicaoSlidingPills;
+
+    function aplicarFiltroMacro(macroKey, animarCascata) {
+      macroAtual = macroKey;
+      if (macroBar) {
+        macroBar.querySelectorAll('.macro-nav-btn').forEach(btn => {
+          btn.classList.toggle('macro-active', btn.dataset.macro === macroKey);
+        });
+      }
+      if (sectorLabel && MACRO_META[macroKey]) {
+        sectorLabel.textContent = verTodasAbas ? 'Visão: Todas as Abas (11)' : MACRO_META[macroKey].titulo;
+      }
+
+      if (subnavBar) {
+        let visIdx = 0;
+        subnavBar.querySelectorAll('.sidebar-tab-item').forEach(btn => {
+          const pertence = verTodasAbas || (btn.dataset.macro === macroKey);
+          btn.classList.toggle('subnav-hidden-by-macro', !pertence);
+          btn.classList.remove('subnav-cascade-in');
+          if (pertence && animarCascata) {
+            btn.style.animationDelay = (visIdx * 35) + 'ms';
+            void btn.offsetWidth;
+            btn.classList.add('subnav-cascade-in');
+            visIdx++;
+          } else {
+            btn.style.animationDelay = '';
+          }
+        });
+      }
+      requestAnimationFrame(() => atualizarPosicaoSlidingPills(true));
     }
 
-    // Tooltips no modo compacto
-    function mostrarTip(el, texto) {
-      if (!body.classList.contains('sidebar-collapsed') || !texto) return;
-      tip.textContent = texto;
-      const r = el.getBoundingClientRect();
-      tip.style.left = (r.right + 10) + 'px';
-      tip.style.top = (r.top + r.height / 2 - 14) + 'px';
-      tip.classList.add('visible');
-    }
-    function esconderTip() { tip.classList.remove('visible'); }
+    window.sincronizarSubmenuDualTier = function (abaNome) {
+      const novoMacro = TAB_TO_MACRO[abaNome] || 'operacao';
+      const mudouMacro = (novoMacro !== macroAtual);
+      aplicarFiltroMacro(novoMacro, mudouMacro);
+      const btn = document.getElementById('nav-btn-' + abaNome);
+      if (btn && activeDesc && btn.dataset.desc) {
+        activeDesc.textContent = btn.dataset.desc;
+      }
+    };
 
-    sidebar.addEventListener('mouseover', (e) => {
-      const item = e.target.closest('.sidebar-tab-item, #sidebar-qr-trigger');
-      if (!item) return;
-      const label = item.id === 'sidebar-qr-trigger'
-        ? 'Conexão WhatsApp'
-        : (item.querySelector(':scope > div > span') || {}).textContent;
-      mostrarTip(item, (label || '').trim());
-    });
-    sidebar.addEventListener('mouseout', (e) => {
-      if (!e.relatedTarget || !sidebar.contains(e.relatedTarget) || !e.relatedTarget.closest('.sidebar-tab-item, #sidebar-qr-trigger')) esconderTip();
-    });
-    sidebar.addEventListener('focusin', (e) => {
-      const item = e.target.closest('.sidebar-tab-item');
-      if (item) mostrarTip(item, ((item.querySelector(':scope > div > span') || {}).textContent || '').trim());
-    });
-    sidebar.addEventListener('focusout', esconderTip);
-    sidebar.addEventListener('click', esconderTip);
-
-    // Popover do QR no modo compacto
-    if (qrTrigger && qrCard) {
-      qrTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        esconderTip();
-        qrCard.classList.toggle('qr-popover-open');
+    // Clique nos 4 botões de Macro-Área no topo
+    if (macroBar) {
+      macroBar.querySelectorAll('.macro-nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const m = btn.dataset.macro;
+          if (!m) return;
+          const abaAtual = window.__abaAtivaAtual || 'inicio';
+          if (TAB_TO_MACRO[abaAtual] === m) {
+            aplicarFiltroMacro(m, true);
+          } else {
+            const tabAlvo = (MACRO_META[m] && MACRO_META[m].defaultTab) || 'inicio';
+            const navBtn = document.getElementById('nav-btn-' + tabAlvo);
+            if (navBtn) navBtn.click();
+            else if (typeof window.ativarAba === 'function') window.ativarAba(tabAlvo);
+          }
+        });
       });
-      document.addEventListener('click', (e) => {
-        if (!qrCard.contains(e.target) && e.target !== qrTrigger) qrCard.classList.remove('qr-popover-open');
+    }
+
+    // Efeito Hover Ghost Pill no Segmented Control de Sub-menus
+    if (subnavBar && subnavHoverPill) {
+      subnavBar.addEventListener('mouseover', (e) => {
+        const item = e.target.closest('.sidebar-tab-item');
+        if (!item || item.classList.contains('subnav-hidden-by-macro')) return;
+        subnavHoverPill.style.width = item.offsetWidth + 'px';
+        subnavHoverPill.style.transform = 'translate3d(' + item.offsetLeft + 'px, 0, 0)';
+        subnavHoverPill.style.opacity = '1';
+      });
+      subnavBar.addEventListener('mouseleave', () => {
+        subnavHoverPill.style.opacity = '0';
       });
     }
 
-    // Badges zerados não poluem o rail
-    function marcarBadges() {
-      sidebar.querySelectorAll('.sidebar-tab-item > span[id]').forEach((b) => {
-        const t = (b.textContent || '').trim();
-        b.dataset.empty = (t === '' || t === '0') ? '1' : '0';
-      });
+    // Setas Anterior / Próxima Aba (e Alt + Setas)
+    function navegarSequencial(delta) {
+      const atual = window.__abaAtivaAtual || 'inicio';
+      const idx = ORDEM_ABAS.indexOf(atual);
+      const proxIdx = (idx + delta + ORDEM_ABAS.length) % ORDEM_ABAS.length;
+      const proxAba = ORDEM_ABAS[proxIdx];
+      const navBtn = document.getElementById('nav-btn-' + proxAba);
+      if (navBtn) navBtn.click();
+      else if (typeof window.ativarAba === 'function') window.ativarAba(proxAba);
     }
-    marcarBadges();
-    new MutationObserver(marcarBadges).observe(sidebar, { subtree: true, childList: true, characterData: true });
+    if (btnPrev) btnPrev.addEventListener('click', () => navegarSequencial(-1));
+    if (btnNext) btnNext.addEventListener('click', () => navegarSequencial(1));
 
-    btn.addEventListener('click', () => aplicar(!body.classList.contains('sidebar-collapsed'), true));
+    // Alternar entre "Por Setor" e "Ver Todas (11)"
+    function aplicarAllMode(ativo, salvar) {
+      verTodasAbas = !!ativo;
+      if (labelAllMode) labelAllMode.textContent = verTodasAbas ? 'Por Setor (4)' : 'Ver Todas (11)';
+      aplicarFiltroMacro(macroAtual, true);
+      if (salvar) { try { localStorage.setItem(STORAGE_ALL_MODE, verTodasAbas ? '1' : '0'); } catch (e) {} }
+    }
+    if (btnAllMode) {
+      btnAllMode.addEventListener('click', () => aplicarAllMode(!verTodasAbas, true));
+    }
+
+    // Alternar posição do Dock: Topo vs Ilha Flutuante Inferior (Opção 3)
+    function aplicarDockFlutuante(flutuante, salvar) {
+      body.classList.toggle('dock-floating-bottom', !!flutuante);
+      if (labelDockPos) labelDockPos.textContent = flutuante ? 'Fixar no Topo' : 'Modo Ilha';
+      if (salvar) { try { localStorage.setItem(STORAGE_DOCK_POS, flutuante ? '1' : '0'); } catch (e) {} }
+      setTimeout(() => atualizarPosicaoSlidingPills(false), 60);
+    }
+    if (btnDockPos) {
+      btnDockPos.addEventListener('click', () => aplicarDockFlutuante(!body.classList.contains('dock-floating-bottom'), true));
+    }
+
+    // Popover do QR Code no Header
+    function toggleQrPopover(e) {
+      if (e) e.stopPropagation();
+      if (qrCard) qrCard.classList.toggle('qr-popover-open');
+    }
+    if (statusPill) statusPill.addEventListener('click', toggleQrPopover);
+    if (qrTrigger) qrTrigger.addEventListener('click', toggleQrPopover);
+    document.addEventListener('click', (e) => {
+      if (qrCard && !qrCard.contains(e.target) && (!statusPill || !statusPill.contains(e.target))) {
+        qrCard.classList.remove('qr-popover-open');
+      }
+    });
+
+    // Atalhos de Teclado: Ctrl+B alterna Modo Ilha Flutuante, Alt+Setas navega entre sub-abas
     document.addEventListener('keydown', (e) => {
+      const tag = (document.activeElement && document.activeElement.tagName) || '';
+      const editando = (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable));
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'b' || e.key === 'B')) {
-        const tag = (document.activeElement && document.activeElement.tagName) || '';
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || (document.activeElement && document.activeElement.isContentEditable)) return;
+        if (editando) return;
         e.preventDefault();
-        aplicar(!body.classList.contains('sidebar-collapsed'), true);
+        aplicarDockFlutuante(!body.classList.contains('dock-floating-bottom'), true);
+      }
+      if (e.altKey && !e.ctrlKey && !e.metaKey && !editando) {
+        if (e.key === 'ArrowRight') { e.preventDefault(); navegarSequencial(1); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); navegarSequencial(-1); }
       }
       if (e.key === 'Escape' && qrCard) qrCard.classList.remove('qr-popover-open');
     });
 
-    // Aplica sem animação no carregamento
-    sidebar.style.transition = 'none';
-    aplicar(estadoInicial(), false);
-    requestAnimationFrame(() => requestAnimationFrame(() => { sidebar.style.transition = ''; }));
+    // Sincronizar badge agregado na Macro-Área Operação quando Fila > 0
+    function sincronizarMacroBadges() {
+      const bPausados = document.getElementById('badge-pausados');
+      const mOperacao = document.getElementById('macro-badge-operacao');
+      if (bPausados && mOperacao) {
+        const val = parseInt(bPausados.textContent || '0', 10) || 0;
+        mOperacao.textContent = String(val);
+        mOperacao.classList.toggle('hidden', val <= 0);
+      }
+    }
+    if (subnavBar) {
+      new MutationObserver(sincronizarMacroBadges).observe(subnavBar, { subtree: true, childList: true, characterData: true });
+    }
+
+    window.addEventListener('resize', () => atualizarPosicaoSlidingPills(false));
+
+    // Estado inicial
+    try {
+      if (localStorage.getItem(STORAGE_ALL_MODE) === '1') aplicarAllMode(true, false);
+      if (localStorage.getItem(STORAGE_DOCK_POS) === '1') aplicarDockFlutuante(true, false);
+    } catch (e) {}
+
+    aplicarFiltroMacro('operacao', false);
+    requestAnimationFrame(() => requestAnimationFrame(() => atualizarPosicaoSlidingPills(false)));
   })();
   </script>
 </body>
