@@ -1485,10 +1485,10 @@
               <span class="sidebar-btn-label">Visão Geral</span>
             </button>
 
-            <!-- Consultar Processos -->
-            <button type="button" id="nav-btn-processos" data-desc="Busca por CPF/CNJ e importação de processos" class="sidebar-rail-btn" title="Consultar Processos">
+            <!-- Clientes & Processos (Master-Detail Centralizado) -->
+            <button type="button" id="nav-btn-processos" data-desc="Gestão unificada de clientes, processos judiciais e dossiê civil (Art. 319 CPC)" class="sidebar-rail-btn" title="Clientes & Processos">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
-              <span class="sidebar-btn-label">Consultar Processos</span>
+              <span class="sidebar-btn-label">Clientes & Processos</span>
               <span id="badge-processos" class="sidebar-btn-badge bg-zinc-800 text-zinc-300 border border-zinc-700/60">0</span>
             </button>
 
@@ -1525,11 +1525,9 @@
               <span class="sidebar-btn-label">Menu Automático</span>
             </button>
 
-            <!-- Dossiê de Clientes -->
-            <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil e documentos de clientes" class="sidebar-rail-btn" title="Dossiê de Clientes">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-users"/></svg></div>
-              <span class="sidebar-btn-label">Dossiê de Clientes</span>
-              <span id="badge-dossies" class="sidebar-btn-badge bg-zinc-800 text-zinc-300 border border-zinc-700/60">0</span>
+            <!-- Alias mantido para compatibilidade e integridade de seletores DOM -->
+            <button type="button" id="nav-btn-dossie-clientes" class="hidden" title="Dossiê de Clientes">
+              <span id="badge-dossies" class="hidden">0</span>
             </button>
           </div>
         </div>
@@ -1841,32 +1839,34 @@
 
         </div>
 
-        <!-- ================= ABA 1: CONSULTAR PROCESSO (OPÇÕES 1 E 2 PÓS-CPF) ================= -->
+        <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
         <div id="aba-processos" class="hidden space-y-6 tab-pane-anim">
           <!-- EXECUTIVE SECTION HEADER -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
+                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Processos
+                  Processos &amp; Clientes
                 </span>
                 <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
-                  Consulta & Atualização
+                  Hub Unificado • CPC Art. 319 &amp; IA Forense
                 </span>
               </div>
               <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                 <svg class="w-6 h-6 text-amber-400"><use href="#icon-folder"/></svg>
-                Consulta de Processos (CPF / CNJ)
+                Gestão Integrada de Processos &amp; Dossiês
               </h2>
               <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Consulte pastas por CPF ou número do processo. Clientes recebem o andamento e podem optar por encerrar o contato ou falar diretamente com o escritório.
+                Central de inteligência do escritório: localize clientes por CPF, CNJ, nome ou telefone, gerencie andamentos processuais e qualificação civil (Art. 319 CPC) com documentos auditados por IA.
               </p>
             </div>
-            <button id="btn-toggle-msg-processos" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-sm">
-              <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-settings"/></svg>
-              <span>Configurar Respostas do Processo</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-amber-500/40 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-sm" title="Personalizar mensagens automáticas do robô no WhatsApp">
+                <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-settings"/></svg>
+                <span>Personalizar Mensagens do Bot</span>
+              </button>
+            </div>
           </div>
 
           <!-- SMART IMPORT MULTIFORMATO -->
@@ -1877,8 +1877,8 @@
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
                 <div>
-                  <span class="text-xs font-bold text-zinc-100 block">Importação de Arquivos</span>
-                  <span class="text-[11px] text-zinc-400">Importe planilhas <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong> ou <strong>documentos Word (.docx)</strong></span>
+                  <span class="text-xs font-bold text-zinc-100 block">Importação Inteligente de Pastas &amp; Clientes</span>
+                  <span class="text-[11px] text-zinc-400">Planilhas <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong> ou <strong>Word (.docx)</strong> criam pastas e dossiês automaticamente</span>
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-2">
@@ -1915,47 +1915,10 @@
             </div>
           </div>
 
-          <!-- Gaveta de Customização das Mensagens -->
-          <div id="painel-msg-processos" class="hidden exec-card bg-zinc-950/90 border border-amber-500/30 rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-              <span class="text-xs font-bold text-amber-400 flex items-center gap-2"><svg class="w-4 h-4 text-amber-400"><use href="#icon-settings"/></svg>Modelos de Resposta de Processo e Ações Pós-Consulta</span>
-              <span class="text-[11px] text-zinc-400">Tags: <code class="text-amber-400">{nome}</code> <code class="text-amber-400">{cpf}</code> <code class="text-amber-400">{processo}</code> <code class="text-amber-400">{resumo}</code> <code class="text-amber-400">{data}</code></span>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="text-[11px] font-semibold text-emerald-400 block mb-1">1. Quando há nova atualização:</label>
-                <textarea id="tpl-msg-com-atualizacao" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none"></textarea>
-              </div>
-              <div>
-                <label class="text-[11px] font-semibold text-sky-400 block mb-1">2. Quando já consultou e nada mudou:</label>
-                <textarea id="tpl-msg-ja-visto" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none"></textarea>
-              </div>
-              <div>
-                <label class="text-[11px] font-semibold text-amber-300 block mb-1">3. Sem movimentação cadastrada:</label>
-                <textarea id="tpl-msg-sem-atualizacao" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none"></textarea>
-              </div>
-              <div>
-                <label class="text-[11px] font-semibold text-rose-400 block mb-1">4. Quando CPF ou Processo não foi achado:</label>
-                <textarea id="tpl-msg-nao-encontrado" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none"></textarea>
-              </div>
-              <div>
-                <label class="text-[11px] font-bold text-amber-400 block mb-1">5. Se digitar 1 após o resumo (Encerrar Conversa):</label>
-                <textarea id="tpl-msg-encerrar" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none"></textarea>
-              </div>
-              <div>
-                <label class="text-[11px] font-bold text-amber-400 block mb-1">6. Se digitar 2 após o resumo (Chamar Advogado):</label>
-                <textarea id="tpl-msg-advogado-pos" rows="3" class="exec-input w-full rounded-xl p-3 text-xs resize-none"></textarea>
-              </div>
-            </div>
-            <div class="flex justify-end pt-2">
-              <button id="btn-salvar-tpl-processos" class="px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow active:scale-[0.98] transition cursor-pointer">Salvar Modelos</button>
-            </div>
-          </div>
-
           <!-- MASTER-DETAIL 2-COLUMN LAYOUT -->
           <div class="grid grid-cols-12 gap-6 items-start">
-            <!-- COLUNA ESQUERDA: LISTA DE PROCESSOS (5 cols) -->
-            <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col h-[560px] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+            <!-- COLUNA ESQUERDA: LISTA UNIFICADA DE CLIENTES & PROCESSOS (5 cols) -->
+            <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col min-h-[580px] max-h-[760px] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
               <div class="mb-3">
                 <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
@@ -1988,12 +1951,16 @@
                   <option value="antiga">Mais Antigos</option>
                 </select>
               </div>
-              <div id="lista-processos-box" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+              <div id="lista-processos-box" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[440px]"></div>
+              <!-- Containers de compatibilidade para seletores de teste -->
+              <div id="lista-clientes-dossie" class="hidden"></div>
+              <span id="contador-dossies-lista" class="hidden">0</span>
             </div>
 
-<!-- COLUNA DIREITA: FICHA DETALHADA DO PROCESSO (7 cols) -->
-            <div id="box-form-processo" class="col-span-12 lg:col-span-7 exec-card rounded-3xl p-6 flex flex-col justify-between h-[560px] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+            <!-- COLUNA DIREITA: MASTER-DETAIL CENTRALIZADO (PROCESSOS & DOSSIÊ CIVIL) (7 cols) -->
+            <div id="box-form-processo" class="col-span-12 lg:col-span-7 exec-card rounded-3xl p-6 flex flex-col justify-between min-h-[580px] max-h-[760px] overflow-y-auto border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
               <div class="space-y-4">
+                <!-- Cabeçalho do Cliente -->
                 <div class="flex flex-wrap items-center justify-between border-b border-zinc-800/80 pb-3.5 gap-2">
                   <div class="flex items-center space-x-3">
                     <div id="avatar-ficha-proc" class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-zinc-950 font-bold text-xs shadow-md">
@@ -2006,60 +1973,168 @@
                   </div>
 
                   <div class="flex flex-wrap items-center gap-1.5">
-                    <button type="button" id="btn-anexar-peca-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-amber-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Anexar peça">
-                      <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-paperclip"/></svg><span>Anexar Peça</span>
+                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-3 py-1.5 champagne-gradient rounded-xl text-[11px] font-extrabold text-zinc-950 shadow-sm active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Copiar qualificação civil Art. 319 CPC">
+                      <svg class="w-3.5 h-3.5 text-zinc-950"><use href="#icon-clipboard"/></svg>
+                      <span>Copiar CPC</span>
                     </button>
-                    <button type="button" id="btn-ver-dossie-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-sky-300 border border-sky-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Ver dossiê">
-                      <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-file-text"/></svg><span>Ver Dossiê</span>
+                    <button type="button" id="btn-ver-dossie-proc" onclick="alternarDetalheProcAba('dossie')" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-sky-300 border border-sky-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Ver Dossiê Civil do Cliente">
+                      <svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-file-text"/></svg>
+                      <span>Ver Dossiê</span>
                     </button>
-                    <button type="button" id="btn-solicitar-docs-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Solicitar Documentos">
-                      <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-clipboard"/></svg><span>Solicitar Docs</span>
+                    <button type="button" id="btn-solicitar-docs-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Solicitar Documentos pelo WhatsApp">
+                      <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
+                      <span>Solicitar Docs</span>
                     </button>
-                    <button type="button" id="btn-resetar-visto-ficha" class="hidden px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-700/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer">
+                    <button type="button" id="btn-anexar-peca-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Anexar peças processuais em PDF ou DOCX">
+                      <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-paperclip"/></svg>
+                      <span>Anexar Peça</span>
+                    </button>
+                    <button type="button" id="btn-resetar-visto-ficha" class="hidden px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-700/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Permite que o cliente consulte novamente no WhatsApp">
                       <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
                       <span>Liberar Reenvio</span>
                     </button>
-                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-rose-950/50 hover:bg-rose-900/70 text-rose-400 border border-rose-800/40 rounded-xl active:scale-[0.95] transition cursor-pointer">
+                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-rose-950/50 hover:bg-rose-900/70 text-rose-400 border border-rose-800/40 rounded-xl active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
                       <svg class="w-4 h-4"><use href="#icon-trash"/></svg>
                     </button>
                   </div>
                 </div>
 
-                <input type="hidden" id="proc-id-edit" value="">
+                <!-- SUB-ABAS DO MASTER-DETAIL: PROCESSO VS DOSSIÊ CIVIL -->
+                <div class="flex items-center space-x-1.5 p-1 bg-zinc-950/80 rounded-2xl border border-zinc-800/80">
+                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
+                    <svg class="w-3.5 h-3.5"><use href="#icon-folder"/></svg>
+                    <span>Ficha do Processo &amp; Andamento</span>
+                  </button>
+                  <button type="button" id="subtab-detalhe-dossie" onclick="alternarDetalheProcAba('dossie')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 border border-transparent flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5"><use href="#icon-users"/></svg>
+                    <span>Dossiê Civil &amp; Documentos (CPC Art. 319)</span>
+                    <span id="badge-detalhe-dossie-docs" class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold ml-1">0 docs</span>
+                  </button>
+                </div>
 
-                <div class="grid grid-cols-12 gap-3 p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
-                  <div class="col-span-12 sm:col-span-4">
-                    <label class="text-[11px] font-bold text-amber-400 block mb-1">CPF do Cliente *</label>
-                    <input type="text" id="proc-cpf" inputmode="numeric" placeholder="000.000.000-00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                <!-- PAINEL 1: ANDAMENTO DO PROCESSO JUDICIAL -->
+                <div id="detalhe-pane-processo" class="space-y-4">
+                  <input type="hidden" id="proc-id-edit" value="">
+
+                  <div class="grid grid-cols-12 gap-3 p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
+                    <div class="col-span-12 sm:col-span-4">
+                      <label class="text-[11px] font-bold text-amber-400 block mb-1">CPF do Cliente *</label>
+                      <input type="text" id="proc-cpf" inputmode="numeric" placeholder="000.000.000-00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div class="col-span-12 sm:col-span-4">
+                      <label class="text-[11px] font-bold text-amber-400 block mb-1">Nº do Processo *</label>
+                      <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000 (CNJ)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div class="col-span-12 sm:col-span-4">
+                      <label class="text-[11px] font-semibold text-zinc-400 block mb-1">Nome do Cliente</label>
+                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    </div>
                   </div>
-                  <div class="col-span-12 sm:col-span-4">
-                    <label class="text-[11px] font-bold text-amber-400 block mb-1">Nº do Processo *</label>
-                    <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000 (CNJ)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                      <label class="text-xs font-bold text-zinc-300">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
+                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
+                        <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
+                        <span>Notificar cliente</span>
+                      </label>
+                    </div>
+                    <textarea id="proc-resumo" rows="4" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
                   </div>
-                  <div class="col-span-12 sm:col-span-4">
-                    <label class="text-[11px] font-semibold text-zinc-400 block mb-1">Nome do Cliente</label>
-                    <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+
+                  <div class="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="text-[11px] text-zinc-400">Ao receber o resumo: 1 encerra • 2 chama o advogado.</span>
+                    <button type="button" id="btn-salvar-processo" class="px-6 py-2.5 champagne-gradient font-bold text-xs rounded-xl shadow-md active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
+                      <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+                      <span>Salvar Pasta do Processo</span>
+                    </button>
                   </div>
                 </div>
 
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between">
-                    <label class="text-xs font-bold text-zinc-300">Resumo do Andamento (Enviado pelo Robô)</label>
-                    <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
-                      <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
-                      <span>Notificar cliente</span>
-                    </label>
-                  </div>
-                  <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
-                </div>
-              </div>
+                <!-- PAINEL 2: DOSSIÊ CIVIL & DOCUMENTOS FORENSES (Art. 319 CPC) -->
+                <div id="detalhe-pane-dossie" class="hidden space-y-4">
+                  <div id="tab-dossie-clientes" class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2">
+                      <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Qualificação Civil Completa (Art. 319, II do CPC)</span>
+                        <h4 id="dossie-cliente-titulo" class="text-xs font-bold text-white mt-0.5">Selecione um cliente ao lado</h4>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <button type="button" id="btn-solicitar-docs-dossie-topo" onclick="window.solicitarDocsClienteDossieAtual && window.solicitarDocsClienteDossieAtual()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Solicitar documentos no WhatsApp deste cliente">
+                          <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
+                          <span>Solicitar Docs</span>
+                        </button>
+                      </div>
+                    </div>
 
-              <div class="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <span class="text-[11px] text-zinc-400">Ao receber o resumo: 1 encerra • 2 chama o advogado.</span>
-                <button type="button" id="btn-salvar-processo" class="px-6 py-2.5 champagne-gradient font-bold text-xs rounded-xl shadow-md active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
-                  <svg class="w-4 h-4"><use href="#icon-save"/></svg>
-                  <span>Salvar Pasta do Processo</span>
-                </button>
+                    <div class="grid grid-cols-12 gap-3 text-xs">
+                      <div class="col-span-12 sm:col-span-6">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Nome Completo</label>
+                        <input type="text" id="dossie-nome" placeholder="Extraído via OCR do RG/CNH" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                      </div>
+                      <div class="col-span-12 sm:col-span-3">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">CPF</label>
+                        <input type="text" id="dossie-cpf" placeholder="000.000.000-00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      </div>
+                      <div class="col-span-12 sm:col-span-3">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">RG / Órgão Emissor</label>
+                        <input type="text" id="dossie-rg" placeholder="00.000.000-0 SSP" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      </div>
+                      <div class="col-span-12 sm:col-span-4">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Estado Civil</label>
+                        <input type="text" id="dossie-estado-civil" placeholder="Ex: casado(a), solteiro(a)" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                      </div>
+                      <div class="col-span-12 sm:col-span-4">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Profissão</label>
+                        <input type="text" id="dossie-profissao" placeholder="Ex: autônomo(a), empresário(a)" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                      </div>
+                      <div class="col-span-12 sm:col-span-4">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Filiação (Mãe / Pai)</label>
+                        <input type="text" id="dossie-filiacao" placeholder="Filiação extraída do RG" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                      </div>
+                      <div class="col-span-12">
+                        <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Endereço Completo com CEP</label>
+                        <input type="text" id="dossie-endereco" placeholder="Logradouro, número, bairro, cidade/UF e CEP" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                      </div>
+                    </div>
+
+                    <!-- Prévia do Parágrafo Formal CPC -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800/90">
+                      <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Prévia do Parágrafo de Qualificação (Art. 319, II do CPC):</span>
+                        <span class="text-[10px] text-zinc-500 font-mono">Petição Inicial</span>
+                      </div>
+                      <p id="dossie-preview-cpc" class="text-xs text-zinc-300 font-serif-legal italic leading-relaxed select-all">Selecione um cliente ao lado ou preencha os dados acima para gerar o cabeçalho formal.</p>
+                    </div>
+
+                    <!-- Galeria Visual de Documentos Auditados -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2.5">
+                      <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                          <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-users"/></svg>
+                          Galeria de Documentos Auditados pela IA
+                        </span>
+                        <span class="text-[10px] text-zinc-400">Pasta: <code class="text-amber-300">./documentos_clientes/</code></span>
+                      </div>
+                      <div id="galeria-documentos-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="col-span-2 p-5 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">
+                          Nenhum documento exibido. Selecione um cliente para visualizar as imagens e laudos forenses da IA.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <button type="button" onclick="alternarDetalheProcAba('processo')" class="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl text-xs font-semibold transition cursor-pointer">
+                        ← Voltar ao Andamento Processual
+                      </button>
+                      <button type="button" id="btn-salvar-dossie-civil" onclick="salvarDossieCivilAtual()" class="px-6 py-2.5 champagne-gradient font-bold text-xs rounded-xl shadow-md active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
+                        <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+                        <span>Salvar Alterações do Dossiê</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -3091,7 +3166,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <input type="text" id="simulador-input-msg" placeholder="Digite uma mensagem como cliente..." class="w-full bg-zinc-950 border border-zinc-800 focus:border-amber-400/70 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none transition-all font-sans">
                   </div>
 
-                  <button type="button" id="btn-mic-simulador" onmousedown="event.preventDefault()" onclick="window.toggleGravacaoVozSimulador && window.toggleGravacaoVozSimulador()" class="btn-tactile p-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/60 hover:border-emerald-400/40 text-emerald-400 active:scale-95 transition cursor-pointer" title="Gravar áudio com o microfone">
+                  <button type="button" id="btn-mic-simulador" onmousedown="event.preventDefault()" onclick="toggleGravacaoSimulador()" class="btn-tactile p-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/60 hover:border-emerald-400/40 text-emerald-400 active:scale-95 transition cursor-pointer" title="Gravar áudio com o microfone">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                   </button>
 
@@ -4186,10 +4261,67 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
       ];
       configGlobal.processos.lista = exemplos;
+      if (!configGlobal.dossiesClientes || typeof configGlobal.dossiesClientes !== 'object') {
+        configGlobal.dossiesClientes = {};
+      }
+      configGlobal.dossiesClientes['12345678901'] = {
+        id: 'demo_cli_1',
+        clienteId: 'demo_cli_1',
+        nome: 'Dr. Roberto Silva Santos',
+        clienteNome: 'Dr. Roberto Silva Santos',
+        cpf: '123.456.789-01',
+        telefone: '5511999990001',
+        clienteTelefone: '5511999990001',
+        processoVinculado: '1002345-89.2024.8.26.0100',
+        processosVinculados: ['1002345-89.2024.8.26.0100'],
+        civil: {
+          nomeCompleto: 'Dr. Roberto Silva Santos',
+          cpf: '123.456.789-01',
+          rg: '12.345.678-9 SSP/SP',
+          estadoCivil: 'Casado',
+          profissao: 'Engenheiro Civil',
+          filiacao: 'Helena Silva Santos / Arthur Santos',
+          endereco: 'Av. Paulista, 1000, Apto 101, Bela Vista, São Paulo/SP, CEP 01310-100'
+        },
+        qualificacaoCPC: 'ROBERTO SILVA SANTOS, brasileiro, casado, engenheiro civil, portador do RG nº 12.345.678-9 SSP/SP, inscrito no CPF sob o nº 123.456.789-01, residente e domiciliado na Av. Paulista, 1000, Apto 101, Bela Vista, São Paulo/SP, CEP 01310-100.',
+        documentos: [
+          { nomeArquivo: 'CNH_Roberto.jpg', tipo: 'CNH', tipoRotulo: 'CNH / Identidade', legivel: true, tamanhoBytes: 245000, confiancaScore: 98 },
+          { nomeArquivo: 'Comprovante_Residencia.pdf', tipo: 'COMPROVANTE_RESIDENCIA', tipoRotulo: 'Comprovante de Residência', legivel: true, tamanhoBytes: 520000, confiancaScore: 95 }
+        ],
+        dataCriacao: Date.now() - 86400000 * 3,
+        atualizadoEm: new Date().toISOString()
+      };
+      configGlobal.dossiesClientes['23456789012'] = {
+        id: 'demo_cli_2',
+        clienteId: 'demo_cli_2',
+        nome: 'Mariana Vasconcelos',
+        clienteNome: 'Mariana Vasconcelos',
+        cpf: '234.567.890-12',
+        telefone: '5511988880002',
+        clienteTelefone: '5511988880002',
+        processoVinculado: '0014589-32.2023.5.02.0045',
+        processosVinculados: ['0014589-32.2023.5.02.0045'],
+        civil: {
+          nomeCompleto: 'Mariana Vasconcelos',
+          cpf: '234.567.890-12',
+          rg: '23.456.789-0 SSP/SP',
+          estadoCivil: 'Solteira',
+          profissao: 'Analista de Sistemas',
+          filiacao: 'Clara Vasconcelos / Paulo Vasconcelos',
+          endereco: 'Rua Augusta, 500, Consolação, São Paulo/SP, CEP 01305-000'
+        },
+        qualificacaoCPC: 'MARIANA VASCONCELOS, brasileira, solteira, analista de sistemas, portadora do RG nº 23.456.789-0 SSP/SP, inscrita no CPF sob o nº 234.567.890-12, residente e domiciliada na Rua Augusta, 500, Consolação, São Paulo/SP, CEP 01305-000.',
+        documentos: [
+          { nomeArquivo: 'RG_Frente_Verso.pdf', tipo: 'RG', tipoRotulo: 'RG Civil', legivel: true, tamanhoBytes: 310000, confiancaScore: 99 }
+        ],
+        dataCriacao: Date.now() - 86400000 * 5,
+        atualizadoEm: new Date().toISOString()
+      };
       try {
-        if (typeof salvarConfig === 'function') salvarConfig();
-        if (typeof renderizarProcessos === 'function') renderizarProcessos();
-        if (typeof atualizarHome === 'function') atualizarHome();
+        if (typeof salvarConfiguracaoCompleta === 'function') salvarConfiguracaoCompleta(false);
+        else if (typeof salvarConfig === 'function') salvarConfig();
+        if (typeof renderizarModuloProcessos === 'function') renderizarModuloProcessos();
+        if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
       } catch (e) {}
 
       // Injetar mensagens simuladas no ledger
@@ -4214,16 +4346,17 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         `;
       }
 
-      if (typeof mostrarToast === 'function') mostrarToast('3 processos e conversas de demonstração carregados!');
+      if (typeof mostrarToast === 'function') mostrarToast('3 processos e dossiês de demonstração carregados com sucesso!');
     };
 
     window.limparBaseProcessos = function() {
       if (confirm('Deseja limpar todos os processos cadastrados?')) {
         configGlobal.processos = { lista: [] };
         try {
-          if (typeof salvarConfig === 'function') salvarConfig();
-          if (typeof renderizarProcessos === 'function') renderizarProcessos();
-          if (typeof atualizarHome === 'function') atualizarHome();
+          if (typeof salvarConfiguracaoCompleta === 'function') salvarConfiguracaoCompleta(false);
+          else if (typeof salvarConfig === 'function') salvarConfig();
+          if (typeof renderizarModuloProcessos === 'function') renderizarModuloProcessos();
+          if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
         } catch (e) {}
         if (typeof mostrarToast === 'function') mostrarToast('Base de processos limpa.');
       }
@@ -4247,7 +4380,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         if (filtro === 'audiencia') inputBusca.value = 'Audiência';
         else if (filtro === 'recente') inputBusca.value = '2024';
         else inputBusca.value = '';
-        if (typeof renderizarProcessos === 'function') renderizarProcessos();
+        if (typeof renderizarModuloProcessos === 'function') renderizarModuloProcessos();
       }
     };
 
@@ -4564,6 +4697,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           window.gravadorInterval = null;
         }
       }
+      if (abaNome === 'dossie-clientes') {
+        ativarAba('processos');
+        if (typeof window.alternarDetalheProcAba === 'function') window.alternarDetalheProcAba('dossie');
+        if (typeof window.carregarERenderizarDossies === 'function') window.carregarERenderizarDossies();
+        return;
+      }
+
       const ordemAbas = ['inicio', 'processos', 'pausados', 'simulador', 'fluxo', 'dossie-clientes', 'financeiro', 'terminal', 'ignorados', 'agenda', 'backup', 'configuracoes'];
       const abaAnterior = window.__abaAtivaAtual || 'inicio';
       const idxAnt = ordemAbas.indexOf(abaAnterior);
@@ -4616,11 +4756,11 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (topBarName) {
         const mapaNomes = {
           'inicio': 'Visão Geral',
-          'processos': 'Consultar Processos',
+          'processos': 'Clientes & Processos',
           'pausados': 'Fila do Advogado',
           'simulador': 'Simulador WhatsApp',
           'fluxo': 'Menu Automático',
-          'dossie-clientes': 'Dossiê de Clientes',
+          'dossie-clientes': 'Clientes & Processos (Dossiê)',
           'financeiro': 'Financeiro & PIX',
           'terminal': 'Histórico de Mensagens',
           'ignorados': 'Contatos Ignorados',
@@ -4633,12 +4773,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const mainContentAreaEl = document.getElementById('main-content-area');
       if (mainContentAreaEl) mainContentAreaEl.scrollTop = 0;
       if (abaNome === 'inicio') renderizarTelaInicial();
-      if (abaNome === 'processos') renderizarModuloProcessos();
+      if (abaNome === 'processos') {
+        if (typeof window.alternarDetalheProcAba === 'function') window.alternarDetalheProcAba('processo');
+        renderizarModuloProcessos();
+      }
       if (abaNome === 'agenda') renderizarAgendaSemanal();
       if (abaNome === 'ignorados') carregarERenderizarIgnorados();
-      if (abaNome === 'dossie-clientes' && typeof window.carregarERenderizarDossies === 'function') {
-        window.carregarERenderizarDossies();
-      }
       if (abaNome === 'financeiro' && typeof window.carregarERenderizarFinanceiro === 'function') {
         window.carregarERenderizarFinanceiro();
       }
@@ -5620,6 +5760,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
     function limparFormularioProcesso() {
       idProcessoSelecionado = '';
+      window.dossieClienteSelecionadoId = '';
       draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
       const elId = document.getElementById('proc-id-edit');
       const elNome = document.getElementById('proc-nome');
@@ -5634,6 +5775,25 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (elNumero) elNumero.value = '';
       if (elResumo) elResumo.value = '';
       if (elCheck) elCheck.checked = true;
+
+      const setVal = (idEl, val) => { const el = document.getElementById(idEl); if (el) el.value = val || ''; };
+      setVal('dossie-nome', '');
+      setVal('dossie-cpf', '');
+      setVal('dossie-rg', '');
+      setVal('dossie-estado-civil', '');
+      setVal('dossie-profissao', '');
+      setVal('dossie-filiacao', '');
+      setVal('dossie-endereco', '');
+      const elTitDossie = document.getElementById('dossie-cliente-titulo');
+      if (elTitDossie) elTitDossie.innerText = 'Preencha os dados do cliente ou selecione na lista';
+      const elPrevCPC = document.getElementById('dossie-preview-cpc');
+      if (elPrevCPC) elPrevCPC.innerText = 'Selecione um cliente ao lado ou preencha os dados acima para gerar o cabeçalho formal.';
+      const galeriaEl = document.getElementById('galeria-documentos-cliente');
+      if (galeriaEl) {
+        galeriaEl.innerHTML = '<div class="col-span-2 p-5 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento exibido. Selecione um cliente para visualizar as imagens e laudos forenses da IA.</div>';
+      }
+      const badgeDocsDossie = document.getElementById('badge-detalhe-dossie-docs');
+      if (badgeDocsDossie) badgeDocsDossie.innerText = '0 docs';
 
       const avatarEl = document.getElementById('avatar-ficha-proc');
       if (avatarEl) avatarEl.innerText = 'NP';
@@ -5651,6 +5811,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (btnAnexar) btnAnexar.classList.add('hidden');
       if (btnDossie) btnDossie.classList.add('hidden');
       if (btnSolicitarDocs) btnSolicitarDocs.classList.add('hidden');
+      if (typeof alternarDetalheProcAba === 'function') alternarDetalheProcAba('processo');
       renderizarModuloProcessos();
       if (elCpf) elCpf.focus();
     }
@@ -5658,7 +5819,24 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     safeOn('btn-limpar-form-proc', 'click', limparFormularioProcesso);
 
     window.selecionarProcessoNaLista = function(id, forcar = false) {
-      const p = (configGlobal.processos.lista || []).find(item => item.id === id);
+      let p = (configGlobal.processos.lista || []).find(item => item.id === id);
+      if (!p && configGlobal && configGlobal.dossiesClientes) {
+        const d = configGlobal.dossiesClientes[id] || Object.values(configGlobal.dossiesClientes).find(item => item.id === id || item.clienteId === id || item.telefone === id || item.clienteTelefone === id);
+        if (d) {
+          p = {
+            id: d.id || id,
+            nome: d.nome || d.clienteNome || (d.civil && d.civil.nomeCompleto) || 'Cliente',
+            cpf: d.cpf || (d.civil && d.civil.cpf) || '',
+            numero: d.processoVinculado || d.numeroProcesso || '',
+            resumo: `Dossiê civil com ${(d.documentos || []).length} documento(s) auditado(s).`,
+            temAtualizacao: false,
+            isDossieOnly: true,
+            telefone: d.telefone || d.clienteTelefone || '',
+            dataAtualizacaoTexto: d.atualizadoEm ? new Date(d.atualizadoEm).toLocaleDateString('pt-BR') : '-'
+          };
+          if (typeof alternarDetalheProcAba === 'function') alternarDetalheProcAba('dossie');
+        }
+      }
       if (!p) return;
       idProcessoSelecionado = p.id;
 
@@ -5711,6 +5889,56 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const btnSolicitarDocs = document.getElementById('btn-solicitar-docs-proc');
       if (btnAnexar) btnAnexar.classList.remove('hidden');
       if (btnDossie) btnDossie.classList.remove('hidden');
+            // Sincronização automática com o Dossiê do Cliente (Art. 319 CPC)
+      const cpfDig = (p.cpf || '').replace(/\D/g, '');
+      const numDig = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+      const telDig = (p.telefone || p.telefoneCliente || '').replace(/\D/g, '');
+      
+      const dossiesMapa = (configGlobal && configGlobal.dossiesClientes) || {};
+      let dossieAchado = null;
+      let chaveAchada = null;
+      for (const [k, d] of Object.entries(dossiesMapa)) {
+        if (!d) continue;
+        const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+        const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+        const dTel = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || k || '').replace(/\D/g, '');
+        if ((cpfDig && dCpf === cpfDig) || (numDig && dProc === numDig) || (telDig && dTel === telDig)) {
+          dossieAchado = d;
+          chaveAchada = k;
+          break;
+        }
+      }
+
+      if (dossieAchado && chaveAchada) {
+        window.dossieClienteSelecionadoId = chaveAchada;
+        selecionarClienteDossie(chaveAchada);
+      } else {
+        const chaveDraft = cpfDig || telDig || p.id;
+        window.dossieClienteSelecionadoId = chaveDraft;
+        const setVal = (idEl, val) => { const el = document.getElementById(idEl); if (el) el.value = val || ''; };
+        setVal('dossie-nome', p.nome || 'Cliente');
+        setVal('dossie-cpf', p.cpf || '');
+        setVal('dossie-rg', '');
+        setVal('dossie-estado-civil', '');
+        setVal('dossie-profissao', '');
+        setVal('dossie-filiacao', '');
+        setVal('dossie-endereco', '');
+        const elTit = document.getElementById('dossie-cliente-titulo');
+        if (elTit) elTit.innerText = `${p.nome || 'Cliente'} (Processo ${p.numero || '-'})`;
+        const elPrev = document.getElementById('dossie-preview-cpc');
+        if (elPrev) elPrev.innerText = `${(p.nome || 'CLIENTE').toUpperCase()}, inscrito(a) no CPF sob o nº ${p.cpf || '[CPF PENDENTE]'}.`;
+        const galeria = document.getElementById('galeria-documentos-cliente');
+        if (galeria) {
+          galeria.innerHTML = '<div class="col-span-2 p-5 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado ainda no dossiê civil. Clique em "📄 Solicitar Documentos" para receber pelo WhatsApp!</div>';
+        }
+      }
+
+      const badgeDocs = document.getElementById('badge-detalhe-dossie-docs');
+      if (badgeDocs) {
+        const qtdDocs = (dossieAchado && Array.isArray(dossieAchado.documentos)) ? dossieAchado.documentos.length : 0;
+        badgeDocs.innerText = `${qtdDocs} docs`;
+      }
+
       if (btnSolicitarDocs) {
         btnSolicitarDocs.classList.remove('hidden');
         btnSolicitarDocs.onclick = () => {
@@ -6058,7 +6286,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
       }
 
+      const salvoItem = configGlobal.processos.lista.find(p => p.id === idProcessoSelecionado);
+      if (salvoItem && typeof sincronizarProcessoComDossieLocal === 'function') {
+        sincronizarProcessoComDossieLocal(salvoItem, configGlobal);
+      }
       salvarConfiguracaoCompleta(false);
+      renderizarModuloProcessos();
       selecionarProcessoNaLista(idProcessoSelecionado);
       mostrarToast("Pasta salva com sucesso!");
     });
@@ -6397,6 +6630,23 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             } else {
               mostrarToast("Erro ao gravar processos na base.");
             }
+          } else {
+            garantirEstruturaProcessos();
+            let addCount = 0;
+            processosEmPrevia.forEach(item => {
+              const novoId = item.id || ('proc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5));
+              const procObj = { ...item, id: novoId, updatedAt: Date.now() };
+              configGlobal.processos.lista.unshift(procObj);
+              if (typeof sincronizarProcessoComDossieLocal === 'function') {
+                sincronizarProcessoComDossieLocal(procObj, configGlobal);
+              }
+              addCount++;
+            });
+            salvarConfiguracaoCompleta(false);
+            mostrarToast(`Sucesso! ${addCount} processos importados e vinculados ao Dossiê.`);
+            fecharPreviaIngestao();
+            renderizarModuloProcessos();
+            if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
           }
         } catch (err) {
           mostrarToast("Falha ao salvar: " + err.message);
@@ -6413,24 +6663,306 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       selOrdemProcessos.addEventListener('change', () => renderizarModuloProcessos());
     }
 
+    
+    // Alternância elegante de sub-abas dentro do painel detalhado de clientes e processos (Master-Detail)
+    window.alternarDetalheProcAba = function(aba) {
+      const painelProc = document.getElementById('detalhe-pane-processo');
+      const painelDossie = document.getElementById('detalhe-pane-dossie');
+      const btnProc = document.getElementById('subtab-detalhe-proc');
+      const btnDossie = document.getElementById('subtab-detalhe-dossie');
+
+      if (aba === 'dossie') {
+        if (painelProc) painelProc.classList.add('hidden');
+        if (painelDossie) painelDossie.classList.remove('hidden');
+        if (btnProc) {
+          btnProc.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 border border-transparent flex items-center justify-center gap-1.5 cursor-pointer";
+        }
+        if (btnDossie) {
+          btnDossie.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
+        }
+        if (typeof window.carregarERenderizarDossies === 'function') {
+          window.carregarERenderizarDossies();
+        }
+      } else {
+        if (painelProc) painelProc.classList.remove('hidden');
+        if (painelDossie) painelDossie.classList.add('hidden');
+        if (btnProc) {
+          btnProc.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
+        }
+        if (btnDossie) {
+          btnDossie.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 border border-transparent flex items-center justify-center gap-1.5 cursor-pointer";
+        }
+      }
+    };
+
+    // Salvar qualificações civis e dados forenses (Art. 319 CPC)
+    window.salvarDossieCivilAtual = async function() {
+      const clienteId = window.dossieClienteSelecionadoId;
+      if (!clienteId && !idProcessoSelecionado) {
+        mostrarToast("Selecione um cliente primeiro.");
+        return;
+      }
+      const nome = (document.getElementById('dossie-nome')?.value || '').trim() || 'Cliente';
+      const cpf = (document.getElementById('dossie-cpf')?.value || '').trim();
+      const rg = (document.getElementById('dossie-rg')?.value || '').trim();
+      const estCivil = (document.getElementById('dossie-estado-civil')?.value || '').trim();
+      const prof = (document.getElementById('dossie-profissao')?.value || '').trim();
+      const fil = (document.getElementById('dossie-filiacao')?.value || '').trim();
+      const end = (document.getElementById('dossie-endereco')?.value || '').trim();
+
+      const cpfLimpo = cpf.replace(/\D/g, '');
+      const chaveFinal = clienteId || cpfLimpo || ('cli_' + Date.now());
+
+      if (!configGlobal.dossiesClientes || typeof configGlobal.dossiesClientes !== 'object') {
+        configGlobal.dossiesClientes = {};
+      }
+
+      if (!configGlobal.dossiesClientes[chaveFinal]) {
+        configGlobal.dossiesClientes[chaveFinal] = {
+          id: chaveFinal,
+          clienteId: chaveFinal,
+          clienteNome: nome,
+          nome,
+          clienteTelefone: chaveFinal,
+          telefone: chaveFinal,
+          documentos: [],
+          dataCriacao: Date.now()
+        };
+      }
+
+      const d = configGlobal.dossiesClientes[chaveFinal];
+      d.clienteNome = nome;
+      d.nome = nome;
+      d.cpf = cpf;
+      d.civil = d.civil || {};
+      d.civil.nomeCompleto = nome;
+      d.civil.cpf = cpf;
+      d.civil.rg = rg;
+      d.civil.estadoCivil = estCivil;
+      d.civil.profissao = prof;
+      d.civil.filiacao = fil;
+      d.civil.endereco = end;
+      d.atualizadoEm = new Date().toISOString();
+
+      // Sincroniza com processo vinculado se houver
+      if (idProcessoSelecionado) {
+        const proc = (configGlobal.processos?.lista || []).find(p => p.id === idProcessoSelecionado);
+        if (proc) {
+          if (nome && nome !== 'Cliente') proc.nome = nome;
+          if (cpf) proc.cpf = cpf;
+        }
+      }
+
+      const elPrev = document.getElementById('dossie-preview-cpc');
+      if (elPrev) {
+        elPrev.innerText = `${nome.toUpperCase()}, brasileiro(a), ${estCivil || 'em união estável'}, ${prof || 'profissional autônomo(a)'}, portador(a) do RG sob o nº ${rg || '[RG]'}, inscrito(a) no CPF sob o nº ${cpf || '[CPF]'}, residente e domiciliado(a) em ${end || '[ENDEREÇO]'}.`;
+      }
+
+      salvarConfiguracaoCompleta(false);
+      mostrarToast("💾 Dossiê civil salvo com sucesso!");
+      renderizarModuloProcessos();
+    };
+
+    // Sincronização automática entre Processos e Dossiê Civil (Art. 319 CPC)
+    function sincronizarProcessoComDossieLocal(novoProcesso, cfg) {
+      if (!cfg || typeof cfg !== 'object') return null;
+      if (!cfg.dossiesClientes || typeof cfg.dossiesClientes !== 'object') {
+        cfg.dossiesClientes = {};
+      }
+      const apenasNum = (v) => String(v || '').replace(/\D/g, '');
+      const cpfLimpo = apenasNum(novoProcesso.cpf);
+      const telLimpo = apenasNum(novoProcesso.telefone || novoProcesso.telefoneCliente);
+      const numProcesso = String(novoProcesso.numero || novoProcesso.numeroProcesso || '').trim();
+      const nome = String(novoProcesso.nome || 'Cliente').trim();
+
+      let chaveEncontrada = null;
+      let dossieExistente = null;
+
+      if (cpfLimpo && cfg.dossiesClientes[cpfLimpo]) {
+        chaveEncontrada = cpfLimpo;
+        dossieExistente = cfg.dossiesClientes[cpfLimpo];
+      } else if (telLimpo && cfg.dossiesClientes[telLimpo]) {
+        chaveEncontrada = telLimpo;
+        dossieExistente = cfg.dossiesClientes[telLimpo];
+      } else {
+        for (const [k, d] of Object.entries(cfg.dossiesClientes)) {
+          if (!d) continue;
+          const dCpf = apenasNum(d.cpf || (d.civil && d.civil.cpf));
+          const dTel = apenasNum(d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || k);
+          const dProc = apenasNum(d.processoVinculado || d.numeroProcesso);
+          if ((cpfLimpo && dCpf === cpfLimpo) || (telLimpo && dTel === telLimpo) || (numProcesso && apenasNum(numProcesso) === dProc)) {
+            chaveEncontrada = k;
+            dossieExistente = d;
+            break;
+          }
+        }
+      }
+
+      if (dossieExistente) {
+        if (numProcesso) {
+          dossieExistente.processoVinculado = numProcesso;
+          dossieExistente.numeroProcesso = numProcesso;
+          if (!Array.isArray(dossieExistente.processosVinculados)) dossieExistente.processosVinculados = [];
+          if (!dossieExistente.processosVinculados.includes(numProcesso)) dossieExistente.processosVinculados.push(numProcesso);
+        }
+        if (nome && nome !== 'Cliente' && (!dossieExistente.nome || dossieExistente.nome === 'Cliente')) {
+          dossieExistente.nome = nome;
+          dossieExistente.clienteNome = nome;
+          if (dossieExistente.civil) dossieExistente.civil.nomeCompleto = nome;
+        }
+        if (novoProcesso.cpf && !dossieExistente.cpf) {
+          dossieExistente.cpf = novoProcesso.cpf;
+          if (dossieExistente.civil) dossieExistente.civil.cpf = novoProcesso.cpf;
+        }
+        dossieExistente.atualizadoEm = new Date().toISOString();
+        return dossieExistente;
+      }
+
+      const agora = Date.now();
+      const chaveNova = cpfLimpo || telLimpo || ('cli_' + agora + '_' + Math.random().toString(36).slice(2, 6));
+      const novoDossie = {
+        id: chaveNova,
+        clienteId: chaveNova,
+        nome: nome || 'Cliente',
+        clienteNome: nome || 'Cliente',
+        telefone: telLimpo || '',
+        clienteTelefone: telLimpo || '',
+        cpf: novoProcesso.cpf || '',
+        processoVinculado: numProcesso || '',
+        processosVinculados: numProcesso ? [numProcesso] : [],
+        numeroProcesso: numProcesso || '',
+        documentos: [],
+        dataCriacao: agora,
+        criadoEm: new Date(agora).toISOString(),
+        atualizadoEm: new Date(agora).toISOString(),
+        status: 'EM_ABERTO',
+        civil: {
+          nomeCompleto: nome || 'Cliente',
+          cpf: novoProcesso.cpf || '',
+          telefone: telLimpo || ''
+        }
+      };
+      cfg.dossiesClientes[chaveNova] = novoDossie;
+      return novoDossie;
+    }
+
+    window.renderizarProcessos = renderizarModuloProcessos;
+    window.atualizarHome = renderizarTelaInicial;
+
     function renderizarModuloProcessos() {
       garantirEstruturaProcessos();
       const lista = configGlobal.processos.lista || [];
       const badgeProc = document.getElementById('badge-processos');
-      if (badgeProc) badgeProc.innerText = String(lista.length);
 
       const termo = (document.getElementById('busca-processos')?.value || '').toLowerCase().trim();
       const termoDig = termo.replace(/\D/g, '');
       const box = document.getElementById('lista-processos-box');
-      if (box) box.innerHTML = '';
       if (!box) return;
+      box.innerHTML = '';
 
-      let filtrados = lista.filter(p => {
+      const dossiesMapa = (configGlobal && configGlobal.dossiesClientes) || {};
+      const dossiesValores = Object.entries(dossiesMapa).map(([k, v]) => ({ chave: k, ...v }));
+
+      // Unificação Real: Incluir clientes cadastrados no Dossiê que ainda não possuem processo judicial autuado
+      const processosIdsOuCpfs = new Set();
+      lista.forEach(p => {
+        if (p.id) processosIdsOuCpfs.add(String(p.id));
+        const cpfD = (p.cpf || '').replace(/\D/g, '');
+        if (cpfD) processosIdsOuCpfs.add(cpfD);
+        const telD = (p.telefone || p.telefoneCliente || '').replace(/\D/g, '');
+        if (telD) processosIdsOuCpfs.add(telD);
+        const numD = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+        if (numD) processosIdsOuCpfs.add(numD);
+      });
+
+      const listaBase = [...lista];
+      dossiesValores.forEach(d => {
+        const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+        const dTel = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
+        const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+        const dId = String(d.id || d.clienteId || '');
+
+        const jaEstaNaLista = (dId && processosIdsOuCpfs.has(dId)) ||
+                              (dCpf && processosIdsOuCpfs.has(dCpf)) ||
+                              (dTel && processosIdsOuCpfs.has(dTel)) ||
+                              (dProc && processosIdsOuCpfs.has(dProc));
+
+        if (!jaEstaNaLista) {
+          const dNome = d.nome || d.clienteNome || (d.civil && d.civil.nomeCompleto) || 'Cliente';
+          listaBase.push({
+            id: d.id || ('dossie_' + (dTel || dCpf || Date.now())),
+            nome: dNome,
+            cpf: d.cpf || (d.civil && d.civil.cpf) || '',
+            telefone: dTel,
+            telefoneCliente: dTel,
+            numero: dProc || 'Pré-Processual (Dossiê Civil)',
+            numeroProcesso: dProc || 'Pré-Processual (Dossiê Civil)',
+            resumo: `Dossiê civil com ${(d.documentos || []).length} documento(s) auditado(s).`,
+            temAtualizacao: false,
+            isDossieOnly: true,
+            tag: 'Dossiê Civil',
+            updatedAt: d.atualizadoEm ? new Date(d.atualizadoEm).getTime() : (d.dataCriacao || Date.now()),
+            consultasPorContato: {}
+          });
+        }
+      });
+
+      if (badgeProc) badgeProc.innerText = String(listaBase.length);
+
+      // Sincroniza contador e lista oculta para seletores contratuais
+      const contDossies = document.getElementById('contador-dossies-lista');
+      if (contDossies) contDossies.innerText = String(dossiesValores.length);
+      const boxDossiesHidden = document.getElementById('lista-clientes-dossie');
+      if (boxDossiesHidden && dossiesValores.length > 0) {
+        boxDossiesHidden.innerHTML = dossiesValores.map(d => `<div data-cliente="${d.clienteId || d.clienteTelefone || d.chave}">${d.clienteNome || d.nome || 'Cliente'}</div>`).join('');
+      }
+
+      let filtrados = listaBase.filter(p => {
         if (!termo) return true;
-        const nMatch = (p.nome || '').toLowerCase().includes(termo);
-        const cMatch = (p.cpf || '').toLowerCase().includes(termo) || (termoDig && (p.cpf || '').replace(/\D/g, '').includes(termoDig));
-        const pMatch = (p.numero || '').toLowerCase().includes(termo) || (termoDig && (p.numero || '').replace(/\D/g, '').includes(termoDig));
-        return nMatch || cMatch || pMatch;
+        const pNome = (p.nome || '').toLowerCase();
+        const pCpf = (p.cpf || '').toLowerCase();
+        const pCpfDig = (p.cpf || '').replace(/\D/g, '');
+        const pNum = (p.numero || p.numeroProcesso || '').toLowerCase();
+        const pNumDig = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+        const pTel = (p.telefone || p.telefoneCliente || (p.dadosCadastrais && p.dadosCadastrais.telefone) || '').toLowerCase();
+        const pTelDig = pTel.replace(/\D/g, '');
+
+        // 1. Match direto no registro do processo (Nome, CPF, CNJ ou Telefone)
+        const nMatch = pNome.includes(termo);
+        const cMatch = pCpf.includes(termo) || (termoDig && pCpfDig.includes(termoDig));
+        const pMatch = pNum.includes(termo) || (termoDig && pNumDig.includes(termoDig));
+        const tMatch = (pTel && pTel.includes(termo)) || (termoDig && pTelDig && (pTelDig.includes(termoDig) || termoDig.includes(pTelDig)));
+
+        if (nMatch || cMatch || pMatch || tMatch) return true;
+
+        // 2. Busca cruzada com o Dossiê do Cliente (dossiesClientes)
+        const dossieBate = dossiesValores.find(d => {
+          const dNome = (d.nome || d.clienteNome || (d.civil && d.civil.nomeCompleto) || '').toLowerCase();
+          const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+          const dTel = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
+          const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+
+          const termoBateNome = dNome.includes(termo);
+          const termoBateCpf = Boolean(termoDig && dCpf && (dCpf.includes(termoDig) || termoDig.includes(dCpf)));
+          const termoBateTel = Boolean(termoDig && dTel && (dTel.includes(termoDig) || termoDig.includes(dTel)));
+          const termoBateProc = Boolean(termoDig && dProc && (dProc.includes(termoDig) || termoDig.includes(dProc)));
+
+          return termoBateNome || termoBateCpf || termoBateTel || termoBateProc;
+        });
+
+        if (dossieBate) {
+          const dCpf = (dossieBate.cpf || (dossieBate.civil && dossieBate.civil.cpf) || '').replace(/\D/g, '');
+          const dTel = (dossieBate.telefone || dossieBate.clienteTelefone || (dossieBate.civil && dossieBate.civil.telefone) || dossieBate.chave || '').replace(/\D/g, '');
+          const dProc = (dossieBate.processoVinculado || dossieBate.numeroProcesso || '').replace(/\D/g, '');
+
+          const ligaPorCpf = Boolean(dCpf && pCpfDig && dCpf === pCpfDig);
+          const ligaPorTel = Boolean(dTel && pTelDig && (dTel.includes(pTelDig) || pTelDig.includes(dTel)));
+          const ligaPorProc = Boolean(dProc && pNumDig && (dProc === pNumDig || pNumDig.includes(dProc)));
+
+          if (ligaPorCpf || ligaPorTel || ligaPorProc) return true;
+        }
+
+        return false;
       });
 
       // Aplica ordenação selecionada pelo usuário
@@ -6454,7 +6986,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       });
 
       if (filtrados.length === 0) {
-        box.innerHTML = '<div class="p-8 text-center text-xs text-zinc-500">Nenhum processo cadastrado.</div>';
+        box.innerHTML = '<div class="p-8 text-center text-xs text-zinc-500">Nenhum processo ou dossiê localizado para os termos informados.</div>';
         return;
       }
 
@@ -6465,8 +6997,20 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const iniciais = (p.nome || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         const tagHtml = p.tag ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${obterEstiloTag(p.tag)} whitespace-nowrap ml-1">${p.tag}</span>` : '';
 
+        // Cruzamento com dossiê civil do cliente
+        const pCpfD = (p.cpf || '').replace(/\D/g, '');
+        const pTelD = (p.telefone || p.telefoneCliente || '').replace(/\D/g, '');
+        const pProcD = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
+        const dossieLigado = dossiesValores.find(d => {
+          const dC = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+          const dT = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
+          const dP = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+          return (pCpfD && dC === pCpfD) || (pTelD && dT === pTelD) || (pProcD && dP === pProcD);
+        });
+        const qtdDocsDossie = (dossieLigado && Array.isArray(dossieLigado.documentos)) ? dossieLigado.documentos.length : 0;
+
         const item = document.createElement('div');
-        item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : ''}`;
+        item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : 'hover:border-zinc-700'}`;
         item.onclick = () => selecionarProcessoNaLista(p.id, true);
 
         item.innerHTML = `
@@ -6476,16 +7020,17 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
             <div class="overflow-hidden">
               <div class="flex items-center space-x-2">
-                <span class="text-xs font-bold truncate">${p.nome || 'Cliente'}</span>
+                <span class="text-xs font-bold truncate text-white">${p.nome || 'Cliente'}</span>
                 ${tagHtml}
                 <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-zinc-600'}"></span>
+                ${qtdDocsDossie > 0 ? `<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30" title="${qtdDocsDossie} documento(s) no Dossiê Civil">📁 ${qtdDocsDossie} docs</span>` : ''}
               </div>
               <p class="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
-                CPF: <strong class="text-[#e5c158]">${p.cpf || '-'}</strong> • Nº: <strong class="text-zinc-300">${p.numero || '-'}</strong>
+                CPF: <strong class="text-amber-400">${p.cpf || '-'}</strong> • Nº: <strong class="text-zinc-300">${p.numero || '-'}</strong>
               </p>
             </div>
           </div>
-          <span class="text-[11px] text-[#e5c158] font-bold flex-shrink-0">➔</span>
+          <span class="text-[11px] text-amber-400 font-bold flex-shrink-0">➔</span>
         `;
         box.appendChild(item);
       });
@@ -9270,201 +9815,6 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         inicializarSimuladorChat();
 
           // =========================================================================
-          // INTEGRAÇÃO UNIFICADA: BUSCA RÁPIDA (CPF, NOME, CNJ, TELEFONE) & DOSSIÊ
-          // =========================================================================
-          try {
-            const _renderizarModuloProcessosOriginal = renderizarModuloProcessos;
-            renderizarModuloProcessos = function() {
-              garantirEstruturaProcessos();
-              const lista = configGlobal.processos.lista || [];
-              const badgeProc = document.getElementById('badge-processos');
-              if (badgeProc) badgeProc.innerText = String(lista.length);
-
-              const termo = (document.getElementById('busca-processos')?.value || '').toLowerCase().trim();
-              const termoDig = termo.replace(/\D/g, '');
-              const box = document.getElementById('lista-processos-box');
-              if (!box) return;
-              box.innerHTML = '';
-
-              const dossiesMapa = (configGlobal && configGlobal.dossiesClientes) || {};
-              const dossiesValores = Object.entries(dossiesMapa).map(([k, v]) => ({ chave: k, ...v }));
-
-              let filtrados = lista.filter(p => {
-                if (!termo) return true;
-                const pNome = (p.nome || '').toLowerCase();
-                const pCpf = (p.cpf || '').toLowerCase();
-                const pCpfDig = (p.cpf || '').replace(/\D/g, '');
-                const pNum = (p.numero || p.numeroProcesso || '').toLowerCase();
-                const pNumDig = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
-                const pTel = (p.telefone || p.telefoneCliente || (p.dadosCadastrais && p.dadosCadastrais.telefone) || '').toLowerCase();
-                const pTelDig = pTel.replace(/\D/g, '');
-
-                // 1. Match direto no registro do processo (Nome, CPF, CNJ ou Telefone)
-                const nMatch = pNome.includes(termo);
-                const cMatch = pCpf.includes(termo) || (termoDig && pCpfDig.includes(termoDig));
-                const pMatch = pNum.includes(termo) || (termoDig && pNumDig.includes(termoDig));
-                const tMatch = (pTel && pTel.includes(termo)) || (termoDig && pTelDig && (pTelDig.includes(termoDig) || termoDig.includes(pTelDig)));
-
-                if (nMatch || cMatch || pMatch || tMatch) return true;
-
-                // 2. Busca cruzada com o Dossiê do Cliente (dossiesClientes)
-                const dossieBate = dossiesValores.find(d => {
-                  const dNome = (d.nome || d.clienteNome || (d.civil && d.civil.nomeCompleto) || '').toLowerCase();
-                  const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
-                  const dTel = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
-                  const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
-
-                  const termoBateNome = dNome.includes(termo);
-                  const termoBateCpf = Boolean(termoDig && dCpf && (dCpf.includes(termoDig) || termoDig.includes(dCpf)));
-                  const termoBateTel = Boolean(termoDig && dTel && (dTel.includes(termoDig) || termoDig.includes(dTel)));
-                  const termoBateProc = Boolean(termoDig && dProc && (dProc.includes(termoDig) || termoDig.includes(dProc)));
-
-                  return termoBateNome || termoBateCpf || termoBateTel || termoBateProc;
-                });
-
-                if (dossieBate) {
-                  const dCpf = (dossieBate.cpf || (dossieBate.civil && dossieBate.civil.cpf) || '').replace(/\D/g, '');
-                  const dTel = (dossieBate.telefone || dossieBate.clienteTelefone || (dossieBate.civil && dossieBate.civil.telefone) || dossieBate.chave || '').replace(/\D/g, '');
-                  const dProc = (dossieBate.processoVinculado || dossieBate.numeroProcesso || '').replace(/\D/g, '');
-
-                  const ligaPorCpf = Boolean(dCpf && pCpfDig && dCpf === pCpfDig);
-                  const ligaPorTel = Boolean(dTel && pTelDig && (dTel.includes(pTelDig) || pTelDig.includes(dTel)));
-                  const ligaPorProc = Boolean(dProc && pNumDig && (dProc === pNumDig || pNumDig.includes(dProc)));
-
-                  if (ligaPorCpf || ligaPorTel || ligaPorProc) return true;
-                }
-
-                return false;
-              });
-
-              const selOrdem = document.getElementById('ordem-processos-select');
-              const ordemAtual = selOrdem ? selOrdem.value : 'recente';
-              filtrados.sort((a, b) => {
-                if (ordemAtual === 'alfabetica') return (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base' });
-                if (ordemAtual === 'alfabetica_desc') return (b.nome || '').localeCompare(a.nome || '', 'pt-BR', { sensitivity: 'base' });
-                if (ordemAtual === 'antiga') {
-                  const tA = a.updatedAt || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
-                  const tB = b.updatedAt || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
-                  return tA - tB;
-                }
-                const tA = a.updatedAt || (a.createdAt ? new Date(a.createdAt).getTime() : 0);
-                const tB = b.updatedAt || (b.createdAt ? new Date(b.createdAt).getTime() : 0);
-                return tB - tA;
-              });
-
-              if (filtrados.length === 0) {
-                box.innerHTML = '<div class="p-8 text-center text-xs text-slate-500">Nenhum processo encontrado.</div>';
-                return;
-              }
-
-              filtrados.forEach(p => {
-                const isSel = (p.id === idProcessoSelecionado);
-                const qtdVistos = Object.keys(p.consultasPorContato || {}).length;
-                const temConteudoAtivo = Boolean(p.temAtualizacao && p.resumo && p.resumo.trim());
-                const iniciais = (p.nome || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-
-                const pCpfD = (p.cpf || '').replace(/\D/g, '');
-                const pTelD = (p.telefone || p.telefoneCliente || '').replace(/\D/g, '');
-                const pProcD = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
-                const dossieLigado = dossiesValores.find(d => {
-                  const dC = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
-                  const dT = (d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone) || d.chave || '').replace(/\D/g, '');
-                  const dP = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
-                  return (pCpfD && dC === pCpfD) || (pTelD && dT === pTelD) || (pProcD && dP === pProcD);
-                });
-                const qtdDocsDossie = (dossieLigado && Array.isArray(dossieLigado.documentos)) ? dossieLigado.documentos.length : 0;
-
-                const item = document.createElement('div');
-                item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : ''}`;
-                item.onclick = () => selecionarProcessoNaLista(p.id, true);
-
-                item.innerHTML = `
-                  <div class="flex items-center space-x-3 overflow-hidden pr-2">
-                    <div class="w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-slate-950 font-extrabold text-xs flex-shrink-0 shadow">
-                      ${iniciais}
-                    </div>
-                    <div class="overflow-hidden">
-                      <div class="flex items-center space-x-2">
-                        <span class="text-xs font-bold truncate">${p.nome || 'Cliente'}</span>
-                        <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-slate-600'}"></span>
-                        ${qtdDocsDossie > 0 ? `<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-[#d4af37]/20 text-[#e5c158] font-bold border border-[#d4af37]/30" title="${qtdDocsDossie} documento(s) no Dossiê">📁 ${qtdDocsDossie}</span>` : ''}
-                      </div>
-                      <p class="text-[10px] font-mono text-slate-400 truncate mt-0.5">
-                        CPF: <strong class="text-[#e5c158]">${p.cpf || '-'}</strong> • Nº: <strong class="text-slate-300">${p.numero || '-'}</strong>
-                      </p>
-                    </div>
-                  </div>
-                  <span class="text-[11px] text-[#e5c158] font-bold flex-shrink-0">➔</span>
-                `;
-                box.appendChild(item);
-              });
-            };
-
-            const inputBuscaProc = document.getElementById('busca-processos');
-            if (inputBuscaProc) {
-              inputBuscaProc.addEventListener('input', () => renderizarModuloProcessos());
-            }
-
-            const _renderizarDossieOriginal = renderizarDossie;
-            renderizarDossie = function(proc) {
-              _renderizarDossieOriginal(proc);
-              if (!proc) return;
-
-              const cpfDig = (proc.cpf || '').replace(/\D/g, '');
-              const procDig = (proc.numero || proc.numeroProcesso || '').replace(/\D/g, '');
-              const telDig = (proc.telefone || proc.telefoneCliente || '').replace(/\D/g, '');
-              const dossies = (configGlobal && configGlobal.dossiesClientes) || {};
-              let dossieCli = null;
-              for (const [k, d] of Object.entries(dossies)) {
-                if (!d) continue;
-                const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
-                const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
-                const dTel = (d.telefone || d.clienteTelefone || k || '').replace(/\D/g, '');
-                if ((cpfDig && dCpf === cpfDig) || (procDig && dProc === procDig) || (telDig && dTel === telDig)) {
-                  dossieCli = d;
-                  break;
-                }
-              }
-
-              if (dossieCli && Array.isArray(dossieCli.documentos) && dossieCli.documentos.length > 0) {
-                const listaDocs = document.getElementById('dossie-lista-docs');
-                const countDocs = document.getElementById('dossie-count-docs');
-                if (countDocs) {
-                  const totalDocs = (proc.documentosCatalogados || []).length + dossieCli.documentos.length;
-                  countDocs.innerText = String(totalDocs);
-                }
-                if (listaDocs) {
-                  if (listaDocs.innerText.includes('Nenhuma peça processual anexada')) {
-                    listaDocs.innerHTML = '';
-                  }
-                  dossieCli.documentos.forEach(doc => {
-                    const card = document.createElement('div');
-                    card.className = "p-3 bg-slate-900/90 rounded-xl border border-[#d4af37]/30 text-xs space-y-1";
-                    const nomeDoc = doc.tipoRotulo || doc.tipo || 'Documento Forense (Dossiê Civil)';
-                    const arqDoc = doc.nomeOriginal || doc.arquivo || 'documento.bin';
-                    const dataDoc = doc.dataUpload ? new Date(doc.dataUpload).toLocaleDateString('pt-BR') : '';
-                    card.innerHTML = `
-                      <div class="flex items-center justify-between">
-                        <span class="font-bold text-emerald-400 flex items-center space-x-1.5">
-                          <span>📁</span>
-                          <span>[Dossiê Civil] ${nomeDoc}</span>
-                        </span>
-                        <span class="text-[10px] font-mono text-slate-400">${arqDoc}</span>
-                      </div>
-                      <p class="text-slate-300 text-[11px] leading-relaxed">Documento civil arquivado na pasta física do cliente em <code>documentos_clientes/</code>.</p>
-                      <div class="text-[9px] text-[#e5c158] flex items-center justify-between pt-1 border-t border-slate-800/80">
-                        <span>Auditado via IA Multimodal (Qualificação Art. 319 CPC)</span>
-                        <span>${dataDoc}</span>
-                      </div>
-                    `;
-                    listaDocs.appendChild(card);
-                  });
-                }
-              }
-            };
-          } catch (eInt) {
-            console.warn('[Integração Processos Dossiê] Aviso:', eInt);
-          }
     });
   </script>
 

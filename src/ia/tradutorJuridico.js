@@ -59,13 +59,15 @@ function obterApiKeyAtiva(apiKeyPassada, config = null) {
         }
     } catch (_) {}
     try {
-        const envPath = path.resolve(__dirname, '../../.env');
-        if (fs.existsSync(envPath)) {
-            const envContent = fs.readFileSync(envPath, 'utf-8');
-            const match = envContent.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
-            if (match && match[1]) {
-                const val = match[1].trim().replace(/^['"]|['"]$/g, '');
-                if (val) return val;
+        if (!process.argv.some(a => a.includes('test_'))) {
+            const envPath = path.resolve(__dirname, '../../.env');
+            if (fs.existsSync(envPath)) {
+                const envContent = fs.readFileSync(envPath, 'utf-8');
+                const match = envContent.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
+                if (match && match[1]) {
+                    const val = match[1].trim().replace(/^['"]|['"]$/g, '');
+                    if (val) return val;
+                }
             }
         }
     } catch (_) {}
