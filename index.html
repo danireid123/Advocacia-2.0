@@ -489,13 +489,15 @@
   <style id="icon-rail-nav-styles">
     /* Sidebar Base */
     #main-sidebar {
-      width: 66px;
-      min-width: 66px;
-      transition: width 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 64px;
+      min-width: 64px;
+      background-color: #0c0c0e;
+      border-right: 1px solid rgba(39, 39, 42, 0.7);
+      transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
     body.sidebar-expanded #main-sidebar {
-      width: 268px;
-      min-width: 268px;
+      width: 256px;
+      min-width: 256px;
     }
 
     /* Itens da Sidebar */
@@ -504,44 +506,51 @@
       display: flex;
       align-items: center;
       width: 100%;
-      height: 42px;
+      height: 40px;
       padding: 0 10px;
-      border-radius: 12px;
+      border-radius: 10px;
       color: #a1a1aa;
       background: transparent;
       border: 1px solid transparent;
-      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.16s ease;
       cursor: pointer;
       user-select: none;
     }
+    body:not(.sidebar-expanded) .sidebar-rail-btn {
+      justify-content: center;
+      padding: 0;
+      width: 42px;
+      height: 42px;
+      margin: 2px auto;
+    }
     .sidebar-rail-btn:hover {
-      background: rgba(39, 39, 42, 0.55);
+      background: rgba(39, 39, 42, 0.65);
       color: #f4f4f5;
       border-color: rgba(63, 63, 70, 0.4);
     }
     .sidebar-rail-btn.active,
     .sidebar-rail-btn.sidebar-tab-active {
-      background: linear-gradient(90deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.05) 100%) !important;
-      border: 1px solid rgba(212, 175, 55, 0.45) !important;
+      background: rgba(212, 175, 55, 0.12) !important;
+      border: 1px solid rgba(212, 175, 55, 0.35) !important;
       color: #fef08a !important;
-      box-shadow: 0 2px 14px -2px rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 2px 10px -2px rgba(212, 175, 55, 0.2) !important;
     }
-    .sidebar-rail-btn.active .sidebar-btn-icon svg,
-    .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon svg {
+    .sidebar-rail-btn.active .sidebar-btn-icon,
+    .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
       color: #fbbf24 !important;
-      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.45));
+      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.4));
     }
     .sidebar-rail-btn.active::before,
     .sidebar-rail-btn.sidebar-tab-active::before {
       content: '';
       position: absolute;
       left: 0;
-      top: 18%;
-      height: 64%;
+      top: 20%;
+      height: 60%;
       width: 3px;
-      border-radius: 9999px;
-      background: linear-gradient(180deg, #facc15 0%, #d4af37 100%);
-      box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+      border-radius: 0 3px 3px 0;
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
     }
 
     /* Ícone, Rótulo e Badges */
@@ -549,14 +558,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       flex-shrink: 0;
+      color: #71717a;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .sidebar-rail-btn:hover .sidebar-btn-icon {
+      color: #f4f4f5;
     }
     .sidebar-btn-label {
       display: none;
       margin-left: 9px;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
@@ -569,22 +583,15 @@
     }
     .sidebar-category-group {
       position: relative;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     body.sidebar-expanded .sidebar-category-group {
-      background: rgba(18, 18, 22, 0.5);
-      border: 1px solid rgba(39, 39, 42, 0.7);
-      border-radius: 16px;
-      padding: 6px;
-      margin-bottom: 8px;
+      background: rgba(18, 18, 22, 0.4);
+      border: 1px solid rgba(39, 39, 42, 0.6);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 6px;
     }
     .sidebar-collapsed-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 0;
-    }
-    body.sidebar-expanded .sidebar-collapsed-indicator {
       display: none !important;
     }
     body.sidebar-expanded .sidebar-group-header {
@@ -593,31 +600,49 @@
     .sidebar-group-header {
       display: none;
     }
+    .sidebar-divider {
+      border-top: 1px solid rgba(39, 39, 42, 0.5);
+      margin: 6px 2px;
+    }
     body.sidebar-expanded .sidebar-divider {
       display: none !important;
     }
 
-    /* Badges no modo colapsado vs expandido */
+    /* Badges no modo recolhido vs expandido */
     .sidebar-btn-badge {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-weight: 700;
+      font-weight: 600;
       border-radius: 9999px;
       line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    /* No modo recolhido: micro-badge flutuante no canto superior do botão */
-    .sidebar-btn-badge {
+    /* No modo recolhido: texto (SANDBOX, PIX) e contadores zerados NUNCA aparecem */
+    body:not(.sidebar-expanded) .sidebar-btn-badge {
+      display: none !important;
+    }
+    /* Somente badges com contagem ativa (> 0) aparecem no modo recolhido no canto superior direito */
+    body:not(.sidebar-expanded) .sidebar-btn-badge.badge-active {
+      display: flex !important;
       position: absolute;
-      top: 4px;
-      right: 7px;
+      top: 2px;
+      right: 2px;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 3px;
       font-size: 8.5px;
-      padding: 2px 4px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      font-weight: 700;
+      background: #f59e0b;
+      color: #09090b;
+      border: 1.5px solid #0c0c0e;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+      z-index: 10;
     }
     body.sidebar-expanded .sidebar-btn-badge {
       position: static;
       font-size: 8.5px;
-      padding: 2px 5px;
+      padding: 2px 6px;
       box-shadow: none;
     }
 
@@ -1190,18 +1215,16 @@
         </div>
         <div class="flex items-center space-x-2">
           <span class="font-serif-legal font-bold tracking-wide text-sm sm:text-base text-zinc-100 whitespace-nowrap">Advocacia <span class="text-amber-400">Studio Pro</span></span>
-          <span id="badge-versao-topo" class="hidden xl:inline-block text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">v2.0 Executive</span>
-          <span id="badge-autosave" class="hidden 2xl:inline-block text-[9px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Auto-Save</span>
         </div>
       </div>
     </div>
 
     <!-- Centro: Breadcrumb e Identificador da Ferramenta Ativa -->
     <div class="hidden md:flex items-center space-x-2.5 min-w-0">
-      <div class="flex items-center space-x-2 px-3 py-1 rounded-xl bg-zinc-900/70 border border-zinc-800/90 shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-        <span id="header-active-page-name" class="text-xs font-bold text-zinc-100 uppercase tracking-wider whitespace-nowrap">Visão Geral</span>
-        <span class="text-zinc-600 text-xs">•</span>
+      <div class="flex items-center space-x-2 px-3 py-1 rounded-xl bg-zinc-900/60 border border-zinc-800/80 shadow-sm">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+        <span id="header-active-page-name" class="text-xs font-semibold text-zinc-200 uppercase tracking-wider whitespace-nowrap">Visão Geral</span>
+        <span class="text-zinc-600 text-xs">/</span>
         <span id="header-active-page-desc" class="text-[11px] text-zinc-400 truncate max-w-xs lg:max-w-md">Painel executivo de indicadores e atalhos</span>
       </div>
     </div>
@@ -1271,149 +1294,121 @@
   <div class="flex flex-1 min-h-0 overflow-hidden relative">
     
     <!-- SIDEBAR ICON-RAIL RETRÁTIL (ESTILO CURSOR / VS CODE / LINEAR) -->
-    <aside id="main-sidebar" class="h-full bg-zinc-950/95 border-r border-zinc-800/80 flex flex-col justify-between shrink-0 select-none z-20">
+    <aside id="main-sidebar" class="h-full bg-[#0c0c0e] border-r border-zinc-800/80 flex flex-col justify-between shrink-0 select-none z-20">
       <!-- Navegação Principal com Todos os 11 Módulos Acessíveis -->
-      <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-2" aria-label="Navegação Principal">
+      <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-1" aria-label="Navegação Principal">
         
-        <!-- GRUPO 1: OPERAÇÃO JURÍDICA (3 MÓDULOS) -->
+        <!-- GRUPO 1: OPERAÇÃO (3 MÓDULOS) -->
         <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              Operação Jurídica
-            </span>
-            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">3</span>
-          </div>
-          <div class="sidebar-collapsed-indicator" title="Operação Jurídica">
-            <span class="w-2 h-0.5 rounded-full bg-amber-400/50"></span>
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Operação</span>
           </div>
           
-          <div class="space-y-1">
+          <div class="space-y-0.5">
             <!-- Visão Geral -->
-            <button type="button" id="nav-btn-inicio" data-desc="Painel executivo de indicadores e cockpit" class="sidebar-rail-btn active" title="Visão Geral">
-              <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-home"/></svg></div>
+            <button type="button" id="nav-btn-inicio" data-desc="Painel do escritório e indicadores principais" class="sidebar-rail-btn active" title="Visão Geral">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-home"/></svg></div>
               <span class="sidebar-btn-label">Visão Geral</span>
             </button>
 
             <!-- Consultar Processos -->
-            <button type="button" id="nav-btn-processos" data-desc="Busca instantânea por CPF/CNJ e importação Smart" class="sidebar-rail-btn" title="Consultar Processos">
-              <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
+            <button type="button" id="nav-btn-processos" data-desc="Busca por CPF/CNJ e importação de processos" class="sidebar-rail-btn" title="Consultar Processos">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
               <span class="sidebar-btn-label">Consultar Processos</span>
-              <span id="badge-processos" class="sidebar-btn-badge bg-zinc-800 text-amber-300">0</span>
+              <span id="badge-processos" class="sidebar-btn-badge bg-zinc-800 text-zinc-300 border border-zinc-700/60">0</span>
             </button>
 
             <!-- Fila do Advogado -->
-            <button type="button" id="nav-btn-pausados" data-desc="Transbordo humano com triagem de urgência e Copilot IA" class="sidebar-rail-btn" title="Fila do Advogado">
-              <div class="sidebar-btn-icon text-amber-400"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
+            <button type="button" id="nav-btn-pausados" data-desc="Fila de atendimento de clientes no WhatsApp" class="sidebar-rail-btn" title="Fila do Advogado">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
               <span class="sidebar-btn-label">Fila do Advogado</span>
-              <span id="badge-pausados" class="sidebar-btn-badge bg-amber-500/20 text-amber-300">0</span>
+              <span id="badge-pausados" class="sidebar-btn-badge bg-zinc-800 text-amber-400 border border-zinc-700/60">0</span>
             </button>
           </div>
         </div>
 
-        <div class="sidebar-divider my-1.5 border-t border-zinc-800/80"></div>
+        <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 2: AUTOMAÇÃO & IA (3 MÓDULOS) -->
+        <!-- GRUPO 2: AUTOMAÇÃO (3 MÓDULOS) -->
         <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              Automação & IA
-            </span>
-            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">3</span>
-          </div>
-          <div class="sidebar-collapsed-indicator" title="Automação & IA">
-            <span class="w-2 h-0.5 rounded-full bg-emerald-400/50"></span>
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Automação</span>
           </div>
 
-          <div class="space-y-1">
+          <div class="space-y-0.5">
             <!-- Simulador WhatsApp -->
-            <button type="button" id="nav-btn-simulador" data-desc="Ambiente Sandbox isolado para testar conversas e IA" class="sidebar-rail-btn" title="Simulador WhatsApp Sandbox">
-              <div class="sidebar-btn-icon text-emerald-400">
+            <button type="button" id="nav-btn-simulador" data-desc="Ambiente de teste das mensagens automáticas" class="sidebar-rail-btn" title="Simulador WhatsApp Sandbox">
+              <div class="sidebar-btn-icon">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               </div>
               <span class="sidebar-btn-label">Simulador WhatsApp</span>
-              <span class="sidebar-btn-badge bg-emerald-500/20 text-emerald-300">SANDBOX</span>
+              <span id="badge-simulador" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">Sandbox</span>
             </button>
 
             <!-- Menu Automático -->
-            <button type="button" id="nav-btn-fluxo" data-desc="Árvore interativa de atendimento e ações pré-programadas" class="sidebar-rail-btn" title="Menu Automático">
-              <div class="sidebar-btn-icon text-emerald-400"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
+            <button type="button" id="nav-btn-fluxo" data-desc="Fluxos e opções de resposta automática" class="sidebar-rail-btn" title="Menu Automático">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
               <span class="sidebar-btn-label">Menu Automático</span>
             </button>
 
             <!-- Dossiê de Clientes -->
-            <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil Art. 319 CPC e galeria forense OCR" class="sidebar-rail-btn" title="Dossiê de Clientes">
-              <div class="sidebar-btn-icon text-emerald-400"><svg class="w-4 h-4"><use href="#icon-users"/></svg></div>
+            <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil e documentos de clientes" class="sidebar-rail-btn" title="Dossiê de Clientes">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-users"/></svg></div>
               <span class="sidebar-btn-label">Dossiê de Clientes</span>
-              <span id="badge-dossies" class="sidebar-btn-badge bg-zinc-800 text-amber-300">0</span>
+              <span id="badge-dossies" class="sidebar-btn-badge bg-zinc-800 text-zinc-300 border border-zinc-700/60">0</span>
             </button>
           </div>
         </div>
 
-        <div class="sidebar-divider my-1.5 border-t border-zinc-800/80"></div>
+        <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 3: CONTROLADORIA & AUDITORIA (3 MÓDULOS) -->
+        <!-- GRUPO 3: CONTROLADORIA (3 MÓDULOS) -->
         <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-sky-400">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-              Controladoria
-            </span>
-            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20">3</span>
-          </div>
-          <div class="sidebar-collapsed-indicator" title="Controladoria">
-            <span class="w-2 h-0.5 rounded-full bg-sky-400/50"></span>
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Controladoria</span>
           </div>
 
-          <div class="space-y-1">
+          <div class="space-y-0.5">
             <!-- Financeiro & PIX -->
-            <button type="button" id="nav-btn-financeiro" data-desc="Gestão de honorários, régua semanal e auditoria PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
-              <div class="sidebar-btn-icon text-sky-400"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
+            <button type="button" id="nav-btn-financeiro" data-desc="Honorários, cobranças e conciliação PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
               <span class="sidebar-btn-label">Financeiro & PIX</span>
-              <span id="badge-financeiro" class="sidebar-btn-badge bg-emerald-500/20 text-emerald-300">PIX</span>
+              <span id="badge-financeiro" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">PIX</span>
             </button>
 
             <!-- Histórico de Mensagens -->
-            <button type="button" id="nav-btn-terminal" data-desc="Auditoria forense e histórico cronológico de mensagens" class="sidebar-rail-btn" title="Histórico de Mensagens">
-              <div class="sidebar-btn-icon text-sky-400"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
+            <button type="button" id="nav-btn-terminal" data-desc="Histórico e registros de mensagens enviadas" class="sidebar-rail-btn" title="Histórico de Mensagens">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
               <span class="sidebar-btn-label">Histórico Mensagens</span>
             </button>
 
             <!-- Contatos Ignorados -->
-            <button type="button" id="nav-btn-ignorados" data-desc="Escudo VIP e bloqueio absoluto de disparos automáticos" class="sidebar-rail-btn" title="Contatos Ignorados">
-              <div class="sidebar-btn-icon text-rose-400"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
+            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas" class="sidebar-rail-btn" title="Contatos Ignorados">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
               <span class="sidebar-btn-label">Contatos Ignorados</span>
-              <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-rose-300">0</span>
+              <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">0</span>
             </button>
           </div>
         </div>
 
-        <div class="sidebar-divider my-1.5 border-t border-zinc-800/80"></div>
+        <div class="sidebar-divider"></div>
 
         <!-- GRUPO 4: SISTEMA (2 MÓDULOS) -->
         <div class="sidebar-category-group">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
-              Sistema
-            </span>
-            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">2</span>
-          </div>
-          <div class="sidebar-collapsed-indicator" title="Sistema">
-            <span class="w-2 h-0.5 rounded-full bg-zinc-400/50"></span>
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Sistema</span>
           </div>
 
-          <div class="space-y-1">
+          <div class="space-y-0.5">
             <!-- Horários & Almoço -->
-            <button type="button" id="nav-btn-agenda" data-desc="Configuração de expediente semanal e intervalo de almoço" class="sidebar-rail-btn" title="Horários & Almoço">
-              <div class="sidebar-btn-icon text-zinc-400"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
+            <button type="button" id="nav-btn-agenda" data-desc="Horários de funcionamento do escritório" class="sidebar-rail-btn" title="Horários & Almoço">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
               <span class="sidebar-btn-label">Horários & Almoço</span>
             </button>
 
             <!-- Cópia de Segurança -->
-            <button type="button" id="nav-btn-backup" data-desc="Snapshots locais .JSON e sincronização com nuvem 24/7" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
-              <div class="sidebar-btn-icon text-zinc-400"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
+            <button type="button" id="nav-btn-backup" data-desc="Exportar e importar dados locais em .JSON" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
               <span class="sidebar-btn-label">Cópia de Segurança</span>
             </button>
           </div>
@@ -1442,72 +1437,66 @@
             <div class="relative z-10 space-y-2.5 max-w-2xl">
               <!-- Status chips informativos -->
               <div class="flex items-center flex-wrap gap-2">
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-wider uppercase px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm">
-                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                  Suite Advocacia Pro • Enterprise v2.6
-                </span>
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  WhatsApp Gateway Ativo
+                  WhatsApp Ativo
                 </span>
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/25">
-                  <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-                  IA Forense Gemini Operante
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Assistente IA Operante
                 </span>
-                <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/25 font-mono">
-                  Sessão Blindada IPC
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60 font-mono">
+                  Escritório Aberto
                 </span>
               </div>
               
               <h2 id="home-welcome-title" class="font-serif-legal text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">
-                Olá, Dr(a). Bem-vindo ao seu Cockpit Jurídico.
+                Painel do Advogado
               </h2>
               <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-xl">
-                Acompanhamento processual instantâneo, consultas no WhatsApp por CPF/CNJ, triagem prioritária com transbordo humano e auditoria forense por inteligência artificial.
+                Acompanhe o andamento dos processos, responda solicitações urgentes na fila do WhatsApp e consulte pastas cadastradas por CPF ou número de processo.
               </p>
             </div>
             
             <!-- Ações rápidas de alto impacto -->
             <div class="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
-              <button onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-zinc-950 hover:brightness-105 active:scale-[0.98] shadow-lg shadow-amber-500/25 flex items-center space-x-2 transition-all cursor-pointer">
+              <button onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-zinc-950 active:scale-[0.98] shadow-md flex items-center space-x-2 transition-all cursor-pointer">
                 <svg class="w-4 h-4 stroke-[2.5]"><use href="#icon-plus"/></svg>
                 <span>Cadastrar Processo</span>
               </button>
-              <button onclick="ativarAba('simulador')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-zinc-900/90 hover:bg-zinc-800 text-emerald-400 hover:text-emerald-300 border border-zinc-700/80 hover:border-emerald-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer shadow-md" title="Testar respostas do robô no simulador">
-                <svg class="w-4 h-4 text-emerald-400"><use href="#icon-message"/></svg>
-                <span>Simulador WhatsApp</span>
+              <button onclick="ativarAba('simulador')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Testar respostas do robô no simulador">
+                <svg class="w-4 h-4 text-zinc-400"><use href="#icon-message"/></svg>
+                <span>Simulador</span>
               </button>
-              <button onclick="ativarAba('pausados')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-zinc-900/90 hover:bg-zinc-800 text-amber-300 hover:text-amber-200 border border-zinc-700/80 hover:border-amber-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer shadow-md" title="Ver fila de espera de clientes">
+              <button onclick="ativarAba('pausados')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Ver fila de espera de clientes">
                 <svg class="w-4 h-4 text-amber-400"><use href="#icon-user-clock"/></svg>
-                <span>Fila de Espera</span>
+                <span>Fila de Atendimento</span>
               </button>
-              <button onclick="ativarAba('dossie-clientes')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-zinc-900/90 hover:bg-zinc-800 text-indigo-300 hover:text-indigo-200 border border-zinc-700/80 hover:border-indigo-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer shadow-md" title="Dossiê de qualificação civil Art. 319">
-                <svg class="w-4 h-4 text-indigo-400"><use href="#icon-users"/></svg>
-                <span>Dossiê CPC</span>
+              <button onclick="ativarAba('dossie-clientes')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+                <svg class="w-4 h-4 text-zinc-400"><use href="#icon-users"/></svg>
+                <span>Dossiê de Clientes</span>
               </button>
             </div>
             
             <!-- Iluminação ambiente suave de fundo -->
-            <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-700 animate-pulse-glow"></div>
-            <div class="absolute left-1/3 -bottom-16 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
           <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX UNIFICADOS) -->
           <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- Card 1: Processos Ativos -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('processos')" title="Clique para ver todos os processos">
-              <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('processos')" title="Clique para ver todos os processos">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-300">Processos Ativos</span>
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/20 transition-all duration-200 shrink-0 shadow-inner">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Processos Cadastrados</span>
+                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
                   <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
                 </div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
-                  <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
-                  <span class="text-[10px] text-zinc-500 font-mono">cadastrados</span>
+                  <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-extrabold text-zinc-100 tracking-tight block">0</span>
+                  <span class="text-[10px] text-zinc-500 font-mono">pastas</span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium">
                   <span>Consultas por CPF/CNJ</span>
@@ -1519,37 +1508,35 @@
             </div>
 
             <!-- Card 2: Fila do Advogado & Transbordo -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de espera do advogado">
-              <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-300">Fila do Advogado</span>
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/20 transition-all duration-200 shrink-0 shadow-inner">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Fila de Atendimento</span>
+                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
                   <svg class="w-4 h-4"><use href="#icon-user-clock"/></svg>
                 </div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-center gap-2">
-                  <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-300 tracking-tight block">0</span>
+                  <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
                   <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 font-bold">Na Fila</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">Aguardando</span>
                 </div>
-                <span class="text-[11px] text-zinc-400 block font-medium truncate">Triagem de urgência & Copilot IA</span>
+                <span class="text-[11px] text-zinc-400 block font-medium truncate">Clientes aguardando retorno humano</span>
               </div>
             </div>
 
-            <!-- Card 3: Automação & Mensagens do Robô -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
-              <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+            <!-- Card 3: Automação & Mensagens -->
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-300">Respostas do Robô</span>
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all duration-200 shrink-0 shadow-inner">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Respostas Automáticas</span>
+                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
                   <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
                 </div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-baseline gap-2">
-                  <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-emerald-400 tracking-tight block">0</span>
-                  <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold font-mono">0.0 h poupadas</span>
+                  <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-zinc-100 tracking-tight block">0</span>
+                  <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 font-semibold font-mono">0.0 h poupadas</span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium">
                   <span>Atendimento automático 24/7</span>
@@ -1559,21 +1546,20 @@
             </div>
 
             <!-- Card 4: Expediente & Horário Hoje -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-sky-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários e almoço">
-              <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-sky-300">Expediente Hoje</span>
-                <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-105 group-hover:bg-sky-500/20 transition-all duration-200 shrink-0 shadow-inner">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Expediente Hoje</span>
+                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 group-hover:text-amber-400 transition-all duration-200 shrink-0">
                   <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
                 </div>
               </div>
               <div class="space-y-1">
                 <div class="flex items-center gap-2">
-                  <span class="relative flex h-2.5 w-2.5">
+                  <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <span id="home-card-expediente" class="text-lg font-bold text-emerald-400 tracking-tight block">Verificando...</span>
+                  <span id="home-card-expediente" class="text-base font-bold text-emerald-400 tracking-tight block">Verificando...</span>
                 </div>
                 <span id="home-card-horario-detalhe" class="text-[11px] text-zinc-400 block font-medium truncate">Conforme agenda configurada</span>
               </div>
@@ -1581,51 +1567,51 @@
 
           </div>
 
-          <!-- 3. TWIN OPERATIONAL FEEDS: PASTAS RECENTES & RADAR DE MENSAGENS EM TEMPO REAL -->
+          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Coluna 1: Últimas Pastas Atualizadas -->
-            <div class="lg:col-span-6 exec-card exec-card-hover p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-xl">
+            <!-- Coluna 1: Processos Recentes -->
+            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
               <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3.5 mb-4">
+                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
                   <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-inner">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
                       <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
                     </div>
                     <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Últimas Pastas Cadastradas</h3>
-                      <span class="text-[10px] text-zinc-400">Acompanhamento e andamentos recentes</span>
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
+                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
                     </div>
                   </div>
-                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver todas</span>
+                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                    <span>Ver todos</span>
                     <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
                   </button>
                 </div>
-                <div id="home-ultimos-processos" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+                <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
               </div>
             </div>
 
-            <!-- Coluna 2: Radar de Mensagens e Atividade em Tempo Real -->
-            <div class="lg:col-span-6 exec-card exec-card-hover p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-xl">
+            <!-- Coluna 2: Mensagens Recentes -->
+            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
               <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3.5 mb-4">
+                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
                   <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-inner">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
                       <svg class="w-4 h-4"><use href="#icon-message"/></svg>
                     </div>
                     <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Radar de Mensagens em Tempo Real</h3>
-                      <span class="text-[10px] text-zinc-400">Atividades e interações recebidas no WhatsApp</span>
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
+                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
                     </div>
                   </div>
-                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-bold text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Abrir Ledger</span>
+                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                    <span>Ver histórico</span>
                     <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
                   </button>
                 </div>
-                <div id="home-ultimos-logs" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
                   <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
-                    <svg class="w-7 h-7 text-zinc-600"><use href="#icon-message"/></svg>
+                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
                     <span>Aguardando novas mensagens...</span>
                   </div>
                 </div>
@@ -1640,25 +1626,25 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  Módulo de Acompanhamento
+                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Processos
                 </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60 font-mono">
-                  Pós-Consulta: Opções 1 e 2
+                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
+                  Consulta & Atualização
                 </span>
               </div>
               <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                 <svg class="w-6 h-6 text-amber-400"><use href="#icon-folder"/></svg>
-                Consultar Processo (CPF / CNJ)
+                Consulta de Processos (CPF / CNJ)
               </h2>
               <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Localização instantânea de autos com resposta simplificada por IA. O cliente pode digitar <strong class="text-zinc-200">1</strong> para encerrar ou <strong class="text-amber-400">2</strong> para acionar a fila do advogado.
+                Consulte pastas por CPF ou número do processo. Clientes recebem o andamento e podem optar por encerrar o contato ou falar diretamente com o escritório.
               </p>
             </div>
-            <button id="btn-toggle-msg-processos" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-amber-300 hover:text-amber-200 border border-zinc-800 hover:border-amber-500/30 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-sm">
+            <button id="btn-toggle-msg-processos" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-sm">
               <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-settings"/></svg>
-              <span>Configurar Respostas e Opções 1 / 2</span>
+              <span>Configurar Respostas do Processo</span>
             </button>
           </div>
 
@@ -1666,12 +1652,12 @@
           <div class="exec-card p-5 rounded-3xl bg-zinc-900/40 border border-zinc-800/80 space-y-4 shadow-xl">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3.5">
               <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
                 <div>
-                  <span class="text-xs font-bold text-zinc-100 block">Smart Import Universal</span>
-                  <span class="text-[11px] text-zinc-400">Importação automática de <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong>, <strong>Word (.docx)</strong> e <strong>Textos (.txt)</strong></span>
+                  <span class="text-xs font-bold text-zinc-100 block">Importação de Arquivos</span>
+                  <span class="text-[11px] text-zinc-400">Importe planilhas <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong> ou <strong>documentos Word (.docx)</strong></span>
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-2">
@@ -2183,20 +2169,20 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  Cofre de Continuidade & Snapshot
+                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Backup e Restauração
                 </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                  AES-256 / SHA-256
+                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
+                  Arquivo .JSON Local
                 </span>
               </div>
               <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                 <svg class="w-6 h-6 text-amber-400"><use href="#icon-database"/></svg>
-                Cópia de Segurança (.JSON) & Salvamento Blindado
+                Cópia de Segurança (.JSON)
               </h2>
               <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Além do salvamento contínuo em disco a cada alteração, exporte snapshots manuais ou recupere o banco de dados integral com 1 clique.
+                Exporte uma cópia completa dos dados do escritório ou restaure um arquivo de backup com facilidade.
               </p>
             </div>
             <div class="flex items-center gap-2">
@@ -2404,28 +2390,28 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Ambiente Isolado Sandbox
+                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Ambiente de Teste
                 </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
-                  Zero Disparo Externo
+                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
+                  Sem Disparo Externo
                 </span>
               </div>
               <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                <svg class="w-6 h-6 text-emerald-400"><use href="#icon-message"/></svg>
+                <svg class="w-6 h-6 text-zinc-400"><use href="#icon-message"/></svg>
                 Simulador de Atendimento WhatsApp
               </h2>
               <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Ambiente controlado para validação de fluxos de triagem, consultas por CPF/CNJ, síntese multimodal e transbordo para a fila de espera.
+                Valide fluxos de triagem, respostas do robô, consultas por CPF e transbordo para a fila com segurança local.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="btn-simulador-testar-ia" class="px-3.5 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Testa a conexão ao vivo com a API Google Gemini">
-                <svg class="w-3.5 h-3.5 text-amber-400 inline mr-1"><use href="#icon-sparkles"/></svg><span>Testar IA Gemini</span>
+              <button type="button" id="btn-simulador-testar-ia" class="px-3.5 py-2 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Testa a conexão com o assistente IA">
+                <svg class="w-3.5 h-3.5 text-amber-400 inline mr-1"><use href="#icon-sparkles"/></svg><span>Testar IA</span>
               </button>
-              <button type="button" id="btn-simulador-reset" onclick="window.resetarConversaSimuladorUI && window.resetarConversaSimuladorUI()" class="px-3.5 py-2 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Restaura a sessão e despausa o robô">
-                <svg class="w-3.5 h-3.5 text-zinc-400 inline mr-1"><use href="#icon-refresh"/></svg><span>Resetar Robô</span>
+              <button type="button" id="btn-simulador-reset" onclick="window.resetarConversaSimuladorUI && window.resetarConversaSimuladorUI()" class="px-3.5 py-2 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Restaura a sessão e reativa o robô">
+                <svg class="w-3.5 h-3.5 text-zinc-400 inline mr-1"><use href="#icon-refresh"/></svg><span>Resetar Conversa</span>
               </button>
               <button type="button" id="btn-simulador-limpar" onclick="window.limparTelaSimuladorUI && window.limparTelaSimuladorUI()" class="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer">
                 <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
@@ -2483,18 +2469,18 @@
                     <span class="text-[10px] text-amber-400/80 block font-mono">02. Consulta</span>
                     <span class="text-xs font-bold mt-0.5 block">Opção "1"</span>
                   </button>
-                  <button type="button" id="btn-cenario-cpf" onmousedown="event.preventDefault()" onclick="window.enviarCenarioCpfSimulador && window.enviarCenarioCpfSimulador()" class="btn-tactile p-3 bg-zinc-950/80 hover:bg-zinc-800/90 text-emerald-400 border border-zinc-800 hover:border-emerald-500/40 rounded-xl text-left font-semibold transition cursor-pointer">
-                    <span class="text-[10px] text-emerald-400/80 block font-mono">03. Localizar</span>
+                  <button type="button" id="btn-cenario-cpf" onmousedown="event.preventDefault()" onclick="window.enviarCenarioCpfSimulador && window.enviarCenarioCpfSimulador()" class="btn-tactile p-3 bg-zinc-950/80 hover:bg-zinc-800/90 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-left font-semibold transition cursor-pointer">
+                    <span class="text-[10px] text-zinc-400 block font-mono">03. Localizar</span>
                     <span class="text-xs font-bold mt-0.5 block">CPF Válido</span>
                   </button>
-                  <button type="button" id="btn-cenario-adv" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('falar com advogado')" class="btn-tactile p-3 bg-zinc-950/80 hover:bg-zinc-800/90 text-amber-300 border border-zinc-800 hover:border-amber-500/40 rounded-xl text-left font-semibold transition cursor-pointer">
-                    <span class="text-[10px] text-amber-300/80 block font-mono">04. Transbordo</span>
+                  <button type="button" id="btn-cenario-adv" onmousedown="event.preventDefault()" onclick="window.enviarMensagemSimulador && window.enviarMensagemSimulador('falar com advogado')" class="btn-tactile p-3 bg-zinc-950/80 hover:bg-zinc-800/90 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-left font-semibold transition cursor-pointer">
+                    <span class="text-[10px] text-zinc-400 block font-mono">04. Atendimento</span>
                     <span class="text-xs font-bold mt-0.5 block">Falar Advogado</span>
                   </button>
-                  <button type="button" id="btn-cenario-solicitar-docs" onmousedown="event.preventDefault()" onclick="window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos(document.getElementById('simulador-tel')?.value, document.getElementById('simulador-nome')?.value)" class="btn-tactile col-span-2 p-3 bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 border border-amber-500/40 rounded-xl text-left font-semibold transition cursor-pointer flex items-center justify-between" title="Solicitar documentos forenses no chat simulado">
+                  <button type="button" id="btn-cenario-solicitar-docs" onmousedown="event.preventDefault()" onclick="window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos(document.getElementById('simulador-tel')?.value, document.getElementById('simulador-nome')?.value)" class="btn-tactile col-span-2 p-3 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-left font-semibold transition cursor-pointer flex items-center justify-between" title="Solicitar documentos ao cliente no simulador">
                     <div>
-                      <span class="text-[10px] text-amber-400 block font-mono">05. Onboarding Digital</span>
-                      <span class="text-xs font-bold mt-0.5 block">Solicitar Docs Forenses</span>
+                      <span class="text-[10px] text-amber-400 block font-mono">05. Documentação</span>
+                      <span class="text-xs font-bold mt-0.5 block">Solicitar Documentos</span>
                     </div>
                     <svg class="w-4 h-4 text-amber-400"><use href="#icon-clipboard"/></svg>
                   </button>
@@ -2519,24 +2505,24 @@
                 <div class="bg-zinc-900/95 px-5 py-3 border-b border-zinc-800 flex items-center justify-between">
                   <div class="flex items-center space-x-3.5">
                     <div class="w-10 h-10 rounded-2xl bg-zinc-950 border border-amber-500/30 flex items-center justify-center p-1.5 shadow-sm overflow-hidden flex-shrink-0">
-                      <img src="assets/assistente.png" alt="Robô de Atendimento" class="w-full h-full object-contain">
+                      <img src="assets/assistente.png" alt="Atendimento Automático" class="w-full h-full object-contain">
                     </div>
                     <div>
-                      <span class="text-xs font-bold text-zinc-100 block">Robô de Atendimento Forense</span>
-                      <span class="text-[10px] text-emerald-400 flex items-center space-x-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Online • Simulação Sandbox Ativa</span>
+                      <span class="text-xs font-bold text-zinc-100 block">Atendimento Automático</span>
+                      <span class="text-[10px] text-zinc-400 flex items-center space-x-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>Online • Simulação de Teste</span>
                       </span>
                     </div>
                   </div>
-                  <span class="text-[10px] text-zinc-500 font-mono px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800">WhatsApp v2.0</span>
+                  <span class="text-[10px] text-zinc-500 font-mono px-2.5 py-1 rounded-full bg-zinc-950 border border-zinc-800">WhatsApp Web</span>
                 </div>
 
                 <!-- Mensagens -->
                 <div id="simulador-mensagens-box" class="flex-1 p-5 overflow-y-auto space-y-3 bg-[#0a0d14]">
                   <div class="text-center my-2">
                     <span class="text-[10px] text-zinc-400 bg-zinc-900/90 px-3.5 py-1.5 rounded-full border border-zinc-800 font-mono shadow-sm">
-                      <svg class="w-3.5 h-3.5 text-emerald-400 inline mr-1.5"><use href="#icon-shield"/></svg>Ambiente de Sandbox Criptografado
+                      <svg class="w-3.5 h-3.5 text-zinc-400 inline mr-1.5"><use href="#icon-shield"/></svg>Ambiente de Teste Local (Sem disparos externos)
                     </span>
                   </div>
                 </div>
@@ -2584,20 +2570,20 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
               <div class="space-y-1">
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    Auditoria Forense & Onboarding
+                  <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    Documentação de Clientes
                   </span>
-                  <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20 font-mono">
-                    CPC Art. 319, II • OCR Gemini
+                  <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
+                    Art. 319, II CPC
                   </span>
                 </div>
                 <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                   <svg class="w-6 h-6 text-amber-400"><use href="#icon-users"/></svg>
-                  Dossiê de Clientes & Auditoria Forense
+                  Dossiê de Clientes
                 </h2>
                 <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                  Ficha civil estruturada desacoplada dos processos, com galeria de documentos originais auditados por Visão Computacional.
+                  Ficha cadastral de qualificação civil com galeria de documentos anexados (RG, CPF e comprovante de endereço).
                 </p>
               </div>
               <div class="flex items-center space-x-2">
@@ -3365,7 +3351,10 @@
       const userInfo = document.getElementById('header-user-info');
       if (userInfo) userInfo.innerText = `${dados?.office || 'Escritório'} • Operador: ${dados?.user} • Auto-Login 30d`;
       const welcomeTitle = document.getElementById('home-welcome-title');
-      if (welcomeTitle) welcomeTitle.innerText = `Olá, ${dados?.user || 'Doutor(a)'}! Bem-vindo ao ${dados?.office || 'Escritório Digital'}.`;
+      if (welcomeTitle) {
+        const nomeExibicao = (dados?.user && dados.user.toLowerCase() !== 'admin') ? dados.user : 'Dr(a)';
+        welcomeTitle.innerText = `Painel do Escritório • Bem-vindo, ${nomeExibicao}`;
+      }
     }
 
     safeOn('btn-auth-submit', 'click', async () => {
@@ -8465,6 +8454,28 @@
       if (localStorage.getItem(STORAGE_SIDEBAR_EXPANDED) === '1') {
         alternarSidebar(true, false);
       }
+    } catch (e) {}
+
+    // Sincronização inteligente dos badges da sidebar no modo colapsado
+    function sincronizarBadgesSidebar() {
+      document.querySelectorAll('.sidebar-btn-badge').forEach(b => {
+        const txt = (b.innerText || '').trim();
+        const n = parseInt(txt, 10);
+        if (!isNaN(n) && n > 0 && !txt.toLowerCase().includes('sandbox') && !txt.toLowerCase().includes('pix')) {
+          b.classList.add('badge-active');
+        } else {
+          b.classList.remove('badge-active');
+        }
+      });
+    }
+    sincronizarBadgesSidebar();
+
+    // Observador para manter os badges limpos dinamicamente
+    try {
+      const observer = new MutationObserver(() => sincronizarBadgesSidebar());
+      document.querySelectorAll('.sidebar-btn-badge').forEach(b => {
+        observer.observe(b, { childList: true, characterData: true, subtree: true });
+      });
     } catch (e) {}
   })();
   </script>
