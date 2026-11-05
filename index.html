@@ -554,11 +554,18 @@
       min-width: 256px;
     }
 
-    /* Navegação Principal */
+    /* Navegação Principal com Conteúdo Centralizado Verticalmente */
     #sidebar-nav {
       overflow-y: auto;
       overflow-x: hidden;
       padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-nav-container {
+      margin-top: auto;
+      margin-bottom: auto;
+      width: 100%;
     }
 
     /* Itens da Sidebar */
@@ -1478,9 +1485,9 @@
     
     <!-- SIDEBAR ICON-RAIL RETRÁTIL INTEGRADA (DO TOPO AO RODAPÉ) -->
     <aside id="main-sidebar" class="h-full bg-[#0c0c0e] border-r border-zinc-800/80 flex flex-col justify-between shrink-0 select-none z-20">
-      <!-- Navegação Principal com Todos os 11 Módulos Acessíveis -->
-      <nav id="sidebar-nav" class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2 space-y-1" aria-label="Navegação Principal">
-        
+      <!-- Navegação Principal com Todos os 11 Módulos Centralizados -->
+      <nav id="sidebar-nav" class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegação Principal">
+        <div class="sidebar-nav-container my-auto space-y-1 w-full">
         <!-- GRUPO 1: OPERAÇÃO (3 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-operacao">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-500/80">
@@ -1595,6 +1602,7 @@
               <span class="sidebar-btn-label">Cópia de Segurança</span>
             </button>
           </div>
+        </div>
         </div>
       </nav>
 
