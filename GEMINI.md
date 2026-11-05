@@ -12,7 +12,27 @@ Esta worktree opera na branch isolada **`bugfix/resolucao-bugs`**.
 
 ---
 
-## ⚠️ Regras de Ouro
-1. **Depuração Sistemática:** Isole a causa raiz antes de alterar código. Não use tentativa e erro.
-2. **Preservação dos 209 Testes:** Toda correção deve passar com 100% de sucesso na suíte de testes antes de ser enviada ao Cérebro Central.
-3. **Diffs Cirúrgicos:** Altere apenas as linhas estritamente necessárias para corrigir o bug.
+## ⚡ Regras de Otimização & Produtividade
+
+### 1. Protocolo de 3 Passos Obrigatório (Eliminação do Chutômetro)
+Antes de alterar qualquer linha de código:
+1. **Localizar:** Isole a linha e a mensagem exata de erro sem ler arquivos inteiros.
+2. **Reproduzir:** Crie ou execute um comando de teste que comprove a falha.
+3. **Corrigir Cirurgicamente:** Aplique um diff pontual apenas no bloco defeituoso.
+
+### 2. Barreira de Sintaxe & Testes Pré-Commit
+Antes de considerar qualquer correção finalizada, você é **obrigado** a executar:
+1. `node --check <arquivo_alterado>` (garantir zero erros de sintaxe).
+2. O teste específico do módulo correspondente em `test_*.js`.
+3. Garantir que a suíte dos 209 testes permaneça com 100% de aprovação.
+
+### 3. Blindagem de Memória do Chromium / WhatsApp Web
+Toda manipulação envolvendo o cliente de WhatsApp deve respeitar os argumentos anti-leak:
+- `--no-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`, `--disable-setuid-sandbox`.
+- Garantir que processos órfãos do Chrome sejam encerrados no evento de saída (`before-exit` / `SIGTERM`).
+
+### 4. Zero Interferência em Layout
+- Não altere classes de layout no `index.html` a menos que o bug seja estritamente visual. Deixe o trabalho estético para a worktree de design.
+
+### 5. Ativação de Skills Recomendadas
+Nesta worktree, aplique por padrão as diretrizes de `/tokenleak` e depuração sistemática.
