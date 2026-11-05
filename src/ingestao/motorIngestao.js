@@ -777,6 +777,173 @@ function processosEquivalentes(a, b) {
  * @param {Object} configAtual
  * @returns {Object}
  */
+function sincronizarProcessoComDossie(novoProcesso, cfg) {
+  if (!cfg || typeof cfg !== 'object') return null;
+  if (!cfg.dossiesClientes || typeof cfg.dossiesClientes !== 'object') {
+    cfg.dossiesClientes = {};
+  }
+
+  const apenasNum = (v) => String(v || '').replace(/\\D/g, '');
+  const numProcesso = sanitizarNumeroProcesso(novoProcesso.numeroProcesso || novoProcesso.numero || '');
+  const cpfFormatado = sanitizarCPF(novoProcesso.cpf || (novoProcesso.dadosCadastrais && novoProcesso.dadosCadastrais.cpf));
+  const cpfLimpo = apenasNum(cpfFormatado);
+
+  const telefoneRaw = String(
+    novoProcesso.telefone ||
+    novoProcesso.telefoneCliente ||
+    (novoProcesso.dadosCadastrais && novoProcesso.dadosCadastrais.telefone) ||
+    (novoProcesso.dossieCompleto && novoProcesso.dossieCompleto.telefone) ||
+    ''
+  ).trim();
+  const telLimpo = apenasNum(telefoneRaw);
+
+  const nome = String(
+    novoProcesso.nome ||
+    (novoProcesso.dossieCompleto && novoProcesso.dossieCompleto.nomeCompleto) ||
+    'Cliente'
+  ).trim();
+
+  // 1. Procurar dossiê existente por Telefone ou CPF
+  let chaveEncontrada = null;
+  let dossieExistente = null;
+
+  if (cpfLimpo && cfg.dossiesClientes[cpfLimpo]) {
+    chaveEncontrada = cpfLimpo;
+    dossieExistente = cfg.dossiesClientes[cpfLimpo];
+  } else if (telLimpo && cfg.dossiesClientes[telLimpo]) {
+    chaveEncontrada = telLimpo;
+    dossieExistente = cfg.dossiesClientes[telLimpo];
+  }
+
+  if (!dossieExistente) {
+    for (const [chave, d] of Object.entries(cfg.dossiesClientes)) {
+      if (!d || typeof d !== 'object') continue;
+      const chaveNum = apenasNum(chave);
+      const dTel = apenasNum(d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone));
+      const dCpf = apenasNum(d.cpf || (d.civil && d.civil.cpf));
+
+      if (telLimpo && telLimpo.length >= 8) {
+        if (chaveNum === telLimpo || dTel === telLimpo) {
+          chaveEncontrada = chave;
+          dossieExistente = d;
+          break;
+        }
+        if (telLimpo.length >= 10 && dTel.length >= 10) {
+          if (telLimpo.endsWith(dTel) || dTel.endsWith(telLimpo)) {
+            chaveEncontrada = chave;
+            dossieExistente = d;
+            break;
+          }
+        }
+      }
+
+      if (cpfLimpo && cpfLimpo.length >= 11) {
+        if (chaveNum === cpfLimpo || dCpf === cpfLimpo) {
+          chaveEncontrada = chave;
+          dossieExistente = d;
+          break;
+        }
+      }
+    }
+  }
+
+  // 2. Se já existir: vincule o novo número de processo sem sobrescrever arquivos existentes
+  if (dossieExistente) {
+    if (numProcesso) {
+      dossieExistente.processoVinculado = numProcesso;
+      dossieExistente.numeroProcesso = numProcesso;
+      if (!Array.isArray(dossieExistente.processosVinculados)) {
+        dossieExistente.processosVinculados = dossieExistente.processoVinculado ? [dossieExistente.processoVinculado] : [];
+      }
+      if (!dossieExistente.processosVinculados.includes(numProcesso)) {
+        dossieExistente.processosVinculados.push(numProcesso);
+      }
+    }
+    if (!dossieExistente.cpf && cpfFormatado) {
+      dossieExistente.cpf = cpfFormatado;
+      if (dossieExistente.civil) dossieExistente.civil.cpf = cpfFormatado;
+    }
+    if (!dossieExistente.telefone && telLimpo) {
+      dossieExistente.telefone = telLimpo;
+      dossieExistente.clienteTelefone = telLimpo;
+    }
+    if ((!dossieExistente.nome || dossieExistente.nome === 'Cliente') && nome && nome !== 'Cliente') {
+      dossieExistente.nome = nome;
+      dossieExistente.clienteNome = nome;
+      if (dossieExistente.civil) dossieExistente.civil.nomeCompleto = nome;
+    }
+    if (!dossieExistente.dataCriacao) {
+      dossieExistente.dataCriacao = Date.now();
+    }
+    if (!Array.isArray(dossieExistente.documentos)) {
+      dossieExistente.documentos = [];
+    }
+    if (novoProcesso.dossieCompleto) {
+      Object.assign(dossieExistente, novoProcesso.dossieCompleto);
+    }
+    dossieExistente.atualizadoEm = new Date().toISOString();
+
+    try {
+      const pastaId = telLimpo || chaveEncontrada || cpfLimpo;
+      if (pastaId) {
+        const baseDir = path.resolve(process.cwd(), 'documentos_clientes');
+        const pastaFisica = path.resolve(baseDir, String(pastaId));
+        if (pastaFisica.startsWith(baseDir) && !fs.existsSync(pastaFisica)) {
+          fs.mkdirSync(pastaFisica, { recursive: true });
+        }
+      }
+    } catch (_) {}
+
+    return dossieExistente;
+  }
+
+  // 3. Se não existir: instancie automaticamente a pasta de dossiê do cliente
+  // (armazenando nome, telefone, cpf, processoVinculado, documentos: [], dataCriacao: Date.now())
+  const agora = Date.now();
+  const chaveNova = cpfLimpo || telLimpo || ('cli_' + agora + '_' + Math.random().toString(36).slice(2, 6));
+
+  try {
+    const baseDir = path.resolve(process.cwd(), 'documentos_clientes');
+    const pastaFisica = path.resolve(baseDir, String(chaveNova));
+    if (pastaFisica.startsWith(baseDir) && !fs.existsSync(pastaFisica)) {
+      fs.mkdirSync(pastaFisica, { recursive: true });
+    }
+  } catch (_) {}
+
+  const novoDossie = {
+    id: 'cli_' + agora + '_' + Math.random().toString(36).slice(2, 6),
+    nome: nome || 'Cliente',
+    clienteNome: nome || 'Cliente',
+    telefone: telLimpo || telefoneRaw || '',
+    clienteTelefone: telLimpo || telefoneRaw || '',
+    cpf: cpfFormatado || '',
+    processoVinculado: numProcesso || '',
+    processosVinculados: numProcesso ? [numProcesso] : [],
+    numeroProcesso: numProcesso || '',
+    documentos: [],
+    dataCriacao: agora,
+    criadoEm: new Date(agora).toISOString(),
+    atualizadoEm: new Date(agora).toISOString(),
+    status: 'EM_ABERTO',
+    civil: {
+      nomeCompleto: nome || 'Cliente',
+      cpf: cpfFormatado || '',
+      telefone: telLimpo || telefoneRaw || ''
+    },
+    qualificacao: {
+      nomeCompleto: nome || 'Cliente',
+      cpf: cpfFormatado || '',
+      telefone: telLimpo || telefoneRaw || ''
+    }
+  };
+
+  if (novoProcesso.dossieCompleto) {
+    Object.assign(novoDossie, novoProcesso.dossieCompleto);
+  }
+
+  cfg.dossiesClientes[chaveNova] = novoDossie;
+  return novoDossie;
+}
 function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
   // Resiliência de assinatura caso os argumentos sejam invertidos
   if (!Array.isArray(novosProcessos) && Array.isArray(configAtual)) {
@@ -872,18 +1039,7 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
         consultasPorContato: {},
         _resetarVistos: true
       };
-      if (novo.dossieCompleto) {
-        if (!cfg.dossiesClientes || typeof cfg.dossiesClientes !== 'object') cfg.dossiesClientes = {};
-        const chaveDossie = cpfFormatado || (novo.dossieCompleto.telefone ? novo.dossieCompleto.telefone.replace(/\D/g, '') : '') || novo.nome;
-        if (chaveDossie) {
-          cfg.dossiesClientes[chaveDossie] = {
-            ...(cfg.dossiesClientes[chaveDossie] || {}),
-            ...novo.dossieCompleto,
-            numeroProcesso: cnjFormatado || existente.numeroProcesso || existente.numero || '',
-            atualizadoEm: new Date().toISOString()
-          };
-        }
-      }
+      sincronizarProcessoComDossie(novo, cfg);
 
       atualizados++;
     } else {
@@ -919,18 +1075,7 @@ function mesclarComConfigAtual(novosProcessos, configAtual = {}) {
         ] : []
       };
 
-      if (novo.dossieCompleto) {
-        if (!cfg.dossiesClientes || typeof cfg.dossiesClientes !== 'object') cfg.dossiesClientes = {};
-        const chaveDossie = cpfFormatado || (novo.dossieCompleto.telefone ? novo.dossieCompleto.telefone.replace(/\D/g, '') : '') || novo.nome;
-        if (chaveDossie) {
-          cfg.dossiesClientes[chaveDossie] = {
-            ...(cfg.dossiesClientes[chaveDossie] || {}),
-            ...novo.dossieCompleto,
-            numeroProcesso: cnjFormatado || numNovo || '',
-            atualizadoEm: new Date().toISOString()
-          };
-        }
-      }
+      sincronizarProcessoComDossie(novo, cfg);
 
       listaRef.push(itemFormatado);
       adicionados++;
@@ -1026,6 +1171,7 @@ module.exports = {
   processarArquivoIngestao,
   processarMultiplosArquivos,
   mesclarComConfigAtual,
+  sincronizarProcessoComDossie,
   mesclarComConfig,
   COLUMN_MAPPING_RULES
 };
