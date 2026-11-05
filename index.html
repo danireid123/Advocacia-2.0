@@ -183,18 +183,20 @@
       backdrop-filter: blur(16px);
       border: 1px solid var(--border-color);
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
-      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    .exec-card:hover {
-      border-color: rgba(212, 175, 55, 0.35);
-    }
+    /* Cards padrão estáticos NUNCA ganham borda amarela no hover */
     .exec-card-hover {
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, background-color 0.28s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
     }
-    .exec-card-hover:hover {
+    /* Apenas cards explicitamente clicáveis (com cursor-pointer ou onclick) ganham destaque no hover */
+    .exec-card-hover.cursor-pointer:hover,
+    .exec-card-hover[onclick]:hover,
+    button.exec-card-hover:hover,
+    a.exec-card-hover:hover {
       transform: translateY(-2px);
-      box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.45), 0 0 24px -6px rgba(212, 175, 55, 0.18);
-      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.45);
+      border-color: rgba(212, 175, 55, 0.35);
     }
     .btn-tactile {
       transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
@@ -2198,7 +2200,7 @@
           <!-- 2 OPERATIONAL PILLARS: EXPORTAR vs RESTAURAR -->
           <div id="tour-backup-card" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Pillar 1: Exportar Backup -->
-            <div class="exec-card p-6 sm:p-7 rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-zinc-900/70 to-zinc-950/90 hover:border-amber-500/50 flex flex-col justify-between space-y-6 shadow-xl transition-all duration-200 group">
+            <div class="exec-card p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/50 flex flex-col justify-between space-y-6 shadow-xl transition-all duration-200 group">
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
                   <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/25 transition-all duration-200 shadow-inner">
@@ -2265,7 +2267,7 @@
           </div>
 
           <!-- CARD: SINCRONIZAÇÃO COM SERVIDOR NUVEM (24/7) -->
-          <div id="card-cloud-sync" class="exec-card p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-5 shadow-xl hover:border-amber-500/30 transition-all duration-200">
+          <div id="card-cloud-sync" class="exec-card p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-5 shadow-xl transition-all duration-200">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-4 gap-3">
               <div class="flex items-center space-x-3.5">
                 <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-inner">
@@ -2750,8 +2752,8 @@
             <!-- CARDS DE KPIS FINANCEIROS EXECUTIVOS (4 MÉTRICAS-CHAVE) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <!-- KPI 1: Recebido na Semana (IA) -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 hover:border-emerald-500/50 shadow-md hover:shadow-xl transition-all duration-200 group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-40"></div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Recebido na Semana (IA)</span>
                   <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
@@ -2763,8 +2765,8 @@
               </div>
 
               <!-- KPI 2: A Receber Esta Semana -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 hover:border-amber-500/50 shadow-md hover:shadow-xl transition-all duration-200 group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40"></div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">A Receber Esta Semana</span>
                   <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
@@ -2776,8 +2778,8 @@
               </div>
 
               <!-- KPI 3: Total a Receber Geral -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 hover:border-sky-500/50 shadow-md hover:shadow-xl transition-all duration-200 group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent opacity-40"></div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400">Total a Receber Geral</span>
                   <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-300 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
@@ -2789,8 +2791,8 @@
               </div>
 
               <!-- KPI 4: Total Já Arrecadado / Quitado -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 hover:border-purple-500/50 shadow-md hover:shadow-xl transition-all duration-200 group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-40 group-hover:opacity-100 transition-opacity"></div>
+              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-40"></div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400">Total Arrecadado / Quitado</span>
                   <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
@@ -5847,7 +5849,7 @@
         // Sugestões do Copilot usando index para imunidade total contra aspas (Bug 2)
         const sugestoesHTML = sugestoes.map((sug, idx) => {
           return `
-            <div class="p-2.5 bg-zinc-950/80 border border-zinc-800/80 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
+            <div class="p-2.5 bg-zinc-950/80 border border-zinc-800/80 rounded-xl flex items-start justify-between space-x-2">
               <p class="text-xs text-zinc-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
               <button type="button" onclick="aplicarSugestaoCopilot('${cardId}', ${idx})" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-zinc-950 transition whitespace-nowrap cursor-pointer">
                 Usar Esta <svg class="w-3 h-3 text-amber-400 inline ml-1"><use href="#icon-check"/></svg>
@@ -7269,7 +7271,7 @@
           const box = document.getElementById('logs-box');
           if (box.innerText.includes('Nenhuma') || box.innerText.includes('limpo')) box.innerHTML = '';
           const div = document.createElement('div');
-          div.className = "log-entry-row group p-3 rounded-xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 flex items-center justify-between text-xs transition-all duration-150 shadow-sm";
+          div.className = "log-entry-row group p-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 flex items-center justify-between text-xs transition-all duration-150 shadow-sm";
           div.setAttribute('data-tipo', (log.msg && log.msg.startsWith('🤖')) ? 'robo' : 'cliente');
           div.setAttribute('data-texto', `${rotuloExibicao} ${log.msg || ''}`);
           div.innerHTML = `<div class="flex items-center space-x-2.5 overflow-hidden pr-3"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span><span class="text-amber-400 font-bold truncate max-w-[200px]">${escaparHtmlTexto(rotuloExibicao)}</span></div><span class="truncate mx-2 flex-1 text-zinc-200 font-sans text-xs">${escaparHtmlTexto(log.msg || '')}</span><span class="text-[10px] text-zinc-500 font-mono whitespace-nowrap pl-2">${escaparHtmlTexto(log.hora || '')}</span>`;
@@ -8128,7 +8130,7 @@
 
             const listaSugestoesHTML = (dados.sugestoes || []).map((sug, idx) => {
               return `
-              <div class="p-2.5 bg-zinc-950/80 border border-zinc-800/80 rounded-xl hover:border-[#e5c158]/50 transition flex items-start justify-between space-x-2">
+              <div class="p-2.5 bg-zinc-950/80 border border-zinc-800/80 rounded-xl transition flex items-start justify-between space-x-2">
                 <p class="text-xs text-zinc-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
                 <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', ${idx})" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-zinc-950 transition whitespace-nowrap cursor-pointer">
                   Usar Esta <svg class="w-3 h-3 text-amber-400 inline ml-1"><use href="#icon-check"/></svg>
