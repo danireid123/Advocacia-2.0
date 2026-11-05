@@ -1644,6 +1644,58 @@
             <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
+          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Coluna 1: Processos Recentes -->
+            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
+              <div>
+                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+                      <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+                    </div>
+                    <div>
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
+                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
+                    </div>
+                  </div>
+                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                    <span>Ver todos</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                  </button>
+                </div>
+                <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Mensagens Recentes -->
+            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
+              <div>
+                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+                      <svg class="w-4 h-4"><use href="#icon-message"/></svg>
+                    </div>
+                    <div>
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
+                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
+                    </div>
+                  </div>
+                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                    <span>Ver histórico</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                  </button>
+                </div>
+                <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
+                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
+                    <span>Aguardando novas mensagens...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX VIVOS & HARMONIOSOS) -->
           <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
@@ -1763,57 +1815,6 @@
 
           </div>
 
-          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Coluna 1: Processos Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
-              <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
-                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
-                    </div>
-                  </div>
-                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver todos</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
-                  </button>
-                </div>
-                <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-              </div>
-            </div>
-
-            <!-- Coluna 2: Mensagens Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
-              <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-message"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
-                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
-                    </div>
-                  </div>
-                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver histórico</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
-                  </button>
-                </div>
-                <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
-                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
-                    <span>Aguardando novas mensagens...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- ================= ABA 1: CONSULTAR PROCESSO (OPÇÕES 1 E 2 PÓS-CPF) ================= -->
