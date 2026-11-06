@@ -1814,11 +1814,15 @@
                 </div>
               </div>
               <div class="space-y-2">
-                <div class="flex items-baseline justify-between">
-                  <div class="flex items-baseline gap-2">
-                    <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-emerald-200 tracking-tight block">0</span>
-                    <span class="text-[10px] text-zinc-400 font-mono">disparos</span>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></span>
+                    </span>
+                    <span class="text-base font-bold text-emerald-300 tracking-tight block">Robô Ativo</span>
                     <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">~0h economizadas</span>
+                    <span id="metric-mensagens-reais" class="hidden">0</span>
                   </div>
                   <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">94% auto</span>
                 </div>
@@ -3954,7 +3958,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const elMensagens = document.getElementById('metric-mensagens-reais');
       if (elMensagens) elMensagens.innerText = String(msgsQtd);
       const elHoras = document.getElementById('metric-horas-reais');
-      if (elHoras) elHoras.innerText = `${horasPoupadas} h`;
+      if (elHoras) elHoras.innerText = `~${horasPoupadas}h economizadas`;
 
       sincronizarContadorFila(qtdFilaHumana);
       renderizarTelaInicial();
