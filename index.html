@@ -1565,7 +1565,7 @@
 
         <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 4: SISTEMA (2 MÓDULOS) -->
+        <!-- GRUPO 4: SISTEMA (3 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-sistema">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
             <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>Sistema</span>
@@ -1578,7 +1578,18 @@
               <span class="sidebar-btn-label">Horários & Almoço</span>
             </button>
 
-            </div>
+            <!-- Cópia de Segurança (.JSON) -->
+            <button type="button" id="nav-btn-backup" data-desc="Exportar e restaurar cópias de segurança locais (.JSON)" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
+              <span class="sidebar-btn-label">Cópia de Segurança</span>
+            </button>
+
+            <!-- Configurações do Sistema -->
+            <button type="button" id="nav-btn-configuracoes" data-desc="Configurações do sistema, QR Code e parâmetros" class="sidebar-rail-btn" title="Configurações do Sistema">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-settings"/></svg></div>
+              <span class="sidebar-btn-label">Configurações</span>
+            </button>
+          </div>
         </div>
         </div>
       </nav>
@@ -1600,11 +1611,20 @@
           <span id="top-bar-page-name" class="font-serif-legal font-bold text-zinc-200 text-sm tracking-wide">Visão Geral</span>
         </div>
 
-        <!-- Botão Configurações no Topo Superior Direito -->
-        <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 text-xs font-medium transition-all shadow-sm active:scale-95 cursor-pointer group" title="Configurações do Sistema">
-          <svg class="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-settings"/></svg>
-          <span>Configurações</span>
-        </button>
+        <div class="flex items-center space-x-2">
+          <!-- Atalho Spotlight Search (Ctrl+K) -->
+          <button type="button" id="btn-top-spotlight" onclick="toggleSpotlight(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 text-xs font-medium transition cursor-pointer" title="Busca Global e Comandos (Ctrl+K)">
+            <svg class="w-3.5 h-3.5 text-zinc-400"><use href="#icon-search"/></svg>
+            <span class="hidden sm:inline">Buscar</span>
+            <kbd class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">Ctrl+K</kbd>
+          </button>
+
+          <!-- Botão Configurações no Topo Superior Direito -->
+          <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 text-xs font-medium transition-all shadow-sm active:scale-95 cursor-pointer group" title="Configurações do Sistema">
+            <svg class="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-settings"/></svg>
+            <span>Configurações</span>
+          </button>
+        </div>
       </div>
 
       <!-- CONTEÚDO PRINCIPAL COM RESPIRO PERFEITO -->
@@ -2161,6 +2181,10 @@
               <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Configure as mensagens de boas-vindas, caminhos de triagem por especialidade jurídica e vincule ações automatizadas com inteligência artificial.</p>
             </div>
             <div class="flex items-center space-x-2.5 shrink-0">
+              <span id="badge-autosave" class="text-[10px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                ✓ Auto-Save Ativo
+              </span>
               <button id="btn-nova-etapa" class="btn-tactile flex items-center space-x-1.5 px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] transition-all cursor-pointer shadow-sm">
                 <svg class="w-4 h-4 text-amber-400"><use href="#icon-plus"/></svg>
                 <span>Novo Submenu</span>
@@ -2227,9 +2251,9 @@
                 </div>
                 <div class="flex items-center space-x-2">
                   <span class="text-[10px] text-zinc-400">Inserir tag:</span>
-                  <button type="button" onclick="inserirTagNoInput('input-etapa-msg', '{nome}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {nome}</button>
-                  <button type="button" onclick="inserirTagNoInput('input-etapa-msg', '{escritorio}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {escritorio}</button>
-                  <button type="button" onclick="inserirTagNoInput('input-etapa-msg', '{cpf}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {cpf}</button>
+                  <button type="button" onclick="inserirTagNoInput('input-msg-boasvindas', '{nome}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {nome}</button>
+                  <button type="button" onclick="inserirTagNoInput('input-msg-boasvindas', '{escritorio}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {escritorio}</button>
+                  <button type="button" onclick="inserirTagNoInput('input-msg-boasvindas', '{cpf}')" class="px-2 py-0.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-mono text-[10px] border border-zinc-700 transition cursor-pointer">+ {cpf}</button>
                 </div>
               </div>
 
@@ -2238,13 +2262,13 @@
                 <div class="col-span-12 lg:col-span-7 space-y-3 flex flex-col justify-between">
                   <div>
                     <div class="flex items-center justify-between mb-1.5">
-                      <label class="text-xs font-semibold text-zinc-300">Mensagem da Etapa (#input-etapa-msg):</label>
-                      <button type="button" id="btn-melhorar-msg-etapa" onclick="typeof melhorarTextoAtendimentoEtapaComIA === 'function' && melhorarTextoAtendimentoEtapaComIA()" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                      <label class="text-xs font-semibold text-zinc-300">Mensagem de Boas-Vindas (#input-msg-boasvindas):</label>
+                      <button type="button" id="btn-melhorar-msg-boasvindas" onclick="typeof melhorarTextoAtendimentoEtapaComIA === 'function' && melhorarTextoAtendimentoEtapaComIA('input-msg-boasvindas')" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
                         <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                         <span>Melhorar com IA</span>
                       </button>
                     </div>
-                    <textarea id="input-etapa-msg" rows="5" class="exec-input w-full rounded-2xl p-4 text-xs resize-none leading-relaxed font-sans" placeholder="Olá {nome}! Seja bem-vindo ao nosso escritório..." oninput="sincronizarPreviewWhatsApp('input-etapa-msg', 'wa-preview-boasvindas')">Olá {nome}! Seja muito bem-vindo ao nosso escritório de advocacia.
+                    <textarea id="input-msg-boasvindas" rows="5" class="exec-input w-full rounded-2xl p-4 text-xs resize-none leading-relaxed font-sans" placeholder="Olá {nome}! Seja bem-vindo ao nosso escritório..." oninput="sincronizarPreviewWhatsApp('input-msg-boasvindas', 'wa-preview-boasvindas'); if (configGlobal && configGlobal.fluxo && configGlobal.fluxo.raiz) { configGlobal.fluxo.raiz.mensagem = this.value; const ed = document.getElementById('input-etapa-msg'); if (ed && etapaSelecionada === 'raiz') ed.value = this.value; if (typeof agendarRenderMapaVisual === 'function') agendarRenderMapaVisual(); if (typeof marcarAlteracaoPendente === 'function') marcarAlteracaoPendente(); }">Olá {nome}! Seja muito bem-vindo ao nosso escritório de advocacia.
 
 Como podemos ajudar você hoje?
 1️⃣ Consultar andamento de processo existente
@@ -3920,10 +3944,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const btnSalvar = document.getElementById('btn-salvar-fluxo');
       const labelSalvar = document.getElementById('label-btn-salvar');
 
-      badge.innerText = "● Salvando...";
-      badge.className = "text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#d4af37]/15 text-[#e5c158]";
-      btnSalvar.classList.add('unsaved-glow');
-      labelSalvar.innerText = "Salvar Agora ●";
+      if (badge) {
+        badge.innerText = "● Salvando...";
+        badge.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#d4af37]/15 text-[#e5c158] border border-[#d4af37]/30 flex items-center gap-1.5 font-mono";
+      }
+      if (btnSalvar) btnSalvar.classList.add('unsaved-glow');
+      if (labelSalvar) labelSalvar.innerText = "Salvar Agora ●";
 
       localStorage.setItem('adv_bot_config_backup', JSON.stringify(configGlobal));
       clearTimeout(timerAutoSave);
@@ -4777,6 +4803,31 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         if (typeof window.alternarDetalheProcAba === 'function') window.alternarDetalheProcAba('processo');
         renderizarModuloProcessos();
       }
+      if (abaNome === 'fluxo') {
+        const pnlAc = document.getElementById('painel-fluxo-acoes');
+        const pnlEd = document.getElementById('painel-fluxo-editor');
+        if (pnlAc && !pnlAc.classList.contains('hidden')) {
+          if (typeof renderizarCentralAcoes === 'function') renderizarCentralAcoes();
+        } else if (pnlEd && !pnlEd.classList.contains('hidden')) {
+          if (typeof carregarEtapaNoEditor === 'function') carregarEtapaNoEditor(etapaSelecionada || 'raiz');
+        } else {
+          if (typeof carregarTemplatesProcessosNosInputs === 'function') carregarTemplatesProcessosNosInputs(true);
+          if (typeof carregarModeloTemplateOnboardingUI === 'function') carregarModeloTemplateOnboardingUI();
+          if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
+        }
+      }
+      if (abaNome === 'pausados') {
+        if (window.api && window.api.obterPausados) {
+          window.api.obterPausados().then(p => {
+            if (typeof renderizarPausados === 'function') renderizarPausados(p);
+          }).catch(err => {
+            console.warn('Erro ao obter pausados:', err);
+            if (typeof renderizarPausados === 'function') renderizarPausados(configGlobal.pausados || {});
+          });
+        } else if (typeof renderizarPausados === 'function') {
+          renderizarPausados(configGlobal.pausados || {});
+        }
+      }
       if (abaNome === 'agenda') renderizarAgendaSemanal();
       if (abaNome === 'ignorados') carregarERenderizarIgnorados();
       if (abaNome === 'financeiro' && typeof window.carregarERenderizarFinanceiro === 'function') {
@@ -4791,10 +4842,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     safeOn('nav-btn-fluxo', 'click', () => ativarAba('fluxo'));
     safeOn('nav-btn-processos', 'click', () => ativarAba('processos'));
     safeOn('nav-btn-agenda', 'click', () => ativarAba('agenda'));
-    safeOn('nav-btn-pausados', 'click', async () => {
-      ativarAba('pausados');
-      if (window.api && window.api.obterPausados) renderizarPausados(await window.api.obterPausados());
-    });
+    safeOn('nav-btn-pausados', 'click', () => ativarAba('pausados'));
     safeOn('nav-btn-ignorados', 'click', () => ativarAba('ignorados'));
     safeOn('nav-btn-simulador', 'click', () => ativarAba('simulador'));
     safeOn('nav-btn-dossie-clientes', 'click', () => ativarAba('dossie-clientes'));
@@ -4942,6 +4990,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (!etapa) return;
       const elMsg = document.getElementById('input-etapa-msg');
       if (elMsg) elMsg.value = etapa.mensagem || '';
+      if (id === 'raiz') {
+        const elBoasVindas = document.getElementById('input-msg-boasvindas');
+        if (elBoasVindas && (!elBoasVindas.value || elBoasVindas.value !== etapa.mensagem)) {
+          elBoasVindas.value = etapa.mensagem || '';
+          if (typeof sincronizarPreviewWhatsApp === 'function') {
+            sincronizarPreviewWhatsApp('input-msg-boasvindas', 'wa-preview-boasvindas');
+          }
+        }
+      }
       const btnExcluir = document.getElementById('btn-excluir-etapa');
       if (btnExcluir) btnExcluir.classList.toggle('hidden', id === 'raiz');
       renderizarOpcoesDaEtapa(); renderizarMapaVisual();
@@ -4949,7 +5006,20 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
     safeOn('input-etapa-msg', 'input', (e) => {
       const etapa = obterObjetoEtapaAtual();
-      if (etapa) { etapa.mensagem = e.target.value; agendarRenderMapaVisual(); marcarAlteracaoPendente(); }
+      if (etapa) {
+        etapa.mensagem = e.target.value;
+        if (etapaSelecionada === 'raiz') {
+          const elBoasVindas = document.getElementById('input-msg-boasvindas');
+          if (elBoasVindas) {
+            elBoasVindas.value = e.target.value;
+            if (typeof sincronizarPreviewWhatsApp === 'function') {
+              sincronizarPreviewWhatsApp('input-msg-boasvindas', 'wa-preview-boasvindas');
+            }
+          }
+        }
+        agendarRenderMapaVisual();
+        marcarAlteracaoPendente();
+      }
     });
 
     function renderizarOpcoesDaEtapa() {
@@ -5210,31 +5280,49 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     };
 
     window.alternarSubAbaFluxo = (aba) => {
+      const btnMsg = document.getElementById('subtab-fluxo-mensagens');
       const btnEd = document.getElementById('subtab-fluxo-editor');
       const btnAc = document.getElementById('subtab-fluxo-acoes');
+      const pnlMsg = document.getElementById('painel-fluxo-mensagens');
       const pnlEd = document.getElementById('painel-fluxo-editor');
       const pnlAc = document.getElementById('painel-fluxo-acoes');
 
+      const activeClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer";
+      const inactiveClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent cursor-pointer";
+
+      if (btnMsg) btnMsg.className = (aba === 'mensagens') ? activeClass : inactiveClass;
+      if (btnEd) btnEd.className = (aba === 'editor') ? activeClass : inactiveClass;
+      if (btnAc) btnAc.className = (aba === 'acoes') ? activeClass : inactiveClass;
+
+      if (pnlMsg) pnlMsg.classList.toggle('hidden', aba !== 'mensagens');
+      if (pnlEd) pnlEd.classList.toggle('hidden', aba !== 'editor');
+      if (pnlAc) pnlAc.classList.toggle('hidden', aba !== 'acoes');
+
       if (aba === 'acoes') {
-        if (btnEd) btnEd.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent cursor-pointer";
-        if (btnAc) btnAc.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer";
-        if (pnlEd) pnlEd.classList.add('hidden');
         if (pnlAc) {
           pnlAc.classList.remove('hidden', 'tab-anim-left', 'tab-anim-right');
           void pnlAc.offsetWidth;
           pnlAc.classList.add('tab-anim-right');
         }
         renderizarCentralAcoes();
-      } else {
-        if (btnEd) btnEd.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer";
-        if (btnAc) btnAc.className = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent cursor-pointer";
-        if (pnlAc) pnlAc.classList.add('hidden');
+      } else if (aba === 'editor') {
         if (pnlEd) {
           pnlEd.classList.remove('hidden', 'tab-anim-left', 'tab-anim-right');
           void pnlEd.offsetWidth;
-          pnlEd.classList.add('tab-anim-left');
+          pnlEd.classList.add('tab-anim-right');
         }
-        renderizarOpcoesDaEtapa();
+        if (typeof carregarEtapaNoEditor === 'function') carregarEtapaNoEditor(etapaSelecionada || 'raiz');
+        if (typeof renderizarOpcoesDaEtapa === 'function') renderizarOpcoesDaEtapa();
+        if (typeof renderizarMapaVisual === 'function') renderizarMapaVisual();
+      } else {
+        if (pnlMsg) {
+          pnlMsg.classList.remove('hidden', 'tab-anim-left', 'tab-anim-right');
+          void pnlMsg.offsetWidth;
+          pnlMsg.classList.add('tab-anim-left');
+        }
+        if (typeof carregarTemplatesProcessosNosInputs === 'function') carregarTemplatesProcessosNosInputs(true);
+        if (typeof carregarModeloTemplateOnboardingUI === 'function') carregarModeloTemplateOnboardingUI();
+        if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
       }
     };
 
@@ -5645,10 +5733,18 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     };
 
-    window.melhorarTextoAtendimentoEtapaComIA = async () => {
-      const textarea = document.getElementById('input-etapa-msg');
-      const btn = document.getElementById('btn-melhorar-msg-etapa');
+    window.melhorarTextoAtendimentoEtapaComIA = async (customId = 'input-etapa-msg') => {
+      const textarea = document.getElementById(customId) || document.getElementById('input-etapa-msg');
+      const btn = customId === 'input-msg-boasvindas' ? document.getElementById('btn-melhorar-msg-boasvindas') : document.getElementById('btn-melhorar-msg-etapa');
       await window.executarMelhoriaMensagemGenerica(textarea, (novoTexto) => {
+        if (customId === 'input-msg-boasvindas' || etapaSelecionada === 'raiz') {
+          if (configGlobal && configGlobal.fluxo && configGlobal.fluxo.raiz) {
+            configGlobal.fluxo.raiz.mensagem = novoTexto;
+          }
+          const other = document.getElementById(customId === 'input-msg-boasvindas' ? 'input-etapa-msg' : 'input-msg-boasvindas');
+          if (other) other.value = novoTexto;
+          if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
+        }
         const etapa = typeof obterObjetoEtapaAtual === 'function' ? obterObjetoEtapaAtual() : null;
         if (etapa) {
           etapa.mensagem = novoTexto;
@@ -5683,9 +5779,17 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const inputSub = document.getElementById('input-nome-submenu');
       if (inputSub) inputSub.value = '';
       if (modalSub) { modalSub.classList.remove('hidden'); modalSub.classList.add('flex'); }
+      setTimeout(() => inputSub && inputSub.focus(), 60);
     });
     safeOn('btn-cancelar-modal', 'click', () => {
       if (modalSub) { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); }
+    });
+    safeOn('input-nome-submenu', 'keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const btnConf = document.getElementById('btn-confirmar-modal');
+        if (btnConf) btnConf.click();
+      }
     });
     safeOn('btn-confirmar-modal', 'click', () => {
       const nome = (document.getElementById('input-nome-submenu')?.value || '').trim();
@@ -5693,13 +5797,25 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const id = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
       configGlobal.fluxo.etapas[id] = { titulo: `Submenu: ${nome}`, mensagem: `*${nome}*\n\nComo podemos lhe orientar?`, opcoes: [{ gatilho: "0", rotulo: "Voltar ao Início", tipo: "submenu", destino: "raiz", resposta: "" }] };
       if (modalSub) { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); }
-      etapaSelecionada = id; popularSeletorDeEtapas(); carregarEtapaNoEditor(id); marcarAlteracaoPendente();
+      etapaSelecionada = id;
+      popularSeletorDeEtapas();
+      carregarEtapaNoEditor(id);
+      if (typeof window.alternarSubAbaFluxo === 'function') {
+        window.alternarSubAbaFluxo('editor');
+      }
+      marcarAlteracaoPendente();
     });
 
     safeOn('btn-excluir-etapa', 'click', () => {
       if (etapaSelecionada === 'raiz') return;
       delete configGlobal.fluxo.etapas[etapaSelecionada];
-      etapaSelecionada = 'raiz'; popularSeletorDeEtapas(); carregarEtapaNoEditor('raiz'); marcarAlteracaoPendente();
+      etapaSelecionada = 'raiz';
+      popularSeletorDeEtapas();
+      carregarEtapaNoEditor('raiz');
+      if (typeof window.renderizarCentralAcoes === 'function') {
+        window.renderizarCentralAcoes();
+      }
+      marcarAlteracaoPendente();
     });
 
     function carregarTemplatesProcessosNosInputs(forcar = false) {
@@ -5738,9 +5854,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     });
 
     safeOn('btn-toggle-msg-processos', 'click', () => {
-      const p = document.getElementById('painel-msg-processos');
-      if (p) p.classList.toggle('hidden');
       carregarTemplatesProcessosNosInputs(true);
+      if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
     });
 
     safeOn('btn-salvar-tpl-processos', 'click', () => {
@@ -5751,9 +5866,14 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       configGlobal.processos.mensagens.msg_nao_encontrado = document.getElementById('tpl-msg-nao-encontrado')?.value || '';
       configGlobal.processos.mensagens.msg_encerrar_conversa = document.getElementById('tpl-msg-encerrar')?.value || '';
       configGlobal.processos.mensagens.msg_chamar_advogado_pos_proc = document.getElementById('tpl-msg-advogado-pos')?.value || '';
+      const elBv = document.getElementById('input-msg-boasvindas');
+      if (elBv && configGlobal && configGlobal.fluxo && configGlobal.fluxo.raiz) {
+        configGlobal.fluxo.raiz.mensagem = elBv.value;
+        const ed = document.getElementById('input-etapa-msg');
+        if (ed && etapaSelecionada === 'raiz') ed.value = elBv.value;
+      }
       salvarConfiguracaoCompleta(false);
-      const painel = document.getElementById('painel-msg-processos');
-      if (painel) painel.classList.add('hidden');
+      if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
     });
 
     let draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
@@ -8261,10 +8381,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       garantirEstruturaProcessos();
       localStorage.setItem('adv_bot_config_backup', JSON.stringify(configGlobal));
       if (window.api && window.api.salvarConfig) await window.api.salvarConfig(configGlobal);
-      document.getElementById('badge-autosave').innerText = "✓ Auto-Save Ativo";
-      document.getElementById('badge-autosave').className = "text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-      document.getElementById('btn-salvar-fluxo').classList.remove('unsaved-glow');
-      document.getElementById('label-btn-salvar').innerText = "Salvar Menu";
+      const badgeAutosave = document.getElementById('badge-autosave');
+      if (badgeAutosave) {
+        badgeAutosave.innerText = "✓ Auto-Save Ativo";
+        badgeAutosave.className = "text-[10px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 font-mono";
+      }
+      const btnSalvar = document.getElementById('btn-salvar-fluxo');
+      if (btnSalvar) btnSalvar.classList.remove('unsaved-glow');
+      const lblSalvar = document.getElementById('label-btn-salvar');
+      if (lblSalvar) lblSalvar.innerText = "Salvar Menu";
       renderizarTelaInicial();
       if (!silencioso) mostrarToast('Alterações salvas com segurança!');
     }
@@ -8477,6 +8602,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       garantirEstruturaProcessos();
       popularSeletorDeEtapas();
       carregarEtapaNoEditor('raiz');
+      const elBoasVindasInit = document.getElementById('input-msg-boasvindas');
+      if (elBoasVindasInit && configGlobal && configGlobal.fluxo && configGlobal.fluxo.raiz) {
+        elBoasVindasInit.value = configGlobal.fluxo.raiz.mensagem || '';
+      }
+      if (typeof carregarTemplatesProcessosNosInputs === 'function') carregarTemplatesProcessosNosInputs(true);
+      if (typeof carregarModeloTemplateOnboardingUI === 'function') carregarModeloTemplateOnboardingUI();
+      if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
       renderizarAgendaSemanal();
       renderizarModuloProcessos();
       carregarERenderizarIgnorados();
@@ -8504,8 +8636,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       if (window.api) {
         if (window.api.obterPausados) {
-          const pausadosIniciais = await window.api.obterPausados();
-          renderizarPausados(pausadosIniciais || {});
+          try {
+            const pausadosIniciais = await window.api.obterPausados();
+            renderizarPausados(pausadosIniciais || {});
+          } catch (e) {
+            console.warn('Aviso ao obter pausados iniciais:', e);
+            renderizarPausados(configGlobal.pausados || {});
+          }
         }
 
         if (window.api.aoAtualizarIgnorados) {
@@ -8515,9 +8652,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
 
         if (window.api.obterEstadoConexao) {
-          const est = await window.api.obterEstadoConexao();
-          if (est) {
-            aplicarStatusConexaoNaUI(est.status, est.qr, est.subStatus);
+          try {
+            const est = await window.api.obterEstadoConexao();
+            if (est) {
+              aplicarStatusConexaoNaUI(est.status, est.qr, est.subStatus);
+            }
+          } catch (e) {
+            console.warn('Aviso ao obter estado conexao:', e);
           }
         }
 
@@ -9302,6 +9443,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             if (btnCancelar) btnCancelar.classList.add('hidden');
           }
           window.cancelarGravacaoSimulador = cancelarGravacaoSimulador;
+          window.cancelarGravacaoVozSimulador = cancelarGravacaoSimulador;
 
           function renderizarAudioNoSimulador(base64Audio) {
             const container = document.getElementById('simulador-mensagens-box') || document.querySelector('.simulador-messages');
@@ -9786,6 +9928,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           // Expor globalmente para garantir acessibilidade via eventos inline e módulos
           window.toggleGravacaoSimulador = toggleGravacaoSimulador;
           window.cancelarGravacaoSimulador = cancelarGravacaoSimulador;
+          window.cancelarGravacaoVozSimulador = cancelarGravacaoSimulador;
           window.renderizarAudioNoSimulador = renderizarAudioNoSimulador;
           window.renderizarDocumentoNoSimulador = renderizarDocumentoNoSimulador;
           window.enviarAudioArquivoSimulador = enviarAudioArquivoSimulador;
@@ -9959,6 +10102,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     }
 
     function alternarHubSubAba(aba) {
+      if (typeof window.alternarDetalheProcAba === 'function') {
+        if (aba === 'cpc' || aba === 'docs' || aba === 'dossie') {
+          window.alternarDetalheProcAba('dossie');
+        } else {
+          window.alternarDetalheProcAba('processo');
+        }
+      }
       const abas = ['processo', 'cpc', 'docs'];
       abas.forEach(a => {
         const btn = document.getElementById('hub-subtab-' + a);
@@ -9972,6 +10122,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
       });
     }
+    window.alternarHubSubAba = alternarHubSubAba;
 
     function alternarListaModo(modo) {
       const boxProc = document.getElementById('lista-processos-box');
@@ -10002,9 +10153,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
       }
     }
+    window.alternarListaModo = alternarListaModo;
 
     function sincronizarTodosBaloesWhatsApp() {
-      sincronizarPreviewWhatsApp('input-etapa-msg', 'wa-preview-boasvindas');
+      const elBv = document.getElementById('input-msg-boasvindas');
+      if (elBv && elBv.value) {
+        sincronizarPreviewWhatsApp('input-msg-boasvindas', 'wa-preview-boasvindas');
+      } else {
+        sincronizarPreviewWhatsApp('input-etapa-msg', 'wa-preview-boasvindas');
+      }
       sincronizarPreviewWhatsApp('tpl-msg-com-atualizacao', 'wa-prev-com-atualizacao');
       sincronizarPreviewWhatsApp('tpl-msg-ja-visto', 'wa-prev-ja-visto');
       sincronizarPreviewWhatsApp('tpl-msg-sem-atualizacao', 'wa-prev-sem-atualizacao');
@@ -10013,6 +10170,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       sincronizarPreviewWhatsApp('tpl-msg-advogado-pos', 'wa-prev-advogado-pos');
       sincronizarPreviewWhatsApp('dossie-template-mensagem-docs', 'wa-preview-onboarding-docs');
     }
+    window.sincronizarTodosBaloesWhatsApp = sincronizarTodosBaloesWhatsApp;
+    window.sincronizarPreviewWhatsApp = sincronizarPreviewWhatsApp;
+    window.inserirTagNoInput = inserirTagNoInput;
+    window.inserirTagAtiva = inserirTagAtiva;
 </script>
 </body>
 </html>
