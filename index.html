@@ -202,6 +202,23 @@
       box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(212, 175, 55, 0.15);
       border-color: rgba(212, 175, 55, 0.35);
     }
+    /* Hover temático específico por card na aba inicial */
+    .exec-card-hover.kpi-card-rose:hover {
+      border-color: rgba(244, 63, 94, 0.6) !important;
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(244, 63, 94, 0.3), inset 0 1px 0 rgba(244, 63, 94, 0.3) !important;
+    }
+    .exec-card-hover.kpi-card-emerald:hover {
+      border-color: rgba(16, 185, 129, 0.6) !important;
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(16, 185, 129, 0.3) !important;
+    }
+    .exec-card-hover.kpi-card-amber:hover {
+      border-color: rgba(245, 158, 11, 0.6) !important;
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(245, 158, 11, 0.3) !important;
+    }
+    .exec-card-hover.kpi-card-sky:hover {
+      border-color: rgba(56, 189, 248, 0.6) !important;
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.3) !important;
+    }
     .btn-tactile {
       transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
     }
@@ -1675,7 +1692,7 @@
             <span id="metric-clientes-reais" class="hidden">0</span>
 
             <!-- Card 1: Fila do Advogado & Transbordo (Acento Coral/Âmbar) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
+            <div class="exec-card exec-card-hover kpi-card-rose relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-rose-500/50 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-rose-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Fila de Atendimento</span>
@@ -1703,7 +1720,7 @@
             </div>
 
             <!-- Card 2: Automação & Mensagens (Acento Esmeralda WhatsApp) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
+            <div class="exec-card exec-card-hover kpi-card-emerald relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/50 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Mensagens do Robô</span>
@@ -1733,7 +1750,7 @@
             </div>
 
             <!-- Card 3: Financeiro & PIX (Atalho Área Financeira) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('financeiro')" title="Clique para acessar o módulo Financeiro & PIX">
+            <div class="exec-card exec-card-hover kpi-card-amber relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/50 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('financeiro')" title="Clique para acessar o módulo Financeiro & PIX">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Financeiro &amp; PIX</span>
@@ -1755,7 +1772,7 @@
             </div>
 
             <!-- Card 4: Expediente & Horário Hoje (Acento Azul Safira / Esmeralda) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-sky-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
+            <div class="exec-card exec-card-hover kpi-card-sky relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-sky-500/50 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Expediente Hoje</span>
