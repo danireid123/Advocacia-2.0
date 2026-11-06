@@ -1808,7 +1808,7 @@
             <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Respostas Automáticas</span>
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Mensagens do Robô</span>
                 <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 transition-all duration-200 shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
                 </div>
@@ -1817,7 +1817,8 @@
                 <div class="flex items-baseline justify-between">
                   <div class="flex items-baseline gap-2">
                     <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-emerald-200 tracking-tight block">0</span>
-                    <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">0.0 h poupadas</span>
+                    <span class="text-[10px] text-zinc-400 font-mono">disparos</span>
+                    <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">~0h economizadas</span>
                   </div>
                   <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">94% auto</span>
                 </div>
@@ -1942,9 +1943,8 @@
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
               <div class="mb-3">
                 <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
-                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 33%;"></div>
+                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 50%;"></div>
                   <button type="button" class="segmented-pill-tab active flex-1 text-center" data-filter="todos" onclick="alternarFiltroProcessosPill('todos', this)">Todos</button>
-                  <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="audiencia" onclick="alternarFiltroProcessosPill('audiencia', this)">Audiências</button>
                   <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="recente" onclick="alternarFiltroProcessosPill('recente', this)">Recentes</button>
                 </div>
               </div>
@@ -4161,7 +4161,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (elBadgeProc) elBadgeProc.innerText = String(lista.length);
       const elFilaHome = document.getElementById('metric-fila-humana-home');
       const elFilaTopo = document.getElementById('metric-fila-humana');
-      if (elFilaHome && elFilaTopo) elFilaHome.innerText = elFilaTopo.innerText || '0';
+      const totalPausados = Object.keys((configGlobal && configGlobal.pausados) || {}).length;
+      if (elFilaHome) elFilaHome.innerText = String(totalPausados);
+      if (elFilaTopo) elFilaTopo.innerText = String(totalPausados);
+      const badgeStatusFila = document.getElementById('badge-status-fila-home');
+      if (badgeStatusFila) {
+        badgeStatusFila.innerText = totalPausados > 0 ? `${totalPausados} aguardando` : 'Fila limpa';
+      }
 
       const qtdMenus = 1 + Object.keys((configGlobal.fluxo && configGlobal.fluxo.etapas) || {}).length;
       const elMenus = document.getElementById('home-card-menus');
