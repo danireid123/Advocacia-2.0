@@ -940,6 +940,9 @@
 
   <!-- SPRITES SVG -->
   <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
+    <symbol id="icon-credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+    </symbol>
     <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
     </symbol>
@@ -1713,11 +1716,12 @@
                     <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-emerald-200 tracking-tight block">0</span>
                     <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">0.0 h poupadas</span>
                   </div>
-                  <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">94% auto</span>
                 </div>
+                <!-- Hidden anchor to preserve configGlobal script references -->
+                <span id="home-card-menus" class="hidden">2</span>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span>Atendimento 24/7</span>
-                  <span class="text-[10px] text-emerald-400/90 font-mono"><span id="home-card-menus">2</span> fluxos ativos</span>
+                  <span>Mensagens do WhatsApp</span>
+                  <span class="text-xs text-emerald-400 font-semibold group-hover:translate-x-0.5 transition-transform">➔</span>
                 </div>
               </div>
             </div>
@@ -1728,21 +1732,18 @@
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Financeiro &amp; PIX</span>
                 <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-all duration-200 shrink-0 shadow-sm">
-                  <svg class="w-4 h-4"><use href="#icon-credit-card"/></svg>
+                  <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+                  </svg>
                 </div>
               </div>
               <div class="space-y-2">
                 <div class="flex items-baseline justify-between">
-                  <div class="flex items-baseline gap-2">
-                    <span id="home-card-financeiro" class="font-serif-legal text-xl sm:text-2xl font-bold text-amber-200 tracking-tight block">Régua Semanal</span>
-                  </div>
-                  <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">PIX 24/7</span>
+                  <span id="home-card-financeiro" class="font-serif-legal text-2xl sm:text-3xl font-bold text-amber-200 tracking-tight block">Financeiro</span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span>Auditoria &amp; Conciliação</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-amber-300 font-mono">
-                    100% Blindado
-                  </span>
+                  <span>Gestão de Cobranças</span>
+                  <span class="text-xs text-amber-400 font-semibold group-hover:translate-x-0.5 transition-transform">➔</span>
                 </div>
               </div>
             </div>
