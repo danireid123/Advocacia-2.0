@@ -1953,75 +1953,70 @@
 
           <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
         <div id="aba-processos" class="hidden space-y-6 tab-pane-anim">
-          <!-- EXECUTIVE SECTION HEADER -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+          <!-- EXECUTIVE SECTION HEADER (CLEAN & ANTI-SLOP) -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
             <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Processos &amp; Clientes
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
-                  Hub Unificado • CPC Art. 319 &amp; IA Forense
-                </span>
-              </div>
-              <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                <svg class="w-6 h-6 text-amber-400"><use href="#icon-folder"/></svg>
-                Gestão Integrada de Processos &amp; Dossiês
+              <h2 class="font-serif-legal text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
+                  <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+                </div>
+                <span>Clientes &amp; Processos</span>
               </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Central de inteligência do escritório: localize clientes por CPF, CNJ, nome ou telefone, gerencie andamentos processuais e qualificação civil (Art. 319 CPC) com documentos auditados por IA.
+              <p class="text-xs sm:text-sm text-zinc-400 max-w-2xl">
+                Consulte pastas ativas, histórico processual e documentos civis organizados por cliente.
               </p>
             </div>
-            <div class="flex items-center gap-2">
-              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-amber-500/40 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-sm" title="Personalizar mensagens automáticas do robô no WhatsApp">
-                <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-settings"/></svg>
-                <span>Personalizar Mensagens do Bot</span>
-              </button>
-            </div>
+            <!-- Botão de editar mensagens removido a pedido do usuário (âncora oculta mantida para compatibilidade IPC) -->
+            <button id="btn-toggle-msg-processos" type="button" class="hidden"></button>
           </div>
 
-          <!-- SMART IMPORT MULTIFORMATO -->
-          <div class="exec-card p-5 rounded-3xl bg-zinc-900/40 border border-zinc-800/80 space-y-4 shadow-xl">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3.5">
+          <!-- IMPORTAÇÃO DE PASTAS & DOCUMENTOS (PADRONIZADO & SELEÇÃO MÚLTIPLA) -->
+          <div class="exec-card p-5 sm:p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-4 shadow-xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
               <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <div class="w-10 h-10 rounded-2xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
                 <div>
-                  <span class="text-xs font-bold text-zinc-100 block">Importação Inteligente de Pastas &amp; Clientes</span>
-                  <span class="text-[11px] text-zinc-400">Planilhas <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong> ou <strong>Word (.docx)</strong> criam pastas e dossiês automaticamente</span>
+                  <h3 class="text-sm font-bold text-zinc-100 block">Importação de Pastas &amp; Clientes</h3>
+                  <p class="text-xs text-zinc-400">Importe planilhas ou documentos do tribunal para criar pastas automaticamente</p>
                 </div>
               </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button type="button" id="btn-higienizar-base" class="px-3 py-1.5 bg-zinc-900 hover:bg-rose-950/40 text-rose-300 border border-zinc-800 hover:border-rose-800/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Remove duplicidades de processos">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <div class="flex flex-wrap items-center gap-2.5">
+                <button type="button" id="btn-higienizar-base" class="btn-tactile px-3.5 py-2 bg-zinc-800/70 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 hover:border-zinc-600 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Remove duplicidades e consolida cadastros">
+                  <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   <span>Higienizar Base</span>
                 </button>
-                <button type="button" id="btn-baixar-modelo-xlsx" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer">
+                <button type="button" id="btn-baixar-modelo-xlsx" class="btn-tactile px-3.5 py-2 bg-zinc-800/70 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 hover:border-zinc-600 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Baixar planilha modelo formatada">
                   <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                   <span>Planilha Modelo (.xlsx)</span>
                 </button>
-                <button type="button" id="btn-selecionar-arquivos-proc" class="px-3.5 py-1.5 champagne-gradient rounded-xl text-[11px] font-bold text-zinc-950 shadow-sm active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <button type="button" id="btn-selecionar-arquivos-proc" class="btn-tactile px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-950 font-bold rounded-xl text-xs shadow-[0_2px_12px_rgba(245,158,11,0.25)] hover:shadow-[0_4px_16px_rgba(245,158,11,0.35)] active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
+                  <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                   <span>Selecionar Arquivo(s)</span>
                 </button>
               </div>
             </div>
 
-            <!-- Dropzone Visual -->
-            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/80 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-amber-500/5 rounded-2xl p-6 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-2.5 group">
-              <div class="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 group-hover:border-amber-500/40 flex items-center justify-center text-zinc-400 group-hover:text-amber-400 group-hover:scale-105 transition-all shadow-inner">
-                <svg class="w-6 h-6 dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <!-- Dropzone Visual com suporte explícito a clique & seleção múltipla -->
+            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/70 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-zinc-900/60 rounded-2xl p-7 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-3 group">
+              <div class="w-12 h-12 rounded-2xl bg-zinc-900/90 border border-zinc-800 group-hover:border-amber-500/40 flex items-center justify-center text-zinc-400 group-hover:text-amber-400 group-hover:scale-105 transition-all shadow-inner">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
               </div>
-              <div class="text-xs text-zinc-300">
-                <span class="font-bold text-amber-400">Arraste e solte seus arquivos aqui</span> ou clique para navegar
+              <div class="space-y-1">
+                <div class="text-sm font-semibold text-zinc-200">
+                  <span class="text-amber-400 group-hover:underline">Clique para selecionar do computador</span> ou arraste seus arquivos até aqui
+                </div>
+                <div class="text-[11px] text-zinc-400">
+                  Selecione um ou vários arquivos de uma vez (processamento automático de múltiplos documentos)
+                </div>
               </div>
-              <div class="flex items-center justify-center flex-wrap gap-1.5 pt-0.5">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">.xlsx / .csv</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-300 border border-rose-500/20">.pdf (PJe / e-SAJ)</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-300 border border-sky-500/20">.docx</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700">.txt / .log</span>
+              <!-- Formatos suportados com paleta padronizada e refinada -->
+              <div class="flex items-center justify-center flex-wrap gap-2 pt-1">
+                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">Excel (.xlsx, .csv)</span>
+                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">PDFs de Tribunais (PJe / e-SAJ)</span>
+                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">Word (.docx)</span>
+                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400">Texto (.txt, .log)</span>
               </div>
               <input type="file" id="input-file-processos-hidden" multiple accept=".xlsx,.xls,.csv,.ods,.pdf,.docx,.txt,.log" class="hidden">
             </div>
