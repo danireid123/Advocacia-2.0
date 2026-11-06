@@ -1705,7 +1705,7 @@
             <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Respostas Automáticas</span>
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Mensagens do Robô</span>
                 <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 transition-all duration-200 shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
                 </div>
@@ -1714,13 +1714,14 @@
                 <div class="flex items-baseline justify-between">
                   <div class="flex items-baseline gap-2">
                     <span id="metric-mensagens-reais" class="font-mono tabular-nums text-3xl font-extrabold text-emerald-200 tracking-tight block">0</span>
-                    <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">0.0 h poupadas</span>
+                    <span class="text-[10px] text-zinc-400 font-mono">disparos</span>
+                    <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">~0h economizadas</span>
                   </div>
                 </div>
                 <!-- Hidden anchor to preserve configGlobal script references -->
                 <span id="home-card-menus" class="hidden">2</span>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span>Mensagens do WhatsApp</span>
+                  <span>Total de envios automáticos</span>
                   <span class="text-xs text-emerald-400 font-semibold group-hover:translate-x-0.5 transition-transform">➔</span>
                 </div>
               </div>
@@ -1851,110 +1852,7 @@
             </div>
           </div>
 
-          <!-- 4. PAINEL EXECUTIVO INFERIOR: RADAR DE AUDIÊNCIAS, TELEMETRIA DO ROBÔ & AÇÕES RÁPIDAS -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-1">
-            
-            <!-- Card 4.1: Radar de Prazos & Audiências -->
-            <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl space-y-3.5">
-              <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                <div class="flex items-center space-x-2.5">
-                  <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400">
-                    <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-white">Radar de Prazos &amp; Audiências</h4>
-                    <span class="text-[10px] text-zinc-400">Sincronizado com a Agenda</span>
-                  </div>
-                </div>
-                <button type="button" onclick="ativarAba('agenda')" class="text-[10px] text-amber-400 hover:underline font-mono">Gerenciar</button>
-              </div>
-              <div class="space-y-2 text-xs">
-                <div class="p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800/60 flex items-center justify-between">
-                  <div class="truncate pr-2">
-                    <span class="text-xs font-semibold text-zinc-200 block truncate">Audiência UNA Trabalhista</span>
-                    <span class="text-[10px] text-zinc-400 font-mono">TRT-2 • Vara do Trabalho</span>
-                  </div>
-                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 font-semibold shrink-0">14:00</span>
-                </div>
-                <div class="p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800/60 flex items-center justify-between">
-                  <div class="truncate pr-2">
-                    <span class="text-xs font-semibold text-zinc-200 block truncate">Prazo Recursal (Agravo)</span>
-                    <span class="text-[10px] text-zinc-400 font-mono">TJSP • 12ª Vara Cível</span>
-                  </div>
-                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 font-semibold shrink-0">Hoje</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 4.2: Telemetria & IA Jurídica -->
-            <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl space-y-3.5">
-              <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                <div class="flex items-center space-x-2.5">
-                  <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
-                    <svg class="w-4 h-4"><use href="#icon-sparkles"/></svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-white">IA Jurídica &amp; Blindagem</h4>
-                    <span class="text-[10px] text-zinc-400">Telemetria de Modelos Gemini</span>
-                  </div>
-                </div>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Operante</span>
-              </div>
-              <div class="space-y-2 text-xs">
-                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
-                  <span class="text-[11px] text-zinc-300">Auditoria OCR de Comprovantes</span>
-                  <span class="text-[10px] font-mono text-emerald-400 font-bold">100% Blindado</span>
-                </div>
-                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
-                  <span class="text-[11px] text-zinc-300">Transcrição de Áudios WhatsApp</span>
-                  <span class="text-[10px] font-mono text-amber-300 font-bold">Ativa (20s máx)</span>
-                </div>
-                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
-                  <span class="text-[11px] text-zinc-300">Sincronização em Nuvem (24/7)</span>
-                  <span class="text-[10px] font-mono text-sky-400 font-bold">Atômica .tmp</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 4.3: Produtividade & Atalhos Operacionais -->
-            <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl space-y-3.5">
-              <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                <div class="flex items-center space-x-2.5">
-                  <div class="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400">
-                    <svg class="w-4 h-4"><use href="#icon-settings"/></svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-white">Atalhos Operacionais</h4>
-                    <span class="text-[10px] text-zinc-400">Ações frequentes do escritório</span>
-                  </div>
-                </div>
-                <span class="text-[10px] text-zinc-500 font-mono">1 clique</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <button type="button" onclick="ativarAba('processos')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/30 text-left transition cursor-pointer flex flex-col justify-between">
-                  <span class="text-xs font-semibold text-zinc-200">Importar Planilhas</span>
-                  <span class="text-[10px] text-zinc-500 mt-1">.xlsx / .pdf</span>
-                </button>
-                <button type="button" onclick="ativarAba('financeiro')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-emerald-500/30 text-left transition cursor-pointer flex flex-col justify-between">
-                  <span class="text-xs font-semibold text-zinc-200">Financeiro &amp; PIX</span>
-                  <span class="text-[10px] text-zinc-500 mt-1">Cobranças e recibos</span>
-                </button>
-                <button type="button" onclick="ativarAba('fluxo')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-sky-500/30 text-left transition cursor-pointer flex flex-col justify-between">
-                  <span class="text-xs font-semibold text-zinc-200">Balões WhatsApp</span>
-                  <span class="text-[10px] text-zinc-500 mt-1">Personalizar robô</span>
-                </button>
-                <button type="button" onclick="ativarAba('backup')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-purple-500/30 text-left transition cursor-pointer flex flex-col justify-between">
-                  <span class="text-xs font-semibold text-zinc-200">Backup &amp; Nuvem</span>
-                  <span class="text-[10px] text-zinc-500 mt-1">Exportar JSON</span>
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
+          <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
         <div id="aba-processos" class="hidden space-y-6 tab-pane-anim">
           <!-- EXECUTIVE SECTION HEADER -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
@@ -2037,9 +1935,8 @@
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
               <div class="mb-3">
                 <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
-                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 33%;"></div>
+                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 50%;"></div>
                   <button type="button" class="segmented-pill-tab active flex-1 text-center" data-filter="todos" onclick="alternarFiltroProcessosPill('todos', this)">Todos</button>
-                  <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="audiencia" onclick="alternarFiltroProcessosPill('audiencia', this)">Audiências</button>
                   <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="recente" onclick="alternarFiltroProcessosPill('recente', this)">Recentes</button>
                 </div>
               </div>
@@ -4256,7 +4153,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (elBadgeProc) elBadgeProc.innerText = String(lista.length);
       const elFilaHome = document.getElementById('metric-fila-humana-home');
       const elFilaTopo = document.getElementById('metric-fila-humana');
-      if (elFilaHome && elFilaTopo) elFilaHome.innerText = elFilaTopo.innerText || '0';
+      const totalPausados = Object.keys((configGlobal && configGlobal.pausados) || {}).length;
+      if (elFilaHome) elFilaHome.innerText = String(totalPausados);
+      if (elFilaTopo) elFilaTopo.innerText = String(totalPausados);
+      const badgeStatusFila = document.getElementById('badge-status-fila-home');
+      if (badgeStatusFila) {
+        badgeStatusFila.innerText = totalPausados > 0 ? `${totalPausados} aguardando` : 'Fila limpa';
+      }
 
       const qtdMenus = 1 + Object.keys((configGlobal.fluxo && configGlobal.fluxo.etapas) || {}).length;
       const elMenus = document.getElementById('home-card-menus');
