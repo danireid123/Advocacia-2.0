@@ -208,7 +208,7 @@
     @keyframes homeStaggerFadeUp {
       0% {
         opacity: 0;
-        transform: translateY(10px) scale(0.992);
+        transform: translateY(6px) scale(0.996);
       }
       100% {
         opacity: 1;
@@ -271,7 +271,7 @@
     .exec-card-hover[onclick]:hover,
     button.exec-card-hover:hover,
     a.exec-card-hover:hover {
-      transform: translateY(-3px);
+      transform: translateY(-1.5px);
     }
     .exec-card-hover.cursor-pointer:active,
     .exec-card-hover[onclick]:active {
@@ -280,20 +280,20 @@
     }
 
     .exec-card-hover.kpi-card-rose:hover {
-      border-color: rgba(244, 63, 94, 0.6) !important;
-      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(244, 63, 94, 0.3), inset 0 1px 0 rgba(244, 63, 94, 0.3) !important;
+      border-color: rgba(244, 63, 94, 0.45) !important;
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.5), 0 0 16px -4px rgba(244, 63, 94, 0.2), inset 0 1px 0 rgba(244, 63, 94, 0.2) !important;
     }
     .exec-card-hover.kpi-card-emerald:hover {
-      border-color: rgba(16, 185, 129, 0.6) !important;
-      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(16, 185, 129, 0.3) !important;
+      border-color: rgba(16, 185, 129, 0.45) !important;
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.5), 0 0 16px -4px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(16, 185, 129, 0.2) !important;
     }
     .exec-card-hover.kpi-card-amber:hover {
-      border-color: rgba(245, 158, 11, 0.6) !important;
-      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(245, 158, 11, 0.3) !important;
+      border-color: rgba(245, 158, 11, 0.45) !important;
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.5), 0 0 16px -4px rgba(245, 158, 11, 0.2), inset 0 1px 0 rgba(245, 158, 11, 0.2) !important;
     }
     .exec-card-hover.kpi-card-sky:hover {
-      border-color: rgba(56, 189, 248, 0.6) !important;
-      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 24px -4px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.3) !important;
+      border-color: rgba(56, 189, 248, 0.45) !important;
+      box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.5), 0 0 16px -4px rgba(56, 189, 248, 0.2), inset 0 1px 0 rgba(56, 189, 248, 0.2) !important;
     }
     .btn-tactile {
       transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
@@ -1743,15 +1743,15 @@
             <!-- Ações rápidas de alto impacto -->
             <div class="relative z-10 flex flex-wrap items-center gap-3 shrink-0">
               <button onclick="irParaNovoProcessoDireto()" class="btn-tactile group/cadastrar px-5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-950 hover:-translate-y-0.5 active:scale-[0.97] shadow-[0_4px_16px_rgba(245,158,11,0.25)] hover:shadow-[0_8px_24px_rgba(245,158,11,0.4)] flex items-center space-x-2 transition-all duration-150 cursor-pointer">
-                <svg class="w-4 h-4 stroke-[2.5] group-hover/cadastrar:rotate-90 group-hover/cadastrar:scale-110 transition-transform duration-200"><use href="#icon-plus"/></svg>
+                <svg class="w-4 h-4 stroke-[2.5] group-hover/cadastrar:rotate-90 group-hover/cadastrar:scale-105 transition-transform duration-250"><use href="#icon-plus"/></svg>
                 <span>Cadastrar Processo</span>
               </button>
               <button onclick="ativarAba('simulador')" class="btn-tactile group/simulador px-4 py-3 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-emerald-950/40 text-zinc-200 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-500/50 hover:-translate-y-0.5 active:scale-[0.97] hover:shadow-[0_4px_16px_rgba(16,185,129,0.2)] flex items-center space-x-2 transition-all duration-150 cursor-pointer" title="Testar respostas do robô no simulador">
-                <svg class="w-4 h-4 text-emerald-400 group-hover/simulador:scale-110 group-hover/simulador:-translate-y-0.5 transition-transform duration-200"><use href="#icon-message"/></svg>
+                <svg class="w-4 h-4 text-emerald-400 group-hover/simulador:scale-105 transition-transform duration-250"><use href="#icon-message"/></svg>
                 <span>Simulador</span>
               </button>
               <button onclick="ativarAba('pausados')" class="btn-tactile group/filabtn px-4 py-3 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-amber-950/40 text-zinc-200 hover:text-amber-300 border border-zinc-800 hover:border-amber-500/50 hover:-translate-y-0.5 active:scale-[0.97] hover:shadow-[0_4px_16px_rgba(245,158,11,0.2)] flex items-center space-x-2 transition-all duration-150 cursor-pointer" title="Ver fila de espera de clientes">
-                <svg class="w-4 h-4 text-amber-400 group-hover/filabtn:scale-110 group-hover/filabtn:-translate-y-0.5 transition-transform duration-200"><use href="#icon-user-clock"/></svg>
+                <svg class="w-4 h-4 text-amber-400 group-hover/filabtn:scale-105 transition-transform duration-250"><use href="#icon-user-clock"/></svg>
                 <span>Fila de Atendimento</span>
               </button>
             </div>
@@ -1772,7 +1772,7 @@
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-rose-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Fila de Atendimento</span>
-                <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 group-hover:bg-rose-500/20 group-hover:border-rose-500/40 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-200 ease-out shrink-0 shadow-sm">
+                <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 group-hover:bg-rose-500/20 group-hover:border-rose-500/40 group-hover:scale-105 transition-transform duration-250 ease-out shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-user-clock"/></svg>
                 </div>
               </div>
@@ -1800,7 +1800,7 @@
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Mensagens do Robô</span>
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-200 ease-out shrink-0 shadow-sm">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 group-hover:scale-105 transition-transform duration-250 ease-out shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
                 </div>
               </div>
@@ -1830,7 +1830,7 @@
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Financeiro &amp; PIX</span>
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-200 ease-out shrink-0 shadow-sm">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 group-hover:scale-105 transition-transform duration-250 ease-out shrink-0 shadow-sm">
                   <svg class="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
                   </svg>
@@ -1852,7 +1852,7 @@
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Expediente Hoje</span>
-                <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/20 group-hover:border-sky-500/40 group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-200 ease-out shrink-0 shadow-sm">
+                <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/20 group-hover:border-sky-500/40 group-hover:scale-105 transition-transform duration-250 ease-out shrink-0 shadow-sm">
                   <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
                 </div>
               </div>
