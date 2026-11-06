@@ -1664,45 +1664,14 @@
             <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
-          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX REPOSICIONADOS PARA CIMA) -->
+          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (NOVA ORDEM: FILA -> RESPOSTAS -> FINANCEIRO -> EXPEDIENTE) -->
           <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <!-- Card 1: Processos Ativos (Acento Dourado) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('processos')" title="Clique para ver todos os processos">
-              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Processos Cadastrados</span>
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-all duration-200 shrink-0 shadow-sm">
-                  <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-baseline justify-between">
-                  <div class="flex items-baseline gap-2">
-                    <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-extrabold text-amber-200 tracking-tight block">0</span>
-                    <span class="text-[10px] text-zinc-500 font-mono">pastas</span>
-                  </div>
-                  <!-- Mini 7-day sparkline com acento âmbar -->
-                  <div class="flex items-end gap-1 h-5 opacity-85" title="Atividade dos últimos 7 dias">
-                    <div class="w-1 bg-zinc-700 rounded-t h-2"></div>
-                    <div class="w-1 bg-zinc-600 rounded-t h-2.5"></div>
-                    <div class="w-1 bg-zinc-600 rounded-t h-2"></div>
-                    <div class="w-1 bg-amber-500/50 rounded-t h-3.5"></div>
-                    <div class="w-1 bg-amber-500/70 rounded-t h-3"></div>
-                    <div class="w-1 bg-amber-500/90 rounded-t h-4.5"></div>
-                    <div class="w-1 bg-amber-400 rounded-t h-5 shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
-                  </div>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span>Consultas por CPF/CNJ</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono">
-                    <span id="metric-clientes-reais">0</span> clientes
-                  </span>
-                </div>
-              </div>
-            </div>
+            <!-- Hidden DOM anchors to preserve legacy metrics scripts -->
+            <span id="home-card-processos" class="hidden">0</span>
+            <span id="metric-clientes-reais" class="hidden">0</span>
 
-            <!-- Card 2: Fila do Advogado & Transbordo (Acento Coral/Âmbar) -->
+            <!-- Card 1: Fila do Advogado & Transbordo (Acento Coral/Âmbar) -->
             <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-rose-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
@@ -1729,7 +1698,7 @@
               </div>
             </div>
 
-            <!-- Card 3: Automação & Mensagens (Acento Esmeralda WhatsApp) -->
+            <!-- Card 2: Automação & Mensagens (Acento Esmeralda WhatsApp) -->
             <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
@@ -1749,6 +1718,31 @@
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
                   <span>Atendimento 24/7</span>
                   <span class="text-[10px] text-emerald-400/90 font-mono"><span id="home-card-menus">2</span> fluxos ativos</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Financeiro & PIX (Atalho Área Financeira) -->
+            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('financeiro')" title="Clique para acessar o módulo Financeiro & PIX">
+              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Financeiro &amp; PIX</span>
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-all duration-200 shrink-0 shadow-sm">
+                  <svg class="w-4 h-4"><use href="#icon-credit-card"/></svg>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-baseline justify-between">
+                  <div class="flex items-baseline gap-2">
+                    <span id="home-card-financeiro" class="font-serif-legal text-xl sm:text-2xl font-bold text-amber-200 tracking-tight block">Régua Semanal</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">PIX 24/7</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
+                  <span>Auditoria &amp; Conciliação</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-amber-300 font-mono">
+                    100% Blindado
+                  </span>
                 </div>
               </div>
             </div>
