@@ -1632,10 +1632,10 @@
       <div class="w-full max-w-7xl mx-auto space-y-6">
         
         <!-- ================= ABA 0: VISÃO GERAL (NOVO COCKPIT EXECUTIVO) ================= -->
-        <div id="aba-inicio" class="space-y-6 tab-pane-anim">
+                <div id="aba-inicio" class="space-y-6 tab-pane-anim pt-2 sm:pt-3">
           
-          <!-- 1. HERO COCKPIT HEADER: SAUDAÇÃO, STATUS & ATALHOS PRIMÁRIOS -->
-          <div id="tour-home-banner" class="exec-card relative overflow-hidden p-5 sm:p-6 rounded-3xl border border-zinc-800/80 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-950/90 shadow-2xl backdrop-blur-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 group">
+          <!-- 1. HERO COCKPIT HEADER: SAUDAÇÃO, STATUS & ATALHOS PRIMÁRIOS (LEVEMENTE REBAIXADO) -->
+          <div id="tour-home-banner" class="exec-card relative overflow-hidden p-6 rounded-3xl border border-zinc-800/80 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-950/90 shadow-2xl backdrop-blur-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 group mt-1 sm:mt-2">
             <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent"></div>
             
             <div class="relative z-10 space-y-2.5 max-w-2xl">
@@ -1655,7 +1655,7 @@
               </div>
               
               <h2 id="home-welcome-title" class="font-serif-legal text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">
-                Painel do Advogado
+                Painel do Escritório • Bem-vindo, Daniel
               </h2>
               <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-xl">
                 Acompanhe o andamento dos processos, responda solicitações urgentes na fila do WhatsApp e consulte pastas cadastradas por CPF ou número de processo.
@@ -1676,7 +1676,7 @@
                 <svg class="w-4 h-4 text-amber-400"><use href="#icon-user-clock"/></svg>
                 <span>Fila de Atendimento</span>
               </button>
-              <button onclick="ativarAba('dossie-clientes')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-sky-950/40 text-zinc-200 hover:text-sky-300 border border-zinc-800 hover:border-sky-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+              <button onclick="ativarAba('processos'); if(typeof alternarListaModo==='function') alternarListaModo('dossies');" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-sky-950/40 text-zinc-200 hover:text-sky-300 border border-zinc-800 hover:border-sky-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
                 <svg class="w-4 h-4 text-sky-400"><use href="#icon-users"/></svg>
                 <span>Dossiê de Clientes</span>
               </button>
@@ -1686,59 +1686,7 @@
             <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
-          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Coluna 1: Processos Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
-              <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
-                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
-                    </div>
-                  </div>
-                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver todos</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
-                  </button>
-                </div>
-                <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-              </div>
-            </div>
-
-            <!-- Coluna 2: Mensagens Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
-              <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-message"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
-                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
-                    </div>
-                  </div>
-                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver histórico</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
-                  </button>
-                </div>
-                <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
-                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
-                    <span>Aguardando novas mensagens...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX VIVOS & HARMONIOSOS) -->
+          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX REPOSICIONADOS PARA CIMA) -->
           <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- Card 1: Processos Ativos (Acento Dourado) -->
@@ -1789,16 +1737,15 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
-                    <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold">Aguardando</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25 font-semibold font-mono">Aguardando</span>
                   </div>
                   <span class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
                   </span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span class="truncate">Triagem de urgência</span>
+                  <span>Triagem de urgência</span>
                   <span class="text-[10px] text-rose-400/90 font-mono font-medium">Prioritário</span>
                 </div>
               </div>
@@ -1852,6 +1799,181 @@
                   <span id="home-card-horario-detalhe" class="truncate">Conforme agenda</span>
                   <span class="text-[10px] text-zinc-400 font-mono">08h-18h</span>
                 </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS (EXPANDIDOS & MAIS ALTOS) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <!-- Coluna 1: Processos Recentes -->
+            <div class="lg:col-span-6 flex flex-col">
+              <div class="exec-card rounded-3xl p-6 border border-zinc-800/80 bg-zinc-900/50 shadow-xl flex-1 flex flex-col justify-between min-h-[360px]">
+                <div>
+                  <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3.5 mb-4">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-amber-400">
+                        <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+                      </div>
+                      <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
+                        <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
+                      </div>
+                    </div>
+                    <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                      <span>Ver todos</span>
+                      <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                    </button>
+                  </div>
+                  <div id="home-ultimos-processos" class="space-y-2.5 max-h-[340px] overflow-y-auto pr-1"></div>
+                </div>
+                <div class="pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Monitoramento ativo de pastas
+                  </span>
+                  <button type="button" onclick="ativarAba('processos'); if(typeof limparFormularioProcesso==='function') limparFormularioProcesso();" class="text-amber-400 hover:text-amber-300 font-semibold cursor-pointer">
+                    + Nova Pasta
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Mensagens do WhatsApp -->
+            <div class="lg:col-span-6 flex flex-col">
+              <div class="exec-card rounded-3xl p-6 border border-zinc-800/80 bg-zinc-900/50 shadow-xl flex-1 flex flex-col justify-between min-h-[360px]">
+                <div>
+                  <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3.5 mb-4">
+                    <div class="flex items-center space-x-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-emerald-400">
+                        <svg class="w-4 h-4"><use href="#icon-message"/></svg>
+                      </div>
+                      <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
+                        <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
+                      </div>
+                    </div>
+                    <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                      <span>Ver histórico</span>
+                      <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                    </button>
+                  </div>
+                  <div id="home-ultimos-logs" class="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+                    <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
+                      <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
+                      <span>Aguardando novas mensagens...</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Terminal de logs em tempo real
+                  </span>
+                  <button type="button" onclick="ativarAba('terminal')" class="text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer">
+                    Abrir Chat Completo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. PAINEL EXECUTIVO INFERIOR: RADAR DE AUDIÊNCIAS, TELEMETRIA DO ROBÔ & AÇÕES RÁPIDAS -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-1">
+            
+            <!-- Card 4.1: Radar de Prazos & Audiências -->
+            <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl space-y-3.5">
+              <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400">
+                    <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Radar de Prazos &amp; Audiências</h4>
+                    <span class="text-[10px] text-zinc-400">Sincronizado com a Agenda</span>
+                  </div>
+                </div>
+                <button type="button" onclick="ativarAba('agenda')" class="text-[10px] text-amber-400 hover:underline font-mono">Gerenciar</button>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800/60 flex items-center justify-between">
+                  <div class="truncate pr-2">
+                    <span class="text-xs font-semibold text-zinc-200 block truncate">Audiência UNA Trabalhista</span>
+                    <span class="text-[10px] text-zinc-400 font-mono">TRT-2 • Vara do Trabalho</span>
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 font-semibold shrink-0">14:00</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800/60 flex items-center justify-between">
+                  <div class="truncate pr-2">
+                    <span class="text-xs font-semibold text-zinc-200 block truncate">Prazo Recursal (Agravo)</span>
+                    <span class="text-[10px] text-zinc-400 font-mono">TJSP • 12ª Vara Cível</span>
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 font-semibold shrink-0">Hoje</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4.2: Telemetria & IA Jurídica -->
+            <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl space-y-3.5">
+              <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
+                    <svg class="w-4 h-4"><use href="#icon-sparkles"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-white">IA Jurídica &amp; Blindagem</h4>
+                    <span class="text-[10px] text-zinc-400">Telemetria de Modelos Gemini</span>
+                  </div>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Operante</span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
+                  <span class="text-[11px] text-zinc-300">Auditoria OCR de Comprovantes</span>
+                  <span class="text-[10px] font-mono text-emerald-400 font-bold">100% Blindado</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
+                  <span class="text-[11px] text-zinc-300">Transcrição de Áudios WhatsApp</span>
+                  <span class="text-[10px] font-mono text-amber-300 font-bold">Ativa (20s máx)</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/60">
+                  <span class="text-[11px] text-zinc-300">Sincronização em Nuvem (24/7)</span>
+                  <span class="text-[10px] font-mono text-sky-400 font-bold">Atômica .tmp</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4.3: Produtividade & Atalhos Operacionais -->
+            <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 shadow-xl space-y-3.5">
+              <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400">
+                    <svg class="w-4 h-4"><use href="#icon-settings"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-white">Atalhos Operacionais</h4>
+                    <span class="text-[10px] text-zinc-400">Ações frequentes do escritório</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-zinc-500 font-mono">1 clique</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="ativarAba('processos')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/30 text-left transition cursor-pointer flex flex-col justify-between">
+                  <span class="text-xs font-semibold text-zinc-200">Importar Planilhas</span>
+                  <span class="text-[10px] text-zinc-500 mt-1">.xlsx / .pdf</span>
+                </button>
+                <button type="button" onclick="ativarAba('financeiro')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-emerald-500/30 text-left transition cursor-pointer flex flex-col justify-between">
+                  <span class="text-xs font-semibold text-zinc-200">Financeiro &amp; PIX</span>
+                  <span class="text-[10px] text-zinc-500 mt-1">Cobranças e recibos</span>
+                </button>
+                <button type="button" onclick="ativarAba('fluxo')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-sky-500/30 text-left transition cursor-pointer flex flex-col justify-between">
+                  <span class="text-xs font-semibold text-zinc-200">Balões WhatsApp</span>
+                  <span class="text-[10px] text-zinc-500 mt-1">Personalizar robô</span>
+                </button>
+                <button type="button" onclick="ativarAba('backup')" class="p-2.5 rounded-xl bg-zinc-950/70 hover:bg-zinc-800/80 border border-zinc-800 hover:border-purple-500/30 text-left transition cursor-pointer flex flex-col justify-between">
+                  <span class="text-xs font-semibold text-zinc-200">Backup &amp; Nuvem</span>
+                  <span class="text-[10px] text-zinc-500 mt-1">Exportar JSON</span>
+                </button>
               </div>
             </div>
 
