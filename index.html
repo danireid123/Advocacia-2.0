@@ -2073,35 +2073,30 @@
                       NP
                     </div>
                     <div>
-                      <span id="form-proc-titulo" class="text-sm font-bold text-amber-400 block">Nova Pasta de Processo</span>
+                      <span id="form-proc-titulo" class="text-sm font-bold text-zinc-100 block tracking-tight">Nova Pasta de Processo</span>
                       <span id="subtitulo-status-ficha" class="text-[11px] text-zinc-400">Preencha o CPF ou Processo e digite o resumo</span>
                     </div>
                   </div>
 
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-3 py-1.5 champagne-gradient rounded-xl text-[11px] font-extrabold text-zinc-950 shadow-sm active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Copiar qualificação civil Art. 319 CPC">
-                      <svg class="w-3.5 h-3.5 text-zinc-950"><use href="#icon-clipboard"/></svg>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="btn-tactile px-3.5 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/60 hover:border-amber-500/40 text-zinc-200 hover:text-amber-300 text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Copiar qualificação civil Art. 319 CPC">
+                      <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
                       <span>Copiar CPC</span>
                     </button>
-                    <button type="button" id="btn-ver-dossie-proc" onclick="alternarDetalheProcAba('dossie')" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-sky-300 border border-sky-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Ver Dossiê Civil do Cliente">
-                      <svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-file-text"/></svg>
-                      <span>Ver Dossiê</span>
-                    </button>
-                    <button type="button" id="btn-solicitar-docs-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Solicitar Documentos pelo WhatsApp">
+                    <button type="button" id="btn-solicitar-docs-proc" class="hidden btn-tactile px-3.5 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/60 hover:border-amber-500/40 text-zinc-200 hover:text-amber-300 text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Solicitar Documentos pelo WhatsApp">
                       <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
                       <span>Solicitar Docs</span>
                     </button>
-                    <button type="button" id="btn-anexar-peca-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Anexar peças processuais em PDF ou DOCX">
-                      <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-paperclip"/></svg>
-                      <span>Anexar Peça</span>
-                    </button>
-                    <button type="button" id="btn-resetar-visto-ficha" class="hidden px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-700/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Permite que o cliente consulte novamente no WhatsApp">
-                      <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
+                    <button type="button" id="btn-resetar-visto-ficha" class="hidden btn-tactile px-3.5 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/60 hover:border-emerald-500/40 text-zinc-200 hover:text-emerald-300 text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Permite que o cliente consulte novamente no WhatsApp">
+                      <svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-refresh"/></svg>
                       <span>Liberar Reenvio</span>
                     </button>
-                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-rose-950/50 hover:bg-rose-900/70 text-rose-400 border border-rose-800/40 rounded-xl active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
+                    <button type="button" id="btn-excluir-proc-ficha" class="hidden btn-tactile p-2 rounded-xl bg-zinc-800/80 hover:bg-rose-950/40 border border-zinc-700/60 hover:border-rose-800/50 text-zinc-400 hover:text-rose-400 active:scale-[0.95] transition cursor-pointer shadow-sm" title="Excluir cadastro">
                       <svg class="w-4 h-4"><use href="#icon-trash"/></svg>
                     </button>
+                    <!-- Âncoras ocultas para preservação de compatibilidade de scripts -->
+                    <button type="button" id="btn-ver-dossie-proc" class="hidden"></button>
+                    <button type="button" id="btn-anexar-peca-proc" class="hidden"></button>
                   </div>
                 </div>
 
