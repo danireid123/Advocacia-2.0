@@ -1790,9 +1790,9 @@
                   <div class="flex items-center gap-2">
                     <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
                     <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold">Aguardando</span>
+                    <span id="badge-status-fila-home" class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25 font-semibold font-mono">Aguardando</span>
                   </div>
-                  <span class="relative flex h-2.5 w-2.5">
+                  <span id="dot-ping-fila-home" class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]"></span>
                   </span>
@@ -3903,6 +3903,46 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     btnToggleFormat.addEventListener('click', () => alternarBarraFormatacao());
     inputEtapaMsg.addEventListener('focus', () => alternarBarraFormatacao(true));
 
+    
+    function sincronizarContadorFila(qtd = null) {
+      let total;
+      if (qtd !== null && qtd !== undefined && !isNaN(Number(qtd))) {
+        total = Number(qtd);
+      } else {
+        const badge = document.getElementById('badge-pausados');
+        const badgeVal = badge ? parseInt(badge.innerText, 10) : NaN;
+        if (!isNaN(badgeVal) && badgeVal >= 0) {
+          total = badgeVal;
+        } else {
+          total = Object.keys((configGlobal && configGlobal.pausados) || {}).length;
+        }
+      }
+
+      const elFilaHome = document.getElementById('metric-fila-humana-home');
+      const elFilaTopo = document.getElementById('metric-fila-humana');
+      const badgeSidebar = document.getElementById('badge-pausados');
+      const badgeStatusFila = document.getElementById('badge-status-fila-home');
+      const dotPing = document.getElementById('dot-ping-fila-home');
+
+      if (elFilaHome) elFilaHome.innerText = String(total);
+      if (elFilaTopo) elFilaTopo.innerText = String(total);
+      if (badgeSidebar) badgeSidebar.innerText = String(total);
+
+      if (badgeStatusFila) {
+        if (total > 0) {
+          badgeStatusFila.className = "text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25 font-semibold font-mono";
+          badgeStatusFila.innerText = `${total} aguardando`;
+        } else {
+          badgeStatusFila.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold font-mono";
+          badgeStatusFila.innerText = "Fila limpa";
+        }
+      }
+      if (dotPing) {
+        dotPing.classList.toggle('hidden', total === 0);
+      }
+    }
+    window.sincronizarContadorFila = sincronizarContadorFila;
+
     function atualizarPainelMetricas(qtdFilaHumana = null) {
       const m = configGlobal.metricasReais || { totalMensagens: 0, contatosAtendidos: [] };
       const contatosQtd = Array.isArray(m.contatosAtendidos) ? m.contatosAtendidos.length : 0;
@@ -3916,10 +3956,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const elHoras = document.getElementById('metric-horas-reais');
       if (elHoras) elHoras.innerText = `${horasPoupadas} h`;
 
-      if (qtdFilaHumana !== null) {
-        const elFila = document.getElementById('metric-fila-humana');
-        if (elFila) elFila.innerText = String(qtdFilaHumana);
-      }
+      sincronizarContadorFila(qtdFilaHumana);
       renderizarTelaInicial();
     }
 
@@ -4159,15 +4196,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (elHomeCardProc) elHomeCardProc.innerText = String(lista.length);
       const elBadgeProc = document.getElementById('badge-processos');
       if (elBadgeProc) elBadgeProc.innerText = String(lista.length);
-      const elFilaHome = document.getElementById('metric-fila-humana-home');
-      const elFilaTopo = document.getElementById('metric-fila-humana');
-      const totalPausados = Object.keys((configGlobal && configGlobal.pausados) || {}).length;
-      if (elFilaHome) elFilaHome.innerText = String(totalPausados);
-      if (elFilaTopo) elFilaTopo.innerText = String(totalPausados);
-      const badgeStatusFila = document.getElementById('badge-status-fila-home');
-      if (badgeStatusFila) {
-        badgeStatusFila.innerText = totalPausados > 0 ? `${totalPausados} aguardando` : 'Fila limpa';
-      }
+      sincronizarContadorFila();
 
       const qtdMenus = 1 + Object.keys((configGlobal.fluxo && configGlobal.fluxo.etapas) || {}).length;
       const elMenus = document.getElementById('home-card-menus');
@@ -7308,6 +7337,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       const badgePausados = document.getElementById('badge-pausados');
       if (badgePausados) badgePausados.innerText = String(chaves.length);
+      sincronizarContadorFila(chaves.length);
       if (typeof atualizarPainelMetricas === 'function') atualizarPainelMetricas(chaves.length);
 
       if (!container) return;
@@ -8641,6 +8671,29 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
 
       if (window.api) {
+      // Monitoramento contínuo em tempo real da Fila de Atendimento (atualiza o card e a sidebar)
+      if (window.api && window.api.obterPausados) {
+        window.api.obterPausados().then(p => {
+          if (p && typeof p === 'object') {
+            const total = Object.keys(p).length;
+            if (configGlobal) configGlobal.pausados = p;
+            sincronizarContadorFila(total);
+          }
+        }).catch(() => {});
+
+        setInterval(() => {
+          if (window.api && window.api.obterPausados) {
+            window.api.obterPausados().then(p => {
+              if (p && typeof p === 'object') {
+                const total = Object.keys(p).length;
+                if (configGlobal) configGlobal.pausados = p;
+                sincronizarContadorFila(total);
+              }
+            }).catch(() => {});
+          }
+        }, 1500);
+      }
+
         if (window.api.obterPausados) {
           try {
             const pausadosIniciais = await window.api.obterPausados();
@@ -9829,7 +9882,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             if (badge) {
               const totalAtual = parseInt(badge.innerText || '0', 10) + 1;
               badge.innerText = String(totalAtual);
-            }
+              if (typeof sincronizarContadorFila === 'function') sincronizarContadorFila(totalAtual);}
           }
 
           function aplicarSugestaoCopilot(cardId, idxOuTexto) {
@@ -9886,7 +9939,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             if (badge) {
               const totalAtual = Math.max(0, parseInt(badge.innerText || '0', 10) - 1);
               badge.innerText = String(totalAtual);
-            }
+              if (typeof sincronizarContadorFila === 'function') sincronizarContadorFila(totalAtual);}
           }
 
           function adicionarBalaoAdvogado(texto) {
