@@ -2134,13 +2134,17 @@
 
                   <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                      <label class="text-xs font-bold text-zinc-300">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
+                      <div class="flex items-center gap-2">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <label class="text-xs font-bold text-zinc-200">Mensagem do Andamento (Enviada pelo Robô WhatsApp)</label>
+                      </div>
                       <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
                         <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
                         <span>Notificar cliente</span>
                       </label>
                     </div>
-                    <textarea id="proc-resumo" rows="4" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
+                    <p class="text-[11px] text-zinc-400 leading-normal">Texto personalizado que o cliente receberá no WhatsApp quando o processo for consultado ou atualizado. Você pode editar livremente antes do envio.</p>
+                    <textarea id="proc-resumo" rows="4" placeholder="Ex: O juiz deferiu a liminar requerida e determinou o cumprimento da tutela de urgência no prazo de 48 horas..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed text-zinc-100 placeholder-zinc-500 bg-zinc-950/80 border-zinc-800"></textarea>
                   </div>
 
                   <div class="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -2199,14 +2203,8 @@
                       </div>
                     </div>
 
-                    <!-- Prévia do Parágrafo Formal CPC -->
-                    <div class="p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800/90">
-                      <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Prévia do Parágrafo de Qualificação (Art. 319, II do CPC):</span>
-                        <span class="text-[10px] text-zinc-500 font-mono">Petição Inicial</span>
-                      </div>
-                      <p id="dossie-preview-cpc" class="text-xs text-zinc-300 font-serif-legal italic leading-relaxed select-all">Selecione um cliente ao lado ou preencha os dados acima para gerar o cabeçalho formal.</p>
-                    </div>
+                    <!-- Âncora de Qualificação CPC (Art. 319) para cópia direta em 1 clique via botão Copiar CPC -->
+                    <p id="dossie-preview-cpc" class="hidden">Selecione um cliente ao lado ou preencha os dados acima para gerar o cabeçalho formal.</p>
 
                     <!-- Galeria Visual de Documentos Auditados -->
                     <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2.5">
@@ -8059,6 +8057,106 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     };
 
+    
+    // Função universal de abertura segura de documentos ao clicar neles
+    window.abrirDocumentoDoCliente = async function(caminhoOuNome) {
+      try {
+        if (!caminhoOuNome) return;
+        if (window.api && typeof window.api.abrirDocumentoAnexo === 'function') {
+          const res = await window.api.abrirDocumentoAnexo(caminhoOuNome);
+          if (res && res.sucesso) {
+            mostrarToast('📂 Documento aberto com sucesso!');
+            return;
+          }
+        }
+        // Fallback para navegador/janela web se não for Electron nativo
+        if (typeof caminhoOuNome === 'string' && (caminhoOuNome.startsWith('data:') || caminhoOuNome.startsWith('blob:') || caminhoOuNome.startsWith('http'))) {
+          window.open(caminhoOuNome, '_blank');
+        } else {
+          mostrarToast('📄 Abrindo arquivo: ' + (caminhoOuNome.split(/[\\/]/).pop() || caminhoOuNome));
+        }
+      } catch (e) {
+        console.warn('Erro ao abrir documento:', e);
+      }
+    };
+
+    // Renderizador inteligente da galeria: busca no Dossiê consolidado E escaneia o disco físico (documentos_clientes/<id>)
+    window.renderizarGaleriaDocumentosDossie = async function(dossie, clienteId) {
+      const galeria = document.getElementById('galeria-documentos-cliente');
+      if (!galeria) return;
+
+      let docs = (dossie && Array.isArray(dossie.documentos)) ? [...dossie.documentos] : [];
+
+      // Busca complementar no disco físico via IPC
+      if (clienteId && window.api && typeof window.api.listarDocumentosCliente === 'function') {
+        try {
+          const resDisco = await window.api.listarDocumentosCliente(clienteId);
+          if (resDisco && resDisco.sucesso && Array.isArray(resDisco.docs)) {
+            resDisco.docs.forEach(docDisco => {
+              const jaExiste = docs.some(d => (d.arquivo && docDisco.nome && d.arquivo.includes(docDisco.nome)) || (d.caminho && docDisco.caminho && d.caminho === docDisco.caminho));
+              if (!jaExiste) {
+                docs.push({
+                  tipo: docDisco.tipo || (docDisco.nome && docDisco.nome.split('_').slice(2).join('_').replace(/\.[^.]+$/, '')) || 'DOCUMENTO',
+                  arquivo: docDisco.nome || 'documento.jpg',
+                  caminho: docDisco.caminho,
+                  legivel: true,
+                  auditadoEm: docDisco.criadoEm || new Date().toISOString()
+                });
+              }
+            });
+          }
+        } catch (errScan) {
+          console.warn('Scan de disco complementar ignorado:', errScan);
+        }
+      }
+
+      // Atualiza badge de quantidade
+      const badgeDocs = document.getElementById('badge-detalhe-dossie-docs');
+      if (badgeDocs) {
+        badgeDocs.innerText = `${docs.length} docs`;
+      }
+
+      if (docs.length === 0) {
+        galeria.innerHTML = '<div class="col-span-2 p-6 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl bg-zinc-950/40">Nenhum documento arquivado neste dossiê ainda. Clique em "Solicitar Docs" para receber pelo WhatsApp!</div>';
+        return;
+      }
+
+      galeria.innerHTML = docs.map(doc => {
+        const legivel = doc.legivel !== false;
+        const badgeStatus = legivel
+          ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1">✓ Válido</span>'
+          : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold flex items-center gap-1">⚠ Legibilidade Baixa</span>';
+        const caminhoDoc = doc.caminho || doc.arquivo || '';
+        const escapeCaminho = String(caminhoDoc).replace(/'/g, "\\'");
+        const nomeExibicao = escaparHtmlTexto(doc.arquivo || doc.nome || 'documento.jpg');
+        const tipoExibicao = escaparHtmlTexto((doc.tipo || 'DOCUMENTO').replace(/_/g, ' '));
+
+        return `
+          <div onclick="abrirDocumentoDoCliente('${escapeCaminho}')" class="group p-3.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-800/90 hover:border-amber-400/50 transition cursor-pointer space-y-2.5 flex flex-col justify-between shadow-sm hover:shadow-md">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide group-hover:text-amber-300 transition">${tipoExibicao}</span>
+                ${badgeStatus}
+              </div>
+              <p class="text-[11px] text-zinc-300 font-mono truncate mt-1 flex items-center gap-1.5" title="${nomeExibicao}">
+                <svg class="w-3.5 h-3.5 text-zinc-500 group-hover:text-amber-400 transition shrink-0"><use href="#icon-file-text"/></svg>
+                <span class="truncate">${nomeExibicao}</span>
+              </p>
+            </div>
+            <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
+              <span class="text-emerald-400/90 font-medium flex items-center gap-1">
+                <svg class="w-3 h-3 text-emerald-400"><use href="#icon-check-circle"/></svg>
+                Auditado pela IA
+              </span>
+              <span class="text-zinc-400 group-hover:text-amber-300 font-semibold flex items-center gap-1 transition">
+                Abrir documento ↗
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
     window.selecionarClienteDossie = function(clienteId) {
       window.dossieClienteSelecionadoId = clienteId;
       const dossie = (window.dossiesCache && window.dossiesCache[clienteId]) || null;
@@ -8086,34 +8184,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         elPrev.innerText = dossie.qualificacaoCPC || `${(civil.nomeCompleto || dossie.clienteNome || 'CLIENTE').toUpperCase()}, inscrito(a) no CPF sob o nº ${civil.cpf || '[CPF PENDENTE]'}.`;
       }
 
-      const galeria = document.getElementById('galeria-documentos-cliente');
-      if (galeria) {
-        const docs = Array.isArray(dossie.documentos) ? dossie.documentos : [];
-        if (docs.length === 0) {
-          galeria.innerHTML = '<div class="col-span-2 p-6 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado neste dossiê ainda.</div>';
-        } else {
-          galeria.innerHTML = docs.map(doc => {
-            const legivel = doc.legivel !== false;
-            const badgeStatus = legivel
-              ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 Documento Válido</span>'
-              : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">🟡 Legibilidade Baixa</span>';
-            return `
-              <div class="p-3.5 rounded-xl bg-zinc-950/90 border border-zinc-800/80 space-y-2 flex flex-col justify-between">
-                <div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-[#e5c158]">${escaparHtmlTexto(doc.tipo || 'DOCUMENTO')}</span>
-                    ${badgeStatus}
-                  </div>
-                  <p class="text-[11px] text-zinc-300 font-mono truncate mt-1">${escaparHtmlTexto(doc.arquivo || 'arquivo.jpg')}</p>
-                </div>
-                <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
-                  <span>Auditado via Gemini Vision</span>
-                  <span class="text-[#f3e5ab] font-semibold">✓ Arquivado</span>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
+      if (window.renderizarGaleriaDocumentosDossie) {
+        window.renderizarGaleriaDocumentosDossie(dossie, clienteId);
       }
     };
 

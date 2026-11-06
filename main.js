@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu, shell } = require('electron');
 const path = require('path');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
@@ -1549,6 +1549,42 @@ async function iniciarWhatsApp(forcarReinicio = false) {
         agendarReconexaoBackoff();
     }
 }
+
+
+// IPC: Abrir documento físico anexado / auditado no leitor padrão do sistema
+ipcMain.handle('abrir-documento-anexo', async (event, caminhoArquivo) => {
+    try {
+        if (!caminhoArquivo) return { sucesso: false, erro: 'Caminho não fornecido' };
+        const fsMod = require('fs');
+        const pathMod = require('path');
+        let resolved = pathMod.isAbsolute(caminhoArquivo) ? caminhoArquivo : pathMod.resolve(process.cwd(), caminhoArquivo);
+        if (!fsMod.existsSync(resolved)) {
+            const baseDir = pathMod.resolve(process.cwd(), 'documentos_clientes');
+            const posRel = pathMod.join(baseDir, caminhoArquivo);
+            if (fsMod.existsSync(posRel)) resolved = posRel;
+        }
+        if (fsMod.existsSync(resolved)) {
+            await shell.openPath(resolved);
+            return { sucesso: true, caminho: resolved };
+        }
+        return { sucesso: false, erro: 'Arquivo não encontrado no disco: ' + caminhoArquivo };
+    } catch (err) {
+        console.error('[IPC abrir-documento-anexo] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+// IPC: Listar documentos de um cliente do disco físico
+ipcMain.handle('listar-documentos-cliente', async (event, clienteId) => {
+    try {
+        const { listarDocumentosCliente } = require('./src/documentos/armazenamentoDocs');
+        const docs = listarDocumentosCliente(clienteId);
+        return { sucesso: true, docs: docs || [] };
+    } catch (err) {
+        console.error('[IPC listar-documentos-cliente] Erro:', err);
+        return { sucesso: false, erro: err.message, docs: [] };
+    }
+});
 
 ipcMain.handle('obter-config', () => carregarConfig());
 ipcMain.handle('obter-versao-app', () => `v2.0 (Executive Suite)`);

@@ -61,6 +61,10 @@ const apiBridge = {
     anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
     higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
 
+    
+    // Abertura e Visualização Segura de Documentos Físicos
+    abrirDocumentoAnexo: (caminho) => ipcRenderer.invoke('abrir-documento-anexo', caminho),
+    listarDocumentosCliente: (clienteId) => ipcRenderer.invoke('listar-documentos-cliente', clienteId),
     // Onboarding Forense, Dossiê de Clientes & Financeiro PIX (v2.1)
     iniciarOnboarding: (dados) => ipcRenderer.invoke('iniciar-onboarding', dados),
     obterDossies: () => ipcRenderer.invoke('obter-dossies'),
