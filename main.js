@@ -516,19 +516,55 @@ function montarTextoEtapa(etapa) {
 }
 
 function buscarProcessoPorNumero(config, digitosBusca) {
-    if (!config.processos) return null;
+    if (!config || !config.processos) return null;
     const lista = Array.isArray(config.processos) ? config.processos : (Array.isArray(config.processos.lista) ? config.processos.lista : []);
     if (!lista || lista.length === 0) return null;
     if (!digitosBusca || digitosBusca.length < 5) return null;
 
-    return lista.find(p => {
+    // 1. Busca direta na lista de processos por CPF, Número do Processo (CNJ) ou Telefone
+    const achadoDireto = lista.find(p => {
         const cpfLimpo = apenasNumeros(p.cpf);
         const numLimpo = apenasNumeros(p.numero || p.numeroProcesso || p.processo || '');
-        return (cpfLimpo && cpfLimpo === digitosBusca) ||
-               (numLimpo && numLimpo === digitosBusca) ||
-               (cpfLimpo && cpfLimpo.length >= 5 && (digitosBusca.includes(cpfLimpo) || cpfLimpo.includes(digitosBusca))) ||
-               (numLimpo && numLimpo.length >= 5 && (digitosBusca.includes(numLimpo) || numLimpo.includes(digitosBusca)));
+        const telLimpo = apenasNumeros(p.telefone || p.telefoneCliente || (p.dadosCadastrais && p.dadosCadastrais.telefone));
+        return (cpfLimpo && (cpfLimpo === digitosBusca || cpfLimpo.includes(digitosBusca) || digitosBusca.includes(cpfLimpo))) ||
+               (numLimpo && (numLimpo === digitosBusca || numLimpo.includes(digitosBusca) || digitosBusca.includes(numLimpo))) ||
+               (telLimpo && (telLimpo === digitosBusca || telLimpo.includes(digitosBusca) || digitosBusca.includes(telLimpo)));
     });
+
+    if (achadoDireto) return achadoDireto;
+
+    // 2. Busca cruzada unificada com Dossiê de Clientes (config.dossiesClientes)
+    if (config.dossiesClientes && typeof config.dossiesClientes === 'object') {
+        for (const [chave, d] of Object.entries(config.dossiesClientes)) {
+            if (!d || typeof d !== 'object') continue;
+            const chaveLimpa = apenasNumeros(chave);
+            const dCpf = apenasNumeros(d.cpf || (d.civil && d.civil.cpf));
+            const dTel = apenasNumeros(d.telefone || d.clienteTelefone || (d.civil && d.civil.telefone));
+            const dProc = apenasNumeros(d.processoVinculado || d.numeroProcesso || '');
+
+            const matchDossie = (chaveLimpa && (chaveLimpa === digitosBusca || chaveLimpa.includes(digitosBusca))) ||
+                                (dCpf && (dCpf === digitosBusca || dCpf.includes(digitosBusca))) ||
+                                (dTel && (dTel === digitosBusca || dTel.includes(digitosBusca))) ||
+                                (dProc && (dProc === digitosBusca || dProc.includes(digitosBusca)));
+
+            if (matchDossie) {
+                if (d.processoVinculado || d.numeroProcesso) {
+                    const procVinculadoLimpo = apenasNumeros(d.processoVinculado || d.numeroProcesso);
+                    const procNaLista = lista.find(p => {
+                        const nLimpo = apenasNumeros(p.numero || p.numeroProcesso || p.processo || '');
+                        return nLimpo && (nLimpo === procVinculadoLimpo || nLimpo.includes(procVinculadoLimpo));
+                    });
+                    if (procNaLista) return procNaLista;
+                }
+                if (dCpf && dCpf.length >= 11) {
+                    const procPorCpf = lista.find(p => apenasNumeros(p.cpf) === dCpf);
+                    if (procPorCpf) return procPorCpf;
+                }
+            }
+        }
+    }
+
+    return null;
 }
 
 async function formatarMensagemProcesso(config, proc, remetenteChave) {
@@ -2672,9 +2708,13 @@ ipcMain.handle('obter-dossies', async () => {
         const { obterDossies } = require('./src/onboarding/onboardingController');
         const cfg = carregarConfig();
         const resultado = obterDossies(cfg);
+        const mapa = (resultado && typeof resultado === 'object') ? resultado : (cfg.dossiesClientes || {});
+        const lista = Object.values(mapa);
         return {
             sucesso: true,
-            ...resultado,
+            mapa,
+            lista,
+            ...mapa,
             configuracaoCobranca: cfg.configuracaoCobranca || {},
             financeiro: cfg.financeiro || { parcelas: [], comprovantesRecebidos: [] }
         };
@@ -2683,7 +2723,6 @@ ipcMain.handle('obter-dossies', async () => {
         return { sucesso: false, erro: err.message, lista: [], mapa: {}, sessoesOnboarding: {} };
     }
 });
-
 ipcMain.handle('copiar-qualificacao-cpc', async (event, payload = {}) => {
     try {
         const { gerarQualificacaoCPC } = require('./src/onboarding/formatadorCPC');

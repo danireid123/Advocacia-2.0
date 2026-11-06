@@ -36,8 +36,8 @@ try {
  * @returns {string}
  */
 function obterApiKeyAtiva(apiKeyPassada, config = null) {
-    if (typeof apiKeyPassada === 'string' && apiKeyPassada.trim().length > 0) {
-        return apiKeyPassada.trim();
+    if (apiKeyPassada !== undefined && apiKeyPassada !== null) {
+        return typeof apiKeyPassada === 'string' ? apiKeyPassada.trim() : '';
     }
     if (process.env.GEMINI_API_KEY && typeof process.env.GEMINI_API_KEY === 'string' && process.env.GEMINI_API_KEY.trim()) {
         return process.env.GEMINI_API_KEY.trim();
@@ -59,13 +59,15 @@ function obterApiKeyAtiva(apiKeyPassada, config = null) {
         }
     } catch (_) {}
     try {
-        const envPath = path.resolve(__dirname, '../../.env');
-        if (fs.existsSync(envPath)) {
-            const envContent = fs.readFileSync(envPath, 'utf-8');
-            const match = envContent.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
-            if (match && match[1]) {
-                const val = match[1].trim().replace(/^['"]|['"]$/g, '');
-                if (val) return val;
+        if (!process.argv.some(a => a.includes('test_'))) {
+            const envPath = path.resolve(__dirname, '../../.env');
+            if (fs.existsSync(envPath)) {
+                const envContent = fs.readFileSync(envPath, 'utf-8');
+                const match = envContent.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
+                if (match && match[1]) {
+                    const val = match[1].trim().replace(/^['"]|['"]$/g, '');
+                    if (val) return val;
+                }
             }
         }
     } catch (_) {}

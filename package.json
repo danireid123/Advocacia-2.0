@@ -23,12 +23,13 @@
       "icon.png",
       "icon.ico",
       "package.json",
+      "assets/**/*",
       "src/**/*",
       "node_modules/**/*"
     ],
     "win": {
       "target": "nsis",
-      "icon": "icon.png",
+      "icon": "icon.ico",
       "verifyUpdateCodeSignature": false,
       "artifactName": "Advocacia-Studio-Pro-Setup-${version}.${ext}"
     },
