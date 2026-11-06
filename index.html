@@ -1953,70 +1953,95 @@
 
           <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
         <div id="aba-processos" class="hidden space-y-6 tab-pane-anim">
-          <!-- EXECUTIVE SECTION HEADER (CLEAN & ANTI-SLOP) -->
+          <!-- EXECUTIVE SECTION HEADER COM CONTROLES & AÇÕES RÁPIDAS -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
             <div class="space-y-1">
               <h2 class="font-serif-legal text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
                   <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
                 </div>
-                <span>Clientes &amp; Processos</span>
+                <span>Central de Pastas &amp; Clientes</span>
               </h2>
               <p class="text-xs sm:text-sm text-zinc-400 max-w-2xl">
-                Consulte pastas ativas, histórico processual e documentos civis organizados por cliente.
+                Acompanhe o status dos clientes, atualize andamentos para o robô WhatsApp e consulte os documentos do dossiê.
               </p>
             </div>
-            <!-- Botão de editar mensagens removido a pedido do usuário (âncora oculta mantida para compatibilidade IPC) -->
-            <button id="btn-toggle-msg-processos" type="button" class="hidden"></button>
+            <div class="flex items-center gap-2.5">
+              <button type="button" onclick="alternarGavetaImportacao()" class="btn-tactile px-3.5 py-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 hover:text-white border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 cursor-pointer shadow-sm">
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <span id="label-toggle-importacao">Importar Arquivos</span>
+                <span id="icone-gaveta-import" class="text-xs text-zinc-400 transition-transform">▼</span>
+              </button>
+              <button id="btn-toggle-msg-processos" type="button" class="hidden"></button>
+            </div>
           </div>
 
-          <!-- IMPORTAÇÃO DE PASTAS & DOCUMENTOS (PADRONIZADO & SELEÇÃO MÚLTIPLA) -->
-          <div class="exec-card p-5 sm:p-6 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-4 shadow-xl">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
-              <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-2xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                </div>
-                <div>
-                  <h3 class="text-sm font-bold text-zinc-100 block">Importação de Pastas &amp; Clientes</h3>
-                  <p class="text-xs text-zinc-400">Importe planilhas ou documentos do tribunal para criar pastas automaticamente</p>
-                </div>
+          <!-- MINI-DASHBOARD DE INDICADORES RÁPIDOS (STATUS OPERACIONAL) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <!-- KPI 1: Pastas Cadastradas -->
+            <div class="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-zinc-400 block">Total de Pastas</span>
+                <span id="kpi-proc-total" class="font-mono text-2xl font-bold text-zinc-100 tracking-tight">0</span>
               </div>
-              <div class="flex flex-wrap items-center gap-2.5">
-                <button type="button" id="btn-higienizar-base" class="btn-tactile px-3.5 py-2 bg-zinc-800/70 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 hover:border-zinc-600 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Remove duplicidades e consolida cadastros">
-                  <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  <span>Higienizar Base</span>
-                </button>
-                <button type="button" id="btn-baixar-modelo-xlsx" class="btn-tactile px-3.5 py-2 bg-zinc-800/70 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 hover:border-zinc-600 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Baixar planilha modelo formatada">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <svg class="w-5 h-5"><use href="#icon-folder"/></svg>
+              </div>
+            </div>
+
+            <!-- KPI 2: Novidades Prontas pro Robô -->
+            <div class="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-zinc-400 block">Novidades Prontas no Robô</span>
+                <span id="kpi-proc-novidades" class="font-mono text-2xl font-bold text-emerald-400 tracking-tight">0</span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              </div>
+            </div>
+
+            <!-- KPI 3: Documentos Civis Auditados -->
+            <div class="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-zinc-400 block">Dossiês com Documentos</span>
+                <span id="kpi-proc-docs" class="font-mono text-2xl font-bold text-[#e5c158] tracking-tight">0</span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <svg class="w-5 h-5"><use href="#icon-users"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- GAVETA RETRÁTIL DE IMPORTAÇÃO (DISCRETA E NÃO POLUI A TELA) -->
+          <div id="gaveta-importacao-processos" class="hidden exec-card p-5 rounded-3xl bg-zinc-900/60 border border-zinc-800 space-y-4 shadow-2xl transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
+              <div>
+                <h3 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  Importar Planilhas ou Documentos
+                </h3>
+                <p class="text-xs text-zinc-400 mt-0.5">Selecione arquivos do tribunal ou planilhas Excel para alimentar ou atualizar os processos.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btn-baixar-modelo-xlsx" class="btn-tactile px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Baixar planilha modelo formatada">
                   <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                  <span>Planilha Modelo (.xlsx)</span>
+                  <span>Planilha Modelo</span>
                 </button>
-                <button type="button" id="btn-selecionar-arquivos-proc" class="btn-tactile px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-950 font-bold rounded-xl text-xs shadow-[0_2px_12px_rgba(245,158,11,0.25)] hover:shadow-[0_4px_16px_rgba(245,158,11,0.35)] active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
-                  <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <button type="button" id="btn-higienizar-base" class="btn-tactile px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Remove duplicidades">
+                  <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  <span>Higienizar</span>
+                </button>
+                <button type="button" id="btn-selecionar-arquivos-proc" class="btn-tactile px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 text-zinc-950 font-bold rounded-xl text-xs shadow-md active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
+                  <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                   <span>Selecionar Arquivo(s)</span>
                 </button>
               </div>
             </div>
 
-            <!-- Dropzone Visual com suporte explícito a clique & seleção múltipla -->
-            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/70 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-zinc-900/60 rounded-2xl p-7 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-3 group">
-              <div class="w-12 h-12 rounded-2xl bg-zinc-900/90 border border-zinc-800 group-hover:border-amber-500/40 flex items-center justify-center text-zinc-400 group-hover:text-amber-400 group-hover:scale-105 transition-all shadow-inner">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-              </div>
-              <div class="space-y-1">
-                <div class="text-sm font-semibold text-zinc-200">
-                  <span class="text-amber-400 group-hover:underline">Clique para selecionar do computador</span> ou arraste seus arquivos até aqui
-                </div>
-                <div class="text-[11px] text-zinc-400">
-                  Selecione um ou vários arquivos de uma vez (processamento automático de múltiplos documentos)
-                </div>
-              </div>
-              <!-- Formatos suportados com paleta padronizada e refinada -->
-              <div class="flex items-center justify-center flex-wrap gap-2 pt-1">
-                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">Excel (.xlsx, .csv)</span>
-                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">PDFs de Tribunais (PJe / e-SAJ)</span>
-                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">Word (.docx)</span>
-                <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400">Texto (.txt, .log)</span>
+            <!-- Dropzone Visual Compacto -->
+            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/70 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-zinc-900/60 rounded-2xl p-5 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-2 group">
+              <div class="text-xs font-semibold text-zinc-200">
+                <span class="text-amber-400 group-hover:underline">Clique para selecionar</span> ou arraste arquivos até aqui (Excel, PDF do Tribunal, Word ou TXT)
               </div>
               <input type="file" id="input-file-processos-hidden" multiple accept=".xlsx,.xls,.csv,.ods,.pdf,.docx,.txt,.log" class="hidden">
             </div>
@@ -2132,19 +2157,42 @@
                     </div>
                   </div>
 
-                  <div class="space-y-2">
+                  <div class="space-y-3">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-2">
                         <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <label class="text-xs font-bold text-zinc-200">Mensagem do Andamento (Enviada pelo Robô WhatsApp)</label>
+                        <label class="text-xs font-bold text-zinc-200">Mensagem do Andamento (WhatsApp)</label>
                       </div>
                       <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
                         <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
-                        <span>Notificar cliente</span>
+                        <span>Disparar aviso ao cliente</span>
                       </label>
                     </div>
-                    <p class="text-[11px] text-zinc-400 leading-normal">Texto personalizado que o cliente receberá no WhatsApp quando o processo for consultado ou atualizado. Você pode editar livremente antes do envio.</p>
-                    <textarea id="proc-resumo" rows="4" placeholder="Ex: O juiz deferiu a liminar requerida e determinou o cumprimento da tutela de urgência no prazo de 48 horas..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed text-zinc-100 placeholder-zinc-500 bg-zinc-950/80 border-zinc-800"></textarea>
+                    <textarea id="proc-resumo" rows="3" placeholder="Digite aqui o andamento simplificado para o cliente..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed text-zinc-100 placeholder-zinc-500 bg-zinc-950/80 border-zinc-800"></textarea>
+
+                    <!-- BALÃO DE PRÉVIA EM TEMPO REAL: COMO O CLIENTE VÊ NO WHATSAPP -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 space-y-2">
+                      <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-zinc-400 font-medium flex items-center gap-1.5">
+                          <svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-message"/></svg>
+                          Prévia do WhatsApp do Cliente
+                        </span>
+                        <span class="text-[10px] text-zinc-500 font-mono">Disparo Automático</span>
+                      </div>
+                      <div class="max-w-md bg-[#005c4b]/30 border border-[#00a884]/30 rounded-2xl p-3 space-y-1 shadow-inner">
+                        <div class="flex items-center justify-between text-[10px] text-[#25d366] font-semibold">
+                          <span id="preview-whatsapp-nome">Advocacia Studio</span>
+                          <span id="preview-whatsapp-hora" class="font-mono text-zinc-400">Agora</span>
+                        </div>
+                        <p id="preview-whatsapp-texto" class="text-xs text-zinc-100 leading-relaxed font-sans select-all">
+                          Escreva o andamento acima para ver como o cliente receberá a mensagem no WhatsApp...
+                        </p>
+                        <div class="flex items-center justify-end text-[10px] text-zinc-400 gap-1 pt-0.5">
+                          <span>Entregue</span>
+                          <span class="text-[#53bdeb]">✓✓</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -6180,6 +6228,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos(telOuCpf, p.nome || 'Cliente');
         };
       }
+      if (window.atualizarPreviewWhatsAppAoDigitar) {
+        window.atualizarPreviewWhatsAppAoDigitar();
+      }
 
       // Se o usuário estiver focado na caixa de busca, não destrói o DOM da lista para não interromper digitação
       if (document.activeElement !== document.getElementById('busca-processos')) {
@@ -6213,16 +6264,63 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     }
 
+    // Alternador suave da gaveta de importação
+    window.alternarGavetaImportacao = function() {
+      const g = document.getElementById('gaveta-importacao-processos');
+      const icone = document.getElementById('icone-gaveta-import');
+      const lbl = document.getElementById('label-toggle-importacao');
+      if (!g) return;
+      const escondido = g.classList.contains('hidden');
+      if (escondido) {
+        g.classList.remove('hidden');
+        if (icone) icone.innerText = '▲';
+        if (lbl) lbl.innerText = 'Fechar Importação';
+      } else {
+        g.classList.add('hidden');
+        if (icone) icone.innerText = '▼';
+        if (lbl) lbl.innerText = 'Importar Arquivos';
+      }
+    };
+
+    // Atualização em tempo real do balão do WhatsApp
+    window.atualizarPreviewWhatsAppAoDigitar = function() {
+      const elResumo = document.getElementById('proc-resumo');
+      const elNome = document.getElementById('proc-nome');
+      const prevTexto = document.getElementById('preview-whatsapp-texto');
+      const prevNome = document.getElementById('preview-whatsapp-nome');
+      const prevHora = document.getElementById('preview-whatsapp-hora');
+
+      const texto = (elResumo?.value || '').trim();
+      const nome = (elNome?.value || '').trim() || 'Cliente';
+
+      if (prevTexto) {
+        if (texto) {
+          prevTexto.innerText = `Olá, ${nome}! Seu processo foi movimentado: "${texto}". Digite 1 para encerrar ou 2 para falar com o advogado.`;
+        } else {
+          prevTexto.innerText = 'Escreva o andamento acima para ver como o cliente receberá a mensagem no WhatsApp...';
+        }
+      }
+      if (prevHora) {
+        prevHora.innerText = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+    };
+
     const elProcNome = document.getElementById('proc-nome');
     const elProcCpf = document.getElementById('proc-cpf');
     const elProcNumero = document.getElementById('proc-numero');
     const elProcResumo = document.getElementById('proc-resumo');
     const elProcTemAtualizacao = document.getElementById('proc-tem-atualizacao');
 
-    if (elProcNome) elProcNome.addEventListener('input', (e) => sincronizarDigitacaoProcesso('nome', e.target.value));
+    if (elProcNome) elProcNome.addEventListener('input', (e) => {
+      sincronizarDigitacaoProcesso('nome', e.target.value);
+      window.atualizarPreviewWhatsAppAoDigitar && window.atualizarPreviewWhatsAppAoDigitar();
+    });
     if (elProcCpf) elProcCpf.addEventListener('input', (e) => sincronizarDigitacaoProcesso('cpf', e.target.value));
     if (elProcNumero) elProcNumero.addEventListener('input', (e) => sincronizarDigitacaoProcesso('numero', e.target.value));
-    if (elProcResumo) elProcResumo.addEventListener('input', (e) => sincronizarDigitacaoProcesso('resumo', e.target.value));
+    if (elProcResumo) elProcResumo.addEventListener('input', (e) => {
+      sincronizarDigitacaoProcesso('resumo', e.target.value);
+      window.atualizarPreviewWhatsAppAoDigitar && window.atualizarPreviewWhatsAppAoDigitar();
+    });
     if (elProcTemAtualizacao) elProcTemAtualizacao.addEventListener('change', (e) => sincronizarDigitacaoProcesso('temAtualizacao', e.target.checked));
 
     safeOn('btn-resetar-visto-ficha', 'click', () => {
@@ -7142,6 +7240,20 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       });
 
       if (badgeProc) badgeProc.innerText = String(listaBase.length);
+
+      // Atualização em tempo real dos 3 KPIs no topo da aba de processos
+      const kpiTotal = document.getElementById('kpi-proc-total');
+      const kpiNovidades = document.getElementById('kpi-proc-novidades');
+      const kpiDocs = document.getElementById('kpi-proc-docs');
+      if (kpiTotal) kpiTotal.innerText = String(listaBase.length);
+      if (kpiNovidades) {
+        const comNovidade = listaBase.filter(p => p.temAtualizacao && p.resumo && p.resumo.trim()).length;
+        kpiNovidades.innerText = String(comNovidade);
+      }
+      if (kpiDocs) {
+        const comDocs = dossiesValores.filter(d => Array.isArray(d.documentos) && d.documentos.length > 0).length;
+        kpiDocs.innerText = String(comDocs);
+      }
 
       // Sincroniza contador e lista oculta para seletores contratuais
       const contDossies = document.getElementById('contador-dossies-lista');
