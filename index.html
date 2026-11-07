@@ -203,87 +203,124 @@
       border-color: rgba(212, 175, 55, 0.35);
     }
     /* ============================================================
-       MICRO-INTERACTIONS: ABA PROCESSOS (ENTRADA SUAVE & HOVER TÁTIL)
+       MICRO-INTERACTIONS: ABA PROCESSOS (ENTRADA SUAVE, FLUIDA & DESACELERADA)
        ============================================================ */
-    @keyframes procFadeUp {
+    @keyframes procFadeUpSmooth {
       0% {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(10px) scale(0.995);
       }
       100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
     }
 
+    /* Transição em cascata mais lenta, no mesmo padrão macio da tela inicial */
     #aba-processos.tab-anim-right .proc-stagger-1,
     #aba-processos.tab-anim-left .proc-stagger-1,
     #aba-processos.tab-pane-anim .proc-stagger-1 {
-      animation: procFadeUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.02s;
+      animation: procFadeUpSmooth 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.04s;
     }
     #aba-processos.tab-anim-right .proc-stagger-2,
     #aba-processos.tab-anim-left .proc-stagger-2,
     #aba-processos.tab-pane-anim .proc-stagger-2 {
-      animation: procFadeUp 0.30s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.06s;
+      animation: procFadeUpSmooth 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.10s;
     }
     #aba-processos.tab-anim-right .proc-stagger-3,
     #aba-processos.tab-anim-left .proc-stagger-3,
     #aba-processos.tab-pane-anim .proc-stagger-3 {
-      animation: procFadeUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.10s;
+      animation: procFadeUpSmooth 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.16s;
     }
     #aba-processos.tab-anim-right .proc-stagger-4,
     #aba-processos.tab-anim-left .proc-stagger-4,
     #aba-processos.tab-pane-anim .proc-stagger-4 {
-      animation: procFadeUp 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.14s;
+      animation: procFadeUpSmooth 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.22s;
     }
 
-    /* Cards de processo: hover refinado (micro-elevação suave, sem layout shifts) */
+    /* Cards de processo: hover requintado com micro-elevação sutil e brilho discreto */
     .proc-client-card {
-      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-                  border-color 0.18s ease,
-                  box-shadow 0.18s ease,
-                  background-color 0.18s ease;
-      will-change: transform;
+      position: relative;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.22s ease,
+                  box-shadow 0.22s ease,
+                  background-color 0.22s ease;
+      will-change: transform, box-shadow;
     }
     .proc-client-card:hover {
-      transform: translateY(-1.5px);
-      border-color: rgba(212, 175, 55, 0.35);
-      box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 175, 55, 0.12);
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.42);
+      box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.16);
     }
     .proc-client-card:active {
-      transform: scale(0.99) translateY(0);
-      transition-duration: 0.08s;
+      transform: scale(0.985) translateY(0);
+      transition-duration: 0.09s;
     }
+    /* Efeito de destaque no avatar de iniciais do cliente ao passar o mouse */
+    .proc-client-card .proc-avatar-badge {
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+    }
+    .proc-client-card:hover .proc-avatar-badge {
+      transform: scale(1.06);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    /* Seta indicadora: sobe e cresce de leve com transição natural */
     .proc-client-card .proc-arrow {
-      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease;
     }
     .proc-client-card:hover .proc-arrow {
-      transform: translateY(-2px) scale(1.1);
+      transform: translateY(-2px) scale(1.15);
       color: #f3e5ab;
     }
 
-    /* KPI Cards Hover na aba processos */
+    /* KPI Cards no topo da aba processos com elevação e micro-glow no ícone */
     .proc-kpi-card {
-      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-                  border-color 0.18s ease,
-                  box-shadow 0.18s ease;
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.24s ease,
+                  box-shadow 0.24s ease;
+      will-change: transform;
     }
     .proc-kpi-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(212, 175, 55, 0.3);
-      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+      transform: translateY(-3px);
+      border-color: rgba(212, 175, 55, 0.36);
+      box-shadow: 0 14px 32px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(212, 175, 55, 0.15);
+    }
+    .proc-kpi-card .proc-kpi-icon {
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .proc-kpi-card:hover .proc-kpi-icon {
+      transform: scale(1.08) translateY(-1px);
+    }
+
+    /* Efeito de foco vivo no campo de busca de processos */
+    #busca-processos {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    #busca-processos:focus {
+      border-color: rgba(245, 158, 11, 0.5) !important;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Efeito no Dropzone de importação: borda pulsante sutil no hover */
+    #dropzone-processos {
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background-color 0.2s ease;
+    }
+    #dropzone-processos:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px -8px rgba(245, 158, 11, 0.15);
     }
 
     @media (prefers-reduced-motion: reduce) {
       #aba-processos [class*="proc-stagger-"] {
         animation: none !important;
         opacity: 1 !important;
+        transform: none !important;
       }
-      .proc-client-card, .proc-kpi-card {
+      .proc-client-card, .proc-kpi-card, #dropzone-processos {
         transition: none !important;
         transform: none !important;
       }
@@ -2065,7 +2102,7 @@
                 <span class="text-[11px] font-semibold text-zinc-400 block">Total de Pastas</span>
                 <span id="kpi-proc-total" class="font-mono text-2xl font-bold text-zinc-100 tracking-tight">0</span>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <div class="proc-kpi-icon w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                 <svg class="w-5 h-5"><use href="#icon-folder"/></svg>
               </div>
             </div>
@@ -2076,7 +2113,7 @@
                 <span class="text-[11px] font-semibold text-zinc-400 block">Novidades Prontas no Robô</span>
                 <span id="kpi-proc-novidades" class="font-mono text-2xl font-bold text-emerald-400 tracking-tight">0</span>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <div class="proc-kpi-icon w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               </div>
             </div>
@@ -2087,7 +2124,7 @@
                 <span class="text-[11px] font-semibold text-zinc-400 block">Dossiês com Documentos</span>
                 <span id="kpi-proc-docs" class="font-mono text-2xl font-bold text-[#e5c158] tracking-tight">0</span>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <div class="proc-kpi-icon w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                 <svg class="w-5 h-5"><use href="#icon-users"/></svg>
               </div>
             </div>
@@ -7508,7 +7545,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
         item.innerHTML = `
           <div class="flex items-center space-x-3 overflow-hidden pr-2">
-            <div class="w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-zinc-950 font-extrabold text-xs flex-shrink-0 shadow transition-transform duration-200 group-hover:scale-105">
+            <div class="proc-avatar-badge w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-zinc-950 font-extrabold text-xs flex-shrink-0 shadow">
               ${iniciais}
             </div>
             <div class="overflow-hidden">
