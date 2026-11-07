@@ -203,6 +203,93 @@
       border-color: rgba(212, 175, 55, 0.35);
     }
     /* ============================================================
+       MICRO-INTERACTIONS: ABA PROCESSOS (ENTRADA SUAVE & HOVER TÁTIL)
+       ============================================================ */
+    @keyframes procFadeUp {
+      0% {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #aba-processos.tab-anim-right .proc-stagger-1,
+    #aba-processos.tab-anim-left .proc-stagger-1,
+    #aba-processos.tab-pane-anim .proc-stagger-1 {
+      animation: procFadeUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.02s;
+    }
+    #aba-processos.tab-anim-right .proc-stagger-2,
+    #aba-processos.tab-anim-left .proc-stagger-2,
+    #aba-processos.tab-pane-anim .proc-stagger-2 {
+      animation: procFadeUp 0.30s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.06s;
+    }
+    #aba-processos.tab-anim-right .proc-stagger-3,
+    #aba-processos.tab-anim-left .proc-stagger-3,
+    #aba-processos.tab-pane-anim .proc-stagger-3 {
+      animation: procFadeUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.10s;
+    }
+    #aba-processos.tab-anim-right .proc-stagger-4,
+    #aba-processos.tab-anim-left .proc-stagger-4,
+    #aba-processos.tab-pane-anim .proc-stagger-4 {
+      animation: procFadeUp 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.14s;
+    }
+
+    /* Cards de processo: hover refinado (micro-elevação suave, sem layout shifts) */
+    .proc-client-card {
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.18s ease,
+                  box-shadow 0.18s ease,
+                  background-color 0.18s ease;
+      will-change: transform;
+    }
+    .proc-client-card:hover {
+      transform: translateY(-1.5px);
+      border-color: rgba(212, 175, 55, 0.35);
+      box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 175, 55, 0.12);
+    }
+    .proc-client-card:active {
+      transform: scale(0.99) translateY(0);
+      transition-duration: 0.08s;
+    }
+    .proc-client-card .proc-arrow {
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+    }
+    .proc-client-card:hover .proc-arrow {
+      transform: translateY(-2px) scale(1.1);
+      color: #f3e5ab;
+    }
+
+    /* KPI Cards Hover na aba processos */
+    .proc-kpi-card {
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.18s ease,
+                  box-shadow 0.18s ease;
+    }
+    .proc-kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.3);
+      box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #aba-processos [class*="proc-stagger-"] {
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      .proc-client-card, .proc-kpi-card {
+        transition: none !important;
+        transform: none !important;
+      }
+    }
+
+    /* ============================================================
        MICRO-INTERACTIONS: ABA INICIAL (ENTRADA & HOVER TÁTIL FLUIDO)
        ============================================================ */
     @keyframes homeStaggerFadeUp {
@@ -1954,7 +2041,7 @@
           <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
         <div id="aba-processos" class="hidden space-y-6 tab-pane-anim">
           <!-- EXECUTIVE SECTION HEADER COM CONTROLES & AÇÕES RÁPIDAS -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+          <div class="proc-stagger-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
             <div class="space-y-1">
               <h2 class="font-serif-legal text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
@@ -1971,9 +2058,9 @@
           </div>
 
           <!-- MINI-DASHBOARD DE INDICADORES RÁPIDOS (STATUS OPERACIONAL) -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div class="proc-stagger-2 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <!-- KPI 1: Pastas Cadastradas -->
-            <div class="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between">
+            <div class="proc-kpi-card p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between cursor-default">
               <div>
                 <span class="text-[11px] font-semibold text-zinc-400 block">Total de Pastas</span>
                 <span id="kpi-proc-total" class="font-mono text-2xl font-bold text-zinc-100 tracking-tight">0</span>
@@ -1984,7 +2071,7 @@
             </div>
 
             <!-- KPI 2: Novidades Prontas pro Robô -->
-            <div class="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between">
+            <div class="proc-kpi-card p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between cursor-default">
               <div>
                 <span class="text-[11px] font-semibold text-zinc-400 block">Novidades Prontas no Robô</span>
                 <span id="kpi-proc-novidades" class="font-mono text-2xl font-bold text-emerald-400 tracking-tight">0</span>
@@ -1995,7 +2082,7 @@
             </div>
 
             <!-- KPI 3: Documentos Civis Auditados -->
-            <div class="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between">
+            <div class="proc-kpi-card p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 backdrop-blur-sm flex items-center justify-between cursor-default">
               <div>
                 <span class="text-[11px] font-semibold text-zinc-400 block">Dossiês com Documentos</span>
                 <span id="kpi-proc-docs" class="font-mono text-2xl font-bold text-[#e5c158] tracking-tight">0</span>
@@ -2007,7 +2094,7 @@
           </div>
 
           <!-- ÁREA DE IMPORTAÇÃO DE DOCUMENTOS & PLANILHAS (SEMPRE ABERTA E VISÍVEL) -->
-          <div id="gaveta-importacao-processos" class="exec-card p-5 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-3.5 shadow-xl">
+          <div id="gaveta-importacao-processos" class="proc-stagger-3 exec-card p-5 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-3.5 shadow-xl">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
               <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
@@ -2047,7 +2134,7 @@
           </div>
 
           <!-- MASTER-DETAIL 2-COLUMN LAYOUT -->
-          <div class="grid grid-cols-12 gap-6 items-start">
+          <div class="proc-stagger-4 grid grid-cols-12 gap-6 items-start">
             <!-- COLUNA ESQUERDA: LISTA UNIFICADA DE CLIENTES & PROCESSOS (5 cols) -->
             <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col min-h-[580px] max-h-[760px] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
@@ -7416,19 +7503,19 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const qtdDocsDossie = (dossieLigado && Array.isArray(dossieLigado.documentos)) ? dossieLigado.documentos.length : 0;
 
         const item = document.createElement('div');
-        item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : 'hover:border-zinc-700'}`;
+        item.className = `proc-client-card p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between ${isSel ? 'proc-list-item-active' : 'hover:border-zinc-700'}`;
         item.onclick = () => selecionarProcessoNaLista(p.id, true);
 
         item.innerHTML = `
           <div class="flex items-center space-x-3 overflow-hidden pr-2">
-            <div class="w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-zinc-950 font-extrabold text-xs flex-shrink-0 shadow">
+            <div class="w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-zinc-950 font-extrabold text-xs flex-shrink-0 shadow transition-transform duration-200 group-hover:scale-105">
               ${iniciais}
             </div>
             <div class="overflow-hidden">
               <div class="flex items-center space-x-2">
                 <span class="text-xs font-bold truncate text-white">${p.nome || 'Cliente'}</span>
                 ${tagHtml}
-                <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-zinc-600'}"></span>
+                <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-emerald-400'}"></span>
                 ${qtdDocsDossie > 0 ? `<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30" title="${qtdDocsDossie} documento(s) no Dossiê Civil">📁 ${qtdDocsDossie} docs</span>` : ''}
               </div>
               <p class="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
@@ -7436,7 +7523,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </p>
             </div>
           </div>
-          <span class="text-[11px] text-amber-400 font-bold flex-shrink-0">➔</span>
+          <span class="proc-arrow text-[11px] text-amber-400 font-bold flex-shrink-0 inline-block">➔</span>
         `;
         box.appendChild(item);
       });
