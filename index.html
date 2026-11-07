@@ -1966,14 +1966,8 @@
                 Acompanhe o status dos clientes, atualize andamentos para o robô WhatsApp e consulte os documentos do dossiê.
               </p>
             </div>
-            <div class="flex items-center gap-2.5">
-              <button type="button" onclick="alternarGavetaImportacao()" class="btn-tactile px-3.5 py-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 hover:text-white border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 cursor-pointer shadow-sm">
-                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                <span id="label-toggle-importacao">Importar Arquivos</span>
-                <span id="icone-gaveta-import" class="text-xs text-zinc-400 transition-transform">▼</span>
-              </button>
-              <button id="btn-toggle-msg-processos" type="button" class="hidden"></button>
-            </div>
+            <!-- Âncora oculta para compatibilidade IPC -->
+            <button id="btn-toggle-msg-processos" type="button" class="hidden"></button>
           </div>
 
           <!-- MINI-DASHBOARD DE INDICADORES RÁPIDOS (STATUS OPERACIONAL) -->
@@ -2012,15 +2006,17 @@
             </div>
           </div>
 
-          <!-- GAVETA RETRÁTIL DE IMPORTAÇÃO (DISCRETA E NÃO POLUI A TELA) -->
-          <div id="gaveta-importacao-processos" class="hidden exec-card p-5 rounded-3xl bg-zinc-900/60 border border-zinc-800 space-y-4 shadow-2xl transition-all">
+          <!-- ÁREA DE IMPORTAÇÃO DE DOCUMENTOS & PLANILHAS (SEMPRE ABERTA E VISÍVEL) -->
+          <div id="gaveta-importacao-processos" class="exec-card p-5 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-3.5 shadow-xl">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
-              <div>
-                <h3 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                  Importar Planilhas ou Documentos
-                </h3>
-                <p class="text-xs text-zinc-400 mt-0.5">Selecione arquivos do tribunal ou planilhas Excel para alimentar ou atualizar os processos.</p>
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-zinc-100 block">Importação Automática de Pastas &amp; Documentos</h3>
+                  <p class="text-[11px] text-zinc-400">Envie arquivos do processo ou planilhas para que o robô processe e vincule automaticamente.</p>
+                </div>
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" id="btn-baixar-modelo-xlsx" class="btn-tactile px-3 py-1.5 bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border border-zinc-700/60 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Baixar planilha modelo formatada">
@@ -2038,10 +2034,13 @@
               </div>
             </div>
 
-            <!-- Dropzone Visual Compacto -->
-            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/70 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-zinc-900/60 rounded-2xl p-5 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-2 group">
+            <!-- Dropzone Visual Sempre Ativo e Confortável -->
+            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/70 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-zinc-900/60 rounded-2xl p-4 sm:p-5 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-1.5 group">
               <div class="text-xs font-semibold text-zinc-200">
-                <span class="text-amber-400 group-hover:underline">Clique para selecionar</span> ou arraste arquivos até aqui (Excel, PDF do Tribunal, Word ou TXT)
+                <span class="text-amber-400 group-hover:underline">Clique para selecionar do computador</span> ou arraste arquivos até aqui (Excel, PDFs de Tribunais, DOCX ou TXT)
+              </div>
+              <div class="text-[10px] text-zinc-400">
+                O robô identifica automaticamente o processo e atualiza o histórico do cliente.
               </div>
               <input type="file" id="input-file-processos-hidden" multiple accept=".xlsx,.xls,.csv,.ods,.pdf,.docx,.txt,.log" class="hidden">
             </div>
@@ -2065,13 +2064,8 @@
                   <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5"><use href="#icon-search"/></svg>
                   <input type="text" id="busca-processos" placeholder="Buscar CPF, Nome, CNJ ou Telefone..." class="exec-input w-full rounded-xl pl-9 pr-3 py-2 text-xs">
                 </div>
-                <button type="button" onclick="carregarDadosDemonstracao()" class="p-2 bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 hover:border-amber-500/30 rounded-xl text-xs font-bold transition flex-shrink-0 cursor-pointer shadow-sm" title="Carregar casos reais de exemplo">
-                  <svg class="w-4 h-4"><use href="#icon-sparkles"/></svg>
-                </button>
-                <button type="button" id="btn-limpar-form-proc" class="px-3.5 py-2 champagne-gradient rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm active:scale-[0.98] flex-shrink-0 transition cursor-pointer">
-                  <svg class="w-3.5 h-3.5"><use href="#icon-plus"/></svg>
-                  <span>Novo</span>
-                </button>
+                <!-- Âncoras ocultas para integridade de scripts legados -->
+                <button type="button" id="btn-limpar-form-proc" class="hidden"></button>
               </div>
               <div class="flex items-center justify-between px-1 mb-2.5 text-[10px] text-zinc-400">
                 <span class="font-semibold">Ordenar:</span>
@@ -2161,35 +2155,50 @@
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-2">
                         <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <label class="text-xs font-bold text-zinc-200">Mensagem do Andamento (WhatsApp)</label>
+                        <label class="text-xs font-bold text-zinc-200">Resumo do Andamento (Editável pelo Advogado)</label>
                       </div>
-                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
-                        <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
-                        <span>Disparar aviso ao cliente</span>
-                      </label>
+                      <div class="flex items-center gap-2.5">
+                        <button type="button" id="btn-humanizar-resumo-ia" onclick="humanizarResumoProcessoComIA()" class="btn-tactile px-3 py-1 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-[11px] font-bold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Humaniza o texto usando IA para torná-lo claro e acolhedor para o cliente">
+                          <span>✨</span>
+                          <span>Humanizar com IA</span>
+                        </button>
+                        <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
+                          <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
+                          <span>Disparar aviso</span>
+                        </label>
+                      </div>
                     </div>
-                    <textarea id="proc-resumo" rows="3" placeholder="Digite aqui o andamento simplificado para o cliente..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed text-zinc-100 placeholder-zinc-500 bg-zinc-950/80 border-zinc-800"></textarea>
+                    <p class="text-[11px] text-zinc-400">Edite apenas o resumo do andamento abaixo. Todo o restante da mensagem (cabeçalho, processo e menu 1/2) é formatado automaticamente pelo robô.</p>
+                    <textarea id="proc-resumo" rows="3" placeholder="Digite o resumo do andamento ou clique em 'Humanizar com IA' para traduzir o juridiquês automaticamente..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed text-zinc-100 placeholder-zinc-500 bg-zinc-950/80 border-zinc-800"></textarea>
 
-                    <!-- BALÃO DE PRÉVIA EM TEMPO REAL: COMO O CLIENTE VÊ NO WHATSAPP -->
+                    <!-- BALÃO DE PRÉVIA EM TEMPO REAL: FÓRMULA EXATA QUE O ROBÔ ENVIA AO CLIENTE -->
                     <div class="p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 space-y-2">
                       <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-zinc-400 font-medium flex items-center gap-1.5">
+                        <span class="text-zinc-300 font-semibold flex items-center gap-1.5">
                           <svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-message"/></svg>
-                          Prévia do WhatsApp do Cliente
+                          Mensagem Oficial Enviada pelo Robô no WhatsApp
                         </span>
-                        <span class="text-[10px] text-zinc-500 font-mono">Disparo Automático</span>
+                        <span class="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Disparo sob Consulta</span>
                       </div>
-                      <div class="max-w-md bg-[#005c4b]/30 border border-[#00a884]/30 rounded-2xl p-3 space-y-1 shadow-inner">
-                        <div class="flex items-center justify-between text-[10px] text-[#25d366] font-semibold">
-                          <span id="preview-whatsapp-nome">Advocacia Studio</span>
+                      <div class="w-full bg-[#005c4b]/30 border border-[#00a884]/30 rounded-2xl p-3.5 space-y-2 shadow-inner">
+                        <div class="flex items-center justify-between text-[10px] text-[#25d366] font-semibold border-b border-[#00a884]/20 pb-1.5">
+                          <span>⚖️ Advocacia Studio Bot</span>
                           <span id="preview-whatsapp-hora" class="font-mono text-zinc-400">Agora</span>
                         </div>
-                        <p id="preview-whatsapp-texto" class="text-xs text-zinc-100 leading-relaxed font-sans select-all">
-                          Escreva o andamento acima para ver como o cliente receberá a mensagem no WhatsApp...
-                        </p>
-                        <div class="flex items-center justify-end text-[10px] text-zinc-400 gap-1 pt-0.5">
-                          <span>Entregue</span>
-                          <span class="text-[#53bdeb]">✓✓</span>
+                        <div class="text-xs text-zinc-100 leading-relaxed font-sans space-y-2 whitespace-pre-line select-all">
+                          <p id="preview-whatsapp-header" class="text-zinc-300 font-semibold">Olá, Carlos Eduardo Alencar da Silva!
+Referente ao processo nº 1045892-33.2025.8.26.0100:</p>
+                          <div class="p-2.5 rounded-xl bg-zinc-900/70 border border-amber-500/30 text-amber-200">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">📋 Resumo da Atualização:</span>
+                            <span id="preview-whatsapp-corpo">Nenhum andamento digitado. Escreva o resumo acima para visualizar o disparo final.</span>
+                          </div>
+                          <p id="preview-whatsapp-footer" class="text-[11px] text-zinc-400 font-mono">━━━━━━━━━━━━━━━━━━━━
+Digite 1 para encerrar a conversa
+Digite 2 para falar com um advogado</p>
+                        </div>
+                        <div class="flex items-center justify-end text-[10px] text-zinc-400 gap-1 pt-1 border-t border-[#00a884]/20">
+                          <span>Entregue quando o cliente consultar</span>
+                          <span class="text-[#53bdeb] font-bold">✓✓</span>
                         </div>
                       </div>
                     </div>
@@ -6264,44 +6273,95 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     }
 
-    // Alternador suave da gaveta de importação
-    window.alternarGavetaImportacao = function() {
-      const g = document.getElementById('gaveta-importacao-processos');
-      const icone = document.getElementById('icone-gaveta-import');
-      const lbl = document.getElementById('label-toggle-importacao');
-      if (!g) return;
-      const escondido = g.classList.contains('hidden');
-      if (escondido) {
-        g.classList.remove('hidden');
-        if (icone) icone.innerText = '▲';
-        if (lbl) lbl.innerText = 'Fechar Importação';
-      } else {
-        g.classList.add('hidden');
-        if (icone) icone.innerText = '▼';
-        if (lbl) lbl.innerText = 'Importar Arquivos';
-      }
-    };
-
-    // Atualização em tempo real do balão do WhatsApp
+    // Atualização em tempo real do balão oficial do WhatsApp (exatamente como configurado nas mensagens do robô)
     window.atualizarPreviewWhatsAppAoDigitar = function() {
       const elResumo = document.getElementById('proc-resumo');
       const elNome = document.getElementById('proc-nome');
-      const prevTexto = document.getElementById('preview-whatsapp-texto');
-      const prevNome = document.getElementById('preview-whatsapp-nome');
+      const elNum = document.getElementById('proc-numero');
+      const elCpf = document.getElementById('proc-cpf');
+      const prevHeader = document.getElementById('preview-whatsapp-header');
+      const prevCorpo = document.getElementById('preview-whatsapp-corpo');
+      const prevFooter = document.getElementById('preview-whatsapp-footer');
       const prevHora = document.getElementById('preview-whatsapp-hora');
 
       const texto = (elResumo?.value || '').trim();
       const nome = (elNome?.value || '').trim() || 'Cliente';
+      const num = (elNum?.value || '').trim() || '-';
+      const cpf = (elCpf?.value || '').trim() || '-';
+      const dataHoje = new Date().toLocaleDateString('pt-BR');
 
-      if (prevTexto) {
-        if (texto) {
-          prevTexto.innerText = `Olá, ${nome}! Seu processo foi movimentado: "${texto}". Digite 1 para encerrar ou 2 para falar com o advogado.`;
-        } else {
-          prevTexto.innerText = 'Escreva o andamento acima para ver como o cliente receberá a mensagem no WhatsApp...';
-        }
+      // Busca o modelo oficial de mensagem configurado em configGlobal.processos.mensagens
+      const tpls = (configGlobal && configGlobal.processos && configGlobal.processos.mensagens) || {};
+      const modeloPadrao = tpls.msg_com_atualizacao || "⚖️ *Andamento Processual Localizado*\n\nOlá, *{nome}*!\nReferente ao processo nº *{processo}* (CPF: *{cpf}*):\n\n📋 *Resumo da Atualização ({data}):*\n{resumo}\n\n━━━━━━━━━━━━━━━━━━━━\nDigite *1* para encerrar a conversa\nDigite *2* para falar com um advogado";
+
+      if (prevHeader) {
+        prevHeader.innerText = `Olá, ${nome}!\nReferente ao processo nº ${num} (CPF: ${cpf}):`;
+      }
+      if (prevCorpo) {
+        prevCorpo.innerText = texto || 'Nenhum andamento registrado ainda. Digite o resumo acima para compor a mensagem do robô.';
+      }
+      if (prevFooter) {
+        prevFooter.innerText = '━━━━━━━━━━━━━━━━━━━━\nDigite 1 para encerrar a conversa\nDigite 2 para falar com um advogado';
       }
       if (prevHora) {
         prevHora.innerText = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+    };
+
+    // Humanização Inteligente com IA do Resumo do Andamento
+    window.humanizarResumoProcessoComIA = async function() {
+      const textarea = document.getElementById('proc-resumo');
+      const btn = document.getElementById('btn-humanizar-resumo-ia');
+      if (!textarea) return;
+      const textoAtual = textarea.value.trim();
+      if (!textoAtual) {
+        mostrarToast("Digite ao menos um termo ou despacho do processo para a IA humanizar.");
+        textarea.focus();
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>✨</span><span>Humanizando...</span>';
+      }
+
+      try {
+        const api = window.api || window.electronAPI;
+        let textoHumanizado = '';
+
+        if (api && typeof api.melhorarMensagemIA === 'function') {
+          const res = await api.melhorarMensagemIA({
+            texto: textoAtual,
+            contexto: {
+              promptCustom: 'Humanize este andamento judicial para um cliente leigo no WhatsApp, tornando-o claro, acolhedor, objetivo e sem juridiquês desnecessário.'
+            }
+          });
+          if (res && res.texto) {
+            textoHumanizado = res.texto;
+          }
+        }
+
+        if (!textoHumanizado && typeof window.aplicarMelhoriaMensagemLocalmente === 'function') {
+          textoHumanizado = window.aplicarMelhoriaMensagemLocalmente(textoAtual);
+        }
+
+        if (textoHumanizado) {
+          textarea.value = textoHumanizado;
+          sincronizarDigitacaoProcesso('resumo', textoHumanizado);
+          window.atualizarPreviewWhatsAppAoDigitar && window.atualizarPreviewWhatsAppAoDigitar();
+          marcarAlteracaoPendente();
+          mostrarToast("✨ Resumo humanizado pela IA com sucesso!");
+        } else {
+          mostrarToast("Não foi possível conectar com a IA no momento.");
+        }
+      } catch (err) {
+        console.error('Erro ao humanizar resumo com IA:', err);
+        mostrarToast("Erro ao processar com IA.");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>✨</span><span>Humanizar com IA</span>';
+        }
       }
     };
 
