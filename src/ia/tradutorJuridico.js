@@ -564,7 +564,7 @@ function detectarUrgenciaECronologiaLocal(texto, contexto = {}) {
   }
 
   // 1. Detecção de Urgência Crítica (Furador de Fila)
-  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(de\s+)?conta|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
+  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(judicial|de\s+conta|banc[aá]rio)|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
 
   // 2. Detecção de Oportunidade Comercial / Fechamento
   const regexComercial = /(fechar\s+contrato|assinar\s+contrato|proposta\s+de\s+honor[aá]rios?|quanto\s+custa|pagar\s+honor[aá]rios?|dar\s+entrada\s+(hoje|urgente|no\s+processo)|documentos?\s+para\s+iniciar|fechamento|contratar|quero\s+contratar)/i;
