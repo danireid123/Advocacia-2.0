@@ -441,6 +441,42 @@ function atualizarStatusUI(novoStatus, detalheSubStatus = null) {
     }
 }
 
+function isMensagemCritica(texto) {
+    if (!texto || typeof texto !== 'string') return false;
+    const txt = texto.toLowerCase();
+    const regexTermos = /\b(urgente|socorro|oficial\s+de\s+justi[cç]a|mandado|busca\s+e\s+apreens[aã]o|intima[cç][aã]o|liminar|\buti\b|audi[eê]ncia\s+hoje|bloquearam\s+minha\s+conta|sisbajud|bacenjud|plano\s+de\s+sa[uú]de\s+negou|\bpreso\b|despejo)\b/i;
+    if (regexTermos.test(txt)) return true;
+    try {
+        const { detectarUrgenciaECronologiaLocal } = require('./src/ia/tradutorJuridico');
+        const analise = detectarUrgenciaECronologiaLocal(texto);
+        if (analise && (analise.nivel === 'CRITICA' || analise.nivelUrgencia === 'CRITICA')) return true;
+    } catch (_) {}
+    return false;
+}
+
+function isForaDeExpediente(config) {
+    try {
+        const agenda = config && config.agenda;
+        if (!agenda) return false;
+        const agora = new Date();
+        const diaSemana = String(agora.getDay());
+        const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+        const confDia = agenda[diaSemana];
+        if (!confDia || !confDia.ativo) return true;
+        const minAbertura = converterHoraParaMinutos(confDia.abertura || '08:00');
+        const minFechamento = converterHoraParaMinutos(confDia.fechamento || '18:00');
+        if (minutosAgora < minAbertura || minutosAgora >= minFechamento) return true;
+        if (agenda.almoco_ativo) {
+            const minAlmocoIni = converterHoraParaMinutos(agenda.almoco_inicio || '12:00');
+            const minAlmocoFim = converterHoraParaMinutos(agenda.almoco_fim || '13:30');
+            if (minutosAgora >= minAlmocoIni && minutosAgora < minAlmocoFim) return true;
+        }
+        return false;
+    } catch (_) {
+        return false;
+    }
+}
+
 function converterHoraParaMinutos(horaStr) {
     const partes = String(horaStr || '00:00').split(':');
     return (parseInt(partes[0], 10) || 0) * 60 + (parseInt(partes[1], 10) || 0);
@@ -513,6 +549,33 @@ function montarTextoEtapa(etapa) {
         txt += `*${op.gatilho}* - ${op.rotulo}\n`;
     });
     return txt.trim();
+}
+
+function buscarProcessoPorTelefoneCliente(config, tel) {
+    if (!config || !tel) return null;
+    const numLimpo = apenasNumeros(tel);
+    if (!numLimpo || numLimpo.length < 8) return null;
+    const ultimos8 = numLimpo.slice(-8);
+    const lista = Array.isArray(config.processos) ? config.processos : ((config.processos && config.processos.lista) || []);
+    const proc = lista.find(p => {
+        const pTel = apenasNumeros(p.telefone || p.telefoneCliente || (p.dadosCadastrais && p.dadosCadastrais.telefone));
+        return pTel && pTel.includes(ultimos8);
+    });
+    if (proc) return proc;
+    if (config.dossiesClientes && typeof config.dossiesClientes === "object") {
+        for (const [k, d] of Object.entries(config.dossiesClientes)) {
+            const dTel = apenasNumeros(d.telefone || d.clienteTelefone || k);
+            if (dTel && dTel.includes(ultimos8) && (d.processoVinculado || d.numeroProcesso)) {
+                const procVinc = apenasNumeros(d.processoVinculado || d.numeroProcesso);
+                const procNaLista = lista.find(p => {
+                    const nLimpo = apenasNumeros(p.numero || p.numeroProcesso || p.processo || "");
+                    return nLimpo && nLimpo.includes(procVinc);
+                });
+                if (procNaLista) return procNaLista;
+            }
+        }
+    }
+    return null;
 }
 
 function buscarProcessoPorNumero(config, digitosBusca) {
@@ -967,7 +1030,7 @@ async function processarMensagemEntrada(msg) {
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
                 sugestoesResposta: audioSalvo.sugestoesResposta || null,
-                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                nivelUrgencia: opcoesExtras.nivelUrgencia || audioSalvo.nivelUrgencia || 'ROTINA',
                 motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
                 cronologiaFatos: audioSalvo.cronologiaFatos || [],
                 acoes: acoesItem,
@@ -983,7 +1046,10 @@ async function processarMensagemEntrada(msg) {
                     motivo: motivo
                 });
             }
-            await responderCliente(mensagemConfirmacao);
+            const msgFinalConfirmacao = (isForaDeExpediente(config) && /já está chegando|chegando para|assumir o seu atendimento|assumir seu atendimento/i.test(String(mensagemConfirmacao || '')))
+                ? "👨‍⚖️ Sua solicitação foi registrada com prioridade para o próximo horário de expediente."
+                : mensagemConfirmacao;
+            await responderCliente(msgFinalConfirmacao);
         };
 
         const estadoAtual = estadosUsuarios[remetenteChave] || 'raiz';
@@ -1013,8 +1079,42 @@ async function processarMensagemEntrada(msg) {
             return true;
         }
 
-        const saudacoes = ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "menu", "inicio", "início", "ajuda"];
+        // Interceptação imediata de emergência crítica antes de saudações/menu
+        if (isMensagemCritica(textoOriginal)) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",
+                "Emergência: " + textoOriginal,
+                { nivelUrgencia: 'CRITICA' }
+            );
+            return true;
+        }
+
+        // Busca direta por CPF ou Número de Processo antes das saudações (ex: "Bom dia CPF 12345678900")
+        const digitosDiretos = apenasNumeros(textoOriginal);
+        if (digitosDiretos.length >= 9 && estadoAtual !== 'aguardando_processo') {
+            const procDireto = buscarProcessoPorNumero(config, digitosDiretos);
+            if (procDireto) {
+                if (procDireto.nome && !config.mapaNomes[remetenteChave]) {
+                    config.mapaNomes[remetenteChave] = procDireto.nome;
+                }
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
+                await responderCliente(textoProc);
+                return true;
+            }
+        }
+
+        const saudacoes = ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "menu", "inicio", "início", "ajuda", "help"];
         if (gatilhoDigitado === "0" || saudacoes.some(s => gatilhoDigitado === s || gatilhoDigitado.startsWith(s + " "))) {
+            const procCadastrado = buscarProcessoPorTelefoneCliente(config, remetenteChave);
+            if (procCadastrado && gatilhoDigitado !== "0") {
+                const nomeRec = procCadastrado.nome || identidade.nomeCliente || "Cliente";
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const msgRecorrente = `Olá, *${nomeRec}*! Que bom ter você em contato novamente.\nLocalizamos seu processo ativo: *${procCadastrado.numero || procCadastrado.numeroProcesso}*.\n\n` +
+                    (await formatarMensagemProcesso(config, procCadastrado, remetenteChave));
+                await responderCliente(msgRecorrente);
+                return true;
+            }
             estadosUsuarios[remetenteChave] = 'raiz';
             await responderCliente(montarTextoEtapa(config.fluxo.raiz));
             return true;
@@ -1036,6 +1136,14 @@ async function processarMensagemEntrada(msg) {
                 await responderCliente(msgNaoEncontrado);
                 return true;
             }
+        }
+
+        if (estadoAtual === 'aguardando_relato') {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Recebemos seu relato! Um advogado da nossa equipe irá analisar seu caso e responder em breve.",
+                "Relato de nova consulta: " + textoOriginal
+            );
+            return true;
         }
 
         const etapaAtual = (estadoAtual === 'raiz' || estadoAtual === 'pos_consulta_processo')
@@ -1074,21 +1182,10 @@ async function processarMensagemEntrada(msg) {
                 return true;
             }
             if (opcaoEscolhida.resposta) {
-                await responderCliente(opcaoEscolhida.resposta);
-                return true;
-            }
-        }
-
-        const digitosDiretos = apenasNumeros(textoOriginal);
-        if (digitosDiretos.length >= 9) {
-            const procDireto = buscarProcessoPorNumero(config, digitosDiretos);
-            if (procDireto) {
-                if (procDireto.nome && !config.mapaNomes[remetenteChave]) {
-                    config.mapaNomes[remetenteChave] = procDireto.nome;
+                if (opcaoEscolhida.tipo === 'texto' || /relato/i.test(opcaoEscolhida.resposta)) {
+                    estadosUsuarios[remetenteChave] = 'aguardando_relato';
                 }
-                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
-                const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
-                await responderCliente(textoProc);
+                await responderCliente(opcaoEscolhida.resposta);
                 return true;
             }
         }
@@ -1535,8 +1632,51 @@ async function iniciarWhatsApp(forcarReinicio = false) {
         agendarReconexaoBackoff();
     });
 
+    // Gerenciamento de debounce para rajadas de mensagens no WhatsApp real
+const buffersRajadasPorContato = {};
+const timersDebouncePorContato = {};
+
+async function agendarProcessamentoComDebounce(msg, fnProcessar) {
+    if (!msg || !msg.from) return fnProcessar(msg);
+    const chave = String(msg.from).replace(/\D/g, "") || msg.from;
+    const texto = String(msg.body || "").trim();
+
+    if (msg.hasMedia || !texto || /^[0-9]$/.test(texto) || texto.length > 80) {
+        if (timersDebouncePorContato[chave]) {
+            clearTimeout(timersDebouncePorContato[chave]);
+            delete timersDebouncePorContato[chave];
+        }
+        delete buffersRajadasPorContato[chave];
+        return fnProcessar(msg);
+    }
+
+    if (!buffersRajadasPorContato[chave]) {
+        buffersRajadasPorContato[chave] = [];
+    }
+    buffersRajadasPorContato[chave].push(texto);
+
+    if (timersDebouncePorContato[chave]) {
+        clearTimeout(timersDebouncePorContato[chave]);
+    }
+
+    timersDebouncePorContato[chave] = setTimeout(async () => {
+        const msgsAcumuladas = buffersRajadasPorContato[chave] || [];
+        delete buffersRajadasPorContato[chave];
+        delete timersDebouncePorContato[chave];
+
+        if (msgsAcumuladas.length > 1) {
+            msg.body = msgsAcumuladas.join(" ");
+        }
+        try {
+            await fnProcessar(msg);
+        } catch (err) {
+            console.error("Erro no debounce de mensagem:", err);
+        }
+    }, 2500);
+}
+
     client.on('message', async (msg) => {
-        await processarMensagemEntrada(msg);
+        await agendarProcessamentoComDebounce(msg, processarMensagemEntrada);
     });
 
     try {
@@ -2169,7 +2309,7 @@ async function executarSimulacaoMensagem(payload = {}) {
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
                 sugestoesResposta: audioSalvo.sugestoesResposta || null,
-                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                nivelUrgencia: opcoesExtras.nivelUrgencia || audioSalvo.nivelUrgencia || 'ROTINA',
                 motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
                 cronologiaFatos: audioSalvo.cronologiaFatos || [],
                 acoes: acoesItem,
@@ -2185,7 +2325,10 @@ async function executarSimulacaoMensagem(payload = {}) {
                     motivo: `[SIMULADOR] ${motivo}`
                 });
             }
-            await responderCliente(mensagemConfirmacao);
+            const msgFinalConfirmacao = (isForaDeExpediente(config) && /já está chegando|chegando para|assumir o seu atendimento|assumir seu atendimento/i.test(String(mensagemConfirmacao || '')))
+                ? "👨‍⚖️ Sua solicitação foi registrada com prioridade para o próximo horário de expediente."
+                : mensagemConfirmacao;
+            await responderCliente(msgFinalConfirmacao);
         };
 
         const estadoAtual = estadosUsuarios[remetenteChave] || 'raiz';
@@ -2211,13 +2354,6 @@ async function executarSimulacaoMensagem(payload = {}) {
             }
         }
 
-        const saudacoes = ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "menu", "inicio", "início", "ajuda"];
-        if (gatilhoDigitado === "0" || saudacoes.some(s => gatilhoDigitado === s || gatilhoDigitado.startsWith(s + " "))) {
-            estadosUsuarios[remetenteChave] = 'raiz';
-            await responderCliente(montarTextoEtapa(config.fluxo.raiz));
-            return finalizarSimulacao();
-        }
-
         // Helper que busca no banco ou retorna processo demonstrativo para o CPF de teste padrão do Simulador (123.456.789-00)
         const buscarProcessoSimulador = (digitos) => {
             let proc = buscarProcessoPorNumero(config, digitos);
@@ -2236,6 +2372,47 @@ async function executarSimulacaoMensagem(payload = {}) {
             return proc;
         };
 
+        // Interceptação imediata de emergência crítica antes de saudações/menu
+        if (isMensagemCritica(mockMsg.body)) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",
+                "Emergência: " + mockMsg.body,
+                { nivelUrgencia: 'CRITICA' }
+            );
+            return finalizarSimulacao();
+        }
+
+        // Busca direta por CPF ou Número de Processo antes das saudações (ex: "Bom dia CPF 12345678900")
+        const digitosDiretos = apenasNumeros(mockMsg.body);
+        if (digitosDiretos.length >= 9 && estadoAtual !== 'aguardando_processo') {
+            const procDireto = buscarProcessoSimulador(digitosDiretos);
+            if (procDireto) {
+                if (procDireto.nome && !config.mapaNomes[remetenteChave]) {
+                    config.mapaNomes[remetenteChave] = procDireto.nome;
+                }
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
+                await responderCliente(textoProc);
+                return finalizarSimulacao();
+            }
+        }
+
+        const saudacoes = ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "menu", "inicio", "início", "ajuda", "help"];
+        if (gatilhoDigitado === "0" || saudacoes.some(s => gatilhoDigitado === s || gatilhoDigitado.startsWith(s + " "))) {
+            const procCadastrado = buscarProcessoPorTelefoneCliente(config, remetenteChave);
+            if (procCadastrado && gatilhoDigitado !== "0" && remetenteChave !== "5511999998888") {
+                const nomeRec = procCadastrado.nome || identidade.nomeCliente || "Cliente";
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const msgRecorrente = `Olá, *${nomeRec}*! Que bom ter você em contato novamente.\nLocalizamos seu processo ativo: *${procCadastrado.numero || procCadastrado.numeroProcesso}*.\n\n` +
+                    (await formatarMensagemProcesso(config, procCadastrado, remetenteChave));
+                await responderCliente(msgRecorrente);
+                return finalizarSimulacao();
+            }
+            estadosUsuarios[remetenteChave] = 'raiz';
+            await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+            return finalizarSimulacao();
+        }
+
         if (estadoAtual === 'aguardando_processo') {
             const digitos = apenasNumeros(mockMsg.body);
             const procAchado = buscarProcessoSimulador(digitos);
@@ -2252,6 +2429,14 @@ async function executarSimulacaoMensagem(payload = {}) {
                 await responderCliente(msgNaoEncontrado);
                 return finalizarSimulacao();
             }
+        }
+
+        if (estadoAtual === 'aguardando_relato') {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Recebemos seu relato! Um advogado da nossa equipe irá analisar seu caso e responder em breve.",
+                "Relato de nova consulta: " + mockMsg.body
+            );
+            return finalizarSimulacao();
         }
 
         const etapaAtual = (estadoAtual === 'raiz' || estadoAtual === 'pos_consulta_processo')
@@ -2290,21 +2475,10 @@ async function executarSimulacaoMensagem(payload = {}) {
                 return finalizarSimulacao();
             }
             if (opcaoEscolhida.resposta) {
-                await responderCliente(opcaoEscolhida.resposta);
-                return finalizarSimulacao();
-            }
-        }
-
-        const digitosDiretos = apenasNumeros(mockMsg.body);
-        if (digitosDiretos.length >= 9) {
-            const procDireto = buscarProcessoSimulador(digitosDiretos);
-            if (procDireto) {
-                if (procDireto.nome && !config.mapaNomes[remetenteChave]) {
-                    config.mapaNomes[remetenteChave] = procDireto.nome;
+                if (opcaoEscolhida.tipo === 'texto' || /relato/i.test(opcaoEscolhida.resposta)) {
+                    estadosUsuarios[remetenteChave] = 'aguardando_relato';
                 }
-                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
-                const textoProc = await formatarMensagemProcesso(config, procDireto, remetenteChave);
-                await responderCliente(textoProc);
+                await responderCliente(opcaoEscolhida.resposta);
                 return finalizarSimulacao();
             }
         }
