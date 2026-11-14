@@ -199,13 +199,25 @@ function verificarExpediente(cfg) {
         return { aberto: false, motivo: 'fora_expediente', msg: cfg.agenda.msg_fora_expediente };
     }
 
+    if (regraDia.plantao24h) {
+        return { aberto: true, motivo: null };
+    }
+
     const agoraMin = agora.getHours() * 60 + agora.getMinutes();
     const [hAb, mAb] = (regraDia.abertura || '08:00').split(':').map(Number);
     const [hFe, mFe] = (regraDia.fechamento || '18:00').split(':').map(Number);
     const aberturaMin = hAb * 60 + mAb;
     const fechamentoMin = hFe * 60 + mFe;
 
-    if (agoraMin < aberturaMin || agoraMin >= fechamentoMin) {
+    let dentroDoHorario = false;
+    if (aberturaMin <= fechamentoMin) {
+        dentroDoHorario = (agoraMin >= aberturaMin && agoraMin < fechamentoMin);
+    } else {
+        // Turno noturno / plantão criminal que atravessa a meia-noite (ex: 18:00 às 08:00)
+        dentroDoHorario = (agoraMin >= aberturaMin || agoraMin < fechamentoMin);
+    }
+
+    if (!dentroDoHorario) {
         return { aberto: false, motivo: 'fora_expediente', msg: cfg.agenda.msg_fora_expediente };
     }
 

@@ -562,11 +562,16 @@
     body:not(.theme-light) .text-zinc-500 {
       color: #94a3b8 !important; /* slate-400 com ratio > 4.5:1 sobre zinc-950 */
     }
-    .text-\[9px\] {
-      font-size: 10px !important;
+    /* Elevação de Piso Mínimo de Acessibilidade Visual (Padrão 12px para leitura sênior) */
+    .text-\[9px\],
+    .text-\[8\.5px\],
+    .text-\[10px\] {
+      font-size: 11.5px !important;
+      line-height: 1.35 !important;
     }
-    .text-\[8\.5px\] {
-      font-size: 10px !important;
+    .text-\[11px\] {
+      font-size: 12px !important;
+      line-height: 1.4 !important;
     }
   </style>
 
@@ -1193,7 +1198,7 @@
           <div class="p-3 rounded-xl bg-black/25 border border-zinc-800/80 flex items-start space-x-3">
             <svg class="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5"><use href="#icon-message"/></svg>
             <div>
-              <strong class="text-white block font-semibold">Simulador de WhatsApp Sandbox & IA Gemini</strong>
+              <strong class="text-white block font-semibold">Simulador de Atendimento WhatsApp & IA</strong>
               <span class="text-zinc-400 text-[11px]">Ambiente 100% isolado para testar fluxos, tradução leiga de andamentos e transbordo humano.</span>
             </div>
           </div>
@@ -1286,9 +1291,9 @@
     </div>
   </div>
 
-  <!-- MODAL DE DOSSIÊ DO PROCESSO (v2.0) -->
+  <!-- MODAL DE DOSSIÊ DO PROCESSO (v2.0 Harmonizado com Dossiê Civil e Galeria) -->
   <div id="modal-dossie-processo" class="fixed inset-0 bg-zinc-950/85 backdrop-blur-md z-[9998] hidden items-center justify-center p-4">
-    <div class="exec-card w-full max-w-2xl rounded-3xl p-6 border border-amber-400/40 space-y-4 shadow-2xl flex flex-col max-h-[85vh]">
+    <div class="exec-card w-full max-w-3xl rounded-3xl p-6 border border-amber-400/40 space-y-4 shadow-2xl flex flex-col max-h-[88vh]">
       <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
         <div class="flex items-center space-x-3">
           <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
@@ -1296,30 +1301,50 @@
           </div>
           <div>
             <h3 id="dossie-proc-titulo" class="text-sm font-bold text-white">Dossiê Processual Inteligente</h3>
-            <span id="dossie-proc-subtitulo" class="text-[11px] font-mono text-amber-400">Documentos Catalogados e Histórico</span>
+            <span id="dossie-proc-subtitulo" class="text-[11px] font-mono text-amber-400">Documentos Catalogados, Qualificação Civil & Histórico</span>
           </div>
         </div>
         <button type="button" id="btn-fechar-modal-dossie" class="text-zinc-400 hover:text-white p-1.5 text-sm font-bold rounded-lg hover:bg-zinc-800/60 active:scale-95 transition-all">✕</button>
       </div>
 
-      <!-- Abas Internas do Dossiê -->
-      <div class="flex items-center space-x-2 border-b border-zinc-800 pb-2">
-        <button type="button" id="tab-btn-docs" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-400/30">
+      <!-- Abas Internas do Dossiê Unificado -->
+      <div class="flex items-center flex-wrap gap-2 border-b border-zinc-800 pb-2">
+        <button type="button" id="tab-btn-docs" onclick="window.alternarAbaDossie && window.alternarAbaDossie('docs')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40 cursor-pointer">
           Peças Anexadas (<span id="dossie-count-docs">0</span>)
         </button>
-        <button type="button" id="tab-btn-historico" class="px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white">
+        <button type="button" id="tab-btn-qualificacao" onclick="window.alternarAbaDossie && window.alternarAbaDossie('qualificacao')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-transparent cursor-pointer">
+          Qualificação CPC 319
+        </button>
+        <button type="button" id="tab-btn-galeria" onclick="window.alternarAbaDossie && window.alternarAbaDossie('galeria')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-transparent cursor-pointer">
+          Documentos do Cliente (<span id="dossie-count-cliente-docs">0</span>)
+        </button>
+        <button type="button" id="tab-btn-historico" onclick="window.alternarAbaDossie && window.alternarAbaDossie('historico')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-transparent cursor-pointer">
           Histórico de Andamentos (<span id="dossie-count-historico">0</span>)
         </button>
       </div>
 
-      <!-- Conteúdo Peças Anexadas -->
+      <!-- Conteúdo 1: Peças Anexadas -->
       <div id="dossie-aba-conteudo-docs" class="flex-1 overflow-y-auto space-y-2.5 max-h-72 pr-1">
         <div id="dossie-lista-docs" class="space-y-2">
           <!-- Renderizado dinamicamente -->
         </div>
       </div>
 
-      <!-- Conteúdo Histórico de Andamentos -->
+      <!-- Conteúdo 2: Qualificação Civil Art. 319 -->
+      <div id="dossie-aba-conteudo-qualificacao" class="flex-1 overflow-y-auto space-y-3 max-h-72 pr-1 hidden">
+        <div id="dossie-lista-qualificacao" class="p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800 space-y-2.5 text-xs">
+          <!-- Renderizado dinamicamente -->
+        </div>
+      </div>
+
+      <!-- Conteúdo 3: Galeria de Documentos do Cliente com Thumbnails -->
+      <div id="dossie-aba-conteudo-galeria" class="flex-1 overflow-y-auto space-y-2.5 max-h-72 pr-1 hidden">
+        <div id="dossie-lista-galeria" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Renderizado dinamicamente com thumbnails -->
+        </div>
+      </div>
+
+      <!-- Conteúdo 4: Histórico de Andamentos -->
       <div id="dossie-aba-conteudo-historico" class="flex-1 overflow-y-auto space-y-2.5 max-h-72 pr-1 hidden">
         <div id="dossie-lista-historico" class="space-y-2">
           <!-- Renderizado dinamicamente -->
@@ -1328,12 +1353,77 @@
 
       <!-- Botões de Ação -->
       <div class="flex items-center justify-between pt-2 border-t border-zinc-800">
-        <button type="button" id="btn-dossie-anexar-mais" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-400/30 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-          <svg class="w-3.5 h-3.5 text-amber-400 inline mr-1.5"><use href="#icon-paperclip"/></svg><span>Anexar Mais Peças (PDF/DOCX)</span>
+        <button type="button" id="btn-dossie-anexar-mais" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-400/30 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-amber-400"><use href="#icon-paperclip"/></svg>
+          <span>Anexar Mais Peças (PDF/DOCX)</span>
         </button>
         <button type="button" id="btn-fechar-dossie" class="btn-tactile px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow transition">
           Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LIGHTBOX / VISUALIZADOR FORENSE DE DOCUMENTOS COM ZOOM E ROTAÇÃO -->
+  <div id="modal-lightbox-documento" class="fixed inset-0 bg-zinc-950/90 backdrop-blur-md z-[9999] hidden items-center justify-center p-4">
+    <div class="exec-card w-full max-w-4xl max-h-[92vh] rounded-3xl border border-amber-400/40 shadow-2xl flex flex-col overflow-hidden bg-zinc-950/95">
+      <!-- Topo com Título e Botões de Controle -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+            <svg class="w-5 h-5"><use href="#icon-file-text"/></svg>
+          </div>
+          <div>
+            <h3 id="lightbox-titulo" class="text-sm font-bold text-white">Visualização Forense de Documento</h3>
+            <span id="lightbox-subtitulo" class="text-[11px] font-mono text-zinc-400">Auditado via IA • Advocacia 2.0</span>
+          </div>
+        </div>
+        
+        <!-- Controles de Visualização: Zoom, Rotação e Fechar -->
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-1.5 py-0.5 space-x-1">
+            <button type="button" onclick="window.ajustarZoomLightbox(-0.2)" title="Diminuir Zoom" class="p-1.5 text-zinc-300 hover:text-white rounded-lg hover:bg-zinc-800 transition text-xs font-bold cursor-pointer">－</button>
+            <span id="lightbox-zoom-val" class="text-[10px] font-mono text-amber-400 px-1 font-bold">100%</span>
+            <button type="button" onclick="window.ajustarZoomLightbox(0.2)" title="Aumentar Zoom" class="p-1.5 text-zinc-300 hover:text-white rounded-lg hover:bg-zinc-800 transition text-xs font-bold cursor-pointer">＋</button>
+            <button type="button" onclick="window.resetarZoomLightbox()" title="Resetar Zoom" class="px-2 py-1 text-[10px] text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition cursor-pointer">Reset</button>
+          </div>
+          
+          <button type="button" onclick="window.rotacionarLightbox()" title="Girar 90° no sentido horário" class="flex items-center space-x-1 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-amber-400/30 rounded-xl text-xs font-semibold transition cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Girar 90°</span>
+          </button>
+          
+          <button type="button" onclick="window.fecharLightboxDocumento()" class="text-zinc-400 hover:text-white p-2 text-sm font-bold rounded-xl hover:bg-zinc-800/80 transition cursor-pointer">✕</button>
+        </div>
+      </div>
+      
+      <!-- Visualizador Central de Imagem / Documento -->
+      <div id="lightbox-viewport" class="flex-1 overflow-auto p-6 flex items-center justify-center bg-zinc-950/80 min-h-[350px] relative select-none">
+        <div id="lightbox-container-transform" class="transition-transform duration-200 ease-out origin-center flex items-center justify-center max-w-full max-h-full">
+          <img id="lightbox-img" src="" alt="Documento" class="max-h-[60vh] max-w-full rounded-xl object-contain shadow-2xl border border-zinc-800 hidden">
+          <div id="lightbox-doc-card" class="p-8 rounded-2xl bg-zinc-900 border border-zinc-700/80 text-center max-w-md space-y-4 shadow-2xl">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <svg class="w-8 h-8"><use href="#icon-file-text"/></svg>
+            </div>
+            <div>
+              <h4 id="lightbox-doc-tipo" class="text-base font-bold text-zinc-100">Documento Forense</h4>
+              <p id="lightbox-doc-nome" class="text-xs font-mono text-zinc-400 mt-1 break-all"></p>
+            </div>
+            <div id="lightbox-doc-detalhes" class="text-left text-xs bg-zinc-950/60 p-3.5 rounded-xl border border-zinc-800 space-y-1.5 text-zinc-300">
+              <!-- Detalhes extraídos via OCR/IA -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rodapé com Metadados e Status de Validação -->
+      <div class="flex items-center justify-between px-6 py-3 border-t border-zinc-800 bg-zinc-900/50 text-xs">
+        <div class="flex items-center space-x-2 text-zinc-400">
+          <span id="lightbox-status-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold text-[10px]">✓ Documento Auditado</span>
+          <span id="lightbox-footer-info" class="text-[11px] font-mono">Pronto para instrução da Petição Inicial</span>
+        </div>
+        <button type="button" onclick="window.fecharLightboxDocumento()" class="btn-tactile px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow transition cursor-pointer">
+          Concluir Visualização
         </button>
       </div>
     </div>
@@ -1509,6 +1599,13 @@
               <span class="sidebar-btn-label">Fila do Advogado</span>
               <span id="badge-pausados" class="sidebar-btn-badge bg-zinc-800 text-amber-400 border border-zinc-700/60">0</span>
             </button>
+
+            <!-- Contatos Ignorados & Exceções VIP (Movido para Operação) -->
+            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Ignorados & VIP">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
+              <span class="sidebar-btn-label">Contatos Ignorados</span>
+              <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">0</span>
+            </button>
           </div>
         </div>
 
@@ -1522,12 +1619,12 @@
 
           <div class="space-y-0.5">
             <!-- Simulador WhatsApp -->
-            <button type="button" id="nav-btn-simulador" data-desc="Ambiente de teste das mensagens automáticas" class="sidebar-rail-btn" title="Simulador WhatsApp Sandbox">
+            <button type="button" id="nav-btn-simulador" data-desc="Ambiente de teste das mensagens automáticas" class="sidebar-rail-btn" title="Simulador de Atendimento WhatsApp">
               <div class="sidebar-btn-icon">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               </div>
               <span class="sidebar-btn-label">Simulador WhatsApp</span>
-              <span id="badge-simulador" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">Sandbox</span>
+              <span id="badge-simulador" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">Testes</span>
             </button>
 
             <!-- Menu Automático -->
@@ -1554,7 +1651,7 @@
           <div class="space-y-0.5">
             <!-- Financeiro & PIX -->
             <button type="button" id="nav-btn-financeiro" data-desc="Honorários, cobranças e conciliação PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m0-2c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
               <span class="sidebar-btn-label">Financeiro & PIX</span>
               <span id="badge-financeiro" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">PIX</span>
             </button>
@@ -1563,13 +1660,6 @@
             <button type="button" id="nav-btn-terminal" data-desc="Histórico e registros de mensagens enviadas" class="sidebar-rail-btn" title="Histórico de Mensagens">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
               <span class="sidebar-btn-label">Histórico Mensagens</span>
-            </button>
-
-            <!-- Contatos Ignorados -->
-            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas" class="sidebar-rail-btn" title="Contatos Ignorados">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
-              <span class="sidebar-btn-label">Contatos Ignorados</span>
-              <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">0</span>
             </button>
           </div>
         </div>
@@ -1623,6 +1713,11 @@
         </div>
 
         <div class="flex items-center space-x-2">
+          <button type="button" id="btn-top-whatsapp-status" onclick="ativarAba('configuracoes')" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/40 text-xs font-medium transition cursor-pointer" title="Ver status da conexão WhatsApp">
+            <span id="top-bar-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span id="top-bar-status-text" class="text-zinc-300 font-semibold text-[11px]">WhatsApp</span>
+          </button>
+
           <!-- Atalho Spotlight Search (Ctrl+K) -->
           <button type="button" id="btn-top-spotlight" onclick="toggleSpotlight(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 text-xs font-medium transition cursor-pointer" title="Busca Global e Comandos (Ctrl+K)">
             <svg class="w-3.5 h-3.5 text-zinc-400"><use href="#icon-search"/></svg>
@@ -1697,58 +1792,6 @@
             <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
-          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Coluna 1: Processos Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
-              <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
-                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
-                    </div>
-                  </div>
-                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver todos</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
-                  </button>
-                </div>
-                <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-              </div>
-            </div>
-
-            <!-- Coluna 2: Mensagens Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
-              <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-message"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
-                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
-                    </div>
-                  </div>
-                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver histórico</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
-                  </button>
-                </div>
-                <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
-                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
-                    <span>Aguardando novas mensagens...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX VIVOS & HARMONIOSOS) -->
           <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
@@ -1804,8 +1847,7 @@
                     <span id="badge-status-fila-home" class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25 font-semibold font-mono">Aguardando</span>
                   </div>
                   <span id="dot-ping-fila-home" class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
                   </span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
@@ -1828,14 +1870,13 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span class="text-base font-bold text-emerald-300 tracking-tight block">Robô Ativo</span>
                     <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">~0h economizadas</span>
                     <span id="metric-mensagens-reais" class="hidden">0</span>
                   </div>
-                  <span class="text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35 shadow-[0_0_8px_rgba(16,185,129,0.25)]">94% auto</span>
+                  <span id="metric-taxa-auto-home" class="text-[10px] font-mono text-zinc-300 font-semibold bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700/60">Aguardando uso</span>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
                   <span>Atendimento 24/7</span>
@@ -1857,8 +1898,7 @@
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                     <span id="home-card-expediente" class="text-base font-bold text-emerald-400 tracking-tight block">Verificando...</span>
                   </div>
@@ -1871,6 +1911,58 @@
               </div>
             </div>
 
+          </div>
+
+          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Coluna 1: Processos Recentes -->
+            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
+              <div>
+                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+                      <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+                    </div>
+                    <div>
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
+                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
+                    </div>
+                  </div>
+                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                    <span>Ver todos</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                  </button>
+                </div>
+                <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Mensagens Recentes -->
+            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
+              <div>
+                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+                      <svg class="w-4 h-4"><use href="#icon-message"/></svg>
+                    </div>
+                    <div>
+                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
+                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
+                    </div>
+                  </div>
+                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                    <span>Ver histórico</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                  </button>
+                </div>
+                <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
+                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
+                    <span>Aguardando novas mensagens...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -1898,9 +1990,9 @@
               </p>
             </div>
             <div class="flex items-center gap-2">
-              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-amber-500/40 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-sm" title="Personalizar mensagens automáticas do robô no WhatsApp">
-                <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-settings"/></svg>
-                <span>Personalizar Mensagens do Bot</span>
+              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile px-3.5 py-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-amber-500/30 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 shrink-0 cursor-pointer shadow-sm" title="Ir para configuração das mensagens automáticas">
+                <svg class="w-3.5 h-3.5 text-zinc-400"><use href="#icon-flow"/></svg>
+                <span>Configurar Respostas do Robô ➔</span>
               </button>
             </div>
           </div>
@@ -1918,9 +2010,9 @@
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-2">
-                <button type="button" id="btn-higienizar-base" class="px-3 py-1.5 bg-zinc-900 hover:bg-rose-950/40 text-rose-300 border border-zinc-800 hover:border-rose-800/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Remove duplicidades de processos">
+                <button type="button" id="btn-higienizar-base" class="px-3 py-1.5 bg-zinc-900 hover:bg-rose-950/40 text-rose-300 border border-zinc-800 hover:border-rose-800/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Remove processos duplicados mantendo os registros mais recentes">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  <span>Higienizar Base</span>
+                  <span>Remover Duplicados</span>
                 </button>
                 <button type="button" id="btn-baixar-modelo-xlsx" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -1930,11 +2022,14 @@
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                   <span>Selecionar Arquivo(s)</span>
                 </button>
+                <button type="button" id="btn-toggle-dropzone" onclick="window.alternarDropzoneProcessos()" class="px-2.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/80 rounded-xl text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer" title="Mostrar ou recolher área de arrastar arquivos">
+                  <span id="label-toggle-dropzone">Mostrar Área de Upload</span>
+                </button>
               </div>
             </div>
 
-            <!-- Dropzone Visual -->
-            <div id="dropzone-processos" class="border-2 border-dashed border-zinc-700/80 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-amber-500/5 rounded-2xl p-6 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-2.5 group">
+            <!-- Dropzone Visual (recolhido por padrão para liberar espaço na lista) -->
+            <div id="dropzone-processos" class="hidden border-2 border-dashed border-zinc-700/80 hover:border-amber-400/70 bg-zinc-950/40 hover:bg-amber-500/5 rounded-2xl p-6 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-2.5 group">
               <div class="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 group-hover:border-amber-500/40 flex items-center justify-center text-zinc-400 group-hover:text-amber-400 group-hover:scale-105 transition-all shadow-inner">
                 <svg class="w-6 h-6 dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               </div>
@@ -1958,9 +2053,10 @@
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
               <div class="mb-3">
                 <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
-                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 50%;"></div>
+                  <div id="glider-filter-processos" class="segmented-pill-glider" style="transform: translateX(0px); width: 33.333%;"></div>
                   <button type="button" class="segmented-pill-tab active flex-1 text-center" data-filter="todos" onclick="alternarFiltroProcessosPill('todos', this)">Todos</button>
                   <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="recente" onclick="alternarFiltroProcessosPill('recente', this)">Recentes</button>
+                  <button type="button" class="segmented-pill-tab flex-1 text-center" data-filter="audiencia" onclick="alternarFiltroProcessosPill('audiencia', this)">Audiências</button>
                 </div>
               </div>
 
@@ -2058,7 +2154,12 @@
                     </div>
                     <div class="col-span-12 sm:col-span-4">
                       <label class="text-[11px] font-bold text-amber-400 block mb-1">Nº do Processo *</label>
-                      <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000 (CNJ)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      <div class="flex items-center gap-1.5">
+                        <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000 (CNJ)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar número do processo (CNJ)" class="px-2.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-amber-300 text-xs font-semibold shrink-0 transition cursor-pointer">
+                          <svg class="w-3.5 h-3.5"><use href="#icon-clipboard"/></svg>
+                        </button>
+                      </div>
                     </div>
                     <div class="col-span-12 sm:col-span-4">
                       <label class="text-[11px] font-semibold text-zinc-400 block mb-1">Nome do Cliente</label>
@@ -2149,7 +2250,7 @@
                           <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-users"/></svg>
                           Galeria de Documentos Auditados pela IA
                         </span>
-                        <span class="text-[10px] text-zinc-400">Pasta: <code class="text-amber-300">./documentos_clientes/</code></span>
+                        <span class="text-[10px] text-zinc-400">Arquivos digitalizados do cliente</span>
                       </div>
                       <div id="galeria-documentos-cliente" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <div class="col-span-2 p-5 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">
@@ -2277,7 +2378,7 @@
                 <div class="col-span-12 lg:col-span-7 space-y-3 flex flex-col justify-between">
                   <div>
                     <div class="flex items-center justify-between mb-1.5">
-                      <label class="text-xs font-semibold text-zinc-300">Mensagem de Boas-Vindas (#input-msg-boasvindas):</label>
+                      <label class="text-xs font-semibold text-zinc-300">Mensagem de Boas-Vindas:</label>
                       <button type="button" id="btn-melhorar-msg-boasvindas" onclick="typeof melhorarTextoAtendimentoEtapaComIA === 'function' && melhorarTextoAtendimentoEtapaComIA('input-msg-boasvindas')" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
                         <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                         <span>Melhorar com IA</span>
@@ -2481,7 +2582,7 @@ Como podemos ajudar você hoje?
                 <div class="col-span-12 lg:col-span-7 space-y-3 flex flex-col justify-between">
                   <div>
                     <div class="flex items-center justify-between mb-1.5">
-                      <label class="text-xs font-semibold text-zinc-300">Modelo Padrão WhatsApp (#dossie-template-mensagem-docs):</label>
+                      <label class="text-xs font-semibold text-zinc-300">Modelo Padrão de Solicitação (WhatsApp):</label>
                       <button type="button" id="btn-melhorar-template-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('dossie-template-mensagem-docs'), (novoTexto) => { if (window.configGlobal) { window.configGlobal.modeloMensagemSolicitacaoDocs = novoTexto; typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); } }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
                         <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                         <span>Melhorar com IA</span>
@@ -2743,11 +2844,11 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div class="border-b border-zinc-800/80 pb-4 space-y-1.5">
               <div class="flex items-center flex-wrap gap-2">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  Transbordo & Prioridade
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Fila Humana & Prioridade
                 </span>
                 <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20 font-mono">
-                  Copilot 1-Clique Ativo
+                  Sugestões de Resposta Ativas
                 </span>
               </div>
               <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
@@ -2767,17 +2868,17 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  Ledger Forense
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Auditoria de Conversas
                 </span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  Live Stream 24/7
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Monitoramento Ativo
                 </span>
               </div>
               <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
                 <svg class="w-6 h-6 text-amber-400"><use href="#icon-message"/></svg>
-                Histórico de Mensagens & Ledger de Auditoria
+                Histórico de Mensagens & Auditoria de Atendimento
               </h2>
               <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
                 Registro cronológico em tempo real de mensagens recebidas, respostas autônomas do robô e roteamento para advogados.
@@ -2791,35 +2892,101 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
           </div>
 
-          <!-- AUDIT FEED CONSOLE CARD -->
+          <!-- AUDIT FEED CONSOLE CARD (Master-Detail: Contatos à esquerda, Chat à direita) -->
           <div id="tour-terminal-card" class="exec-card p-5 sm:p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-4 shadow-xl">
             <!-- Toolbar de Filtros e Busca Rápida -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
               <div class="flex items-center space-x-2">
-                <span class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Filtrar:</span>
+                <span class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider pl-1">Filtrar Mensagens:</span>
                 <div class="flex items-center space-x-1.5">
-                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('todos', this)" class="log-filter-btn px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 transition cursor-pointer">Todos</button>
+                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('todos', this)" class="log-filter-btn px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 transition cursor-pointer">Todas</button>
                   <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('cliente', this)" class="log-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition cursor-pointer flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-users"/></svg>Clientes</button>
                   <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('robo', this)" class="log-filter-btn px-3 py-1 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition cursor-pointer flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-flow"/></svg>Robô</button>
                 </div>
               </div>
               <div class="relative w-full sm:w-80">
                 <svg class="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5"><use href="#icon-search"/></svg>
-                <input type="text" id="input-filtro-logs" oninput="window.filtrarLogsLedgerPorTexto && window.filtrarLogsLedgerPorTexto(this.value)" placeholder="Buscar por nome, telefone ou texto..." class="exec-input w-full rounded-xl pl-9 pr-3 py-1.5 text-xs font-mono">
+                <input type="text" id="input-filtro-logs" oninput="window.filtrarLogsLedgerPorTexto && window.filtrarLogsLedgerPorTexto(this.value)" placeholder="Buscar no histórico do chat..." class="exec-input w-full rounded-xl pl-9 pr-3 py-1.5 text-xs font-mono">
               </div>
             </div>
 
-            <!-- Box do Ledger -->
-            <div id="logs-box" class="h-[480px] max-h-[calc(100vh-250px)] rounded-2xl p-4 overflow-y-auto space-y-2.5 bg-zinc-950/80 border border-zinc-800/90 font-mono text-xs relative backdrop-blur-sm shadow-inner">
-              <div id="logs-box-empty" class="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
-                <div class="w-14 h-14 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-zinc-500 shadow-inner">
-                  <svg class="w-7 h-7 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <!-- Grade Master-Detail: Coluna de Conversas (Esquerda) + Chat Timeline (Direita) -->
+            <div class="grid grid-cols-12 gap-4 h-[530px] max-h-[calc(100vh-230px)]">
+              <!-- PAINEL MASTER (4 COLUNAS): LISTA DE CLIENTES ATENDIDOS -->
+              <div class="col-span-12 lg:col-span-4 flex flex-col rounded-2xl bg-zinc-950/80 border border-zinc-800/90 overflow-hidden shadow-inner">
+                <div class="p-3 border-b border-zinc-800 bg-zinc-900/60 flex items-center justify-between">
+                  <span class="text-xs font-bold text-zinc-200 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-users"/></svg>
+                    Clientes Recentes
+                  </span>
+                  <span id="chat-audit-total-contatos" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
                 </div>
-                <div>
-                  <h4 class="text-xs font-bold text-zinc-300">Nenhuma mensagem registrada nesta sessão.</h4>
-                  <p class="text-[11px] text-zinc-500 max-w-sm mt-1">Ouvindo mensagens recebidas no WhatsApp e transbordo humano em tempo real. As mensagens aparecerão aqui automaticamente.</p>
+                <div class="p-2 border-b border-zinc-800/60 bg-zinc-950/40">
+                  <div class="relative">
+                    <svg class="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-2.5"><use href="#icon-search"/></svg>
+                    <input type="text" id="input-busca-contatos-chat" oninput="window.filtrarContatosChatAudit && window.filtrarContatosChatAudit(this.value)" placeholder="Filtrar contatos..." class="exec-input w-full rounded-xl pl-8 pr-2.5 py-1.5 text-[11px] font-mono">
+                  </div>
                 </div>
-                <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">● Ledger Ativo</span>
+                <!-- Lista de Contatos -->
+                <div id="chat-audit-contatos-lista" class="flex-1 overflow-y-auto p-2 space-y-1.5">
+                  <button type="button" onclick="window.selecionarContatoChatAudit && window.selecionarContatoChatAudit('__todos__')" class="w-full text-left p-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/15 flex items-center justify-between transition cursor-pointer contact-audit-btn active" data-contato-id="__todos__">
+                    <div class="flex items-center space-x-2.5 overflow-hidden">
+                      <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
+                        🌐
+                      </div>
+                      <div class="truncate">
+                        <span class="font-bold text-xs text-amber-300 block truncate">Todas as Conversas</span>
+                        <span class="text-[10px] text-zinc-400 truncate block">Feed consolidado em tempo real</span>
+                      </div>
+                    </div>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">AO VIVO</span>
+                  </button>
+                  <div id="chat-audit-contatos-empty" class="py-12 text-center text-zinc-500 text-xs">
+                    Nenhum cliente conversou nesta sessão ainda.
+                  </div>
+                </div>
+              </div>
+
+              <!-- PAINEL DETAIL (8 COLUNAS): TIMELINE DA CONVERSA ESTILO WHATSAPP -->
+              <div class="col-span-12 lg:col-span-8 flex flex-col rounded-2xl bg-zinc-950/80 border border-zinc-800/90 overflow-hidden shadow-inner">
+                <!-- Cabeçalho do Chat -->
+                <div class="p-3 border-b border-zinc-800 bg-zinc-900/60 flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div id="chat-audit-header-avatar" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold text-xs">
+                      🌐
+                    </div>
+                    <div>
+                      <h4 id="chat-audit-header-nome" class="text-xs font-bold text-zinc-100">Todas as Conversas do WhatsApp</h4>
+                      <span id="chat-audit-header-status" class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Monitoramento contínuo em tempo real
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div id="chat-audit-acoes-rapidas" class="flex items-center space-x-1.5">
+                    <button type="button" id="btn-chat-ver-pasta" onclick="window.abrirPastaClienteChatAudit && window.abrirPastaClienteChatAudit()" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-[11px] font-semibold transition cursor-pointer hidden">
+                      📁 Pasta Processo
+                    </button>
+                    <button type="button" id="btn-chat-ver-dossie" onclick="window.abrirDossieClienteChatAudit && window.abrirDossieClienteChatAudit()" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-amber-300 text-[11px] font-semibold transition cursor-pointer hidden">
+                      👤 Dossiê Civil
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Box de Mensagens em Balões (Preserva id="logs-box") -->
+                <div id="logs-box" class="flex-1 p-4 overflow-y-auto space-y-3 font-sans text-xs relative">
+                  <div id="logs-box-empty" class="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
+                    <div class="w-14 h-14 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-zinc-500 shadow-inner">
+                      <svg class="w-7 h-7 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    </div>
+                    <div>
+                      <h4 class="text-xs font-bold text-zinc-300">Nenhuma mensagem registrada nesta sessão.</h4>
+                      <p class="text-[11px] text-zinc-500 max-w-sm mt-1">Ouvindo mensagens recebidas no WhatsApp e transbordo humano em tempo real. As mensagens aparecerão aqui em formato de chat.</p>
+                    </div>
+                    <span class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">● Auditoria Ativa</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2867,7 +3034,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <svg class="w-6 h-6"><use href="#icon-download"/></svg>
                   </div>
                   <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                    Snapshot Instantâneo
+                    Cópia de Segurança Imediata
                   </span>
                 </div>
                 <div>
@@ -2899,7 +3066,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <svg class="w-6 h-6"><use href="#icon-upload"/></svg>
                   </div>
                   <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
-                    Disaster Recovery
+                    Recuperação de Emergência
                   </span>
                 </div>
                 <div>
@@ -2907,13 +3074,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     Restaurar Dados Anteriores
                   </h3>
                   <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">
-                    Recupere seus processos e configurações a partir de um arquivo <strong class="text-zinc-200">.JSON</strong> salvo anteriormente. Os dados serão restaurados sem reiniciar o sistema.
+                    Recupere seus processos e configurações a partir de um arquivo de backup salvo anteriormente. Os dados serão restaurados sem reiniciar o sistema.
                   </p>
                 </div>
                 <!-- Warning / Instrução -->
                 <div class="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-1 text-[11px] text-amber-300/90">
                   <span class="font-bold block">Aviso de Segurança:</span>
-                  <p class="text-zinc-400">A importação mesclará e atualizará seus dados atuais de forma atômica e segura.</p>
+                  <p class="text-zinc-400">A importação mesclará e atualizará seus dados atuais sem risco de apagar os registros já existentes.</p>
                 </div>
               </div>
               <div>
@@ -2951,8 +3118,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <input type="text" id="cloud-sync-url" value="https://advocacia-2-0.onrender.com" class="exec-input w-full rounded-xl px-4 py-2.5 text-xs font-mono">
               </div>
               <div class="md:col-span-4">
-                <label class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider block mb-1.5">Token de Segurança (API_SECRET_TOKEN)</label>
-                <input type="password" id="cloud-sync-token" placeholder="Opcional se desativado no server..." class="exec-input w-full rounded-xl px-4 py-2.5 text-xs font-mono">
+                <label class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider block mb-1.5">Chave de Conexão da Nuvem (Opcional)</label>
+                <input type="password" id="cloud-sync-token" placeholder="Opcional se desativado no servidor..." class="exec-input w-full rounded-xl px-4 py-2.5 text-xs font-mono">
               </div>
               <div class="md:col-span-2">
                 <button type="button" id="btn-cloud-sync" onclick="executarSincronizacaoNuvem()" class="w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 hover:text-amber-200 border border-zinc-700 hover:border-amber-500/40 font-bold text-xs rounded-xl transition shadow active:scale-[0.98] flex items-center justify-center space-x-2 cursor-pointer">
@@ -2974,7 +3141,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   Restrição Absoluta
                 </span>
                 <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono">
-                  Escudo VIP & Blacklist
+                  Exceções VIP & Contatos Ignorados
                 </span>
               </div>
               <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
@@ -3240,7 +3407,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     Controladoria & PIX
                   </span>
                   <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
-                    Visão Computacional Gemini
+                    Auditoria Automática de Comprovantes
                   </span>
                 </div>
                 <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
@@ -3248,13 +3415,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   Gestão de Honorários, Régua Semanal & Auditoria PIX
                 </h2>
                 <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                  Configure a frequência de lembretes com Chave PIX, dispare com delay anti-ban e deixe a IA auditar os comprovantes recebidos no WhatsApp.
+                  Configure a frequência de lembretes com Chave PIX, dispare com intervalo seguro de envio e deixe o sistema conferir os comprovantes recebidos no WhatsApp.
                 </p>
               </div>
               <div>
                 <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-5 py-3 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow-lg active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer">
                   <svg class="w-4 h-4 text-zinc-950 inline mr-1.5"><use href="#icon-flow"/></svg>
-                  <span>Revisar e Disparar Régua</span>
+                  <span>Disparar Cobranças da Régua</span>
                 </button>
               </div>
             </div>
@@ -3325,7 +3492,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                       Régua de Cobrança Semanal
                     </span>
                     <button type="button" id="btn-salvar-config-cobranca" onclick="salvarConfigCobrancaUI()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-sm active:scale-[0.98] cursor-pointer flex items-center gap-1.5">
-                      <svg class="w-3.5 h-3.5"><use href="#icon-save"/></svg>Salvar PIX
+                      <svg class="w-3.5 h-3.5"><use href="#icon-save"/></svg>Salvar Régua & PIX
                     </button>
                   </div>
 
@@ -3390,6 +3557,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   </div>
 
                   <div class="grid grid-cols-12 gap-3 text-xs items-end">
+                    <div class="col-span-12">
+                      <label class="text-[11px] font-bold text-amber-300 tracking-wide block mb-1">Puxar de Cliente / Processo Cadastrado (Opcional)</label>
+                      <select id="fin-selecionar-cliente-proc" onchange="window.preencherClienteFinanceiro && window.preencherClienteFinanceiro(this.value)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-medium">
+                        <option value="">-- Selecione um processo/cliente ou preencha manualmente abaixo --</option>
+                      </select>
+                    </div>
                     <div class="col-span-12 sm:col-span-6">
                       <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Nome do Cliente *</label>
                       <input type="text" id="fin-novo-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
@@ -3467,8 +3640,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <svg class="w-5 h-5"><use href="#icon-message"/></svg>
                   </div>
                   <div>
-                    <h3 class="text-sm font-bold text-zinc-100">Motor de Conexão WhatsApp</h3>
-                    <p class="text-[11px] text-zinc-400">Status em tempo real da sessão do Chromium</p>
+                    <h3 class="text-sm font-bold text-zinc-100">Conexão do WhatsApp</h3>
+                    <p class="text-[11px] text-zinc-400">Status em tempo real da conexão do escritório</p>
                   </div>
                 </div>
                 <!-- Status Pill Integrado -->
@@ -3487,9 +3660,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <div class="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
                 <div id="tour-qr-card" class="exec-card p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/95 flex flex-col items-center text-center shadow-xl shrink-0">
                   <div id="qr-box" class="w-36 h-36 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-center p-2 shadow-inner">
-                    <span class="text-[11px] text-zinc-500 text-center leading-tight font-mono">Iniciando motor...</span>
+                    <span class="text-[11px] text-zinc-500 text-center leading-tight font-mono">Iniciando conexão...</span>
                   </div>
-                  <p id="qr-substatus-text" class="text-[10px] text-zinc-400 mt-2 leading-tight font-mono">Aguardando Chromium...</p>
+                  <p id="qr-substatus-text" class="text-[10px] text-zinc-400 mt-2 leading-tight font-mono">Aguardando WhatsApp...</p>
                 </div>
                 <div class="space-y-3 flex-1 text-xs">
                   <div>
@@ -3631,8 +3804,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     </span>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="text-[11px] text-zinc-400">Motor WhatsApp:</span>
-                    <span class="font-mono text-zinc-300 text-[11px]">Baileys / Chromium Engine v2</span>
+                    <span class="text-[11px] text-zinc-400">Conexão WhatsApp:</span>
+                    <span class="font-mono text-zinc-300 text-[11px]">Serviço Oficial de Mensageria</span>
                   </div>
                 </div>
 
@@ -3687,7 +3860,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
               <div class="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800/80 text-[11px] text-zinc-300 leading-relaxed flex items-start gap-2.5">
                 <svg class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5"><use href="#icon-flow"/></svg>
-                <span>O robô enviará o checklist acolhedor no WhatsApp do cliente e colocará o contato em modo <strong>AGUARDANDO_DOCUMENTOS</strong>. Cada foto ou PDF recebido será auditado automaticamente pela Visão Computacional do Gemini!</span>
+                <span>O robô enviará o checklist acolhedor no WhatsApp do cliente e colocará o contato em modo <strong>AGUARDANDO_DOCUMENTOS</strong>. Cada foto ou PDF recebido será conferido automaticamente pela leitura inteligente de documentos!</span>
               </div>
             </div>
 
@@ -4217,6 +4390,18 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const elMenus = document.getElementById('home-card-menus');
       if (elMenus) elMenus.innerText = String(qtdMenus);
 
+      const elTaxaAuto = document.getElementById('metric-taxa-auto-home');
+      if (elTaxaAuto) {
+        const totalPausados = Object.keys((configGlobal && configGlobal.pausados) || {}).length;
+        if (lista.length === 0 && totalPausados === 0) {
+          elTaxaAuto.innerText = 'Aguardando uso';
+          elTaxaAuto.className = 'text-[10px] font-mono text-zinc-300 font-semibold bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700/60';
+        } else {
+          elTaxaAuto.innerText = 'Atendimento ativo';
+          elTaxaAuto.className = 'text-[10px] font-mono text-emerald-300 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/35';
+        }
+      }
+
       const badgeIgnorados = document.getElementById('badge-ignorados');
       if (badgeIgnorados) {
         badgeIgnorados.innerText = String((contatosIgnoradosCache || []).length);
@@ -4228,8 +4413,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const elExpediente = document.getElementById('home-card-expediente');
       const elHorarioDetalhe = document.getElementById('home-card-horario-detalhe');
       if (confHoje && confHoje.ativo) {
-        if (elExpediente) elExpediente.innerText = "Aberto Hoje";
-        if (elHorarioDetalhe) elHorarioDetalhe.innerText = `${confHoje.nome}: ${confHoje.abertura} às ${confHoje.fechamento}`;
+        if (confHoje.plantao24h) {
+          if (elExpediente) elExpediente.innerText = "Plantão 24h Ativo";
+          if (elHorarioDetalhe) elHorarioDetalhe.innerText = `${confHoje.nome}: Atendimento ininterrupto 24 horas`;
+        } else {
+          if (elExpediente) elExpediente.innerText = "Aberto Hoje";
+          if (elHorarioDetalhe) elHorarioDetalhe.innerText = `${confHoje.nome}: ${confHoje.abertura} às ${confHoje.fechamento}`;
+        }
       } else {
         if (elExpediente) elExpediente.innerText = "Fora de Expediente";
         if (elHorarioDetalhe) elHorarioDetalhe.innerText = "Atendendo normal com aviso no início";
@@ -4452,12 +4642,40 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         btn.classList.add('active');
       }
       const inputBusca = document.getElementById('busca-processos');
+      const selOrdem = document.getElementById('ordem-processos');
       if (inputBusca) {
-        if (filtro === 'audiencia') inputBusca.value = 'Audiência';
-        else if (filtro === 'recente') inputBusca.value = '2024';
-        else inputBusca.value = '';
+        if (filtro === 'audiencia') {
+          inputBusca.value = 'Audiência';
+        } else {
+          if (inputBusca.value === 'Audiência' || inputBusca.value === '2024') {
+            inputBusca.value = '';
+          }
+          if (filtro === 'recente' && selOrdem) {
+            selOrdem.value = 'recente';
+          }
+        }
         if (typeof renderizarModuloProcessos === 'function') renderizarModuloProcessos();
       }
+    };
+
+    window.alternarDropzoneProcessos = function() {
+      const dz = document.getElementById('dropzone-processos');
+      const lbl = document.getElementById('label-toggle-dropzone');
+      if (!dz) return;
+      const estaOculto = dz.classList.toggle('hidden');
+      if (lbl) lbl.innerText = estaOculto ? 'Mostrar Área de Upload' : 'Ocultar Área de Upload';
+    };
+
+    window.copiarNumeroCnjFicha = function() {
+      const cnj = (document.getElementById('proc-numero')?.value || '').trim();
+      if (!cnj) {
+        if (typeof mostrarToast === 'function') mostrarToast('⚠️ Nenhum número de processo (CNJ) preenchido.');
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cnj).catch(() => {});
+      }
+      if (typeof mostrarToast === 'function') mostrarToast('📋 Número do processo (CNJ) copiado!');
     };
 
     // Command Palette Spotlight (Ctrl + K)
@@ -4465,7 +4683,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       { id: 'novo-proc', titulo: 'Cadastrar Novo Processo', desc: 'Abre o formulário de cadastro de autos e cliente', icone: 'icon-plus', acao: () => { irParaNovoProcessoDireto(); } },
       { id: 'demo-data', titulo: 'Carregar Dados de Demonstração', desc: 'Injeta 3 processos com tags reais e histórico de WhatsApp', icone: 'icon-sparkles', acao: () => { carregarDadosDemonstracao(); } },
       { id: 'proc', titulo: 'Consultar Processos (CPF/CNJ)', desc: 'Buscar e gerenciar processos cadastrados', icone: 'icon-folder', acao: () => { ativarAba('processos'); } },
-      { id: 'simulador', titulo: 'Simulador WhatsApp', desc: 'Testar respostas do robô em ambiente sandbox', icone: 'icon-message', acao: () => { ativarAba('simulador'); } },
+      { id: 'simulador', titulo: 'Simulador WhatsApp', desc: 'Testar respostas do robô em ambiente seguro', icone: 'icon-message', acao: () => { ativarAba('simulador'); } },
       { id: 'fila', titulo: 'Fila de Atendimento do Advogado', desc: 'Clientes aguardando atendimento humano urgente', icone: 'icon-user-clock', acao: () => { ativarAba('pausados'); } },
       { id: 'fluxo', titulo: 'Menu Automático do Robô', desc: 'Editar opções e fluxos de atendimento', icone: 'icon-flow', acao: () => { ativarAba('fluxo'); } },
       { id: 'dossie', titulo: 'Dossiê de Clientes (Art. 319 CPC)', desc: 'Ficha cadastral e documentos de qualificação civil', icone: 'icon-users', acao: () => { ativarAba('dossie-clientes'); } },
@@ -4604,7 +4822,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       { titulo: "5. Horários & Almoço", texto: "Configure o expediente semanal e o intervalo de almoço com chave seletora rápida.", aba: "agenda", alvoId: "tour-agenda-card" },
       { titulo: "6. Fila de Espera com Nome Salvo", texto: "Quando o cliente pede para falar com o advogado, ele entra nesta fila exibindo o Nome salvo nos seus contatos do WhatsApp!", aba: "pausados", alvoId: "tour-pausados-card" },
       { titulo: "7. Abrir com o PC", texto: "Com esta chave ativada no topo, o Advocacia Studio Pro inicia sozinho sempre que o computador é ligado.", aba: "inicio", alvoId: "tour-autostart-box" },
-      { titulo: "8. Status Detalhado & Auto-Reconexão", texto: "Acompanhe cada etapa do motor Chromium em tempo real. Se a internet oscilar de madrugada, o robô reconecta sozinho!", aba: "inicio", alvoId: "tour-qr-card" }
+      { titulo: "8. Status Detalhado & Auto-Reconexão", texto: "Acompanhe o status da conexão do WhatsApp em tempo real. Se a internet oscilar de madrugada, o robô reconecta sozinho!", aba: "inicio", alvoId: "tour-qr-card" }
     ];
 
     let passoAtualTour = 0;
@@ -6215,92 +6433,300 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     const btnDossieAnexarMais = document.getElementById('btn-dossie-anexar-mais');
     const tabBtnDocs = document.getElementById('tab-btn-docs');
     const tabBtnHistorico = document.getElementById('tab-btn-historico');
+    const tabBtnQualificacao = document.getElementById('tab-btn-qualificacao');
+    const tabBtnGaleria = document.getElementById('tab-btn-galeria');
 
-    function alternarAbaDossie(aba) {
-      const boxDocs = document.getElementById('dossie-aba-conteudo-docs');
-      const boxHist = document.getElementById('dossie-aba-conteudo-historico');
-      if (aba === 'docs') {
-        tabBtnDocs.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40";
-        tabBtnHistorico.className = "px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white";
-        boxDocs.classList.remove('hidden');
-        boxHist.classList.add('hidden');
+    // =========================================================================
+    // VISUALIZADOR FORENSE LIGHTBOX COM ZOOM E ROTAÇÃO 90°
+    // =========================================================================
+    let lightboxZoom = 1;
+    let lightboxRotacao = 0;
+
+    window.abrirLightboxDocumento = function(docOuUrl, titulo, subtitulo, dadosExtraidos) {
+      const modal = document.getElementById('modal-lightbox-documento');
+      if (!modal) return;
+
+      lightboxZoom = 1;
+      lightboxRotacao = 0;
+      aplicarTransformLightbox();
+
+      let url = '';
+      let nome = '';
+      let tipo = 'Documento Forense';
+      let subtit = subtitulo || 'Auditado via Inteligência Artificial • Advocacia 2.0';
+      let detalhesHtml = '';
+
+      if (typeof docOuUrl === 'object' && docOuUrl !== null) {
+        url = docOuUrl.url || docOuUrl.base64 || docOuUrl.preview || '';
+        nome = docOuUrl.arquivo || docOuUrl.nomeArquivo || docOuUrl.nome || 'documento.pdf';
+        tipo = docOuUrl.tipo || docOuUrl.tipoPeca || 'Documento Forense';
+        if (docOuUrl.dadosExtraidos && typeof docOuUrl.dadosExtraidos === 'object') {
+          detalhesHtml = Object.entries(docOuUrl.dadosExtraidos)
+            .filter(([k, v]) => v)
+            .map(([k, v]) => `<div><span class="text-zinc-500 font-bold uppercase text-[9px]">${k}:</span> <span class="text-zinc-200 font-mono">${escaparHtmlTexto(v)}</span></div>`)
+            .join('');
+        } else if (docOuUrl.resumoIA || docOuUrl.resumoCliente) {
+          detalhesHtml = `<p class="text-zinc-300 text-xs italic leading-relaxed">${escaparHtmlTexto(docOuUrl.resumoIA || docOuUrl.resumoCliente)}</p>`;
+        }
+      } else if (typeof docOuUrl === 'string') {
+        url = docOuUrl;
+        nome = titulo || 'Documento';
+      }
+
+      const elTit = document.getElementById('lightbox-titulo');
+      if (elTit) elTit.innerText = titulo || tipo;
+      const elSub = document.getElementById('lightbox-subtitulo');
+      if (elSub) elSub.innerText = subtit;
+
+      const elImg = document.getElementById('lightbox-img');
+      const elCard = document.getElementById('lightbox-doc-card');
+      const elDocTipo = document.getElementById('lightbox-doc-tipo');
+      const elDocNome = document.getElementById('lightbox-doc-nome');
+      const elDocDetalhes = document.getElementById('lightbox-doc-detalhes');
+
+      const isImagemValida = url && (url.startsWith('data:image') || url.startsWith('http') || url.startsWith('blob:') || url.match(/\.(png|jpe?g|webp|gif|svg)$/i));
+
+      if (isImagemValida) {
+        if (elImg) {
+          elImg.src = url;
+          elImg.classList.remove('hidden');
+        }
+        if (elCard) elCard.classList.add('hidden');
       } else {
-        tabBtnHistorico.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40";
-        tabBtnDocs.className = "px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white";
-        boxHist.classList.remove('hidden');
-        boxDocs.classList.add('hidden');
+        if (elImg) elImg.classList.add('hidden');
+        if (elCard) {
+          elCard.classList.remove('hidden');
+          if (elDocTipo) elDocTipo.innerText = tipo;
+          if (elDocNome) elDocNome.innerText = nome;
+          if (elDocDetalhes) {
+            elDocDetalhes.innerHTML = detalhesHtml || `
+              <div class="text-[11px] text-zinc-400 space-y-1">
+                <p>Arquivo: <span class="text-amber-300 font-mono">${escaparHtmlTexto(nome)}</span></p>
+                <p>Classificação Forense: <span class="text-emerald-400 font-semibold">${escaparHtmlTexto(tipo)}</span></p>
+                <p class="text-[10px] text-zinc-500 pt-1 border-t border-zinc-800">Conformidade e legibilidade validadas via Inteligência Artificial.</p>
+              </div>
+            `;
+          }
+        }
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    window.fecharLightboxDocumento = function() {
+      const modal = document.getElementById('modal-lightbox-documento');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    window.ajustarZoomLightbox = function(delta) {
+      lightboxZoom = Math.max(0.4, Math.min(3.0, Math.round((lightboxZoom + delta) * 10) / 10));
+      aplicarTransformLightbox();
+    };
+
+    window.resetarZoomLightbox = function() {
+      lightboxZoom = 1;
+      lightboxRotacao = 0;
+      aplicarTransformLightbox();
+    };
+
+    window.rotacionarLightbox = function() {
+      lightboxRotacao = (lightboxRotacao + 90) % 360;
+      aplicarTransformLightbox();
+    };
+
+    function aplicarTransformLightbox() {
+      const container = document.getElementById('lightbox-container-transform');
+      const label = document.getElementById('lightbox-zoom-val');
+      if (container) {
+        container.style.transform = `scale(${lightboxZoom}) rotate(${lightboxRotacao}deg)`;
+      }
+      if (label) {
+        label.innerText = `${Math.round(lightboxZoom * 100)}%`;
       }
     }
+
+    // Fecha Lightbox no ESC
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('modal-lightbox-documento');
+        if (modal && !modal.classList.contains('hidden')) {
+          window.fecharLightboxDocumento();
+        }
+      }
+    });
+
+    window.alternarAbaDossie = function(aba) {
+      const boxDocs = document.getElementById('dossie-aba-conteudo-docs');
+      const boxHist = document.getElementById('dossie-aba-conteudo-historico');
+      const boxQual = document.getElementById('dossie-aba-conteudo-qualificacao');
+      const boxGal = document.getElementById('dossie-aba-conteudo-galeria');
+      const tabDocs = document.getElementById('tab-btn-docs');
+      const tabHist = document.getElementById('tab-btn-historico');
+      const tabQual = document.getElementById('tab-btn-qualificacao');
+      const tabGal = document.getElementById('tab-btn-galeria');
+
+      const tabs = [
+        { name: 'docs', btn: tabDocs, box: boxDocs },
+        { name: 'qualificacao', btn: tabQual, box: boxQual },
+        { name: 'galeria', btn: tabGal, box: boxGal },
+        { name: 'historico', btn: tabHist, box: boxHist }
+      ];
+
+      tabs.forEach(t => {
+        if (!t.btn || !t.box) return;
+        if (t.name === aba) {
+          t.btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40 shadow-sm cursor-pointer";
+          t.box.classList.remove('hidden');
+        } else {
+          t.btn.className = "px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-transparent cursor-pointer";
+          t.box.classList.add('hidden');
+        }
+      });
+    };
 
     function renderizarDossie(proc) {
       const docs = proc.documentosCatalogados || [];
       const hist = proc.historicoAndamentos || [];
+      const cpfDig = (proc.cpf || '').replace(/\D/g, '');
+      const numDig = (proc.numero || proc.numeroProcesso || '').replace(/\D/g, '');
+      
+      const dossiesMapa = (configGlobal && configGlobal.dossiesClientes) || {};
+      let dossieCivil = null;
+      for (const [k, d] of Object.entries(dossiesMapa)) {
+        if (!d) continue;
+        const dCpf = (d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '');
+        const dProc = (d.processoVinculado || d.numeroProcesso || '').replace(/\D/g, '');
+        if ((cpfDig && dCpf === cpfDig) || (numDig && dProc === numDig)) {
+          dossieCivil = d;
+          break;
+        }
+      }
+
+      const clientDocs = (dossieCivil && Array.isArray(dossieCivil.documentos)) ? dossieCivil.documentos : [];
 
       const countDocs = document.getElementById('dossie-count-docs');
       if (countDocs) countDocs.innerText = String(docs.length);
       const countHist = document.getElementById('dossie-count-historico');
       if (countHist) countHist.innerText = String(hist.length);
+      const countClienteDocs = document.getElementById('dossie-count-cliente-docs');
+      if (countClienteDocs) countClienteDocs.innerText = String(clientDocs.length);
 
+      // 1. Renderiza Peças Processuais
       const listaDocs = document.getElementById('dossie-lista-docs');
-      if (listaDocs) listaDocs.innerHTML = '';
-      if (!listaDocs) return;
-      if (docs.length === 0) {
-        listaDocs.innerHTML = `
-          <div class="text-center py-8 text-zinc-500 text-xs bg-zinc-900/30 rounded-2xl border border-zinc-800/80">
-            <p>Nenhuma peça processual anexada ainda.</p>
-            <p class="text-[10px] mt-1 text-zinc-500">Clique em "Anexar Mais Peças" para incluir petições, sentenças ou certidões em PDF/DOCX.</p>
-          </div>
-        `;
-      } else {
-        docs.forEach(doc => {
-          const card = document.createElement('div');
-          card.className = "p-3 bg-zinc-900/80 rounded-xl border border-zinc-800/80 text-xs space-y-1";
-          const dataRef = doc.dataReferencia ? ` • Data: ${doc.dataReferencia}` : '';
-          const autoridade = doc.autoridade ? ` • ${doc.autoridade}` : '';
-          const textoResumoDoc = doc.resumoCliente || doc.resumoIA || doc.resumo || doc.assuntoPrincipal || '';
-          const dataAnexo = doc.anexadoEm || doc.adicionadoEm || doc.data || '';
-          card.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-[#e5c158] flex items-center space-x-1.5">
-                <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>
-                <span>${doc.tipoPeca || 'Peça Processual'}</span>
-              </span>
-              <span class="text-[10px] font-mono text-zinc-500">${doc.nomeArquivo || ''}</span>
-            </div>
-            <p class="text-zinc-300 text-[11px] leading-relaxed">${textoResumoDoc}</p>
-            <div class="text-[9px] text-zinc-500 flex items-center justify-between pt-1 border-t border-zinc-800/60">
-              <span>Catalogado (${doc.fonteResumo || doc.confianca || 'IA'})${dataRef}${autoridade}</span>
-              <span>${dataAnexo}</span>
+      if (listaDocs) {
+        listaDocs.innerHTML = '';
+        if (docs.length === 0) {
+          listaDocs.innerHTML = `
+            <div class="text-center py-8 text-zinc-500 text-xs bg-zinc-900/30 rounded-2xl border border-zinc-800/80">
+              <p>Nenhuma peça processual anexada ainda.</p>
+              <p class="text-[10px] mt-1 text-zinc-500">Clique em "Anexar Mais Peças" para incluir petições, sentenças ou certidões em PDF/DOCX.</p>
             </div>
           `;
-          listaDocs.appendChild(card);
-        });
+        } else {
+          docs.forEach(doc => {
+            const card = document.createElement('div');
+            card.className = "p-3 bg-zinc-900/80 rounded-xl border border-zinc-800/80 text-xs space-y-1";
+            const dataRef = doc.dataReferencia ? ` • Data: ${doc.dataReferencia}` : '';
+            const autoridade = doc.autoridade ? ` • ${doc.autoridade}` : '';
+            const textoResumoDoc = doc.resumoCliente || doc.resumoIA || doc.resumo || doc.assuntoPrincipal || '';
+            const dataAnexo = doc.anexadoEm || doc.adicionadoEm || doc.data || '';
+            card.innerHTML = `
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-[#e5c158] flex items-center space-x-1.5">
+                  <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>
+                  <span>${doc.tipoPeca || 'Peça Processual'}</span>
+                </span>
+                <span class="text-[10px] font-mono text-zinc-500">${doc.nomeArquivo || ''}</span>
+              </div>
+              <p class="text-zinc-300 text-[11px] leading-relaxed">${textoResumoDoc}</p>
+              <div class="text-[9px] text-zinc-500 flex items-center justify-between pt-1 border-t border-zinc-800/60">
+                <span>Catalogado (${doc.fonteResumo || doc.confianca || 'IA'})${dataRef}${autoridade}</span>
+                <span>${dataAnexo}</span>
+              </div>
+            `;
+            listaDocs.appendChild(card);
+          });
+        }
       }
 
-      const listaHist = document.getElementById('dossie-lista-historico');
-      listaHist.innerHTML = '';
-      if (hist.length === 0) {
-        listaHist.innerHTML = `
-          <div class="text-center py-8 text-zinc-500 text-xs bg-zinc-900/30 rounded-2xl border border-zinc-800/80">
-            <p>Nenhum histórico anterior registrado.</p>
-            <p class="text-[10px] mt-1 text-zinc-500">Atualizações de andamento e novos resumos serão arquivados aqui automaticamente.</p>
+      // 2. Renderiza Qualificação Civil Art. 319 CPC
+      const boxQual = document.getElementById('dossie-lista-qualificacao');
+      if (boxQual) {
+        const civil = (dossieCivil && dossieCivil.civil) || {};
+        const fil = civil.filiacao ? [civil.filiacao.mae, civil.filiacao.pai].filter(Boolean).join(' / ') : '-';
+        const end = typeof civil.endereco === 'object' && civil.endereco !== null
+          ? [civil.endereco.logradouro, civil.endereco.numero, civil.endereco.bairro, civil.endereco.cidade, civil.endereco.uf, civil.endereco.cep].filter(Boolean).join(', ')
+          : (civil.endereco || '-');
+        const prevCpc = (dossieCivil && dossieCivil.qualificacaoCPC) || `${(civil.nomeCompleto || proc.nome || 'CLIENTE').toUpperCase()}, inscrito(a) no CPF sob o nº ${civil.cpf || proc.cpf || '[CPF PENDENTE]'}.`;
+
+        boxQual.innerHTML = `
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+            <span class="text-xs font-bold text-amber-400">Qualificação Civil (Art. 319, II do CPC)</span>
+            <button type="button" onclick="copiarTextoFallbackLocal('${escaparHtmlTexto(prevCpc)}'); mostrarToast('Qualificação CPC copiada!');" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-[10px] font-semibold cursor-pointer">
+              📋 Copiar Parágrafo CPC
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+            <div><span class="text-zinc-500">Nome:</span> <span class="font-bold text-zinc-100">${escaparHtmlTexto(civil.nomeCompleto || proc.nome || '-')}</span></div>
+            <div><span class="text-zinc-500">CPF:</span> <span class="font-mono text-zinc-200">${escaparHtmlTexto(civil.cpf || proc.cpf || '-')}</span></div>
+            <div><span class="text-zinc-500">RG / Órgão:</span> <span class="font-mono text-zinc-200">${escaparHtmlTexto([civil.rg, civil.rgOrgaoEmissor].filter(Boolean).join(' ') || '-')}</span></div>
+            <div><span class="text-zinc-500">Estado Civil:</span> <span>${escaparHtmlTexto(civil.estadoCivil || '-')}</span></div>
+            <div><span class="text-zinc-500">Profissão:</span> <span>${escaparHtmlTexto(civil.profissao || '-')}</span></div>
+            <div><span class="text-zinc-500">Filiação:</span> <span>${escaparHtmlTexto(fil)}</span></div>
+            <div class="col-span-2"><span class="text-zinc-500">Endereço:</span> <span>${escaparHtmlTexto(end)}</span></div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800/80 text-[11px] font-serif-legal italic text-zinc-300">
+            "${escaparHtmlTexto(prevCpc)}"
           </div>
         `;
-      } else {
-        [...hist].reverse().forEach(h => {
-          const item = document.createElement('div');
-          item.className = "p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 text-xs space-y-1";
-          const textoHist = h.textoHumanizado || h.textoBruto || h.descricao || h.resumoAnterior || '-';
-          item.innerHTML = `
-            <div class="flex items-center justify-between text-[10px] text-[#e5c158] font-bold">
-              <span class="flex items-center gap-1"><svg class="w-3 h-3 text-amber-400"><use href="#icon-calendar"/></svg>${h.data || '-'}</span>
-              <span class="text-zinc-500 font-normal uppercase text-[9px]">${h.origem || 'atualização'}</span>
+      }
+
+      // 3. Renderiza Galeria de Documentos do Cliente (com Thumbnails Visuais)
+      const boxGal = document.getElementById('dossie-lista-galeria');
+      if (boxGal) {
+        if (clientDocs.length === 0) {
+          boxGal.innerHTML = `
+            <div class="col-span-2 text-center py-8 text-zinc-500 text-xs bg-zinc-900/30 rounded-2xl border border-zinc-800/80">
+              <p>Nenhum documento civil do cliente arquivado ainda.</p>
+              <p class="text-[10px] mt-1 text-zinc-500">Documentos como RG, CNH e Comprovante de Residência recebidos pelo WhatsApp aparecerão aqui com miniaturas.</p>
             </div>
-            <p class="text-zinc-300 text-[11px] leading-relaxed">${textoHist}</p>
-            ${h.nomeArquivo ? `<span class="text-[9px] font-mono text-sky-400 block">Arquivo: ${h.nomeArquivo}</span>` : ''}
           `;
-          listaHist.appendChild(item);
-        });
+        } else {
+          boxGal.innerHTML = clientDocs.map((doc, idx) => window.renderizarCardDocumentoVisual(doc, idx)).join('');
+        }
+      }
+
+      // 4. Renderiza Histórico de Andamentos
+      const listaHist = document.getElementById('dossie-lista-historico');
+      if (listaHist) {
+        listaHist.innerHTML = '';
+        if (hist.length === 0) {
+          listaHist.innerHTML = `
+            <div class="text-center py-8 text-zinc-500 text-xs bg-zinc-900/30 rounded-2xl border border-zinc-800/80">
+              <p>Nenhum histórico anterior registrado.</p>
+              <p class="text-[10px] mt-1 text-zinc-500">Atualizações de andamento e novos resumos serão arquivados aqui automaticamente.</p>
+            </div>
+          `;
+        } else {
+          [...hist].reverse().forEach(h => {
+            const item = document.createElement('div');
+            item.className = "p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 text-xs space-y-1";
+            const textoHist = h.textoHumanizado || h.textoBruto || h.descricao || h.resumoAnterior || '-';
+            item.innerHTML = `
+              <div class="flex items-center justify-between text-[10px] text-[#e5c158] font-bold">
+                <span class="flex items-center gap-1"><svg class="w-3 h-3 text-amber-400"><use href="#icon-calendar"/></svg>${h.data || '-'}</span>
+                <span class="text-zinc-500 font-normal uppercase text-[9px]">${h.origem || 'atualização'}</span>
+              </div>
+              <p class="text-zinc-300 text-[11px] leading-relaxed">${textoHist}</p>
+              ${h.nomeArquivo ? `<span class="text-[9px] font-mono text-sky-400 block">Arquivo: ${h.nomeArquivo}</span>` : ''}
+            `;
+            listaHist.appendChild(item);
+          });
+        }
       }
     }
 
@@ -6334,6 +6760,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     if (btnFecharDossie) btnFecharDossie.addEventListener('click', fecharDossie);
     if (tabBtnDocs) tabBtnDocs.addEventListener('click', () => alternarAbaDossie('docs'));
     if (tabBtnHistorico) tabBtnHistorico.addEventListener('click', () => alternarAbaDossie('historico'));
+    if (tabBtnQualificacao) tabBtnQualificacao.addEventListener('click', () => alternarAbaDossie('qualificacao'));
+    if (tabBtnGaleria) tabBtnGaleria.addEventListener('click', () => alternarAbaDossie('galeria'));
 
     if (btnDossieAnexarMais) {
       btnDossieAnexarMais.addEventListener('click', async () => {
@@ -7238,17 +7666,42 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const d = configGlobal.agenda[k];
         if (!d) return;
         const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-3.5 exec-card rounded-xl text-xs";
+        const isPlantao = Boolean(d.plantao24h);
+        const isAtivo = Boolean(d.ativo);
+        const [hAb] = (d.abertura || '08:00').split(':').map(Number);
+        const [hFe] = (d.fechamento || '18:00').split(':').map(Number);
+        const isNoturno = hAb > hFe;
+
+        row.className = `flex flex-col sm:flex-row sm:items-center justify-between p-3.5 exec-card rounded-xl text-xs gap-3 transition-all ${!isAtivo ? 'opacity-55 bg-zinc-950/40' : (isPlantao ? 'border-amber-500/40 bg-amber-500/5' : '')}`;
         row.innerHTML = `
-          <label class="flex items-center space-x-3 w-48 cursor-pointer">
-            <input type="checkbox" ${d.ativo ? 'checked' : ''} class="accent-[#d4af37] w-4 h-4 rounded" onchange="configGlobal.agenda['${k}'].ativo=this.checked; marcarAlteracaoPendente();">
-            <span class="font-semibold">${d.nome}</span>
-          </label>
-          <div class="flex items-center space-x-3">
-            <span class="text-zinc-400">Abertura:</span>
-            <input type="time" value="${d.abertura || '08:00'}" class="exec-input rounded-lg px-2.5 py-1" onchange="configGlobal.agenda['${k}'].abertura=this.value; marcarAlteracaoPendente();">
-            <span class="text-zinc-400">Fechamento:</span>
-            <input type="time" value="${d.fechamento || '18:00'}" class="exec-input rounded-lg px-2.5 py-1" onchange="configGlobal.agenda['${k}'].fechamento=this.value; marcarAlteracaoPendente();">
+          <div class="flex items-center space-x-3 w-48">
+            <label class="flex items-center space-x-2.5 cursor-pointer">
+              <input type="checkbox" ${isAtivo ? 'checked' : ''} class="accent-[#d4af37] w-4 h-4 rounded cursor-pointer" onchange="configGlobal.agenda['${k}'].ativo=this.checked; marcarAlteracaoPendente(); renderizarAgendaSemanal();">
+              <span class="font-bold text-zinc-200 ${!isAtivo ? 'line-through text-zinc-500' : ''}">${d.nome}</span>
+            </label>
+            ${!isAtivo ? '<span class="text-[10px] text-zinc-500 font-mono">(Fechado)</span>' : ''}
+          </div>
+
+          <div class="flex items-center flex-wrap gap-3">
+            <label class="flex items-center space-x-1.5 cursor-pointer px-2.5 py-1 rounded-lg border ${isPlantao ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'} transition">
+              <input type="checkbox" ${isPlantao ? 'checked' : ''} ${!isAtivo ? 'disabled' : ''} class="accent-[#d4af37] w-3.5 h-3.5 rounded cursor-pointer" onchange="configGlobal.agenda['${k}'].plantao24h=this.checked; marcarAlteracaoPendente(); renderizarAgendaSemanal();">
+              <span class="text-[11px] font-bold">Plantão 24h</span>
+            </label>
+
+            ${isPlantao ? `
+              <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Atendimento ininterrupto 24 horas</span>
+              </div>
+            ` : `
+              <div class="flex items-center space-x-2">
+                <span class="text-zinc-400">Abertura:</span>
+                <input type="time" ${!isAtivo ? 'disabled' : ''} value="${d.abertura || '08:00'}" class="exec-input rounded-lg px-2.5 py-1 ${!isAtivo ? 'opacity-50 cursor-not-allowed' : ''}" onchange="configGlobal.agenda['${k}'].abertura=this.value; marcarAlteracaoPendente(); renderizarAgendaSemanal();">
+                <span class="text-zinc-400">Fechamento:</span>
+                <input type="time" ${!isAtivo ? 'disabled' : ''} value="${d.fechamento || '18:00'}" class="exec-input rounded-lg px-2.5 py-1 ${!isAtivo ? 'opacity-50 cursor-not-allowed' : ''}" onchange="configGlobal.agenda['${k}'].fechamento=this.value; marcarAlteracaoPendente(); renderizarAgendaSemanal();">
+                ${isNoturno ? '<span class="text-[10px] text-sky-400 font-mono px-2 py-0.5 rounded bg-sky-500/10 border border-sky-500/20" title="Turno noturno que atravessa a meia-noite">🌙 Vira a noite</span>' : ''}
+              </div>
+            `}
           </div>`;
         container.appendChild(row);
       });
@@ -7508,9 +7961,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         let badgeUrgenciaHTML = '';
 
         if (nivelUrgencia === 'CRITICA') {
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 border-rose-500 animate-pulse shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/40 mb-3 transition relative";
-          dotIndicador = '<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span></span>';
-          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold flex items-center space-x-1.5 animate-pulse" title="🚨 URGÊNCIA CRÍTICA">
+          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 border-rose-500 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/40 mb-3 transition relative";
+          dotIndicador = '<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>';
+          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold flex items-center space-x-1.5" title="🚨 URGÊNCIA CRÍTICA">
             <svg class="w-3.5 h-3.5 text-rose-400 flex-shrink-0"><use href="#icon-shield"/></svg>
             <span>🚨 URGÊNCIA CRÍTICA (URGÊNCIA MÁXIMA): ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
@@ -7604,14 +8057,14 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
             </div>
 
-            <button onclick="reativarCliente('${chave}')" class="px-3.5 py-2 champagne-gradient font-bold rounded-xl transition shadow flex items-center space-x-1.5 text-zinc-950 text-xs hover:opacity-90 cursor-pointer">
+            <button onclick="reativarCliente('${chave}')" title="Devolver atendimento deste cliente ao robô automático" class="px-3 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-300 font-semibold rounded-xl transition flex items-center space-x-1.5 text-xs cursor-pointer">
               <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
               <span>Reativar Robô</span>
             </button>
           </div>
 
           <!-- PAINEL EXPANSÍVEL: RESUMO, TRANSCRIÇÃO DE ÁUDIO/MENSAGENS E SUGESTÕES COPILOT -->
-          <div id="painel-resumo-${cardId}" class="hidden mt-4 pt-4 border-t border-zinc-800/80 space-y-3.5">
+          <div id="painel-resumo-${cardId}" class="${nivelUrgencia === 'CRITICA' ? '' : 'hidden'} mt-4 pt-4 border-t border-zinc-800/80 space-y-3.5">
             ${playerAudioHTML}
 
             <!-- Mensagens do Cliente -->
@@ -7625,11 +8078,11 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <!-- Transcrição e Resumo -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição Fonética (Áudio / Mensagens):</span>
+                <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio / Mensagens:</span>
                 <p class="text-zinc-300 leading-relaxed">${escaparHtmlTexto(transcricao)}</p>
               </div>
               <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (Copilot):</span>
+                <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (IA):</span>
                 <div class="text-zinc-300 leading-relaxed whitespace-pre-line">${escaparHtmlTexto(resumo)}</div>
               </div>
             </div>
@@ -7637,10 +8090,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <!-- Cronologia dos Fatos (Subagente 3) -->
             ${cronologiaHTML}
 
-            <!-- 3 Sugestões Rápidas de Resposta (Copilot 1-Clique) -->
+            <!-- 3 Sugestões Rápidas de Resposta -->
             <div class="space-y-2">
               <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
-                <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg>Sugestões Rápidas de Resposta (Copilot 1-Clique):</span>
+                <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg>Sugestões Prontas de Resposta:</span>
               </span>
               <div class="space-y-2">
                 ${sugestoesHTML}
@@ -7648,9 +8101,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
 
             <!-- Caixa de Resposta e Envio pelo Advogado -->
-            <div class="pt-2 border-t border-zinc-800/80 flex items-center space-x-2">
-              <input type="text" id="input-resposta-${cardId}" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
-              <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+            <div class="pt-2 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-end gap-2.5">
+              <textarea id="input-resposta-${cardId}" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+              <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
                 <span>Enviar Resposta</span>
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
               </button>
@@ -7993,6 +8446,61 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     };
 
+    window.renderizarCardDocumentoVisual = function(doc, idx) {
+      if (!doc) return '';
+      const legivel = doc.legivel !== false;
+      const badgeStatus = legivel
+        ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold shrink-0">🟢 Válido Art. 319</span>'
+        : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold shrink-0">🟡 Legibilidade Baixa</span>';
+
+      const tipoFormatado = (doc.tipo || 'DOCUMENTO').replace(/_/g, ' ').toUpperCase();
+      const nomeArq = doc.arquivo || doc.nomeArquivo || 'documento.jpg';
+      const url = doc.url || doc.base64 || doc.preview || '';
+      const temImg = url && (url.startsWith('data:image') || url.startsWith('http') || url.startsWith('blob:') || url.match(/\.(png|jpe?g|webp|gif|svg)$/i));
+
+      const docJsonSafe = JSON.stringify(doc).replace(/"/g, '&quot;');
+
+      return `
+        <div class="p-3.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 hover:border-amber-500/40 transition-all space-y-2.5 flex flex-col justify-between group shadow-sm">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold text-[#e5c158] flex items-center gap-1.5 truncate">
+                <svg class="w-3.5 h-3.5 text-amber-400 shrink-0"><use href="#icon-file-text"/></svg>
+                <span class="truncate">${escaparHtmlTexto(tipoFormatado)}</span>
+              </span>
+              ${badgeStatus}
+            </div>
+
+            <!-- Miniatura Visual com Atalho de Zoom -->
+            <div class="relative w-full h-28 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden flex items-center justify-center cursor-pointer group-hover:border-amber-400/50 transition" onclick='window.abrirLightboxDocumento(${docJsonSafe}, "${escaparHtmlTexto(tipoFormatado)}")'>
+              ${temImg ? `
+                <img src="${url}" alt="${escaparHtmlTexto(nomeArq)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/70 via-transparent to-transparent"></div>
+              ` : `
+                <div class="flex flex-col items-center justify-center p-2 text-center">
+                  <svg class="w-8 h-8 text-amber-400 mb-1 opacity-80"><use href="#icon-file-text"/></svg>
+                  <span class="text-[10px] font-mono text-zinc-300 uppercase font-bold">${escaparHtmlTexto(tipoFormatado)}</span>
+                  <span class="text-[9px] font-mono text-zinc-500 mt-0.5 truncate max-w-[150px]">${escaparHtmlTexto(nomeArq)}</span>
+                </div>
+              `}
+              <div class="absolute bottom-2 right-2 bg-zinc-950/80 backdrop-blur-sm text-[10px] text-amber-300 font-semibold px-2 py-0.5 rounded-lg border border-amber-400/30 flex items-center gap-1 shadow">
+                <span>🔍 Zoom</span>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-zinc-300 font-mono truncate">${escaparHtmlTexto(nomeArq)}</p>
+          </div>
+
+          <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px]">
+            <span class="text-zinc-500 font-mono">Gemini Vision</span>
+            <button type="button" onclick='window.abrirLightboxDocumento(${docJsonSafe}, "${escaparHtmlTexto(tipoFormatado)}")' class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-zinc-700/80 font-bold transition flex items-center gap-1 cursor-pointer">
+              <span>🔍 Zoom / Girar 90°</span>
+            </button>
+          </div>
+        </div>
+      `;
+    };
+
     window.selecionarClienteDossie = function(clienteId) {
       window.dossieClienteSelecionadoId = clienteId;
       const dossie = (window.dossiesCache && window.dossiesCache[clienteId]) || null;
@@ -8026,27 +8534,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         if (docs.length === 0) {
           galeria.innerHTML = '<div class="col-span-2 p-6 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado neste dossiê ainda.</div>';
         } else {
-          galeria.innerHTML = docs.map(doc => {
-            const legivel = doc.legivel !== false;
-            const badgeStatus = legivel
-              ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 Documento Válido</span>'
-              : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">🟡 Legibilidade Baixa</span>';
-            return `
-              <div class="p-3.5 rounded-xl bg-zinc-950/90 border border-zinc-800/80 space-y-2 flex flex-col justify-between">
-                <div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-[#e5c158]">${escaparHtmlTexto(doc.tipo || 'DOCUMENTO')}</span>
-                    ${badgeStatus}
-                  </div>
-                  <p class="text-[11px] text-zinc-300 font-mono truncate mt-1">${escaparHtmlTexto(doc.arquivo || 'arquivo.jpg')}</p>
-                </div>
-                <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
-                  <span>Auditado via Gemini Vision</span>
-                  <span class="text-[#f3e5ab] font-semibold">✓ Arquivado</span>
-                </div>
-              </div>
-            `;
-          }).join('');
+          galeria.innerHTML = docs.map((doc, idx) => window.renderizarCardDocumentoVisual(doc, idx)).join('');
         }
       }
     };
@@ -8080,8 +8568,52 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       mostrarToast('📋 Qualificação Civil (CPC) copiada!');
     };
 
+    window.atualizarSelectClientesFinanceiro = function() {
+      const sel = document.getElementById('fin-selecionar-cliente-proc');
+      if (!sel) return;
+      const lista = (configGlobal && configGlobal.processos && configGlobal.processos.lista) || [];
+      const dossies = (configGlobal && configGlobal.dossiesClientes) || {};
+      const opcoes = [];
+      const vistos = new Set();
+
+      lista.forEach((p, idx) => {
+        const nome = (p.nome || '').trim();
+        if (!nome) return;
+        let tel = (p.telefone || p.telefoneCliente || (p.dadosCadastrais && p.dadosCadastrais.telefone) || '').trim();
+        if (!tel && p.cpf) {
+          const cpfDig = p.cpf.replace(/\D/g, '');
+          const dMatch = Object.values(dossies).find(d => ((d.cpf || (d.civil && d.civil.cpf) || '').replace(/\D/g, '') === cpfDig));
+          if (dMatch) tel = dMatch.telefone || dMatch.clienteTelefone || (dMatch.civil && dMatch.civil.telefone) || '';
+        }
+        const chaveUnica = `${nome.toLowerCase()}|${p.numero || ''}`;
+        if (vistos.has(chaveUnica)) return;
+        vistos.add(chaveUnica);
+        opcoes.push({
+          val: JSON.stringify({ nome, tel }),
+          label: `${nome}${p.numero ? ' — CNJ ' + p.numero : ''}${p.cpf ? ' (' + p.cpf + ')' : ''}`
+        });
+      });
+
+      sel.innerHTML = '<option value="">-- Selecione um processo/cliente ou preencha manualmente abaixo --</option>' +
+        opcoes.map(o => `<option value="${escaparHtmlTexto(o.val)}">${escaparHtmlTexto(o.label)}</option>`).join('');
+    };
+
+    window.preencherClienteFinanceiro = function(val) {
+      if (!val) return;
+      try {
+        const dados = JSON.parse(val);
+        const elNome = document.getElementById('fin-novo-nome');
+        const elTel = document.getElementById('fin-novo-tel');
+        if (elNome && dados.nome) elNome.value = dados.nome;
+        if (elTel && dados.tel) elTel.value = dados.tel;
+      } catch (_) {}
+    };
+
     window.carregarERenderizarFinanceiro = async function() {
       try {
+        if (typeof window.atualizarSelectClientesFinanceiro === 'function') {
+          window.atualizarSelectClientesFinanceiro();
+        }
         let cfgCob = (configGlobal && configGlobal.configuracaoCobranca) || {};
         let fin = (configGlobal && configGlobal.financeiro) || { parcelas: [] };
 
@@ -8347,6 +8879,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     };
 
     window.dispararReguaCobrancaUI = async function() {
+      if (!confirm('Deseja enviar os lembretes de cobrança PIX via WhatsApp para as parcelas pendentes programadas?')) {
+        return;
+      }
       if (window.api && typeof window.api.dispararReguaCobranca === 'function') {
         const rel = await window.api.dispararReguaCobranca({ ignorarDiaDaSemana: true, delayMs: 50 });
         mostrarToast(`🚀 Régua PIX executada: ${rel.enviados || 0} lembrete(s) enviado(s)!`);
@@ -8447,6 +8982,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
     function aplicarStatusConexaoNaUI(st, qrUrl = null, subDetalhe = null) {
       const txtEl = document.getElementById('status-text');
+      const topTxtEl = document.getElementById('top-bar-status-text');
+      const topDotEl = document.getElementById('top-bar-status-dot');
       const subEl = document.getElementById('substatus-text');
       const qrSubEl = document.getElementById('qr-substatus-text');
       const dotEl = document.getElementById('status-dot');
@@ -8462,7 +8999,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
 
       if (st === 'ready') {
-        txtEl.innerText = 'Conectado';
+        txtEl.innerText = 'Conectado'; if (topTxtEl) topTxtEl.innerText = 'Conectado'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-emerald-400';
         const txtSucesso = (subDetalhe && !subDetalhe.includes('%') && !subDetalhe.includes('Carregando')) 
           ? subDetalhe 
           : 'Monitoramento ativo em tempo real';
@@ -8471,18 +9008,18 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400';
         qrBox.innerHTML = `<div class="text-emerald-400 text-xs font-bold text-center space-y-1"><svg class="w-8 h-8 mx-auto"><use href="#icon-shield"/></svg><span class="block">Aparelho Ativo</span></div>`;
       } else if (st === 'authenticated') {
-        txtEl.innerText = 'Autenticado';
+        txtEl.innerText = 'Autenticado'; if (topTxtEl) topTxtEl.innerText = 'Autenticado'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-sky-400 animate-pulse';
         if (!subDetalhe && subEl) subEl.innerText = 'Carregando conversas...';
         dotEl.className = 'w-2 h-2 rounded-full bg-sky-400 animate-pulse';
       } else if (st === 'waiting_qr') {
-        txtEl.innerText = 'Leitura de QR Code';
+        txtEl.innerText = 'Leitura de QR Code'; if (topTxtEl) topTxtEl.innerText = 'Ler QR Code'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-[#e5c158] animate-pulse';
         if (!subDetalhe && subEl) subEl.innerText = 'Escaneie no celular para conectar';
         dotEl.className = 'w-2 h-2 rounded-full bg-[#e5c158] animate-pulse';
       } else if (st === 'initializing') {
-        txtEl.innerText = 'Iniciando Motor...';
+        txtEl.innerText = 'Iniciando Motor...'; if (topTxtEl) topTxtEl.innerText = 'Iniciando...'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
         dotEl.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
       } else {
-        txtEl.innerText = 'Auto-Reconexão...';
+        txtEl.innerText = 'Auto-Reconexão...'; if (topTxtEl) topTxtEl.innerText = 'Desconectado'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
         dotEl.className = 'w-2 h-2 rounded-full bg-rose-500 animate-pulse';
       }
     }
@@ -8492,7 +9029,118 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     safeOn('btn-limpar-logs', 'click', () => {
       const logsBox = document.getElementById('logs-box');
       if (logsBox) logsBox.innerHTML = '<div class="text-zinc-500 text-xs text-center py-16">Histórico limpo. Nenhuma mensagem nesta sessão.</div>';
+      window.chatAuditContatos = {};
+      const listaContatosEl = document.getElementById('chat-audit-contatos-lista');
+      if (listaContatosEl) {
+        listaContatosEl.innerHTML = `
+          <button type="button" onclick="window.selecionarContatoChatAudit && window.selecionarContatoChatAudit('__todos__')" class="w-full text-left p-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/15 flex items-center justify-between transition cursor-pointer contact-audit-btn active" data-contato-id="__todos__">
+            <div class="flex items-center space-x-2.5 overflow-hidden">
+              <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">🌐</div>
+              <div class="truncate">
+                <span class="font-bold text-xs text-amber-300 block truncate">Todas as Conversas</span>
+                <span class="text-[10px] text-zinc-400 truncate block">Feed consolidado em tempo real</span>
+              </div>
+            </div>
+            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">AO VIVO</span>
+          </button>
+          <div id="chat-audit-contatos-empty" class="py-12 text-center text-zinc-500 text-xs">Nenhum cliente conversou nesta sessão ainda.</div>
+        `;
+      }
+      const totalContatosEl = document.getElementById('chat-audit-total-contatos');
+      if (totalContatosEl) totalContatosEl.innerText = '0';
+      window.selecionarContatoChatAudit('__todos__');
     });
+
+    // =========================================================================
+    // CONTROLES DE AUDITORIA DE CONVERSAS EM CHAT (MASTER-DETAIL)
+    // =========================================================================
+    window.chatAuditContatos = {};
+    window.contatoChatAuditSelecionado = '__todos__';
+
+    window.selecionarContatoChatAudit = function(contatoId) {
+      window.contatoChatAuditSelecionado = contatoId;
+
+      document.querySelectorAll('.contact-audit-btn').forEach(btn => {
+        const id = btn.getAttribute('data-contato-id');
+        if (id === contatoId) {
+          btn.className = 'w-full text-left p-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/15 flex items-center justify-between transition cursor-pointer contact-audit-btn active';
+        } else {
+          btn.className = 'w-full text-left p-2.5 rounded-xl border border-transparent bg-zinc-900/40 hover:bg-zinc-800/60 flex items-center justify-between transition cursor-pointer contact-audit-btn';
+        }
+      });
+
+      const headerAvatar = document.getElementById('chat-audit-header-avatar');
+      const headerNome = document.getElementById('chat-audit-header-nome');
+      const headerStatus = document.getElementById('chat-audit-header-status');
+      const btnPasta = document.getElementById('btn-chat-ver-pasta');
+      const btnDossie = document.getElementById('btn-chat-ver-dossie');
+
+      if (contatoId === '__todos__') {
+        if (headerAvatar) headerAvatar.innerText = '🌐';
+        if (headerNome) headerNome.innerText = 'Todas as Conversas do WhatsApp';
+        if (headerStatus) headerStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Monitoramento contínuo em tempo real';
+        if (btnPasta) btnPasta.classList.add('hidden');
+        if (btnDossie) btnDossie.classList.add('hidden');
+      } else {
+        const contato = window.chatAuditContatos[contatoId] || { nome: contatoId, numero: contatoId };
+        const iniciais = (contato.nome || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        if (headerAvatar) headerAvatar.innerText = iniciais || 'CL';
+        if (headerNome) headerNome.innerText = `${contato.nome || 'Cliente'} ${contato.numero ? '(' + contato.numero + ')' : ''}`;
+        if (headerStatus) headerStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Conectado via WhatsApp';
+        if (btnPasta) btnPasta.classList.remove('hidden');
+        if (btnDossie) btnDossie.classList.remove('hidden');
+      }
+
+      const box = document.getElementById('logs-box');
+      if (!box) return;
+      const rows = box.querySelectorAll('.log-entry-row');
+      rows.forEach(r => {
+        if (contatoId === '__todos__') {
+          r.classList.remove('hidden');
+        } else {
+          const rContato = r.getAttribute('data-contato');
+          r.classList.toggle('hidden', rContato !== contatoId);
+        }
+      });
+    };
+
+    window.filtrarContatosChatAudit = function(termo) {
+      const q = (termo || '').toLowerCase().trim();
+      const btns = document.querySelectorAll('.contact-audit-btn');
+      btns.forEach(btn => {
+        const id = btn.getAttribute('data-contato-id');
+        if (id === '__todos__') return;
+        const texto = (btn.innerText || '').toLowerCase();
+        btn.classList.toggle('hidden', q.length > 0 && !texto.includes(q));
+      });
+    };
+
+    window.abrirPastaClienteChatAudit = function() {
+      const id = window.contatoChatAuditSelecionado;
+      if (!id || id === '__todos__') return;
+      const lista = (configGlobal && configGlobal.processos && configGlobal.processos.lista) || [];
+      const numDig = id.replace(/\D/g, '');
+      const proc = lista.find(p => {
+        const pTel = (p.telefone || '').replace(/\D/g, '');
+        const pCpf = (p.cpf || '').replace(/\D/g, '');
+        return (numDig && (pTel === numDig || pCpf === numDig)) || (p.nome && id.includes(p.nome));
+      });
+      if (proc) {
+        ativarAba('processos');
+        selecionarProcessoNaLista(proc.id);
+      } else {
+        ativarAba('processos');
+        mostrarToast('Processo deste contato não cadastrado. Criando nova pasta...');
+      }
+    };
+
+    window.abrirDossieClienteChatAudit = function() {
+      const id = window.contatoChatAuditSelecionado;
+      if (!id || id === '__todos__') return;
+      ativarAba('processos');
+      if (typeof alternarDetalheProcAba === 'function') alternarDetalheProcAba('dossie');
+      if (typeof selecionarClienteDossie === 'function') selecionarClienteDossie(id);
+    };
 
     window.filtrarLogsLedgerUI = function(tipo, btnEl) {
       document.querySelectorAll('.log-filter-btn').forEach(b => {
@@ -8506,10 +9154,16 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const rows = box.querySelectorAll('.log-entry-row');
       rows.forEach(r => {
         if (tipo === 'todos') {
-          r.classList.remove('hidden');
+          if (window.contatoChatAuditSelecionado === '__todos__') {
+            r.classList.remove('hidden');
+          } else {
+            r.classList.toggle('hidden', r.getAttribute('data-contato') !== window.contatoChatAuditSelecionado);
+          }
         } else {
           const rowTipo = r.getAttribute('data-tipo') || '';
-          r.classList.toggle('hidden', rowTipo !== tipo);
+          const matchTipo = (rowTipo === tipo);
+          const matchContato = (window.contatoChatAuditSelecionado === '__todos__' || r.getAttribute('data-contato') === window.contatoChatAuditSelecionado);
+          r.classList.toggle('hidden', !(matchTipo && matchContato));
         }
       });
     };
@@ -8521,13 +9175,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const rows = box.querySelectorAll('.log-entry-row');
       rows.forEach(r => {
         const rowText = (r.getAttribute('data-texto') || r.innerText || '').toLowerCase();
-        r.classList.toggle('hidden', q.length > 0 && !rowText.includes(q));
+        const matchText = (q.length === 0 || rowText.includes(q));
+        const matchContato = (window.contatoChatAuditSelecionado === '__todos__' || r.getAttribute('data-contato') === window.contatoChatAuditSelecionado);
+        r.classList.toggle('hidden', !(matchText && matchContato));
       });
     };
 
     safeOn('btn-reconnect', 'click', async () => {
-      mostrarToast('Reiniciando motor do WhatsApp...');
-      aplicarStatusConexaoNaUI('initializing', null, 'Reiniciando motor Chromium...');
+      mostrarToast('Reiniciando conexão do WhatsApp...');
+      aplicarStatusConexaoNaUI('initializing', null, 'Reiniciando conexão com o WhatsApp...');
       if (window.api && window.api.reiniciarBot) await window.api.reiniciarBot();
     });
 
@@ -8906,35 +9562,134 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           });
         }
 
-        window.api.aoReceberLog((log) => {
+        window.adicionarLogAoTerminal = function(log) {
+          if (!log) return;
           if (log.metricasReais) {
             if (!configGlobal.metricasReais) configGlobal.metricasReais = {};
             configGlobal.metricasReais.totalMensagens = log.metricasReais.totalMensagens;
             configGlobal.metricasReais.contatosAtendidos = new Array(log.metricasReais.totalContatos);
-            atualizarPainelMetricas();
+            if (typeof atualizarPainelMetricas === 'function') atualizarPainelMetricas();
           }
 
-          const rotuloExibicao = log.nome ? `${log.nome} (${log.numero})` : (log.exibicao || log.numero);
+          const rawMsg = log.msg || log.mensagem || '';
+          const isRobo = rawMsg.startsWith('🤖') || (log.tipo === 'robo') || (log.origem === 'robo');
+          const nomeExibicao = log.nome || log.exibicao || log.numero || 'Cliente';
+          const numeroExibicao = log.numero || '';
+          const contatoChave = numeroExibicao || nomeExibicao;
+          const horaExibicao = log.hora || new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
+          // Atualiza lista interna de contatos atendidos
+          if (contatoChave && !window.chatAuditContatos[contatoChave]) {
+            window.chatAuditContatos[contatoChave] = {
+              nome: nomeExibicao,
+              numero: numeroExibicao,
+              ultimaMsg: rawMsg,
+              hora: horaExibicao,
+              isRobo: isRobo
+            };
+          } else if (contatoChave) {
+            window.chatAuditContatos[contatoChave].ultimaMsg = rawMsg;
+            window.chatAuditContatos[contatoChave].hora = horaExibicao;
+          }
+
+          // Atualiza a coluna esquerda (Master)
+          const listaContatosEl = document.getElementById('chat-audit-contatos-lista');
+          const emptyContatosEl = document.getElementById('chat-audit-contatos-empty');
+          const totalContatosEl = document.getElementById('chat-audit-total-contatos');
+
+          if (emptyContatosEl) emptyContatosEl.classList.add('hidden');
+          if (totalContatosEl) totalContatosEl.innerText = String(Object.keys(window.chatAuditContatos).length);
+
+          if (listaContatosEl && contatoChave) {
+            let btnContato = listaContatosEl.querySelector(`[data-contato-id="${contatoChave}"]`);
+            const iniciais = (nomeExibicao || 'CL').trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            if (!btnContato) {
+              btnContato = document.createElement('button');
+              btnContato.type = 'button';
+              btnContato.setAttribute('data-contato-id', contatoChave);
+              btnContato.onclick = () => window.selecionarContatoChatAudit(contatoChave);
+              btnContato.className = 'w-full text-left p-2.5 rounded-xl border border-transparent bg-zinc-900/40 hover:bg-zinc-800/60 flex items-center justify-between transition cursor-pointer contact-audit-btn';
+              listaContatosEl.appendChild(btnContato);
+            }
+            btnContato.innerHTML = `
+              <div class="flex items-center space-x-2.5 overflow-hidden">
+                <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs shrink-0">
+                  ${iniciais || 'CL'}
+                </div>
+                <div class="truncate">
+                  <span class="font-bold text-xs text-zinc-200 block truncate">${escaparHtmlTexto(nomeExibicao)}</span>
+                  <span class="text-[10px] text-zinc-400 truncate block">${escaparHtmlTexto(rawMsg.substring(0, 32))}...</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-mono text-zinc-500 whitespace-nowrap pl-1">${escaparHtmlTexto(horaExibicao)}</span>
+            `;
+          }
+
+          // Adiciona mensagem ao chat (#logs-box)
           const box = document.getElementById('logs-box');
-          if (box.innerText.includes('Nenhuma') || box.innerText.includes('limpo')) box.innerHTML = '';
-          const div = document.createElement('div');
-          div.className = "log-entry-row group p-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 flex items-center justify-between text-xs transition-all duration-150 shadow-sm";
-          div.setAttribute('data-tipo', (log.msg && log.msg.startsWith('🤖')) ? 'robo' : 'cliente');
-          div.setAttribute('data-texto', `${rotuloExibicao} ${log.msg || ''}`);
-          div.innerHTML = `<div class="flex items-center space-x-2.5 overflow-hidden pr-3"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span><span class="text-amber-400 font-bold truncate max-w-[200px]">${escaparHtmlTexto(rotuloExibicao)}</span></div><span class="truncate mx-2 flex-1 text-zinc-200 font-sans text-xs">${escaparHtmlTexto(log.msg || '')}</span><span class="text-[10px] text-zinc-500 font-mono whitespace-nowrap pl-2">${escaparHtmlTexto(log.hora || '')}</span>`;
-          box.prepend(div);
-          while(box.children.length > 100) box.removeChild(box.lastElementChild);
+          if (box) {
+            const emptyBox = document.getElementById('logs-box-empty');
+            if (emptyBox) emptyBox.classList.add('hidden');
+            if (box.innerText.includes('Nenhuma mensagem') || box.innerText.includes('limpo')) box.innerHTML = '';
 
+            const div = document.createElement('div');
+            div.className = `log-entry-row flex w-full group ${isRobo ? 'justify-end' : 'justify-start'}`;
+            div.setAttribute('data-tipo', isRobo ? 'robo' : 'cliente');
+            div.setAttribute('data-contato', contatoChave);
+            div.setAttribute('data-texto', `${nomeExibicao} ${numeroExibicao} ${rawMsg}`);
+
+            if (window.contatoChatAuditSelecionado !== '__todos__' && window.contatoChatAuditSelecionado !== contatoChave) {
+              div.classList.add('hidden');
+            }
+
+            if (isRobo) {
+              div.innerHTML = `
+                <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm p-3.5 bg-emerald-950/40 border border-emerald-600/30 text-emerald-100 shadow-md space-y-1">
+                  <div class="flex items-center justify-between gap-3 text-[10px]">
+                    <span class="font-bold text-emerald-400 flex items-center gap-1">
+                      <span>🤖</span>
+                      <span>Robô do Escritório</span>
+                    </span>
+                    <span class="font-mono text-emerald-400/70">${escaparHtmlTexto(horaExibicao)}</span>
+                  </div>
+                  <p class="text-xs leading-relaxed break-words whitespace-pre-wrap">${escaparHtmlTexto(rawMsg)}</p>
+                  <div class="flex justify-end text-[10px] text-emerald-400/80 font-mono">✓✓ Entregue</div>
+                </div>
+              `;
+            } else {
+              div.innerHTML = `
+                <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tl-sm p-3.5 bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-md space-y-1">
+                  <div class="flex items-center justify-between gap-3 text-[10px]">
+                    <span class="font-bold text-sky-400 flex items-center gap-1">
+                      <svg class="w-3 h-3"><use href="#icon-users"/></svg>
+                      <span>${escaparHtmlTexto(nomeExibicao)}</span>
+                    </span>
+                    <span class="font-mono text-zinc-500">${escaparHtmlTexto(horaExibicao)}</span>
+                  </div>
+                  <p class="text-xs leading-relaxed break-words whitespace-pre-wrap">${escaparHtmlTexto(rawMsg)}</p>
+                </div>
+              `;
+            }
+
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+            while (box.children.length > 200) box.removeChild(box.firstElementChild);
+          }
+
+          // Alimenta feed compacto da Home
           const homeLogs = document.getElementById('home-ultimos-logs');
           if (homeLogs) {
             if (homeLogs.innerText.includes('Aguardando')) homeLogs.innerHTML = '';
             const itemHome = document.createElement('div');
             itemHome.className = "group p-3 rounded-xl border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900/40 hover:bg-zinc-800/50 flex items-center justify-between text-xs transition-all duration-150";
-            itemHome.innerHTML = `<span class="font-semibold text-amber-400 truncate max-w-[170px]">${log.nome || log.exibicao}</span><span class="truncate mx-2.5 flex-1 text-zinc-300">${log.msg}</span><span class="text-[10px] font-mono text-zinc-500 whitespace-nowrap">${log.hora}</span>`;
+            itemHome.innerHTML = `<span class="font-semibold text-amber-400 truncate max-w-[170px]">${escaparHtmlTexto(nomeExibicao)}</span><span class="truncate mx-2.5 flex-1 text-zinc-300">${escaparHtmlTexto(rawMsg)}</span><span class="text-[10px] font-mono text-zinc-500 whitespace-nowrap">${escaparHtmlTexto(horaExibicao)}</span>`;
             homeLogs.prepend(itemHome);
-            while(homeLogs.children.length > 4) homeLogs.removeChild(homeLogs.lastElementChild);
+            while (homeLogs.children.length > 4) homeLogs.removeChild(homeLogs.lastElementChild);
           }
+        };
+
+        window.api.aoReceberLog((log) => {
+          window.adicionarLogAoTerminal(log);
         });
       } // Fim de if (window.api)
 
@@ -9763,7 +10518,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
             if (isCritica) {
               classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 shadow-lg shadow-red-950/40 ring-1 ring-red-500/40 mb-3 transition relative";
-              dotIndicador = '<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span></span>';
+              dotIndicador = '<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>';
               badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-red-500/20 text-red-300 border border-red-500/40 font-bold flex items-center space-x-1.5 animate-pulse">
                 <svg class="w-3.5 h-3.5 text-rose-400 flex-shrink-0"><use href="#icon-shield"/></svg>
                 <span>URGÊNCIA MÁXIMA: ${escaparHtmlTexto(dados.motivoUrgencia || 'Caso Crítico')}</span>
@@ -9841,14 +10596,14 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   </button>
                 </div>
 
-                <button onclick="reativarCliente('${dados.chave || dados.telefone}')" class="px-3.5 py-2 champagne-gradient font-bold rounded-xl transition shadow flex items-center space-x-1.5 text-zinc-950 text-xs hover:opacity-90 cursor-pointer">
+                <button onclick="reativarCliente('${dados.chave || dados.telefone}')" title="Devolver atendimento deste cliente ao robô automático" class="px-3 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-300 font-semibold rounded-xl transition flex items-center space-x-1.5 text-xs cursor-pointer">
                   <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
                   <span>Reativar Robô</span>
                 </button>
               </div>
 
-              <!-- PAINEL EXPANSÍVEL: RESUMO, TRANSCRIÇÃO E SUGESTÕES COPILOT -->
-              <div id="painel-resumo-${dados.id}" class="hidden mt-4 pt-4 border-t border-zinc-800/80 space-y-3.5">
+              <!-- PAINEL EXPANSÍVEL: RESUMO, TRANSCRIÇÃO E SUGESTÕES -->
+              <div id="painel-resumo-${dados.id}" class="${isCritica ? '' : 'hidden'} mt-4 pt-4 border-t border-zinc-800/80 space-y-3.5">
                 <!-- Player de Áudio -->
                 <div class="bg-zinc-950/70 p-3 rounded-xl border border-zinc-800/80">
                   <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider block mb-1.5 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-mic"/></svg>Mensagem de Voz Recebida:</span>
@@ -9858,11 +10613,11 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <!-- Seção Transcrição e Resumo Executivo -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                   <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                    <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição Inteligente:</span>
+                    <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio:</span>
                     <p class="text-zinc-300 leading-relaxed">${escaparHtmlTexto(dados.transcricao || 'Processando transcrição...')}</p>
                   </div>
                   <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                    <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (Copilot):</span>
+                    <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (IA):</span>
                     <div class="text-zinc-300 leading-relaxed whitespace-pre-line">${escaparHtmlTexto(dados.resumo || 'Sem resumo disponível.')}</div>
                   </div>
                 </div>
@@ -9870,10 +10625,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <!-- Cronologia dos Fatos (Subagente 3) -->
                 ${cronologiaHTML}
 
-                <!-- Sugestões de Resposta com 1 Clique (Copilot) -->
+                <!-- Sugestões de Resposta com 1 Clique -->
                 <div class="space-y-2">
                   <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
-                    <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg>Sugestões Rápidas de Resposta (1-Clique):</span>
+                    <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg>Sugestões Prontas de Resposta:</span>
                   </span>
                   <div class="space-y-2">
                     ${listaSugestoesHTML}
@@ -9881,9 +10636,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 </div>
 
                 <!-- Caixa de Resposta e Envio pelo Advogado -->
-                <div class="pt-2 border-t border-zinc-800/80 flex items-center space-x-2">
-                  <input type="text" id="input-resposta-${dados.id}" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs">
-                  <button type="button" onclick="enviarRespostaAdvogado('${dados.id}', '${dados.chave || dados.telefone}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                <div class="pt-2 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-end gap-2.5">
+                  <textarea id="input-resposta-${dados.id}" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+                  <button type="button" onclick="enviarRespostaAdvogado('${dados.id}', '${dados.chave || dados.telefone}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
                     <span>Enviar Resposta</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                   </button>
@@ -10046,7 +10801,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     const qrTrigger = document.getElementById('sidebar-qr-trigger');
     const qrCard = document.getElementById('tour-qr-card');
 
-    const ORDEM_ABAS = ['inicio', 'processos', 'pausados', 'simulador', 'fluxo', 'dossie-clientes', 'financeiro', 'terminal', 'ignorados', 'agenda', 'backup', 'configuracoes'];
+    const ORDEM_ABAS = ['inicio', 'processos', 'pausados', 'ignorados', 'simulador', 'fluxo', 'financeiro', 'terminal', 'agenda', 'backup', 'configuracoes'];
 
     function alternarSidebar(expandir, salvar = true) {
       const estaExpandido = (typeof expandir === 'boolean') ? expandir : !body.classList.contains('sidebar-expanded');
@@ -10104,9 +10859,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (e.key === 'Escape' && qrCard) qrCard.classList.remove('qr-popover-open');
     });
 
-    // Estado inicial salvo
+    // Estado inicial salvo: expandido por padrão em telas normais (>= 1024px)
     try {
-      if (localStorage.getItem(STORAGE_SIDEBAR_EXPANDED) === '1') {
+      const salvo = localStorage.getItem(STORAGE_SIDEBAR_EXPANDED);
+      if (salvo === '1' || (salvo === null && window.innerWidth >= 1024)) {
         alternarSidebar(true, false);
       }
     } catch (e) {}
