@@ -1222,7 +1222,7 @@
 
   <!-- MODAL DE PRÉVIA DE INGESTÃO MULTIFORMATO (v2.0) -->
   <div id="modal-preview-ingestao" class="fixed inset-0 bg-zinc-950/85 backdrop-blur-md z-[9998] hidden items-center justify-center p-4">
-    <div class="exec-card w-full max-w-2xl rounded-3xl p-6 border border-amber-400/40 space-y-4 shadow-2xl flex flex-col max-h-[85vh]">
+    <div class="exec-card w-full max-w-4xl rounded-3xl p-6 border border-amber-400/40 space-y-4 shadow-2xl flex flex-col max-h-[88vh]">
       <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
         <div class="flex items-center space-x-3">
           <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400">
@@ -1257,7 +1257,7 @@
       </div>
 
       <!-- Tabela Scrollável das Primeiras Linhas -->
-      <div class="flex-1 overflow-y-auto border border-zinc-800 rounded-xl bg-zinc-950/60 max-h-60">
+      <div class="flex-1 overflow-y-auto border border-zinc-800 rounded-xl bg-zinc-950/60 max-h-80">
         <table class="w-full text-left text-[11px]">
           <thead class="bg-zinc-900/90 text-zinc-400 uppercase text-[9px] sticky top-0 border-b border-zinc-800">
             <tr>
@@ -1283,9 +1283,9 @@
         <button type="button" id="btn-cancelar-preview-ingestao" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold transition">
           Cancelar
         </button>
-        <button type="button" id="btn-confirmar-gravar-ingestao" class="btn-tactile px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow transition flex items-center space-x-1.5">
+        <button type="button" id="btn-confirmar-gravar-ingestao" class="btn-tactile px-5 py-2 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow transition flex items-center space-x-1.5 cursor-pointer">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-          <span>Confirmar e Gravar na Base</span>
+          <span>Confirmar e Importar Processos</span>
         </button>
       </div>
     </div>
@@ -8699,16 +8699,30 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const contratoQuitado = listaContrato.length > 0 && listaContrato.every(item => item.status === 'PAGO' || item.status === 'QUITADO');
         const ehUltimaPendente = !pago && numParc === totParc;
 
-        const badgeStatus = pago
-          ? '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 PAGO</span>'
-          : '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">⏳ PENDENTE</span>';
+        const hojeStr = new Date().toISOString().split('T')[0];
+        const vencimentoStr = (p.vencimento || '').trim();
+        let vencimentoValido = vencimentoStr;
+        if (vencimentoStr.includes('/')) {
+          const partes = vencimentoStr.split('/');
+          if (partes.length === 3) vencimentoValido = `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`;
+        }
+        const estaVencida = !pago && vencimentoValido && (vencimentoValido < hojeStr);
+
+        let badgeStatus = '';
+        if (pago) {
+          badgeStatus = '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">🟢 PAGO</span>';
+        } else if (estaVencida) {
+          badgeStatus = '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">🔴 EM ATRASO</span>';
+        } else {
+          badgeStatus = '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">⏳ PENDENTE</span>';
+        }
 
         const badgeParcela = `<span class="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono font-bold">Parcela ${numParc} de ${totParc}</span>`;
         const badgeUltima = ehUltimaPendente ? '<span class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">⚠️ Última Pendente</span>' : '';
         const badgeQuitadoTotal = contratoQuitado ? '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-500/50 font-extrabold animate-pulse">🎉 CONTRATO TOTALMENTE QUITADO (100% PAGO)</span>' : '';
 
         return `
-          <div class="p-3.5 rounded-xl exec-card flex items-center justify-between text-xs border-l-4 ${pago ? 'border-emerald-500' : (ehUltimaPendente ? 'border-amber-400' : 'border-indigo-400')} ${contratoQuitado ? 'bg-emerald-950/20 border-emerald-500' : ''}">
+          <div class="p-3.5 rounded-xl exec-card flex items-center justify-between text-xs border-l-4 ${pago ? 'border-emerald-500' : (estaVencida ? 'border-rose-500' : (ehUltimaPendente ? 'border-amber-400' : 'border-indigo-400'))} ${contratoQuitado ? 'bg-emerald-950/20 border-emerald-500' : ''}">
             <div class="space-y-1">
               <div class="flex items-center space-x-2 flex-wrap gap-y-1">
                 <span class="font-bold text-white text-sm">${escaparHtmlTexto(p.clienteNome || 'Cliente')}</span>
