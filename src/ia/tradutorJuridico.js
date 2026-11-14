@@ -180,6 +180,40 @@ INSTRUÇÕES OBRIGATÓRIAS:
 4. Explique apenas o que o andamento significa na prática para o cliente e que a equipe jurídica está atenta aos próximos passos.`;
 
 /**
+ * Sanitizador determinístico pós-geração com Guardrails OAB (Provimento 205/2021)
+ * Enforce: máximo 3 frases curtas e remoção/substituição de promessas de vitória,
+ * prazos garantidos ou valores monetários líquidos e certos.
+ *
+ * @param {string} texto
+ * @returns {string}
+ */
+function sanitizarConformidadeOAB(texto) {
+    if (!texto || typeof texto !== 'string') return '';
+    let s = texto.trim();
+
+    // 1. Substitui promessas de vitória garantida / ganho de causa
+    s = s.replace(/\b(vit[oó]ria\s+(garantida|certa)|ganho\s+de\s+causa\s+garantido|certeza\s+de\s+vit[oó]ria|100%\s+de\s+chance|causa\s+ganha|garantimos\s+(o\s+resultado|a\s+vit[oó]ria))\b/gi, 'atuação jurídica diligente nos autos');
+
+    // 2. Substitui promessas de prazos de sentença / alvará / liberação
+    s = s.replace(/\b(o\s+juiz\s+vai\s+assinar\s+em|prazo\s+garantido\s+de|dinheiro\s+na\s+conta\s+em\s+\d+\s+dias|alvar[aá]\s+liberado\s+em\s+\d+\s+dias|certeza\s+de\s+libera[cç][aã]o\s+em)\b/gi, 'acompanhamento processual contínuo');
+
+    // 3. Substitui promessas de valores líquidos certos / garantidos
+    s = s.replace(/\b(valor\s+garantido\s+de|quantia\s+certa\s+a\s+receber\s+de|recebimento\s+certo\s+de)\b/gi, 'valor pleiteado em juízo');
+
+    // 4. Divide em frases preservando abreviações forenses comuns (art., fls., etc.)
+    const protegido = s.replace(/\b(art|fls|fl|n[ºo]|dra?|sra?|prof|etc)\.\s*/gi, m => m.replace('.', '___DOT___'));
+    const partes = protegido
+        .split(/(?<=[.!?])\s+/)
+        .map(f => f.replace(/___DOT___/g, '.').trim())
+        .filter(Boolean);
+
+    if (partes.length > 3) {
+        s = partes.slice(0, 3).join(' ');
+    }
+    return s.trim();
+}
+
+/**
  * Traduz um andamento jurídico usando a API Gemini 1.5 Flash com Cache MD5 e Fallback Instantâneo (< 2.8s).
  *
  * @param {string} textoAndamento - Texto bruto do andamento/resumo do processo
@@ -300,7 +334,7 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
         const textoGerado = parts.map(p => p.text || '').filter(Boolean).join('\n').trim();
 
         if (textoGerado) {
-            const traducaoFinal = textoGerado;
+            const traducaoFinal = modoBruto ? textoGerado : sanitizarConformidadeOAB(textoGerado);
 
             // Salva no cache em memória
             cacheEmMemoria.set(hash, traducaoFinal);
@@ -1153,5 +1187,6 @@ module.exports = {
     obterEstatisticasCache,
     limparCacheMemoria,
     SYSTEM_INSTRUCTION_OAB,
+    sanitizarConformidadeOAB,
     obterApiKeyAtiva
 };

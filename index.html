@@ -774,6 +774,17 @@
       border-top: 8px solid transparent;
     }
 
+  
+    /* Elevação de contraste WCAG AA para textos secundários e microlegendas */
+    body:not(.theme-light) .text-zinc-500 {
+      color: #94a3b8 !important; /* slate-400 com ratio > 4.5:1 sobre zinc-950 */
+    }
+    .text-\[9px\] {
+      font-size: 10px !important;
+    }
+    .text-\[8\.5px\] {
+      font-size: 10px !important;
+    }
   </style>
 
   <!-- SISTEMA DE NAVEGAÇÃO LATERAL RETRÁTIL (ICON-RAIL ESTILO CURSOR / VS CODE / LINEAR) -->
@@ -1849,7 +1860,7 @@
 
       <!-- CONTEÚDO PRINCIPAL COM RESPIRO PERFEITO -->
       <main id="main-content-area" class="flex-1 px-6 sm:px-8 pt-6 sm:pt-7 pb-28 overflow-y-auto">
-      <div class="w-full max-w-7xl mx-auto space-y-6">
+      <div class="w-full max-w-7xl 2xl:max-w-[1800px] mx-auto space-y-6">
         
         <!-- ================= ABA 0: VISÃO GERAL (NOVO COCKPIT EXECUTIVO) ================= -->
                 <div id="aba-inicio" class="space-y-6 tab-pane-anim pt-2 sm:pt-3">
@@ -1924,7 +1935,11 @@
               <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
               <div class="flex items-center justify-between mb-3">
                 <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Mensagens do Robô</span>
+<<<<<<< HEAD
                 <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 group-hover:scale-105 transition-transform duration-250 ease-out shrink-0 shadow-sm">
+=======
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 transition-all duration-200 shrink-0 shadow-sm">
+>>>>>>> origin/main
                   <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
                 </div>
               </div>
@@ -2173,7 +2188,7 @@
           <!-- MASTER-DETAIL 2-COLUMN LAYOUT -->
           <div class="proc-stagger-4 grid grid-cols-12 gap-6 items-start">
             <!-- COLUNA ESQUERDA: LISTA UNIFICADA DE CLIENTES & PROCESSOS (5 cols) -->
-            <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col min-h-[580px] max-h-[760px] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+            <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col min-h-[520px] max-h-[calc(100vh-200px)] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
               <div class="mb-3">
                 <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
@@ -2207,7 +2222,7 @@
             </div>
 
             <!-- COLUNA DIREITA: MASTER-DETAIL CENTRALIZADO (PROCESSOS & DOSSIÊ CIVIL) (7 cols) -->
-            <div id="box-form-processo" class="col-span-12 lg:col-span-7 exec-card rounded-3xl p-6 flex flex-col justify-between min-h-[580px] max-h-[760px] overflow-y-auto border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+            <div id="box-form-processo" class="col-span-12 lg:col-span-7 exec-card rounded-3xl p-6 flex flex-col justify-between min-h-[520px] max-h-[calc(100vh-200px)] overflow-y-auto border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
               <div class="space-y-4">
                 <!-- Cabeçalho do Cliente -->
                 <div class="flex flex-wrap items-center justify-between border-b border-zinc-800/80 pb-3.5 gap-2">
@@ -3055,7 +3070,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
 
             <!-- Box do Ledger -->
-            <div id="logs-box" class="h-[480px] rounded-2xl p-4 overflow-y-auto space-y-2.5 bg-zinc-950/80 border border-zinc-800/90 font-mono text-xs relative backdrop-blur-sm shadow-inner">
+            <div id="logs-box" class="h-[480px] max-h-[calc(100vh-250px)] rounded-2xl p-4 overflow-y-auto space-y-2.5 bg-zinc-950/80 border border-zinc-800/90 font-mono text-xs relative backdrop-blur-sm shadow-inner">
               <div id="logs-box-empty" class="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
                 <div class="w-14 h-14 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-center text-zinc-500 shadow-inner">
                   <svg class="w-7 h-7 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -3534,26 +3549,26 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
               <!-- KPI 3: Total a Receber Geral -->
               <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent opacity-40"></div>
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-40"></div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400">Total a Receber Geral</span>
-                  <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-300 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Total a Receber Geral</span>
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
                 </div>
-                <div id="kpi-total-a-receber" class="text-2xl sm:text-3xl font-extrabold text-sky-200 font-mono tabular-nums tracking-tight">R$ 0,00</div>
-                <span id="kpi-qtd-pendentes" class="text-[10px] text-sky-300/80 font-medium block mt-1.5 font-mono">
+                <div id="kpi-total-a-receber" class="text-2xl sm:text-3xl font-extrabold text-amber-200 font-mono tabular-nums tracking-tight">R$ 0,00</div>
+                <span id="kpi-qtd-pendentes" class="text-[10px] text-amber-400/80 font-medium block mt-1.5 font-mono">
                   0 parcelas pendentes
                 </span>
               </div>
 
               <!-- KPI 4: Total Já Arrecadado / Quitado -->
               <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-40"></div>
+                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-40"></div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400">Total Arrecadado / Quitado</span>
-                  <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Total Arrecadado / Quitado</span>
+                  <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
                 </div>
-                <div id="kpi-total-arrecadado" class="text-2xl sm:text-3xl font-extrabold text-purple-300 font-mono tabular-nums tracking-tight">R$ 0,00</div>
-                <span id="kpi-contratos-quitados" class="text-[10px] text-purple-400/80 font-medium block mt-1.5 font-mono">
+                <div id="kpi-total-arrecadado" class="text-2xl sm:text-3xl font-extrabold text-emerald-300 font-mono tabular-nums tracking-tight">R$ 0,00</div>
+                <span id="kpi-contratos-quitados" class="text-[10px] text-emerald-400/80 font-medium block mt-1.5 font-mono">
                   0 contratos 100% quitados
                 </span>
               </div>
