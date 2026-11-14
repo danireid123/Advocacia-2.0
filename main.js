@@ -463,9 +463,21 @@ function isForaDeExpediente(config) {
         const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
         const confDia = agenda[diaSemana];
         if (!confDia || !confDia.ativo) return true;
+        if (confDia.plantao24h) return false;
+
         const minAbertura = converterHoraParaMinutos(confDia.abertura || '08:00');
         const minFechamento = converterHoraParaMinutos(confDia.fechamento || '18:00');
-        if (minutosAgora < minAbertura || minutosAgora >= minFechamento) return true;
+
+        let dentroDoHorario = false;
+        if (minAbertura <= minFechamento) {
+            dentroDoHorario = (minutosAgora >= minAbertura && minutosAgora < minFechamento);
+        } else {
+            // Turno noturno / plantão criminal que atravessa a meia-noite (ex: 18:00 às 08:00)
+            dentroDoHorario = (minutosAgora >= minAbertura || minutosAgora < minFechamento);
+        }
+
+        if (!dentroDoHorario) return true;
+
         if (agenda.almoco_ativo) {
             const minAlmocoIni = converterHoraParaMinutos(agenda.almoco_inicio || '12:00');
             const minAlmocoFim = converterHoraParaMinutos(agenda.almoco_fim || '13:30');
@@ -510,10 +522,21 @@ function obterPrefixoHorario(config, remetenteChave) {
             return (agenda.msg_fora_expediente || '').trim() + '\n\n';
         }
 
+        if (confDia.plantao24h) {
+            return '';
+        }
+
         const minAbertura = converterHoraParaMinutos(confDia.abertura || '08:00');
         const minFechamento = converterHoraParaMinutos(confDia.fechamento || '18:00');
 
-        if (minutosAgora < minAbertura || minutosAgora >= minFechamento) {
+        let dentroDoHorario = false;
+        if (minAbertura <= minFechamento) {
+            dentroDoHorario = (minutosAgora >= minAbertura && minutosAgora < minFechamento);
+        } else {
+            dentroDoHorario = (minutosAgora >= minAbertura || minutosAgora < minFechamento);
+        }
+
+        if (!dentroDoHorario) {
             registrarAviso();
             return (agenda.msg_fora_expediente || '').trim() + '\n\n';
         }
