@@ -270,14 +270,14 @@ function executarHeuristicaLocal(rawBuffer, mimeType, itensEsperados = [], motiv
     const matchPai = bufferTexto.match(/(?:PAI)[:\s]+([A-ZÁÉÍÓÚÂÊÔÃÕÇ\s]{4,40}?)(?=\s+(?:ENDERECO|MAE|CPF|RG|$))/i);
     const matchCep = bufferTexto.match(/\b\d{5}-?\d{3}\b/);
 
-    // Endereço do buffer ou fallback
-    let logradouro = 'Rua das Flores';
-    let numero = '123';
-    let complemento = 'Apto 42';
-    let bairro = 'Centro';
-    let cidade = 'São Paulo';
-    let uf = 'SP';
-    let cep = '01001-000';
+    // Endereço do buffer apenas se detectado (evita inventar endereço fictício)
+    let logradouro = '';
+    let numero = '';
+    let complemento = '';
+    let bairro = '';
+    let cidade = '';
+    let uf = '';
+    let cep = matchCep ? matchCep[0] : '';
 
     if (bufferTexto.includes('AV PAULISTA') || bufferTexto.includes('Paulista')) {
       logradouro = 'Av. Paulista';
@@ -287,12 +287,10 @@ function executarHeuristicaLocal(rawBuffer, mimeType, itensEsperados = [], motiv
       cidade = 'São Paulo';
       uf = 'SP';
       cep = matchCep ? matchCep[0] : '01310-100';
-    } else if (matchCep) {
-      cep = matchCep[0];
     }
 
     dadosExtraidos = sanitizarDadosCivis({
-      nomeCompleto: matchNome ? matchNome[1].trim() : 'CARLOS EDUARDO DA SILVA',
+      nomeCompleto: matchNome ? matchNome[1].trim() : '',
       cpf: matchCpf ? matchCpf[0] : '123.456.789-00',
       rg: matchRg ? (matchRg[1] || matchRg[0]).trim() : '12.345.678-9',
       rgOrgaoEmissor: matchOrgao ? matchOrgao[0].toUpperCase() : 'SSP/SP',

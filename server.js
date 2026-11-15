@@ -22,7 +22,9 @@ const qrcode = require('qrcode');
 const {
     traduzirAndamentoParaCliente,
     processarAudioECopilot,
-    analisarUrgenciaECronologia
+    analisarUrgenciaECronologia,
+    isMensagemCritica,
+    obterApiKeyAtiva
 } = require('./src/ia/tradutorJuridico');
 const { criarConfigPadraoV2, migrarConfigV1ParaV2 } = require('./migracao');
 
@@ -356,7 +358,7 @@ async function anexarMensagemOuAudioAoPausado(chave, { novaMsg = null, novoAudio
     const textoConsolidado = linhasConsolidadas.join('\n');
     try {
         const cfg = carregarConfig();
-        const apiKey = (contexto && contexto.apiKey) || cfg.gemini_api_key || process.env.GEMINI_API_KEY;
+        const apiKey = (contexto && contexto.apiKey) || obterApiKeyAtiva(undefined, cfg) || undefined;
         const analise = await analisarUrgenciaECronologia(textoConsolidado, {
             apiKey,
             nome: item.nome,
@@ -419,7 +421,7 @@ async function processarMensagemEntrada(msg) {
                     const bufferMidia = Buffer.from(media.data, 'base64');
                     const mimeType = media.mimetype || 'image/jpeg';
                     const nomeArquivo = media.filename || `midia_${Date.now()}.${mimeType.includes('pdf') ? 'pdf' : 'jpg'}`;
-                    const apiKey = config.gemini_api_key || process.env.GEMINI_API_KEY;
+                    const apiKey = obterApiKeyAtiva(undefined, config) || undefined;
                     const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
                     const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
 
@@ -487,7 +489,7 @@ async function processarMensagemEntrada(msg) {
                     const mimeType = media.mimetype || 'audio/ogg';
                     const resAudio = await processarAudioECopilot(audioBase64, mimeType, {
                         telefone: remetenteChave,
-                        apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY
+                        apiKey: obterApiKeyAtiva(undefined, config) || undefined
                     });
 
                     dadosAudiosPorContato[remetenteChave] = {
@@ -526,7 +528,7 @@ async function processarMensagemEntrada(msg) {
             await anexarMensagemOuAudioAoPausado(remetenteChave, {
                 novaMsg,
                 novoAudio,
-                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
+                contexto: { apiKey: obterApiKeyAtiva(undefined, config) || undefined }
             });
             console.log(`[Server] Mensagem/áudio cumulativo anexado ao contato pausado ${remetenteChave}`);
             return false;
@@ -567,7 +569,7 @@ async function processarMensagemEntrada(msg) {
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
                 sugestoesResposta: audioSalvo.sugestoesResposta || null,
-                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                nivelUrgencia: opcoesExtras.nivelUrgencia || audioSalvo.nivelUrgencia || 'ROTINA',
                 motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
                 cronologiaFatos: audioSalvo.cronologiaFatos || [],
                 acoes: acoesItem,
@@ -621,6 +623,16 @@ async function processarMensagemEntrada(msg) {
                 await colocarNaFilaHumana(tpls.msg_chamar_advogado_pos_proc || "👨‍⚖️ Um advogado da nossa equipe já foi avisado e já está chegando.");
                 return true;
             }
+        }
+
+        // 3.5. Interceptação imediata de emergência crítica (padrão + palavras personalizadas)
+        if (isMensagemCritica(textoOriginal, config)) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",
+                "Emergência: " + textoOriginal,
+                { nivelUrgencia: 'CRITICA' }
+            );
+            return true;
         }
 
         // 4. Verificação de palavras-chave para transbordo
@@ -1034,8 +1046,9 @@ const server = http.createServer(async (req, res) => {
 });
 
 // Sistema Keep-Alive Anti-Sleep para Render Free Tier (evita suspensão após 15 min de inatividade)
-const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || 'https://advocacia-2-0.onrender.com';
+const RENDER_EXTERNAL_URL = (process.env.RENDER_EXTERNAL_URL || '').trim();
 function iniciarKeepAliveAntiSleep() {
+    if (!RENDER_EXTERNAL_URL) return;
     console.log(`[Keep-Alive Anti-Sleep] Ativado para o endpoint público: ${RENDER_EXTERNAL_URL}/health`);
     // Ping a cada 10 minutos (Render dorme com 15 min de inatividade)
     setInterval(() => {

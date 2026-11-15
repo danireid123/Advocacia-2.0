@@ -13,7 +13,7 @@ function criarConfigPadraoV2() {
     const msgPadraoDocs = "⚖️ *Solicitação de Documentos — {preset}*\n\nOlá, *{nome}*! Para darmos andamento imediato à abertura da sua pasta e elaboração da peça jurídica, por gentileza envie por aqui as fotos legíveis ou PDFs dos seguintes documentos:\n\n{documentos}\n\n💡 *Dica:* Tire as fotos em local iluminado, sem cortar as bordas. Nossa Inteligência Artificial conferirá cada documento automaticamente assim que você enviar!";
 
     return {
-        versao_config: "2.0.0-alpha.1",
+        versao_config: "2.0.0",
         versao_schema: 2,
         iniciar_com_windows: true,
         primeiraConexaoTimestamp: 0,
@@ -74,9 +74,9 @@ function criarConfigPadraoV2() {
         dossiesClientes: {},
         onboardingSessoes: {},
         configuracaoCobranca: {
-            chavePix: "pix@escritorio.adv.br",
-            tipoChave: "E-MAIL",
-            beneficiario: "Advocacia Studio Pro",
+            chavePix: "",
+            tipoChave: "CNPJ",
+            beneficiario: "Escritório de Advocacia",
             frequenciaSemanal: 2,
             diasDaSemana: ["TERCA", "QUINTA"],
             horarioEnvio: "09:30",

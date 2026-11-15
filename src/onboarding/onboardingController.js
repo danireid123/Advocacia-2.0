@@ -48,11 +48,12 @@ const PRESETS_ONBOARDING = {
     Familia: {
         id: 'Familia',
         rotulo: '👨‍👩‍👧 Direito de Família & Sucessões',
-        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CERTIDAO'],
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CERTIDAO', 'COMPROVANTE_RENDA'],
         descricoes: [
             'RG ou CNH (frente e verso nítidos)',
             'Comprovante de Residência atualizado',
-            'Certidão de Casamento ou Nascimento dos envolvidos'
+            'Certidão de Casamento ou Nascimento dos envolvidos',
+            'Comprovante de Renda atualizado (holerite, extrato ou IR)'
         ]
     },
     Geral: {
@@ -471,7 +472,27 @@ function consolidarDossie(clienteTelefone, config = {}) {
 
 function obterDossies(config = {}) {
     garantirEstruturaOnboarding(config);
-    return config.dossiesClientes;
+    const mapa = { ...(config.dossiesClientes || {}) };
+    const sessoes = config.onboardingSessoes || {};
+    for (const [tel, sess] of Object.entries(sessoes)) {
+        if (!sess || typeof sess !== 'object') continue;
+        if (!mapa[tel] && (Array.isArray(sess.documentosRecebidos) && sess.documentosRecebidos.length > 0)) {
+            mapa[tel] = {
+                id: tel,
+                clienteTelefone: tel,
+                telefone: tel,
+                clienteNome: sess.clienteNome || 'Cliente (Envio Parcial)',
+                nome: sess.clienteNome || 'Cliente (Envio Parcial)',
+                area: sess.preset || 'Geral',
+                status: sess.estado || sess.status || 'DOCS_PARCIAIS',
+                civil: sess.qualificacaoAcumulada || {},
+                qualificacao: sess.qualificacaoAcumulada || {},
+                documentos: sess.documentosRecebidos,
+                atualizadoEm: sess.atualizadoEm || new Date().toISOString()
+            };
+        }
+    }
+    return mapa;
 }
 
 module.exports = {
