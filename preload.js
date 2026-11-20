@@ -26,6 +26,7 @@ const apiBridge = {
     obterConfig: () => ipcRenderer.invoke('obter-config'),
     carregarConfig: () => ipcRenderer.invoke('obter-config'),
     salvarConfig: (cfg) => ipcRenderer.invoke('salvar-config', cfg),
+    restaurarBackupCompleto: (cfg) => ipcRenderer.invoke('restaurar-backup-completo', cfg),
     obterVersaoApp: () => ipcRenderer.invoke('obter-versao-app'),
     obterEstadoConexao: () => ipcRenderer.invoke('obter-estado-conexao'),
     reiniciarBot: () => ipcRenderer.invoke('reiniciar-bot'),
