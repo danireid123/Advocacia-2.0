@@ -271,26 +271,7 @@
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .sidebar-tab-active {
-      background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.04) 100%) !important;
-      border: 1px solid rgba(212, 175, 55, 0.4) !important;
-      color: #fef08a !important;
-      box-shadow: 0 0 20px -4px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
       transform: scale(1.01);
-    }
-    .sidebar-tab-active svg {
-      color: #fbbf24 !important;
-      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.45));
-    }
-    .sidebar-tab-active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 15%;
-      height: 70%;
-      width: 3px;
-      border-radius: 9999px;
-      background: linear-gradient(180deg, #facc15 0%, #d4af37 100%);
-      box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
     }
     .sidebar-tab-inactive {
       color: #a1a1aa !important;
@@ -632,131 +613,191 @@
       margin: 2px auto;
       border-radius: 12px;
     }
-    .sidebar-rail-btn:hover {
-      background: rgba(39, 39, 42, 0.65);
-      color: #f4f4f5;
-      border-color: rgba(63, 63, 70, 0.4);
-    }
-    .sidebar-rail-btn.active,
-    .sidebar-rail-btn.sidebar-tab-active {
-      background: rgba(212, 175, 55, 0.12) !important;
-      border: 1px solid rgba(212, 175, 55, 0.35) !important;
-      color: #fef08a !important;
-      box-shadow: 0 2px 10px -2px rgba(212, 175, 55, 0.2) !important;
-    }
-    .sidebar-rail-btn.active .sidebar-btn-icon,
-    .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
-      color: #fbbf24 !important;
-      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.4));
-    }
-    .sidebar-rail-btn.active::before,
-    .sidebar-rail-btn.sidebar-tab-active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 20%;
-      height: 60%;
-      width: 3px;
-      border-radius: 0 3px 3px 0;
-      background: #f59e0b;
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    /* =========================================================================
+       SISTEMA DE CORES CONSISTENTE POR GRUPO DA SIDEBAR (HOVER & ATIVO EM PARIDADE)
+       ========================================================================= */
+    .sidebar-rail-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Cores Temáticas Vivas & Harmoniosas por Categoria da Sidebar */
+    /* 1. GRUPO OPERAÇÃO (Âmbar / Ouro Executivo) */
     .sidebar-group-operacao .sidebar-rail-btn .sidebar-btn-icon {
-      color: rgba(245, 158, 11, 0.75);
+      color: rgba(245, 158, 11, 0.85);
+      transition: all 0.2s ease;
+    }
+    .sidebar-group-operacao .sidebar-rail-btn:hover {
+      background: rgba(245, 158, 11, 0.12) !important;
+      border-color: rgba(245, 158, 11, 0.35) !important;
     }
     .sidebar-group-operacao .sidebar-rail-btn:hover .sidebar-btn-icon {
-      color: #fbbf24;
+      color: #fbbf24 !important;
+      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.55));
+    }
+    .sidebar-group-operacao .sidebar-rail-btn:hover .sidebar-btn-label {
+      color: #fef08a !important;
     }
     .sidebar-group-operacao .sidebar-rail-btn.active,
     .sidebar-group-operacao .sidebar-rail-btn.sidebar-tab-active {
-      background: rgba(245, 158, 11, 0.14) !important;
-      border: 1px solid rgba(245, 158, 11, 0.4) !important;
+      background: rgba(245, 158, 11, 0.18) !important;
+      border-color: rgba(245, 158, 11, 0.55) !important;
       color: #fef08a !important;
-      box-shadow: 0 2px 12px -2px rgba(245, 158, 11, 0.28) !important;
+      box-shadow: 0 2px 14px -2px rgba(245, 158, 11, 0.35) !important;
     }
     .sidebar-group-operacao .sidebar-rail-btn.active .sidebar-btn-icon,
     .sidebar-group-operacao .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
       color: #fbbf24 !important;
-      filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
+      filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.65));
     }
     .sidebar-group-operacao .sidebar-rail-btn.active::before,
     .sidebar-group-operacao .sidebar-rail-btn.sidebar-tab-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 18%;
+      height: 64%;
+      width: 3.5px;
+      border-radius: 0 3px 3px 0;
       background: #f59e0b;
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.85);
     }
 
+    /* 2. GRUPO AUTOMAÇÃO (Verde Esmeralda WhatsApp) */
     .sidebar-group-automacao .sidebar-rail-btn .sidebar-btn-icon {
-      color: rgba(16, 185, 129, 0.78);
+      color: rgba(16, 185, 129, 0.85);
+      transition: all 0.2s ease;
+    }
+    .sidebar-group-automacao .sidebar-rail-btn:hover {
+      background: rgba(16, 185, 129, 0.12) !important;
+      border-color: rgba(16, 185, 129, 0.35) !important;
     }
     .sidebar-group-automacao .sidebar-rail-btn:hover .sidebar-btn-icon {
-      color: #34d399;
+      color: #34d399 !important;
+      filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.55));
+    }
+    .sidebar-group-automacao .sidebar-rail-btn:hover .sidebar-btn-label {
+      color: #a7f3d0 !important;
     }
     .sidebar-group-automacao .sidebar-rail-btn.active,
     .sidebar-group-automacao .sidebar-rail-btn.sidebar-tab-active {
-      background: rgba(16, 185, 129, 0.14) !important;
-      border: 1px solid rgba(16, 185, 129, 0.4) !important;
+      background: rgba(16, 185, 129, 0.18) !important;
+      border-color: rgba(16, 185, 129, 0.55) !important;
       color: #a7f3d0 !important;
-      box-shadow: 0 2px 12px -2px rgba(16, 185, 129, 0.28) !important;
+      box-shadow: 0 2px 14px -2px rgba(16, 185, 129, 0.35) !important;
     }
     .sidebar-group-automacao .sidebar-rail-btn.active .sidebar-btn-icon,
     .sidebar-group-automacao .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
       color: #34d399 !important;
-      filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.5));
+      filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.65));
     }
     .sidebar-group-automacao .sidebar-rail-btn.active::before,
     .sidebar-group-automacao .sidebar-rail-btn.sidebar-tab-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 18%;
+      height: 64%;
+      width: 3.5px;
+      border-radius: 0 3px 3px 0;
       background: #10b981;
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.85);
     }
 
+    /* 3. GRUPO FINANCEIRO (Ciano / Azul Céu Executivo) */
+    .sidebar-group-financeiro .sidebar-rail-btn .sidebar-btn-icon,
     .sidebar-group-controladoria .sidebar-rail-btn .sidebar-btn-icon {
-      color: rgba(56, 189, 248, 0.78);
+      color: rgba(14, 165, 233, 0.85);
+      transition: all 0.2s ease;
     }
+    .sidebar-group-financeiro .sidebar-rail-btn:hover,
+    .sidebar-group-controladoria .sidebar-rail-btn:hover {
+      background: rgba(14, 165, 233, 0.12) !important;
+      border-color: rgba(14, 165, 233, 0.35) !important;
+    }
+    .sidebar-group-financeiro .sidebar-rail-btn:hover .sidebar-btn-icon,
     .sidebar-group-controladoria .sidebar-rail-btn:hover .sidebar-btn-icon {
-      color: #38bdf8;
+      color: #38bdf8 !important;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
     }
+    .sidebar-group-financeiro .sidebar-rail-btn:hover .sidebar-btn-label,
+    .sidebar-group-controladoria .sidebar-rail-btn:hover .sidebar-btn-label {
+      color: #bae6fd !important;
+    }
+    .sidebar-group-financeiro .sidebar-rail-btn.active,
+    .sidebar-group-financeiro .sidebar-rail-btn.sidebar-tab-active,
     .sidebar-group-controladoria .sidebar-rail-btn.active,
     .sidebar-group-controladoria .sidebar-rail-btn.sidebar-tab-active {
-      background: rgba(14, 165, 233, 0.14) !important;
-      border: 1px solid rgba(14, 165, 233, 0.4) !important;
+      background: rgba(14, 165, 233, 0.18) !important;
+      border-color: rgba(14, 165, 233, 0.55) !important;
       color: #bae6fd !important;
-      box-shadow: 0 2px 12px -2px rgba(14, 165, 233, 0.28) !important;
+      box-shadow: 0 2px 14px -2px rgba(14, 165, 233, 0.35) !important;
     }
+    .sidebar-group-financeiro .sidebar-rail-btn.active .sidebar-btn-icon,
+    .sidebar-group-financeiro .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon,
     .sidebar-group-controladoria .sidebar-rail-btn.active .sidebar-btn-icon,
     .sidebar-group-controladoria .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
       color: #38bdf8 !important;
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.5));
+      filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.65));
     }
+    .sidebar-group-financeiro .sidebar-rail-btn.active::before,
+    .sidebar-group-financeiro .sidebar-rail-btn.sidebar-tab-active::before,
     .sidebar-group-controladoria .sidebar-rail-btn.active::before,
     .sidebar-group-controladoria .sidebar-rail-btn.sidebar-tab-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 18%;
+      height: 64%;
+      width: 3.5px;
+      border-radius: 0 3px 3px 0;
       background: #0ea5e9;
-      box-shadow: 0 0 8px rgba(14, 165, 233, 0.7);
+      box-shadow: 0 0 8px rgba(14, 165, 233, 0.85);
     }
 
+    /* 4. GRUPO SISTEMA & SEGURANÇA (Violeta Tecnológico / Roxo Real) */
     .sidebar-group-sistema .sidebar-rail-btn .sidebar-btn-icon {
-      color: rgba(161, 161, 170, 0.75);
+      color: rgba(167, 139, 250, 0.85);
+      transition: all 0.2s ease;
+    }
+    .sidebar-group-sistema .sidebar-rail-btn:hover {
+      background: rgba(139, 92, 246, 0.12) !important;
+      border-color: rgba(139, 92, 246, 0.35) !important;
     }
     .sidebar-group-sistema .sidebar-rail-btn:hover .sidebar-btn-icon {
-      color: #f4f4f5;
+      color: #c4b5fd !important;
+      filter: drop-shadow(0 0 6px rgba(196, 181, 253, 0.55));
+    }
+    .sidebar-group-sistema .sidebar-rail-btn:hover .sidebar-btn-label {
+      color: #ede9fe !important;
     }
     .sidebar-group-sistema .sidebar-rail-btn.active,
     .sidebar-group-sistema .sidebar-rail-btn.sidebar-tab-active {
-      background: rgba(255, 255, 255, 0.08) !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
-      color: #f4f4f5 !important;
-      box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.5) !important;
+      background: rgba(139, 92, 246, 0.18) !important;
+      border-color: rgba(139, 92, 246, 0.55) !important;
+      color: #ede9fe !important;
+      box-shadow: 0 2px 14px -2px rgba(139, 92, 246, 0.35) !important;
     }
     .sidebar-group-sistema .sidebar-rail-btn.active .sidebar-btn-icon,
     .sidebar-group-sistema .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon {
-      color: #f4f4f5 !important;
-      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+      color: #c4b5fd !important;
+      filter: drop-shadow(0 0 8px rgba(196, 181, 253, 0.65));
     }
     .sidebar-group-sistema .sidebar-rail-btn.active::before,
     .sidebar-group-sistema .sidebar-rail-btn.sidebar-tab-active::before {
-      background: #a1a1aa;
-      box-shadow: 0 0 8px rgba(161, 161, 170, 0.6);
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 18%;
+      height: 64%;
+      width: 3.5px;
+      border-radius: 0 3px 3px 0;
+      background: #8b5cf6;
+      box-shadow: 0 0 8px rgba(139, 92, 246, 0.85);
     }
 
     /* Ícone, Rótulo e Badges */
@@ -1590,70 +1631,14 @@
             <button type="button" id="nav-btn-processos" data-desc="Gestão unificada de clientes, processos judiciais e dossiê civil (Art. 319 CPC)" class="sidebar-rail-btn" title="Clientes & Processos">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
               <span class="sidebar-btn-label">Clientes & Processos</span>
-              <span id="badge-processos" class="sidebar-btn-badge bg-zinc-800 text-zinc-300 border border-zinc-700/60">0</span>
+              <span id="badge-processos" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
             </button>
 
             <!-- Fila do Advogado -->
             <button type="button" id="nav-btn-pausados" data-desc="Fila de atendimento de clientes no WhatsApp" class="sidebar-rail-btn" title="Fila do Advogado">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
               <span class="sidebar-btn-label">Fila do Advogado</span>
-              <span id="badge-pausados" class="sidebar-btn-badge bg-zinc-800 text-amber-400 border border-zinc-700/60">0</span>
-            </button>
-
-            <!-- Contatos Ignorados & Exceções VIP (Movido para Operação) -->
-            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Ignorados & VIP">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
-              <span class="sidebar-btn-label">Contatos Ignorados</span>
-              <span id="badge-ignorados" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">0</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="sidebar-divider"></div>
-
-        <!-- GRUPO 2: AUTOMAÇÃO (3 MÓDULOS) -->
-        <div class="sidebar-category-group sidebar-group-automacao">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Automação</span>
-          </div>
-
-          <div class="space-y-0.5">
-            <!-- Simulador WhatsApp -->
-            <button type="button" id="nav-btn-simulador" data-desc="Ambiente de teste das mensagens automáticas" class="sidebar-rail-btn" title="Simulador de Atendimento WhatsApp">
-              <div class="sidebar-btn-icon">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-              </div>
-              <span class="sidebar-btn-label">Simulador WhatsApp</span>
-              <span id="badge-simulador" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">Testes</span>
-            </button>
-
-            <!-- Menu Automático -->
-            <button type="button" id="nav-btn-fluxo" data-desc="Fluxos e opções de resposta automática" class="sidebar-rail-btn" title="Menu Automático">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
-              <span class="sidebar-btn-label">Menu Automático</span>
-            </button>
-
-            <!-- Alias mantido para compatibilidade e integridade de seletores DOM -->
-            <button type="button" id="nav-btn-dossie-clientes" class="hidden" title="Dossiê de Clientes">
-              <span id="badge-dossies" class="hidden">0</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="sidebar-divider"></div>
-
-        <!-- GRUPO 3: CONTROLADORIA (3 MÓDULOS) -->
-        <div class="sidebar-category-group sidebar-group-controladoria">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-500/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>Controladoria</span>
-          </div>
-
-          <div class="space-y-0.5">
-            <!-- Financeiro & PIX -->
-            <button type="button" id="nav-btn-financeiro" data-desc="Honorários, cobranças e conciliação PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m0-2c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-              <span class="sidebar-btn-label">Financeiro & PIX</span>
-              <span id="badge-financeiro" class="sidebar-btn-badge bg-zinc-800 text-zinc-400 border border-zinc-700/60">PIX</span>
+              <span id="badge-pausados" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
             </button>
 
             <!-- Histórico de Mensagens -->
@@ -1666,17 +1651,73 @@
 
         <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 4: SISTEMA (3 MÓDULOS) -->
-        <div class="sidebar-category-group sidebar-group-sistema">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>Sistema</span>
+        <!-- GRUPO 2: AUTOMAÇÃO WHATSAPP -->
+        <div class="sidebar-category-group sidebar-group-automacao">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Automação</span>
           </div>
 
           <div class="space-y-0.5">
+            <!-- Menu Automático -->
+            <button type="button" id="nav-btn-fluxo" data-desc="Fluxos e opções de resposta automática" class="sidebar-rail-btn" title="Menu Automático">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
+              <span class="sidebar-btn-label">Menu Automático</span>
+            </button>
+
+            <!-- Simulador WhatsApp -->
+            <button type="button" id="nav-btn-simulador" data-desc="Ambiente de teste das mensagens automáticas" class="sidebar-rail-btn" title="Simulador de Atendimento WhatsApp">
+              <div class="sidebar-btn-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              </div>
+              <span class="sidebar-btn-label">Simulador WhatsApp</span>
+              <span id="badge-simulador" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Testes</span>
+            </button>
+
             <!-- Horários & Almoço -->
             <button type="button" id="nav-btn-agenda" data-desc="Horários de funcionamento do escritório" class="sidebar-rail-btn" title="Horários & Almoço">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
               <span class="sidebar-btn-label">Horários & Almoço</span>
+            </button>
+
+            <!-- Alias mantido para compatibilidade e integridade de seletores DOM -->
+            <button type="button" id="nav-btn-dossie-clientes" class="hidden" title="Dossiê de Clientes">
+              <span id="badge-dossies" class="hidden">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- GRUPO 3: FINANCEIRO & COBRANÇA -->
+        <div class="sidebar-category-group sidebar-group-financeiro sidebar-group-controladoria">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>Financeiro</span>
+          </div>
+
+          <div class="space-y-0.5">
+            <!-- Financeiro & PIX -->
+            <button type="button" id="nav-btn-financeiro" data-desc="Honorários, cobranças e conciliação PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m0-2c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+              <span class="sidebar-btn-label">Financeiro & PIX</span>
+              <span id="badge-financeiro" class="sidebar-btn-badge bg-sky-500/10 text-sky-300 border border-sky-500/20">PIX</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- GRUPO 4: SISTEMA & SEGURANÇA -->
+        <div class="sidebar-category-group sidebar-group-sistema">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-purple-400/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Sistema</span>
+          </div>
+
+          <div class="space-y-0.5">
+            <!-- Contatos Bloqueados & VIPs -->
+            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Bloqueados & VIP">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
+              <span class="sidebar-btn-label">Contatos Bloqueados</span>
+              <span id="badge-ignorados" class="sidebar-btn-badge bg-purple-500/10 text-purple-300 border border-purple-500/20">0</span>
             </button>
 
             <!-- Cópia de Segurança (.JSON) -->
@@ -4999,7 +5040,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         return;
       }
 
-      const ordemAbas = ['inicio', 'processos', 'pausados', 'simulador', 'fluxo', 'dossie-clientes', 'financeiro', 'terminal', 'ignorados', 'agenda', 'backup', 'configuracoes'];
+      const ordemAbas = ['inicio', 'processos', 'pausados', 'terminal', 'fluxo', 'simulador', 'agenda', 'financeiro', 'ignorados', 'backup', 'configuracoes'];
       const abaAnterior = window.__abaAtivaAtual || 'inicio';
       const idxAnt = ordemAbas.indexOf(abaAnterior);
       const idxNov = ordemAbas.indexOf(abaNome);
