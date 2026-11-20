@@ -72,11 +72,23 @@ function garantirEstruturaFinanceira(config) {
             horarioEnvio: '09:30',
             delayMinimoSegundos: 15,
             delayMaximoSegundos: 30,
-            modoAprovacao: 'MANUAL_ADVOGADO'
+            modoAprovacao: 'MANUAL_ADVOGADO',
+            aplicarJurosMulta: true,
+            percentualMulta: 2.0,
+            percentualJurosMes: 1.0
         };
     }
     if (!Array.isArray(config.configuracaoCobranca.diasDaSemana)) {
         config.configuracaoCobranca.diasDaSemana = ['TERCA', 'QUINTA'];
+    }
+    if (config.configuracaoCobranca.aplicarJurosMulta === undefined) {
+        config.configuracaoCobranca.aplicarJurosMulta = true;
+    }
+    if (config.configuracaoCobranca.percentualMulta === undefined) {
+        config.configuracaoCobranca.percentualMulta = 2.0;
+    }
+    if (config.configuracaoCobranca.percentualJurosMes === undefined) {
+        config.configuracaoCobranca.percentualJurosMes = 1.0;
     }
     if (!config.financeiro || typeof config.financeiro !== 'object') {
         config.financeiro = {
@@ -128,25 +140,113 @@ function filtrarParcelasElegiveis(config, dataReferencia = null, ignorarDiaSeman
 }
 
 /**
- * Gera mensagem cordial e personalizada de cobrança com chave PIX Copia-e-Cola.
+ * Calcula os encargos de mora (multa e juros) para uma parcela com base no seu vencimento
+ * e nas configurações editáveis pelo usuário (percentualMulta e percentualJurosMes).
+ * 
+ * Regra legal (Art. 395 do Código Civil / CDC):
+ * - Multa moratória: percentual fixo aplicado sobre o valor principal quando atrasado (ex: 2.0%).
+ * - Juros de mora: percentual mensal calculado pro-rata die (ex: 1.0% / 30 dias por dia de atraso).
+ * 
+ * @param {Object} parcela - Objeto da parcela (valor, vencimento, etc)
+ * @param {Object} config - Configuração geral do escritório
+ * @param {Date|string} dataReferencia - Data para cálculo do atraso (default: agora)
+ * @returns {Object} Encargos calculados com transparência
  */
-function gerarMensagemCobrancaPix(parcela, config = {}) {
+function calcularEncargosParcela(parcela, config = {}, dataReferencia = null) {
+    garantirEstruturaFinanceira(config);
+    const p = parcela || {};
+    const cfgCob = config.configuracaoCobranca || {};
+
+    const valorOriginal = Number(p.valor || 0);
+    const aplicarEncargos = cfgCob.aplicarJurosMulta !== false;
+    const taxaMulta = Number(cfgCob.percentualMulta !== undefined ? cfgCob.percentualMulta : 2.0);
+    const taxaJurosMes = Number(cfgCob.percentualJurosMes !== undefined ? cfgCob.percentualJurosMes : 1.0);
+
+    const agora = dataReferencia ? new Date(dataReferencia) : new Date();
+    agora.setHours(23, 59, 59, 999);
+
+    let diasAtraso = 0;
+    let estaVencida = false;
+
+    if (p.vencimento) {
+        let dtVenc = null;
+        if (p.vencimento.includes('/')) {
+            const partes = p.vencimento.split('/');
+            if (partes.length === 3) {
+                dtVenc = new Date(parseInt(partes[2], 10), parseInt(partes[1], 10) - 1, parseInt(partes[0], 10), 23, 59, 59, 999);
+            }
+        } else if (p.vencimento.includes('-')) {
+            const partes = p.vencimento.split('-');
+            if (partes.length === 3) {
+                dtVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 23, 59, 59, 999);
+            }
+        }
+
+        if (dtVenc && !isNaN(dtVenc.getTime())) {
+            const diffMs = agora.getTime() - dtVenc.getTime();
+            if (diffMs > 0) {
+                diasAtraso = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                if (diasAtraso > 0) {
+                    estaVencida = true;
+                }
+            }
+        }
+    }
+
+    if (String(p.status || '').toUpperCase() === 'PAGO') {
+        estaVencida = false;
+    }
+
+    let valorMulta = 0;
+    let valorJuros = 0;
+
+    if (estaVencida && aplicarEncargos && valorOriginal > 0) {
+        valorMulta = Number(((valorOriginal * taxaMulta) / 100).toFixed(2));
+        const taxaDiaria = (taxaJurosMes / 30) / 100;
+        valorJuros = Number((valorOriginal * taxaDiaria * diasAtraso).toFixed(2));
+    }
+
+    const valorTotalAtualizado = Number((valorOriginal + valorMulta + valorJuros).toFixed(2));
+
+    return {
+        estaVencida,
+        diasAtraso,
+        valorOriginal,
+        valorMulta,
+        valorJuros,
+        valorTotalAtualizado,
+        taxaMulta,
+        taxaJurosMes,
+        aplicarEncargos
+    };
+}
+
+/**
+ * Gera mensagem cordial e personalizada de cobrança com chave PIX Copia-e-Cola,
+ * incorporando automaticamente encargos de mora editáveis se a parcela estiver vencida.
+ */
+function gerarMensagemCobrancaPix(parcela, config = {}, dataReferencia = null) {
     const p = parcela || {};
     const cfgCob = (config && config.configuracaoCobranca) ? config.configuracaoCobranca : {};
 
+    const encargos = calcularEncargosParcela(p, config, dataReferencia);
     const nomeCliente = (p.clienteNome || p.nome || 'Cliente').toString().trim();
-    const valorFormatado = formatarMoedaBR(p.valor);
     const vencimento = (p.vencimento || 'em aberto').toString().trim();
     const chavePix = (cfgCob.chavePix || '').toString().trim() || '[Chave PIX não configurada]';
     const tipoChave = (cfgCob.tipoChave || 'PIX').toString().trim();
     const beneficiario = (cfgCob.beneficiario || config?.nomeEscritorio || 'Escritório de Advocacia').toString().trim();
 
+    let linhaValor = `• 💰 *Valor:* R$ ${formatarMoedaBR(encargos.valorOriginal)}`;
+    if (encargos.estaVencida && (encargos.valorMulta > 0 || encargos.valorJuros > 0)) {
+        linhaValor = `• 💰 *Valor Atualizado:* R$ ${formatarMoedaBR(encargos.valorTotalAtualizado)} _(Principal: R$ ${formatarMoedaBR(encargos.valorOriginal)} + Multa: R$ ${formatarMoedaBR(encargos.valorMulta)} + Juros (${encargos.diasAtraso}d): R$ ${formatarMoedaBR(encargos.valorJuros)})_`;
+    }
+
     return (
         `⚖️ *Lembrete de Honorários — ${beneficiario}*\n\n` +
         `Olá, *${nomeCliente}*! Tudo bem?\n\n` +
         `Passando de forma cordial para lembrar da parcela referente aos seus honorários advocatícios:\n` +
-        `• 💰 *Valor:* R$ ${valorFormatado}\n` +
-        `• 📅 *Vencimento:* ${vencimento}\n\n` +
+        `${linhaValor}\n` +
+        `• 📅 *Vencimento:* ${vencimento}${encargos.estaVencida ? ` *(em atraso há ${encargos.diasAtraso} dia(s))*` : ''}\n\n` +
         `🔑 *Chave PIX Copia-e-Cola (${tipoChave}):*\n` +
         `${chavePix}\n\n` +
         `• 🏛️ *Beneficiário:* ${beneficiario}\n\n` +
@@ -261,9 +361,18 @@ function darBaixaParcela(parcelaId, config, dadosBaixa = {}) {
         };
     }
 
+    const dataPagamentoFinal = dadosBaixa.dataTransacao || dadosBaixa.dataPagamento || new Date().toISOString();
+    const encargos = calcularEncargosParcela(parcela, config, dataPagamentoFinal);
+    const valorOriginal = Number(parcela.valor || 0);
+    const valorSugerido = (encargos.estaVencida && encargos.aplicarEncargos) ? encargos.valorTotalAtualizado : valorOriginal;
+
     parcela.status = 'PAGO';
-    parcela.dataPagamento = dadosBaixa.dataTransacao || dadosBaixa.dataPagamento || new Date().toISOString();
-    parcela.valorPago = dadosBaixa.valorPago !== undefined ? Number(dadosBaixa.valorPago) : Number(parcela.valor || 0);
+    parcela.dataPagamento = dataPagamentoFinal;
+    parcela.valorPago = dadosBaixa.valorPago !== undefined ? Number(dadosBaixa.valorPago) : valorSugerido;
+    parcela.valorOriginal = valorOriginal;
+    parcela.valorMulta = (encargos.estaVencida && encargos.aplicarEncargos) ? encargos.valorMulta : 0;
+    parcela.valorJuros = (encargos.estaVencida && encargos.aplicarEncargos) ? encargos.valorJuros : 0;
+    parcela.diasAtrasoNaBaixa = encargos.diasAtraso;
     parcela.idTransacao = dadosBaixa.idTransacao || parcela.idTransacao || `BAIXA_${Date.now()}`;
     parcela.bancoOrigem = dadosBaixa.bancoOrigem || parcela.bancoOrigem || 'Manual / Confirmado';
     parcela.nomePagador = dadosBaixa.nomePagador || parcela.clienteNome || '';
@@ -666,11 +775,23 @@ function salvarConfiguracaoCobranca(novaConfigCobranca, config) {
     if (novaConfigCobranca && Array.isArray(novaConfigCobranca.diasDaSemana)) {
         config.configuracaoCobranca.diasDaSemana = novaConfigCobranca.diasDaSemana.map(normalizarDiaSemana);
     }
+    if (novaConfigCobranca) {
+        if (novaConfigCobranca.aplicarJurosMulta !== undefined) {
+            config.configuracaoCobranca.aplicarJurosMulta = Boolean(novaConfigCobranca.aplicarJurosMulta);
+        }
+        if (novaConfigCobranca.percentualMulta !== undefined) {
+            config.configuracaoCobranca.percentualMulta = Math.max(0, Number(novaConfigCobranca.percentualMulta) || 0);
+        }
+        if (novaConfigCobranca.percentualJurosMes !== undefined) {
+            config.configuracaoCobranca.percentualJurosMes = Math.max(0, Number(novaConfigCobranca.percentualJurosMes) || 0);
+        }
+    }
     return config.configuracaoCobranca;
 }
 
 module.exports = {
     filtrarParcelasElegiveis,
+    calcularEncargosParcela,
     gerarMensagemCobrancaPix,
     dispararReguaCobranca,
     darBaixaParcela,
