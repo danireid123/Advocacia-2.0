@@ -783,7 +783,7 @@ function sincronizarProcessoComDossie(novoProcesso, cfg) {
     cfg.dossiesClientes = {};
   }
 
-  const apenasNum = (v) => String(v || '').replace(/\\D/g, '');
+  const apenasNum = (v) => String(v || '').replace(/\D/g, '');
   const numProcesso = sanitizarNumeroProcesso(novoProcesso.numeroProcesso || novoProcesso.numero || '');
   const cpfFormatado = sanitizarCPF(novoProcesso.cpf || (novoProcesso.dadosCadastrais && novoProcesso.dadosCadastrais.cpf));
   const cpfLimpo = apenasNum(cpfFormatado);

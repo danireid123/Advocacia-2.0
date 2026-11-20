@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu } = require('electron');
 const path = require('path');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
@@ -135,18 +135,30 @@ function salvarContatosIgnorados(lista) {
     }
 }
 
+function normalizarTelefoneSimetricoBR(num) {
+    let d = String(num || '').replace(/\D/g, '');
+    if (d.length >= 12 && d.startsWith('55')) d = d.slice(2);
+    return d;
+}
+
 function isContactIgnored(fromNumber, ignoredList) {
-    const cleanNumber = String(fromNumber || '').replace(/\D/g, '');
+    const cleanNumber = normalizarTelefoneSimetricoBR(fromNumber);
     if (!cleanNumber) return false;
     const list = Array.isArray(ignoredList) ? ignoredList : carregarContatosIgnorados();
     if (!Array.isArray(list) || list.length === 0) return false;
     return list
         .map(item => {
             const itemNum = typeof item === 'object' && item !== null ? (item.numero || item.telefone || '') : item;
-            return String(itemNum || '').replace(/\D/g, '');
+            return normalizarTelefoneSimetricoBR(itemNum);
         })
         .filter(item => item.length >= 4) // ignora entradas vazias ou curtas
-        .some(item => cleanNumber.includes(item));
+        .some(item => {
+            if (cleanNumber === item) return true;
+            if (cleanNumber.length >= 8 && item.length >= 8 && cleanNumber.slice(-8) === item.slice(-8)) {
+                return cleanNumber.slice(0, 2) === item.slice(0, 2) || cleanNumber.length <= 9 || item.length <= 9;
+            }
+            return cleanNumber.includes(item) || item.includes(cleanNumber);
+        });
 }
 
 function obterIconeNativo() {
@@ -441,17 +453,17 @@ function atualizarStatusUI(novoStatus, detalheSubStatus = null) {
     }
 }
 
-function isMensagemCritica(texto) {
+function isMensagemCritica(texto, cfg = null) {
     if (!texto || typeof texto !== 'string') return false;
-    const txt = texto.toLowerCase();
-    const regexTermos = /\b(urgente|socorro|oficial\s+de\s+justi[cç]a|mandado|busca\s+e\s+apreens[aã]o|intima[cç][aã]o|liminar|\buti\b|audi[eê]ncia\s+hoje|bloquearam\s+minha\s+conta|sisbajud|bacenjud|plano\s+de\s+sa[uú]de\s+negou|\bpreso\b|despejo)\b/i;
-    if (regexTermos.test(txt)) return true;
+    const configAtiva = cfg || (typeof carregarConfig === 'function' ? carregarConfig() : null);
     try {
-        const { detectarUrgenciaECronologiaLocal } = require('./src/ia/tradutorJuridico');
-        const analise = detectarUrgenciaECronologiaLocal(texto);
-        if (analise && (analise.nivel === 'CRITICA' || analise.nivelUrgencia === 'CRITICA')) return true;
+        const { isMensagemCritica: isCriticaShared } = require('./src/ia/tradutorJuridico');
+        if (typeof isCriticaShared === 'function') {
+            return isCriticaShared(texto, configAtiva);
+        }
     } catch (_) {}
-    return false;
+    const regexTermos = /\b(urgente|socorro|delegacia|flagrante|oficial\s+de\s+justi[cç]a|mandado|busca\s+e\s+apreens[aã]o|intima[cç][aã]o|liminar|\buti\b|audi[eê]ncia\s+hoje|bloquearam\s+minha\s+conta|sisbajud|bacenjud|plano\s+de\s+sa[uú]de\s+negou|\bpreso\b|despejo)\b/i;
+    return regexTermos.test(texto.toLowerCase());
 }
 
 function isForaDeExpediente(config) {
@@ -484,6 +496,23 @@ function isForaDeExpediente(config) {
             if (minutosAgora >= minAlmocoIni && minutosAgora < minAlmocoFim) return true;
         }
         return false;
+    } catch (_) {
+        return false;
+    }
+}
+
+function estaEmHorarioAlmoco(config) {
+    try {
+        const agenda = config && config.agenda;
+        if (!agenda || !agenda.almoco_ativo) return false;
+        const agora = new Date();
+        const diaSemana = String(agora.getDay());
+        const confDia = agenda[diaSemana];
+        if (!confDia || !confDia.ativo) return false;
+        const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+        const minAlmocoIni = converterHoraParaMinutos(agenda.almoco_inicio || '12:00');
+        const minAlmocoFim = converterHoraParaMinutos(agenda.almoco_fim || '13:30');
+        return (minutosAgora >= minAlmocoIni && minutosAgora < minAlmocoFim);
     } catch (_) {
         return false;
     }
@@ -540,15 +569,6 @@ function obterPrefixoHorario(config, remetenteChave) {
             registrarAviso();
             return (agenda.msg_fora_expediente || '').trim() + '\n\n';
         }
-
-        if (agenda.almoco_ativo) {
-            const minAlmocoIni = converterHoraParaMinutos(agenda.almoco_inicio || '12:00');
-            const minAlmocoFim = converterHoraParaMinutos(agenda.almoco_fim || '13:30');
-            if (minutosAgora >= minAlmocoIni && minutosAgora < minAlmocoFim) {
-                registrarAviso();
-                return (agenda.msg_almoco || '').trim() + '\n\n';
-            }
-        }
     } catch (e) {}
     return '';
 }
@@ -566,12 +586,20 @@ async function enviarMensagemSegura(msgObj, chatId, texto) {
     }
 }
 
-function montarTextoEtapa(etapa) {
-    let txt = (etapa.mensagem || '') + "\n\n";
-    (etapa.opcoes || []).forEach(op => {
+function montarTextoEtapa(etapa, config = null, identidade = null) {
+    let txt = (etapa && etapa.mensagem ? etapa.mensagem : '') + "\n\n";
+    (etapa && etapa.opcoes ? etapa.opcoes : []).forEach(op => {
         txt += `*${op.gatilho}* - ${op.rotulo}\n`;
     });
-    return txt.trim();
+    const cfg = config || (typeof carregarConfig === 'function' ? carregarConfig() : null) || {};
+    const escritorio = (cfg.nomeEscritorio || (cfg.configuracaoCobranca && cfg.configuracaoCobranca.beneficiario) || 'Nosso Escritório').trim();
+    const nome = (identidade && (identidade.nomeCliente || identidade.nome)) ? String(identidade.nomeCliente || identidade.nome).trim() : 'Cliente';
+    const cpf = (identidade && identidade.cpf) ? String(identidade.cpf).trim() : '';
+    return txt
+        .replace(/\{escritorio\}/gi, escritorio)
+        .replace(/\{nome\}/gi, nome)
+        .replace(/\{cpf\}/gi, cpf)
+        .trim();
 }
 
 function buscarProcessoPorTelefoneCliente(config, tel) {
@@ -693,6 +721,7 @@ async function formatarMensagemProcesso(config, proc, remetenteChave) {
 
     const numeroExibicao = proc.numero || proc.numeroProcesso || proc.numeroProcessoFormatado || proc.processo || '-';
     const dataExibicao = proc.dataAtualizacaoTexto || proc.data || agoraTexto;
+    const nomeEscritorio = (config?.nomeEscritorio || config?.configuracaoCobranca?.beneficiario || '').trim() || 'Escritório de Advocacia';
 
     return String(modelo || '')
         .replace(/\{nome\}/g, proc.nome || 'Cliente')
@@ -700,7 +729,8 @@ async function formatarMensagemProcesso(config, proc, remetenteChave) {
         .replace(/\{processo\}/g, numeroExibicao)
         .replace(/\{resumo\}/g, resumoParaExibir)
         .replace(/\{data\}/g, dataExibicao)
-        .replace(/\{ultima_consulta\}/g, ultimaConsulta || agoraTexto);
+        .replace(/\{ultima_consulta\}/g, ultimaConsulta || agoraTexto)
+        .replace(/\{escritorio\}/g, nomeEscritorio);
 }
 
 const FRASES_TRANSBORDO_DIRETO = [
@@ -986,6 +1016,8 @@ async function processarMensagemEntrada(msg) {
                     nome: identidade.nomeCliente || '',
                     exibicao: identidade.exibicao,
                     msg: `[Fila Humana] ${textoOriginal}`,
+                    tipo: 'cliente',
+                    origem: 'cliente',
                     hora: horaMsg
                 });
             }
@@ -1006,6 +1038,8 @@ async function processarMensagemEntrada(msg) {
                 nome: identidade.nomeCliente || '',
                 exibicao: identidade.exibicao,
                 msg: textoOriginal,
+                tipo: 'cliente',
+                origem: 'cliente',
                 hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 metricasReais: {
                     totalMensagens: config.metricasReais.totalMensagens,
@@ -1023,7 +1057,25 @@ async function processarMensagemEntrada(msg) {
 
         const prefixoHorario = obterPrefixoHorario(config, remetenteChave);
         const responderCliente = async (txt) => {
-            await enviarMensagemSegura(msg, msg.from, prefixoHorario + txt);
+            const textoEnviado = prefixoHorario + txt;
+            await enviarMensagemSegura(msg, msg.from, textoEnviado);
+            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+            historicoConversas[remetenteChave].push({
+                de: 'robo',
+                texto: textoEnviado,
+                hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-log', {
+                    numero: identidade.telefoneFormatado,
+                    nome: identidade.nomeCliente || identidade.exibicao || 'Cliente',
+                    exibicao: identidade.exibicao,
+                    msg: textoEnviado,
+                    tipo: 'robo',
+                    origem: 'robo',
+                    hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+            }
         };
 
         const colocarNaFilaHumana = async (mensagemConfirmacao, motivo = 'Opção "Falar com Advogado"', opcoesExtras = {}) => {
@@ -1103,12 +1155,23 @@ async function processarMensagemEntrada(msg) {
         }
 
         // Interceptação imediata de emergência crítica antes de saudações/menu
-        if (isMensagemCritica(textoOriginal)) {
+        if (isMensagemCritica(textoOriginal, config)) {
             await colocarNaFilaHumana(
                 "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",
                 "Emergência: " + textoOriginal,
                 { nivelUrgencia: 'CRITICA' }
             );
+            return true;
+        }
+
+        // Interceptação de Horário de Almoço (suprime envio de menu numérico)
+        if (estaEmHorarioAlmoco(config)) {
+            const ultimoAlmoco = avisoForaHorarioRecente[remetenteChave + '_almoco'] || 0;
+            if (Date.now() - ultimoAlmoco >= 15 * 60 * 1000) {
+                avisoForaHorarioRecente[remetenteChave + '_almoco'] = Date.now();
+                const msgAlmoco = ((config.agenda && config.agenda.msg_almoco) || "Nosso escritório está em intervalo de almoço no momento. Retornaremos em breve!").trim();
+                await responderCliente(msgAlmoco);
+            }
             return true;
         }
 
@@ -1139,7 +1202,7 @@ async function processarMensagemEntrada(msg) {
                 return true;
             }
             estadosUsuarios[remetenteChave] = 'raiz';
-            await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+            await responderCliente(montarTextoEtapa(config.fluxo.raiz, config, identidade));
             return true;
         }
 
@@ -1196,7 +1259,7 @@ async function processarMensagemEntrada(msg) {
                 const dest = opcaoEscolhida.destino || 'raiz';
                 estadosUsuarios[remetenteChave] = dest;
                 const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
-                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
+                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz, config, identidade));
                 return true;
             }
             if (opcaoEscolhida.tipo === 'processo') {
@@ -1205,7 +1268,7 @@ async function processarMensagemEntrada(msg) {
                 return true;
             }
             if (opcaoEscolhida.resposta) {
-                if (opcaoEscolhida.tipo === 'texto' || /relato/i.test(opcaoEscolhida.resposta)) {
+                if (Boolean(acoes.aguardarRelatoLivre) || opcaoEscolhida.tipo === 'relato') {
                     estadosUsuarios[remetenteChave] = 'aguardando_relato';
                 }
                 await responderCliente(opcaoEscolhida.resposta);
@@ -1213,8 +1276,26 @@ async function processarMensagemEntrada(msg) {
             }
         }
 
+        // Tratamento humanizado de dúvidas livres ou mensagens fora das opções numéricas
+        const ehPerguntaOuRelato = textoOriginal.includes('?') ||
+            /\b(quanto|como|qual|quais|onde|posso|tem|aceita|duvida|dúvida|valor|custo|advogado|consulta|doutor|doutora|urgente|ajuda|preciso|processo|problema|caso|audiencia|acordo)\b/i.test(textoOriginal) ||
+            textoOriginal.trim().split(/\s+/).length >= 4;
+
+        if (ehPerguntaOuRelato) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Compreendi sua mensagem! Para fornecer uma orientação jurídica precisa para sua dúvida, estou transferindo seu contato para um de nossos advogados.",
+                "Dúvida livre no fluxo: " + textoOriginal
+            );
+            return true;
+        }
+
+        if (estadoAtual !== 'raiz' && estadoAtual !== 'pos_consulta_processo') {
+            await responderCliente("Não identifiquei essa opção nesta etapa. Por favor, digite o número correspondente à opção desejada ou digite *0* para voltar ao Menu Principal.");
+            return true;
+        }
+
         estadosUsuarios[remetenteChave] = 'raiz';
-        await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+        await responderCliente(montarTextoEtapa(config.fluxo.raiz, config, identidade));
         return true;
     } catch (e) {
         return false;
@@ -1378,10 +1459,10 @@ async function executarInstalacaoSilenciosaUpdate() {
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1440,
-        height: 900,
-        minWidth: 1100,
-        minHeight: 720,
+        width: 1280,
+        height: 720,
+        minWidth: 1024,
+        minHeight: 650,
         title: 'Advocacia Studio Pro v2.0 (Executive Suite)',
         icon: obterIconeNativo(),
         backgroundColor: '#0b0f17',
@@ -1713,7 +1794,6 @@ async function agendarProcessamentoComDebounce(msg, fnProcessar) {
     }
 }
 
-
 // IPC: Abrir documento físico anexado / auditado no leitor padrão do sistema
 ipcMain.handle('abrir-documento-anexo', async (event, caminhoArquivo) => {
     try {
@@ -1741,7 +1821,7 @@ ipcMain.handle('abrir-documento-anexo', async (event, caminhoArquivo) => {
 ipcMain.handle('listar-documentos-cliente', async (event, clienteId) => {
     try {
         const { listarDocumentosCliente } = require('./src/documentos/armazenamentoDocs');
-        const docs = listarDocumentosCliente(clienteId);
+        const docs = typeof listarDocumentosCliente === 'function' ? listarDocumentosCliente(clienteId) : [];
         return { sucesso: true, docs: docs || [] };
     } catch (err) {
         console.error('[IPC listar-documentos-cliente] Erro:', err);
@@ -1749,16 +1829,54 @@ ipcMain.handle('listar-documentos-cliente', async (event, clienteId) => {
     }
 });
 
-ipcMain.handle('obter-config', () => carregarConfig());
+function sanitizarConfigParaRenderer(cfg) {
+    if (!cfg || typeof cfg !== 'object') return cfg;
+    const copia = JSON.parse(JSON.stringify(cfg));
+    delete copia.gemini_api_key;
+    delete copia.geminiApiKey;
+    if (copia.ia && typeof copia.ia === 'object') {
+        delete copia.ia.apiKey;
+        delete copia.ia.gemini_api_key;
+        delete copia.ia.chave;
+    }
+    if (copia.processos && typeof copia.processos === 'object') {
+        delete copia.processos.gemini_api_key;
+    }
+    return copia;
+}
+
+ipcMain.handle('obter-config', () => sanitizarConfigParaRenderer(carregarConfig()));
 ipcMain.handle('obter-versao-app', () => `v2.0 (Executive Suite)`);
 ipcMain.handle('obter-estado-conexao', () => ({ status: statusAtualBot, qr: ultimoQrDataUrl, subStatus: subStatusDetalhado, tentativa: tentativasReconexao }));
 ipcMain.handle('salvar-config', (e, nc) => {
-    // Campos de runtime pertencem ao processo principal: o renderer guarda cópias parciais
-    // (ex.: contatosAtendidos vira array vazio) que corromperiam as métricas ao autosalvar.
+    // Campos de runtime e seções gerenciadas por IPCs próprios pertencem ao processo principal:
+    // o renderer pode guardar cópias parciais que sobrescreveriam PIX, parcelas e métricas.
     const atualEmMemoria = carregarConfig();
-    ['metricasReais', 'mapaNomes', 'mapaTelefones'].forEach(k => {
+    [
+        'metricasReais',
+        'mapaNomes',
+        'mapaTelefones',
+        'configuracaoCobranca',
+        'financeiro',
+        'onboardingSessoes'
+    ].forEach(k => {
         if (atualEmMemoria && atualEmMemoria[k] !== undefined) nc[k] = atualEmMemoria[k];
     });
+    // Mescla dossiesClientes preservando edições manuais do usuário no renderer e docs recebidos em background
+    if (atualEmMemoria && atualEmMemoria.dossiesClientes && typeof atualEmMemoria.dossiesClientes === 'object') {
+        const dossiesRenderer = (nc.dossiesClientes && typeof nc.dossiesClientes === 'object') ? nc.dossiesClientes : {};
+        nc.dossiesClientes = { ...atualEmMemoria.dossiesClientes, ...dossiesRenderer };
+    }
+    // Se nomeEscritorio foi definido, atualiza o título genérico da saudação caso ainda seja o padrão
+    if (nc.nomeEscritorio && String(nc.nomeEscritorio).trim() && nc.fluxo?.raiz?.mensagem) {
+        const esc = String(nc.nomeEscritorio).trim();
+        if (nc.fluxo.raiz.mensagem.includes('⚖️ *Escritório de Advocacia*')) {
+            nc.fluxo.raiz.mensagem = nc.fluxo.raiz.mensagem.replace('⚖️ *Escritório de Advocacia*', `⚖️ *${esc}*`);
+        }
+    }
+    if (nc.gemini_api_key === undefined && atualEmMemoria && atualEmMemoria.gemini_api_key !== undefined) {
+        nc.gemini_api_key = atualEmMemoria.gemini_api_key;
+    }
     salvarConfigDisco(nc, true);
     if (typeof nc.iniciar_com_windows !== 'undefined') {
         configurarAutoStartWindows(nc.iniciar_com_windows);
@@ -1781,14 +1899,19 @@ ipcMain.handle('verificar-atualizacao-manual', async () => await verificarEBaixa
 ipcMain.handle('instalar-atualizacao-agora', async () => await executarInstalacaoSilenciosaUpdate());
 ipcMain.handle('obter-pausados', () => contatosPausados);
 ipcMain.handle('remover-pausa', (e, num) => {
+    const numLimpo = apenasNumeros(num);
     delete contatosPausados[num];
+    if (numLimpo) delete contatosPausados[numLimpo];
     if (configEmMemoria) salvarConfigDisco(configEmMemoria, true);
     emitirPausados();
     return contatosPausados;
 });
 ipcMain.handle('sincronizar-servidor-nuvem', async (event, { urlServidor, token } = {}) => {
     try {
-        const urlBase = String(urlServidor || 'https://advocacia-2-0.onrender.com').trim().replace(/\/+$/, '');
+        const urlBase = String(urlServidor || '').trim().replace(/\/+$/, '');
+        if (!urlBase) {
+            return { sucesso: false, erro: 'Informe a URL do seu Servidor Nuvem antes de sincronizar.' };
+        }
         const tokenLimpo = String(token || '').trim();
         const headers = {
             'Content-Type': 'application/json',
@@ -2057,14 +2180,27 @@ ipcMain.handle('ingestao-baixar-planilha-modelo', async () => {
     }
 });
 
+// Status de disponibilidade da IA (sem expor a chave do proprietário ao cliente)
+ipcMain.handle('ia-obter-status', async () => {
+    try {
+        const { obterApiKeyAtiva } = require('./src/ia/tradutorJuridico');
+        const config = carregarConfig();
+        const chave = obterApiKeyAtiva(undefined, config);
+        return { ativo: Boolean(chave && chave.length > 10) };
+    } catch (_) {
+        return { ativo: false };
+    }
+});
+
 // Teste de Conexão com Google Gemini API
 ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
     try {
         const config = carregarConfig();
+        const chaveLimpa = (typeof chaveManual === 'string' && chaveManual.trim()) ? chaveManual.trim() : undefined;
         const resultado = await traduzirAndamentoJuridico(
             `Vistos. Especifiquem as partes as provas que pretendem produzir, justificando sua pertinência em 15 dias. [Teste #${Date.now()}]`,
             {
-                apiKey: chaveManual,
+                apiKey: chaveLimpa,
                 config,
                 timeoutMs: 8000,
                 desativarPersistencia: true
@@ -2073,7 +2209,7 @@ ipcMain.handle('ia-testar-conexao', async (event, chaveManual) => {
         if (resultado.fonte === 'ia' || resultado.fonte === 'cache' || resultado.texto) {
             return { success: true, mensagem: `Conectado com sucesso à IA Gemini (${resultado.modelo || 'gemini-flash'})!`, texto: resultado.texto, modelo: resultado.modelo || 'gemini-flash' };
         }
-        return { success: false, mensagem: `Não foi possível conectar (${resultado.erro || 'verifique a chave ou o status da rede'}).` };
+        return { success: false, mensagem: `Não foi possível conectar (${resultado.erro || 'verifique a conexão com o serviço de IA'}).` };
     } catch (err) {
         return { success: false, error: err.message, mensagem: err.message };
     }
@@ -2111,6 +2247,19 @@ async function executarSimulacaoMensagem(payload = {}) {
         const identidade = await resolverIdentidadeCompleta(mockMsg, config);
         const remetenteChave = identidade.chaveCliente;
         const gatilhoDigitado = extrairGatilhoLimpo(mockMsg.body);
+
+        // Obedece a lista de Contatos Ignorados exatamente como em produção
+        if (isContactIgnored(remetenteChave) || isContactIgnored(telLimpo) || isContactIgnored(chatId) || (Array.isArray(config.ignorados) && isContactIgnored(telLimpo, config.ignorados))) {
+            return {
+                sucesso: true,
+                success: true,
+                ignorado: true,
+                resposta: '',
+                transbordo: false,
+                pausado: false,
+                motivo: 'CONTATO_IGNORADO'
+            };
+        }
 
         // Simulação Real de Envio de Documentos e Comprovantes PIX (Subagente 1)
         if (payload && (payload.midia || payload.arquivoBase64 || payload.buffer)) {
@@ -2161,12 +2310,12 @@ async function executarSimulacaoMensagem(payload = {}) {
             // Detecção precisa de intenção PIX: só é PIX se tiver palavras explícitas de pagamento/transferência e NÃO for documento civil
             const palavrasCivil = ['rg', 'cnh', 'documento', 'residencia', 'filiacao', 'ctps', 'certidao', 'identidade', 'endereco'];
             const contemCivil = palavrasCivil.some(pc => corpoMin.includes(pc) || nomeMin.includes(pc));
-            const palavrasPix = ['pix', 'pagamento', 'transferencia', 'ted', 'deposito'];
+            const palavrasPix = ['pix', 'comprovante', 'pagamento', 'transferencia', 'ted', 'deposito', 'recibo'];
             const contemPix = palavrasPix.some(pp => corpoMin.includes(pp) || nomeMin.includes(pp));
             const parecePix = contemPix && !contemCivil;
 
-            // Se há sessão ativa de onboarding ou se for claramente documento civil, audita e guarda no Dossiê
-            if (sessaoAtiva || contemCivil || !parecePix) {
+            // Só direciona para Dossiê Civil se NÃO parecer comprovante PIX
+            if (!parecePix && (sessaoAtiva || contemCivil)) {
                 // Tenta validar como documento civil primeiro
                 try {
                     const resOnb = await processarMidiaOnboarding({
@@ -2178,6 +2327,9 @@ async function executarSimulacaoMensagem(payload = {}) {
                         apiKey
                     }, config);
                     salvarConfigDisco(config, true);
+                    if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('bot-processos-sync', config);
+                    }
                     return {
                         success: true,
                         sucesso: true,
@@ -2194,7 +2346,7 @@ async function executarSimulacaoMensagem(payload = {}) {
             salvarConfigDisco(config, true);
 
             // Se o validador PIX detectou que era documento civil pessoal, converte graciosamente para onboarding
-            if (resPix && resPix.laudo && resPix.laudo.ehDocumentoCivil) {
+            if (!parecePix && resPix && resPix.laudo && resPix.laudo.ehDocumentoCivil) {
                 try {
                     const resOnb = await processarMidiaOnboarding({
                         clienteTelefone: remetenteChave,
@@ -2205,6 +2357,9 @@ async function executarSimulacaoMensagem(payload = {}) {
                         apiKey
                     }, config);
                     salvarConfigDisco(config, true);
+                    if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('bot-processos-sync', config);
+                    }
                     return {
                         success: true,
                         sucesso: true,
@@ -2264,6 +2419,8 @@ async function executarSimulacaoMensagem(payload = {}) {
                         nome: identidade.nomeCliente || '',
                         exibicao: identidade.exibicao,
                         msg: `[Fila Humana] ${mockMsg.body}`,
+                        tipo: 'cliente',
+                        origem: 'cliente',
                         hora: horaAtual
                     });
                 }
@@ -2295,6 +2452,8 @@ async function executarSimulacaoMensagem(payload = {}) {
                 nome: identidade.nomeCliente || '',
                 exibicao: identidade.exibicao,
                 msg: mockMsg.body,
+                tipo: 'cliente',
+                origem: 'cliente',
                 hora: horaLog(),
                 metricasReais: {
                     totalMensagens: config.metricasReais.totalMensagens,
@@ -2313,14 +2472,22 @@ async function executarSimulacaoMensagem(payload = {}) {
         const prefixoHorario = obterPrefixoHorario(config, remetenteChave);
         const responderCliente = async (txt) => {
             respostaSimulada = prefixoHorario + txt;
+            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+            historicoConversas[remetenteChave].push({
+                de: 'robo',
+                texto: respostaSimulada,
+                hora: horaLog()
+            });
         };
         const finalizarSimulacao = () => {
             if (respostaSimulada && mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
                 mainWindow.webContents.send('bot-log', {
                     numero: identidade.telefoneFormatado,
-                    nome: '🤖 Robô → ' + (identidade.nomeCliente || 'Cliente'),
-                    exibicao: '🤖 Robô',
-                    msg: respostaSimulada.replace(/\s+/g, ' ').slice(0, 180),
+                    nome: identidade.nomeCliente || identidade.exibicao || 'Cliente',
+                    exibicao: identidade.exibicao,
+                    msg: respostaSimulada,
+                    tipo: 'robo',
+                    origem: 'robo',
                     hora: horaLog()
                 });
             }
@@ -2432,12 +2599,23 @@ async function executarSimulacaoMensagem(payload = {}) {
         };
 
         // Interceptação imediata de emergência crítica antes de saudações/menu
-        if (isMensagemCritica(mockMsg.body)) {
+        if (isMensagemCritica(mockMsg.body, config)) {
             await colocarNaFilaHumana(
                 "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",
                 "Emergência: " + mockMsg.body,
                 { nivelUrgencia: 'CRITICA' }
             );
+            return finalizarSimulacao();
+        }
+
+        // Interceptação de Horário de Almoço no Simulador (suprime envio de menu numérico)
+        if (estaEmHorarioAlmoco(config) || (payload && payload.testarAlmoco)) {
+            const ultimoAlmoco = avisoForaHorarioRecente[remetenteChave + '_almoco'] || 0;
+            if (Date.now() - ultimoAlmoco >= 15 * 60 * 1000 || (payload && payload.testarAlmoco)) {
+                avisoForaHorarioRecente[remetenteChave + '_almoco'] = Date.now();
+                const msgAlmoco = ((config.agenda && config.agenda.msg_almoco) || "Nosso escritório está em intervalo de almoço no momento. Retornaremos em breve!").trim();
+                await responderCliente(msgAlmoco);
+            }
             return finalizarSimulacao();
         }
 
@@ -2468,7 +2646,7 @@ async function executarSimulacaoMensagem(payload = {}) {
                 return finalizarSimulacao();
             }
             estadosUsuarios[remetenteChave] = 'raiz';
-            await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+            await responderCliente(montarTextoEtapa(config.fluxo.raiz, config, identidade));
             return finalizarSimulacao();
         }
 
@@ -2525,7 +2703,7 @@ async function executarSimulacaoMensagem(payload = {}) {
                 const dest = opcaoEscolhida.destino || 'raiz';
                 estadosUsuarios[remetenteChave] = dest;
                 const proxEtapa = dest === 'raiz' ? config.fluxo.raiz : config.fluxo.etapas[dest];
-                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz));
+                await responderCliente(montarTextoEtapa(proxEtapa || config.fluxo.raiz, config, identidade));
                 return finalizarSimulacao();
             }
             if (opcaoEscolhida.tipo === 'processo') {
@@ -2534,7 +2712,7 @@ async function executarSimulacaoMensagem(payload = {}) {
                 return finalizarSimulacao();
             }
             if (opcaoEscolhida.resposta) {
-                if (opcaoEscolhida.tipo === 'texto' || /relato/i.test(opcaoEscolhida.resposta)) {
+                if (Boolean(acoes.aguardarRelatoLivre) || opcaoEscolhida.tipo === 'relato') {
                     estadosUsuarios[remetenteChave] = 'aguardando_relato';
                 }
                 await responderCliente(opcaoEscolhida.resposta);
@@ -2542,8 +2720,26 @@ async function executarSimulacaoMensagem(payload = {}) {
             }
         }
 
+        // Tratamento humanizado de dúvidas livres ou mensagens fora das opções numéricas
+        const ehPerguntaOuRelato = mockMsg.body.includes('?') ||
+            /\b(quanto|como|qual|quais|onde|posso|tem|aceita|duvida|dúvida|valor|custo|advogado|consulta|doutor|doutora|urgente|ajuda|preciso|processo|problema|caso|audiencia|acordo)\b/i.test(mockMsg.body) ||
+            mockMsg.body.trim().split(/\s+/).length >= 4;
+
+        if (ehPerguntaOuRelato) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Compreendi sua mensagem! Para fornecer uma orientação jurídica precisa para sua dúvida, estou transferindo seu contato para um de nossos advogados.",
+                "Dúvida livre no fluxo: " + mockMsg.body
+            );
+            return finalizarSimulacao();
+        }
+
+        if (estadoAtual !== 'raiz' && estadoAtual !== 'pos_consulta_processo') {
+            await responderCliente("Não identifiquei essa opção nesta etapa. Por favor, digite o número correspondente à opção desejada ou digite *0* para voltar ao Menu Principal.");
+            return finalizarSimulacao();
+        }
+
         estadosUsuarios[remetenteChave] = 'raiz';
-        await responderCliente(montarTextoEtapa(config.fluxo.raiz));
+        await responderCliente(montarTextoEtapa(config.fluxo.raiz, config, identidade));
         return finalizarSimulacao();
     } catch (err) {
         console.error('Erro no simulador-enviar-mensagem:', err);
@@ -2652,6 +2848,21 @@ async function anexarArquivosAoProcesso(processoId, caminhos) {
                 textoHumanizado: cat.resumoCliente,
                 timestamp: doc.timestamp
             });
+
+            const resumoPeca = (cat.resumoCliente && cat.resumoCliente.trim() && !['Documento anexado ao processo.', 'Documento anexado aos autos.'].includes(cat.resumoCliente.trim()))
+                ? cat.resumoCliente.trim()
+                : ([cat.tipoPeca, cat.assunto, cat.decisao].filter(x => x && x !== '-').join(' — ') || `Peça anexada (${nomeArquivo})`);
+            const linhaAtualizacao = `[${doc.anexadoEm}] (${cat.tipoPeca || 'PEÇA'}) ${resumoPeca}`;
+            const resumoAtual = String(proc.resumo || '').trim();
+            if (!resumoAtual) {
+                proc.resumo = linhaAtualizacao;
+            } else if (!resumoAtual.includes(resumoPeca)) {
+                proc.resumo = `${linhaAtualizacao}\n${resumoAtual}`;
+            }
+            proc.temAtualizacao = true;
+            proc._resetarVistos = true;
+            proc.dataAtualizacaoTexto = doc.anexadoEm;
+
             anexados++;
         } catch (err) {
             avisos.push(`${nomeArquivo}: ${err.message}`);
@@ -2798,15 +3009,17 @@ ipcMain.handle('ia-analisar-urgencia-cronologia', async (event, dados = {}) => {
     }
 });
 
-// RESPONDER CLIENTE PAUSADO (FINALIZA ATENDIMENTO NA FILA)
-ipcMain.handle('responder-cliente-pausado', async (event, { chave, textoResposta }) => {
+// RESPONDER CLIENTE PAUSADO (MANTÉM CLIENTE PAUSADO ATÉ LIBERAÇÃO EXPLÍCITA DO ADVOGADO)
+ipcMain.handle('responder-cliente-pausado', async (event, { chave, textoResposta, despausar = false }) => {
     try {
         const numLimpo = apenasNumeros(chave);
         const item = contatosPausados[numLimpo] || contatosPausados[chave];
         if (item) {
             if (item.origem === 'WHATSAPP' && client && item.idChat) {
                 try {
-                    await client.sendMessage(item.idChat, `👨‍⚖️ *Mensagem do Advogado:*\n\n${textoResposta}`);
+                    const cfgAtual = carregarConfig();
+                    const prefixoAdv = cfgAtual?.tomCorporativo ? '' : '*Atendimento Jurídico:*\n\n';
+                    await client.sendMessage(item.idChat, `${prefixoAdv}${textoResposta}`);
                 } catch (e) {
                     console.error('Erro ao enviar mensagem pelo WhatsApp:', e);
                 }
@@ -2817,14 +3030,68 @@ ipcMain.handle('responder-cliente-pausado', async (event, { chave, textoResposta
                     nomeAdvogado: 'Advogado Responsável'
                 });
             }
-            delete contatosPausados[numLimpo];
-            delete contatosPausados[chave];
+
+            const horaEnvio = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const registroMsg = { de: 'advogado', texto: textoResposta, hora: horaEnvio };
+            if (!Array.isArray(item.historicoMensagens)) item.historicoMensagens = [];
+            item.historicoMensagens.push(registroMsg);
+            if (!Array.isArray(item.mensagens)) item.mensagens = [];
+            item.mensagens.push(registroMsg);
+
+            if (historicoConversas[numLimpo]) {
+                historicoConversas[numLimpo].push(registroMsg);
+            }
+
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-log', {
+                    numero: item.telefone || `+${numLimpo}`,
+                    nome: item.nome || item.exibicao || 'Cliente',
+                    exibicao: item.exibicao || item.nome || 'Cliente',
+                    msg: textoResposta,
+                    tipo: 'advogado',
+                    origem: 'advogado',
+                    hora: horaEnvio
+                });
+            }
+
+            if (despausar) {
+                delete contatosPausados[numLimpo];
+                delete contatosPausados[chave];
+            }
             emitirPausados();
-            return { sucesso: true, despausado: true };
+            return { sucesso: true, despausado: Boolean(despausar), pausado: !despausar, itemPausado: contatosPausados[numLimpo] || contatosPausados[chave] || null };
         }
         return { sucesso: false, erro: 'Contato não localizado na fila.' };
     } catch (err) {
         return { sucesso: false, erro: err.message };
+    }
+});
+
+// SUGERIR RESPOSTA COM IA SOB DEMANDA NA FILA DO ADVOGADO (CHAVE INTERNA DO BACKEND)
+ipcMain.handle('fila-sugerir-resposta-ia', async (event, dados = {}) => {
+    try {
+        const { sugerirRespostaFilaComIA, obterApiKeyAtiva } = require('./src/ia/tradutorJuridico');
+        const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
+        const numLimpo = apenasNumeros(dados.chave || '');
+        const item = contatosPausados[numLimpo] || contatosPausados[dados.chave] || {};
+        const payload = {
+            nome: dados.nome || item.nome || '',
+            motivo: dados.motivo || item.motivoUrgencia || item.motivo || '',
+            transcricao: dados.transcricao || item.transcricao || '',
+            resumo: dados.resumo || item.resumo || '',
+            historicoMensagens: (Array.isArray(dados.historicoMensagens) && dados.historicoMensagens.length > 0)
+                ? dados.historicoMensagens
+                : (item.historicoMensagens || item.mensagens || [])
+        };
+        const apiKey = obterApiKeyAtiva(undefined, cfg);
+        return await sugerirRespostaFilaComIA(payload, { config: cfg, ...(apiKey ? { apiKey } : {}) });
+    } catch (err) {
+        return {
+            sucesso: true,
+            sugestao: 'Olá! Recebi sua mensagem e já estou analisando seu caso pessoalmente. Como posso ajudar neste momento?',
+            fonte: 'fallback',
+            erro: err.message
+        };
     }
 });
 
@@ -2835,10 +3102,10 @@ ipcMain.handle('ia-melhorar-mensagem', async (event, dados = {}) => {
         const contexto = (dados && typeof dados === 'object' && dados.contexto) ? dados.contexto : (typeof dados === 'object' ? dados : {});
         const { melhorarMensagemComIA, melhorarMensagemLocalmente } = require('./src/ia/tradutorJuridico');
         const cfg = typeof carregarConfig === 'function' ? carregarConfig() : {};
-        const chaveResolvida = (contexto && contexto.apiKey) || cfg.gemini_api_key || (cfg.ia && cfg.ia.gemini_api_key) || (cfg.processos && cfg.processos.gemini_api_key) || process.env.GEMINI_API_KEY || '';
+        const chaveResolvida = (contexto && contexto.apiKey) || cfg.gemini_api_key || (cfg.ia && cfg.ia.gemini_api_key) || (cfg.processos && cfg.processos.gemini_api_key) || process.env.GEMINI_API_KEY || undefined;
         const contextoFinal = {
             config: cfg,
-            apiKey: chaveResolvida,
+            ...(chaveResolvida ? { apiKey: chaveResolvida } : {}),
             ...(contexto || {})
         };
         const resultado = await melhorarMensagemComIA(texto, contextoFinal);
@@ -2884,7 +3151,7 @@ ipcMain.handle('iniciar-onboarding', async (event, payload = {}) => {
         const msgTextoDisparo = sessao.mensagemDisparo || sessao.mensagemSolicitacaoWhatsApp || '';
 
         // Dispara mensagem estruturada no WhatsApp se estiver conectado e solicitado
-        if (payload.enviarWhatsApp !== false && client && statusAtual === 'CONECTADO' && msgTextoDisparo) {
+        if (payload.enviarWhatsApp !== false && client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && msgTextoDisparo) {
             const digitos = apenasNumeros(clienteTelefone);
             if (digitos) {
                 try {
@@ -2965,7 +3232,7 @@ ipcMain.handle('copiar-qualificacao-cpc', async (event, payload = {}) => {
             const chave = apenasNumeros(payload.clienteId || payload.telefone);
             const dossie = cfg.dossiesClientes && cfg.dossiesClientes[chave];
             if (dossie && dossie.civil) {
-                qualificacaoDados = dossie.civil;
+                qualificacaoDados = { ...dossie.civil, ...(payload.qualificacao || payload) };
             }
         }
         const textoCPC = gerarQualificacaoCPC(qualificacaoDados);
@@ -3001,16 +3268,17 @@ ipcMain.handle('disparar-regua-cobranca', async (event, opcoes = {}) => {
         const cfg = carregarConfig();
         const enviarMsgFn = async (telefone, mensagem) => {
             const digitos = apenasNumeros(telefone);
-            if (client && statusAtual === 'CONECTADO' && digitos) {
+            if (client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && digitos) {
                 const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
                 await client.sendMessage(chatId, mensagem);
                 return true;
             }
             return true; // Simulado com sucesso quando WhatsApp offline
         };
-        const relatorio = await dispararReguaCobranca(cfg, enviarMsgFn, {
-            delayMs: typeof opcoes.delayMs === 'number' ? opcoes.delayMs : 50,
-            ignorarDiaDaSemana: opcoes.ignorarDiaDaSemana !== undefined ? opcoes.ignorarDiaDaSemana : true,
+        const relatorio = await dispararReguaCobranca(cfg, {
+            enviarMensagemWhatsApp: enviarMsgFn,
+            delayMsOverride: typeof opcoes.delayMs === 'number' ? opcoes.delayMs : 50,
+            ignorarDiaSemana: opcoes.ignorarDiaDaSemana !== undefined ? opcoes.ignorarDiaDaSemana : true,
             apenasParcelaId: opcoes.apenasParcelaId || null
         });
         salvarConfigDisco(cfg);
@@ -3020,6 +3288,48 @@ ipcMain.handle('disparar-regua-cobranca', async (event, opcoes = {}) => {
         return { sucesso: false, erro: err.message, enviados: 0 };
     }
 });
+
+// Agendador semanal automático da Régua PIX (verifica a cada 60s sem duplicar no mesmo dia)
+let ultimaDataDisparoAutoPix = '';
+setInterval(async () => {
+    try {
+        if (!client || (statusAtualBot !== 'ready' && statusAtualBot !== 'CONECTADO')) return;
+        const cfg = carregarConfig();
+        const cob = cfg?.configuracaoCobranca;
+        if (!cob || !cob.chavePix || cob.modoAprovacao === 'DESATIVADO') return;
+
+        const agora = new Date();
+        const hojeISO = agora.toISOString().slice(0, 10);
+        if (ultimaDataDisparoAutoPix === hojeISO) return;
+
+        const horaAtual = agora.toTimeString().slice(0, 5);
+        const horaAlvo = String(cob.horarioEnvio || '09:30').trim();
+        if (horaAtual < horaAlvo) return;
+
+        ultimaDataDisparoAutoPix = hojeISO;
+        const { dispararReguaCobranca } = require('./src/financeiro/gestaoFinanceira');
+        const enviarMsgFn = async (telefone, mensagem) => {
+            const digitos = apenasNumeros(telefone);
+            if (client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && digitos) {
+                const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                await client.sendMessage(chatId, mensagem);
+                return true;
+            }
+            return false;
+        };
+        const rel = await dispararReguaCobranca(cfg, {
+            enviarMensagemWhatsApp: enviarMsgFn,
+            ignorarDiaSemana: false,
+            dataReferencia: agora
+        });
+        if (rel && rel.totalEnviados > 0) {
+            salvarConfigDisco(cfg);
+            console.log(`[Régua PIX Automática] ${rel.totalEnviados} lembrete(s) enviado(s) em ${hojeISO}.`);
+        }
+    } catch (err) {
+        console.error('[Régua PIX Automática] Erro:', err.message);
+    }
+}, 60 * 1000);
 
 ipcMain.handle('dar-baixa-parcela', async (event, payload = {}) => {
     try {
@@ -3107,6 +3417,9 @@ ipcMain.handle('onboarding-processar-midia', async (event, payload = {}) => {
             apiKey: cfg.gemini_api_key || process.env.GEMINI_API_KEY
         }, cfg);
         salvarConfigDisco(cfg);
+        if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-processos-sync', cfg);
+        }
         return resultado;
     } catch (err) {
         console.error('[IPC onboarding-processar-midia] Erro:', err);
@@ -3121,6 +3434,9 @@ ipcMain.handle('onboarding-consolidar-dossie', async (event, payload = {}) => {
         const tel = typeof payload === 'string' ? payload : (payload.clienteTelefone || payload.telefone);
         const dossie = consolidarDossie(tel, cfg);
         salvarConfigDisco(cfg);
+        if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-processos-sync', cfg);
+        }
         return { sucesso: Boolean(dossie), dossie };
     } catch (err) {
         console.error('[IPC onboarding-consolidar-dossie] Erro:', err);

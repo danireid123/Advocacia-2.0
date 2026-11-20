@@ -89,10 +89,20 @@ test('8. Agenda e Modelos de Mensagens devem checar activeElement antes de alter
   assert(indexHtml.includes('function carregarTemplatesProcessosNosInputs(forcar = false)'), 'carregarTemplatesProcessosNosInputs deve aceitar forcar');
 });
 
-// 9. Validação do campo da chave Gemini API no Simulador
-test('9. Simulador deve renderizar campo de chave Gemini API e permitir digitação/salvamento direto', () => {
-  assert(indexHtml.includes('id="proc-gemini-api-key"'), 'Campo proc-gemini-api-key deve existir no HTML');
-  assert(indexHtml.includes("configGlobal.gemini_api_key = e.target.value.trim()"), 'Digitação na chave Gemini deve atualizar configGlobal imediatamente');
+// 9. Validação de ausência de campo de chave Gemini API para o cliente final
+test('9. Interface não deve exibir campo de chave Gemini API para o cliente final, usando IA integrada', () => {
+  assert(!indexHtml.includes('id="proc-gemini-api-key"'), 'Campo proc-gemini-api-key NÃO deve existir no HTML');
+  assert(!indexHtml.includes('salvarChaveGeminiConfig'), 'Função salvarChaveGeminiConfig NÃO deve existir no HTML');
+  assert(indexHtml.includes('id="simulador-ia-status-txt"'), 'Indicador de status da IA no Simulador deve existir');
+  assert(indexHtml.includes('id="home-chip-ia-txt"'), 'Chip de status da IA na Home deve existir');
+});
+
+// 10. Backend não deve expor chave da API ao renderer nem mencionar .env/chave ao cliente
+test('10. Backend sanitiza obter-config e não exibe mensagens sobre chave Gemini ao cliente', () => {
+  const mainJs = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf-8');
+  const tradutorJs = fs.readFileSync(path.join(__dirname, 'src', 'ia', 'tradutorJuridico.js'), 'utf-8');
+  assert(mainJs.includes('sanitizarConfigParaRenderer'), 'main.js deve sanitizar config antes de enviar ao renderer');
+  assert(!tradutorJs.includes('Chave Gemini não configurada no .env'), 'tradutorJuridico.js não deve expor mensagem sobre chave Gemini no .env');
 });
 
 console.log('\n=============================================================');

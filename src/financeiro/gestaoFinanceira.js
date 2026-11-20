@@ -34,6 +34,26 @@ function apenasNumeros(str) {
     return String(str || '').replace(/\D/g, '');
 }
 
+function normalizarTelefoneBR(tel) {
+    let d = apenasNumeros(tel);
+    if (d.length >= 12 && d.startsWith('55')) {
+        d = d.slice(2);
+    }
+    return d;
+}
+
+function telefonesEquivalentes(t1, t2) {
+    const a = normalizarTelefoneBR(t1);
+    const b = normalizarTelefoneBR(t2);
+    if (!a || !b) return false;
+    if (a === b) return true;
+    // Trata nono dígito opcional quando o DDD (2 dígitos) coincide
+    if (a.length >= 10 && b.length >= 10 && a.slice(0, 2) === b.slice(0, 2)) {
+        return a.slice(-8) === b.slice(-8);
+    }
+    return false;
+}
+
 function formatarMoedaBR(valor) {
     const num = Number(valor || 0);
     if (isNaN(num)) return '0,00';
@@ -44,9 +64,9 @@ function garantirEstruturaFinanceira(config) {
     if (!config || typeof config !== 'object') return;
     if (!config.configuracaoCobranca || typeof config.configuracaoCobranca !== 'object') {
         config.configuracaoCobranca = {
-            chavePix: 'pix@escritorio.adv.br',
-            tipoChave: 'E-MAIL',
-            beneficiario: 'Advocacia Studio Pro',
+            chavePix: '',
+            tipoChave: 'CNPJ',
+            beneficiario: (config.nomeEscritorio || '').trim() || 'Escritório de Advocacia',
             frequenciaSemanal: 2,
             diasDaSemana: ['TERCA', 'QUINTA'],
             horarioEnvio: '09:30',
@@ -117,9 +137,9 @@ function gerarMensagemCobrancaPix(parcela, config = {}) {
     const nomeCliente = (p.clienteNome || p.nome || 'Cliente').toString().trim();
     const valorFormatado = formatarMoedaBR(p.valor);
     const vencimento = (p.vencimento || 'em aberto').toString().trim();
-    const chavePix = (cfgCob.chavePix || 'pix@escritorio.adv.br').toString().trim();
+    const chavePix = (cfgCob.chavePix || '').toString().trim() || '[Chave PIX não configurada]';
     const tipoChave = (cfgCob.tipoChave || 'PIX').toString().trim();
-    const beneficiario = (cfgCob.beneficiario || 'Escritório de Advocacia').toString().trim();
+    const beneficiario = (cfgCob.beneficiario || config?.nomeEscritorio || 'Escritório de Advocacia').toString().trim();
 
     return (
         `⚖️ *Lembrete de Honorários — ${beneficiario}*\n\n` +
@@ -138,23 +158,41 @@ function gerarMensagemCobrancaPix(parcela, config = {}) {
  * Dispara a régua de cobrança com delay anti-ban configurável (15s-30s em prod,
  * ou customizável via opcoesEnvio para execução rápida em testes).
  */
-async function dispararReguaCobranca(config, opcoesEnvio = {}) {
+async function dispararReguaCobranca(config, opcoesEnvio = {}, opcoesExtra = {}) {
     garantirEstruturaFinanceira(config);
+
+    // Compatibilidade retroativa: aceita (config, enviarFn, opcoes) ou (config, opcoes)
+    if (typeof opcoesEnvio === 'function') {
+        opcoesEnvio = {
+            ...(opcoesExtra && typeof opcoesExtra === 'object' ? opcoesExtra : {}),
+            enviarMensagemWhatsApp: opcoesEnvio
+        };
+    }
 
     const cfgCob = config.configuracaoCobranca;
     const dataRef = opcoesEnvio.dataReferencia || null;
-    const ignorarDia = opcoesEnvio.ignorarDiaSemana !== undefined ? Boolean(opcoesEnvio.ignorarDiaSemana) : !dataRef;
+    const ignorarDia = opcoesEnvio.ignorarDiaSemana !== undefined
+        ? Boolean(opcoesEnvio.ignorarDiaSemana)
+        : (opcoesEnvio.ignorarDiaDaSemana !== undefined ? Boolean(opcoesEnvio.ignorarDiaDaSemana) : !dataRef);
 
-    const elegiveis = Array.isArray(opcoesEnvio.parcelasAlvo)
+    let elegiveis = Array.isArray(opcoesEnvio.parcelasAlvo)
         ? opcoesEnvio.parcelasAlvo
         : filtrarParcelasElegiveis(config, dataRef, ignorarDia);
 
+    if (opcoesEnvio.apenasParcelaId) {
+        elegiveis = elegiveis.filter(p => String(p.id) === String(opcoesEnvio.apenasParcelaId));
+    }
+
     const delayMin = opcoesEnvio.delayMsOverride !== undefined
         ? Number(opcoesEnvio.delayMsOverride)
-        : Math.max(0, Number(cfgCob.delayMinimoSegundos ?? 15)) * 1000;
+        : (opcoesEnvio.delayMs !== undefined
+            ? Number(opcoesEnvio.delayMs)
+            : Math.max(0, Number(cfgCob.delayMinimoSegundos ?? 15)) * 1000);
     const delayMax = opcoesEnvio.delayMsOverride !== undefined
         ? Number(opcoesEnvio.delayMsOverride)
-        : Math.max(delayMin, Number(cfgCob.delayMaximoSegundos ?? 30) * 1000);
+        : (opcoesEnvio.delayMs !== undefined
+            ? Number(opcoesEnvio.delayMs)
+            : Math.max(delayMin, Number(cfgCob.delayMaximoSegundos ?? 30) * 1000));
 
     const funcaoEnvio = typeof opcoesEnvio.enviarMensagemWhatsApp === 'function'
         ? opcoesEnvio.enviarMensagemWhatsApp
@@ -197,10 +235,12 @@ async function dispararReguaCobranca(config, opcoesEnvio = {}) {
         });
     }
 
+    const totalEnviados = resultados.filter(r => r.enviado).length;
     return {
         success: true,
         totalElegiveis: elegiveis.length,
-        totalEnviados: resultados.filter(r => r.enviado).length,
+        totalEnviados,
+        enviados: totalEnviados,
         resultados
     };
 }
@@ -309,9 +349,8 @@ async function processarComprovanteRecebido(clienteTelefoneOuObj, bufferArg, mim
     const parcelaPendente = config.financeiro.parcelas.find(p => {
         const status = String(p.status || 'PENDENTE').toUpperCase();
         if (status === 'PAGO' || status === 'ARQUIVADO') return false;
-        const pTel = apenasNumeros(p.clienteTelefone || p.telefone || '');
-        if (!telLimpo || !pTel) return false;
-        return pTel === telLimpo;
+        const pTel = p.clienteTelefone || p.telefone || '';
+        return telefonesEquivalentes(pTel, clienteTelefone);
     });
 
     const valorEsperado = parcelaPendente ? Number(parcelaPendente.valor || 0) : 0;
@@ -430,7 +469,9 @@ function adicionarParcela(dadosParcela, config) {
 
     // Se o usuário solicitou criar todas as N parcelas de uma vez
     if (totalParcelas > 1 && dadosParcela.criarTodasParcelas) {
-        const valorPorParcela = Number((valorTotal / totalParcelas).toFixed(2));
+        const valorPorParcela = dadosParcela.modoValor === 'PARCELA'
+            ? Number(valorTotal.toFixed(2))
+            : Number((valorTotal / totalParcelas).toFixed(2));
         const dtBase = dadosParcela.vencimento ? new Date(dadosParcela.vencimento) : new Date();
 
         for (let i = 1; i <= totalParcelas; i++) {

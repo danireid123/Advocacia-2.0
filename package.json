@@ -1,7 +1,7 @@
 {
   "name": "advocacia-studio-pro-v2",
-  "version": "2.0.0-alpha.1",
-  "description": "Advocacia Studio Pro - Suite Executiva de Atendimento e Processos (Beta 0.8)",
+  "version": "2.0.0",
+  "description": "Advocacia Studio Pro - Suite Executiva de Atendimento e Processos",
   "main": "main.js",
   "author": "Escritorio Digital",
   "license": "MIT",
@@ -23,6 +23,7 @@
       "icon.png",
       "icon.ico",
       "package.json",
+      ".env",
       "assets/**/*",
       "src/**/*",
       "node_modules/**/*"
