@@ -2233,9 +2233,9 @@
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
-                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/40 hover:text-rose-300 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer" title="Organiza processos duplicados mantendo os registros mais atualizados">
+                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/40 hover:text-rose-300 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer" title="Remove pastas ou cadastros repetidos mantendo os dados mais recentes">
                   <svg class="w-3.5 h-3.5 text-rose-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  <span>Unificar Duplicados</span>
+                  <span>Remover Cadastros Duplicados</span>
                 </button>
                 <button type="button" id="btn-baixar-modelo-xlsx" class="linear-btn-ghost px-2.5 py-1.5 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -2436,7 +2436,7 @@
                     <div class="grid grid-cols-12 gap-3 text-xs">
                       <div class="col-span-12 sm:col-span-6">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Nome Completo</label>
-                        <input type="text" id="dossie-nome" placeholder="Extraído via OCR do RG/CNH" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                        <input type="text" id="dossie-nome" placeholder="Preenchido via leitura de documento ou digite aqui" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
                       </div>
                       <div class="col-span-12 sm:col-span-3">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">CPF</label>
@@ -2464,7 +2464,7 @@
                       </div>
                       <div class="col-span-12 sm:col-span-4">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Filiação (Mãe / Pai)</label>
-                        <input type="text" id="dossie-filiacao" placeholder="Filiação extraída do RG" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                        <input type="text" id="dossie-filiacao" placeholder="Nome da mãe / pai ou filiação" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
                       </div>
                       <div class="col-span-12 sm:col-span-8">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Endereço Completo com CEP</label>
@@ -2525,7 +2525,7 @@
                   Atendimento WhatsApp
                 </span>
                 <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                  Auto-Save Contínuo
+                  Salvamento Automático
                 </span>
               </div>
               <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
@@ -3282,7 +3282,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <input type="file" id="input-importar-arquivo" accept=".json" class="hidden">
                 <button id="btn-importar-dados" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 text-zinc-100 font-bold text-xs rounded-xl active:scale-[0.98] transition cursor-pointer flex items-center justify-center space-x-2 shadow-md">
                   <svg class="w-4 h-4"><use href="#icon-upload"/></svg>
-                  <span>Escolher Arquivo de Backup (.JSON)</span>
+                  <span>Escolher Arquivo de Backup do Escritório</span>
                 </button>
               </div>
             </div>
@@ -3377,7 +3377,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <div class="grid grid-cols-12 gap-3.5 items-end">
                 <div class="col-span-12 sm:col-span-5">
                   <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Número do WhatsApp / Telefone *</label>
-                  <input type="text" id="input-ignorado-numero" placeholder="Ex: (11) 98765-4321 ou 5511987654321" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
+                  <input type="text" id="input-ignorado-numero" placeholder="Ex: (11) 98765-4321 (aceita com ou sem 55)" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
                 </div>
                 <div class="col-span-12 sm:col-span-5">
                   <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Identificação / Motivo (Opcional)</label>
@@ -3811,7 +3811,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     </div>
                     <div class="col-span-12 sm:col-span-6">
                       <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">WhatsApp *</label>
-                      <input type="text" id="fin-novo-tel" placeholder="(11) 99999-9999 ou 5511..." class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      <input type="text" id="fin-novo-tel" placeholder="(11) 99999-9999 (aceita com ou sem 55)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
                     </div>
                     <div class="col-span-12 sm:col-span-4">
                       <label class="text-[11px] font-bold text-emerald-400 tracking-wide block mb-1">Valor de cada Parcela (R$)</label>
@@ -4030,7 +4030,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <span class="text-xs font-bold text-zinc-200 block">Sessão Corporativa Ativa</span>
                     <span class="text-[11px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      Autenticação Local Válida (Token Seguro de 30 Dias)
+                      Acesso Ativo no Computador (Sessão Segura de 30 Dias)
                     </span>
                   </div>
                   <button id="btn-logout" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-900/50 text-rose-300 text-xs font-semibold transition active:scale-95 cursor-pointer" title="Encerrar sessão de 30 dias e trocar conta">
@@ -4042,7 +4042,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex items-center justify-between">
                   <div>
                     <span class="text-xs font-bold text-zinc-200 block">Backup e Exportação de Dados</span>
-                    <span class="text-[11px] text-zinc-400">Salve seus processos, financeiro e clientes em JSON</span>
+                    <span class="text-[11px] text-zinc-400">Guarde uma cópia segura dos seus processos, financeiro e clientes</span>
                   </div>
                   <button type="button" onclick="ativarAba('backup')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white text-xs font-semibold transition active:scale-95 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-database"/></svg>
@@ -4114,7 +4114,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <label class="text-[11px] text-amber-400 font-bold block mb-1">Selecione o Preset de Documentos da Área Jurídica</label>
                 <select id="onboarding-modal-preset" onchange="window.atualizarMensagemModalOnboarding && window.atualizarMensagemModalOnboarding()" class="exec-input w-full rounded-xl px-3 py-2.5 text-xs font-semibold">
                   <option value="Trabalhista">Trabalhista (RG/CNH, CTPS, TRCT, Holerites, FGTS e Endereço)</option>
-                  <option value="Previdenciario">Previdenciário / INSS (RG/CNH, CNIS, Laudos Médicos, CTPS e Endereço)</option>
+                  <option value="Previdenciario">Previdenciário / INSS Urbano (RG/CNH, CNIS, Laudos Médicos e Endereço)</option>
+                  <option value="PrevidenciarioRural">Previdenciário / INSS Rural (RG/CNH, DAP/CAF, Bloco de Produtor, Terra)</option>
+                  <option value="CriminalCustodia">Criminal — Flagrante &amp; Custódia (B.O., Nota de Culpa, Residência, Vínculo)</option>
                   <option value="Civel">Cível / Consumidor (RG/CNH, Comprovante de Endereço, Contrato/Provas)</option>
                   <option value="Familia">Direito de Família (RG/CNH, Certidão Casamento/Nascimento, Endereço e Renda)</option>
                   <option value="Geral">Geral / Kit Básico (RG ou CNH, CPF, Comprovante de Residência e Extratos)</option>
@@ -4996,7 +4998,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       { id: 'fluxo', titulo: 'Menu Automático do Robô', desc: 'Editar opções e fluxos de atendimento', icone: 'icon-flow', acao: () => { ativarAba('fluxo'); } },
       { id: 'dossie', titulo: 'Dossiê de Clientes (Art. 319 CPC)', desc: 'Ficha cadastral e documentos de qualificação civil', icone: 'icon-users', acao: () => { ativarAba('dossie-clientes'); } },
       { id: 'financeiro', titulo: 'Financeiro & Cobrança PIX', desc: 'Honorários, régua semanal e conciliação', icone: 'icon-scales', acao: () => { ativarAba('financeiro'); } },
-      { id: 'backup', titulo: 'Fazer Cópia de Segurança (.JSON)', desc: 'Exportar todos os dados locais em arquivo seguro', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
+      { id: 'backup', titulo: 'Salvar Cópia do Escritório', desc: 'Salvar cópia completa dos processos e dados no computador', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
       { id: 'configuracoes', titulo: 'Configurações do Sistema', desc: 'Gerenciar WhatsApp, preferências e sessão', icone: 'icon-settings', acao: () => { ativarAba('configuracoes'); } }
     ];
 
@@ -6462,6 +6464,27 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (!nome) return;
       const id = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
       configGlobal.fluxo.etapas[id] = { titulo: `Submenu: ${nome}`, mensagem: `*${nome}*\n\nComo podemos lhe orientar?`, opcoes: [{ gatilho: "0", rotulo: "Voltar ao Início", tipo: "submenu", destino: "raiz", resposta: "" }] };
+
+      // VINCULAÇÃO INTELIGENTE AUTOMÁTICA NO MENU PRINCIPAL (Evita o problema do submenu órfão do Dr. Marcelo)
+      if (configGlobal.fluxo.raiz && Array.isArray(configGlobal.fluxo.raiz.opcoes)) {
+        const jaExiste = configGlobal.fluxo.raiz.opcoes.some(op => op.destino === id || op.rotulo.toLowerCase().includes(nome.toLowerCase()));
+        if (!jaExiste) {
+          // Calcula o próximo número de gatilho
+          const gatilhosNumericos = configGlobal.fluxo.raiz.opcoes
+            .map(o => parseInt(o.gatilho, 10))
+            .filter(n => !isNaN(n) && n > 0);
+          const proxGatilho = String((gatilhosNumericos.length > 0 ? Math.max(...gatilhosNumericos) : 0) + 1);
+
+          configGlobal.fluxo.raiz.opcoes.push({
+            gatilho: proxGatilho,
+            rotulo: nome,
+            tipo: "submenu",
+            destino: id,
+            resposta: ""
+          });
+        }
+      }
+
       if (modalSub) { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); }
       etapaSelecionada = id;
       popularSeletorDeEtapas();
@@ -6471,7 +6494,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
       marcarAlteracaoPendente();
       if (typeof mostrarToast === 'function') {
-        mostrarToast(`Submenu "${nome}" criado! Para exibi-lo aos clientes, aponte uma opção "Abrir Submenu" no Menu Principal.`);
+        mostrarToast(`✓ Submenu "${nome}" criado e vinculado automaticamente ao Menu Principal!`);
       }
     });
 
@@ -9935,7 +9958,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (window.api && window.api.salvarConfig) await window.api.salvarConfig(configGlobal);
       const badgeAutosave = document.getElementById('badge-autosave');
       if (badgeAutosave) {
-        badgeAutosave.innerText = "✓ Auto-Save Ativo";
+        badgeAutosave.innerText = "✓ Salvamento Automático Ativo";
         badgeAutosave.className = "text-[10px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 font-mono";
       }
       const btnSalvar = document.getElementById('btn-salvar-fluxo');

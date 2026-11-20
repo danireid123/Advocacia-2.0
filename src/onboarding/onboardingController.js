@@ -35,6 +35,28 @@ const PRESETS_ONBOARDING = {
             'Extrato Previdenciário (CNIS do Meu INSS)'
         ]
     },
+    PrevidenciarioRural: {
+        id: 'PrevidenciarioRural',
+        rotulo: '🌾 Aposentadoria Rural / Segurado Especial',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'DOC_RURAL', 'AUTODECLARACAO_RURAL'],
+        descricoes: [
+            'RG ou CNH (frente e verso nítidos)',
+            'Comprovante de Residência rural / domicílio',
+            'Documentos da Terra (DAP/CAF, Bloco de Produtor, ITR ou INCRA)',
+            'Autodeclaração Rural assinada ou Certidão de Casamento/Nascimento'
+        ]
+    },
+    CriminalCustodia: {
+        id: 'CriminalCustodia',
+        rotulo: '🚨 Criminal — Flagrante & Custódia',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'BO_OU_NOTA_CULPA', 'VINCULO_EMPREGO'],
+        descricoes: [
+            'RG ou CNH do preso/investigado (foto legível)',
+            'Comprovante de Residência fixa recente',
+            'Boletim de Ocorrência (B.O.) ou Nota de Culpa / Auto de Prisão',
+            'Carteira de Trabalho (CTPS) ou Declaração de Emprego (comprovar vínculo)'
+        ]
+    },
     Civel: {
         id: 'Civel',
         rotulo: '📋 Direito Cível / Consumidor',
@@ -74,6 +96,8 @@ function normalizarPresetKey(presetTipo) {
         .toLowerCase()
         .trim();
 
+    if (p.includes('rur') || p.includes('roca') || p.includes('campo')) return 'PrevidenciarioRural';
+    if (p.includes('crim') || p.includes('flagr') || p.includes('preso') || p.includes('custod')) return 'CriminalCustodia';
     if (p.includes('trab')) return 'Trabalhista';
     if (p.includes('prev') || p.includes('inss')) return 'Previdenciario';
     if (p.includes('civ') || p.includes('consum')) return 'Civel';
@@ -109,6 +133,13 @@ function documentoSatisfazItem(tipoDetectado, itemPendente) {
     if (p.includes('CONTRATO') && (t.includes('CONTRATO') || t.includes('COMPROVANTE'))) return true;
     if (p.includes('LAUDO') && (t.includes('LAUDO') || t.includes('MEDICO') || t.includes('EXAME'))) return true;
     if (p.includes('CNIS') && (t.includes('CNIS') || t.includes('INSS') || t.includes('EXTRATO'))) return true;
+    if (p.includes('RURAL') || p.includes('DOC_RURAL')) {
+        if (t.includes('RURAL') || t.includes('TERRA') || t.includes('ITR') || t.includes('INCRA') || t.includes('DAP') || t.includes('CAF') || t.includes('PRODUTOR')) return true;
+    }
+    if (p.includes('BO_OU_NOTA_CULPA') || p.includes('CULPA') || p.includes('FLAGR')) {
+        if (t.includes('BO') || t.includes('BOLETIM') || t.includes('OCORRENCIA') || t.includes('CULPA') || t.includes('FLAGR') || t.includes('PRISAO')) return true;
+    }
+    if (p.includes('VINCULO_EMPREGO') && (t.includes('CTPS') || t.includes('CARTEIRA') || t.includes('EMPREGO') || t.includes('VINCULO') || t.includes('HOLERITE'))) return true;
     return false;
 }
 
@@ -723,6 +754,8 @@ async function verificarLembretesDossieParcial(config = {}, options = {}) {
 
 module.exports = {
     PRESETS_ONBOARDING,
+    normalizarPresetKey,
+    documentoSatisfazItem,
     iniciarSessaoOnboarding,
     obterSessaoAtiva,
     processarMidiaOnboarding,

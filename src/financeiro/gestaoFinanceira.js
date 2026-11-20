@@ -857,5 +857,7 @@ module.exports = {
     excluirContratoFinanceiro,
     obterMetricasFinanceiras,
     salvarConfiguracaoCobranca,
-    garantirEstruturaFinanceira
+    garantirEstruturaFinanceira,
+    telefonesEquivalentes,
+    normalizarTelefoneBR
 };

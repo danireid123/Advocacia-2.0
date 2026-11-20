@@ -34,6 +34,8 @@ const TIPOS_DOCUMENTO = {
   CONTRATO: 'CONTRATO',
   LAUDO_MEDICO: 'LAUDO_MEDICO',
   CNIS: 'CNIS',
+  DOC_RURAL: 'DOC_RURAL',
+  BO_OU_NOTA_CULPA: 'BO_OU_NOTA_CULPA',
   OUTRO: 'OUTRO'
 };
 
@@ -48,6 +50,8 @@ const MAPA_ROTULOS_TIPO = {
   CONTRATO: 'Contrato / Instrumento Jurídico',
   LAUDO_MEDICO: 'Laudo / Exame Médico',
   CNIS: 'Extrato Previdenciário (CNIS)',
+  DOC_RURAL: 'Documentação Rural (DAP/CAF/Terra)',
+  BO_OU_NOTA_CULPA: 'Boletim de Ocorrência / Nota de Culpa',
   OUTRO: 'Documento Digitalizado'
 };
 
@@ -515,5 +519,6 @@ module.exports = {
   TIMEOUT_MULTIMODAL_AUDIO,
   MODELOS_GEMINI_PADRAO,
   DEFEITOS_VALIDOS,
-  TIPOS_DOCUMENTO
+  TIPOS_DOCUMENTO,
+  MAPA_ROTULOS_TIPO
 };
