@@ -8,55 +8,64 @@
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
     :root {
-      --bg-deep: #09090b;
-      --bg-surface: #121215;
-      --bg-elevated: #18181b;
+      --bg-deep: #08080a;
+      --bg-surface: #0f1012;
+      --bg-elevated: #141518;
+      --bg-surface-3: #1a1b1f;
       --gold-champagne: #d4af37;
-      --gold-light: #fef08a;
-      --text-main: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --card-bg: rgba(24, 24, 27, 0.75);
-      --border-color: rgba(39, 39, 42, 0.85);
-      --input-bg: rgba(9, 9, 11, 0.85);
-      --inner-box-bg: #09090b;
+      --gold-light: #f3dc8a;
+      --text-main: #f7f8f8;
+      --text-muted: #8a8f98;
+      --text-tertiary: #62666d;
+      --card-bg: #0f1012;
+      --border-color: #23252a;
+      --border-strong: #32343b;
+      --input-bg: #0b0c0e;
+      --inner-box-bg: #0b0c0e;
     }
 
     body.theme-dark {
-      --bg-deep: #09090b;
-      --bg-surface: #121215;
-      --bg-elevated: #18181b;
+      --bg-deep: #08080a;
+      --bg-surface: #0f1012;
+      --bg-elevated: #141518;
+      --bg-surface-3: #1a1b1f;
       --gold-champagne: #d4af37;
-      --gold-light: #fef08a;
-      --text-main: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --card-bg: rgba(24, 24, 27, 0.75);
-      --border-color: rgba(39, 39, 42, 0.85);
-      --input-bg: rgba(9, 9, 11, 0.85);
-      --inner-box-bg: #09090b;
+      --gold-light: #f3dc8a;
+      --text-main: #f7f8f8;
+      --text-muted: #8a8f98;
+      --text-tertiary: #62666d;
+      --card-bg: #0f1012;
+      --border-color: #23252a;
+      --border-strong: #32343b;
+      --input-bg: #0b0c0e;
+      --inner-box-bg: #0b0c0e;
       background-color: var(--bg-deep);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.05) 0px, transparent 45%),
-        radial-gradient(at 100% 100%, rgba(24, 24, 27, 0.4) 0px, transparent 50%);
+      background-image:
+        radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.045) 0%, transparent 65%);
       color: var(--text-main);
     }
 
+    /* ============================================================
+       MODO CLARO EDITORIAL — PAPEL TIMBRADO NOBRE (INSPIRADO NO ORACLE)
+       Tons quentes relaxantes (#f1efed / #fbf9f8 / #f5f4f2), zero branco estourado
+       ============================================================ */
     body.theme-light {
-      --bg-deep: #e2e8f0;
-      --bg-surface: #ffffff;
-      --bg-elevated: #f1f5f9;
+      --bg-deep: #f1efed;
+      --bg-surface: #fbf9f8;
+      --bg-elevated: #f5f4f2;
       --gold-champagne: #b8860b;
       --gold-light: #854d0e;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --card-bg: #ffffff;
-      --border-color: #cbd5e1;
-      --input-bg: #f8fafc;
-      --inner-box-bg: #f1f5f9;
-      background-color: #e2e8f0 !important;
+      --text-main: #161513;
+      --text-muted: #524c46;
+      --card-bg: #fbf9f8;
+      --border-color: #e4e1dd;
+      --input-bg: #f5f4f2;
+      --inner-box-bg: #f5f4f2;
+      background-color: #f1efed !important;
       background-image: 
-        radial-gradient(at 0% 0%, rgba(184, 134, 11, 0.08) 0px, transparent 40%),
-        radial-gradient(at 100% 100%, rgba(148, 163, 184, 0.15) 0px, transparent 40%) !important;
-      color: #0f172a !important;
+        radial-gradient(at 0% 0%, rgba(184, 134, 11, 0.06) 0px, transparent 42%),
+        radial-gradient(at 100% 100%, rgba(212, 207, 202, 0.22) 0px, transparent 45%) !important;
+      color: #161513 !important;
     }
 
     body { 
@@ -68,29 +77,29 @@
     }
 
     body.theme-light .exec-card {
-      background: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06) !important;
+      background: #fbf9f8 !important;
+      border-color: #e4e1dd !important;
+      box-shadow: 0 1px 2px rgba(22, 21, 19, 0.04), 0 8px 24px -8px rgba(22, 21, 19, 0.07) !important;
     }
     body.theme-light .exec-card:hover {
-      border-color: rgba(184, 134, 11, 0.5) !important;
+      border-color: rgba(184, 134, 11, 0.42) !important;
     }
     body.theme-light .exec-input {
-      background: #f8fafc !important;
-      border-color: #cbd5e1 !important;
-      color: #0f172a !important;
+      background: #f5f4f2 !important;
+      border-color: #d4cfca !important;
+      color: #161513 !important;
     }
     body.theme-light .exec-input:focus {
-      background: #ffffff !important;
+      background: #fbf9f8 !important;
       border-color: #b8860b !important;
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.18) !important;
+      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.16) !important;
     }
 
-    body.theme-light .text-white { color: #0f172a !important; }
+    body.theme-light .text-white { color: #161513 !important; }
     body.theme-light .text-slate-200,
-    body.theme-light .text-slate-300 { color: #1e293b !important; }
-    body.theme-light .text-slate-400 { color: #475569 !important; }
-    body.theme-light .text-slate-500 { color: #64748b !important; }
+    body.theme-light .text-slate-300 { color: #211e1c !important; }
+    body.theme-light .text-slate-400 { color: #524c46 !important; }
+    body.theme-light .text-slate-500 { color: #78716c !important; }
     body.theme-light .text-\[\#f3e5ab\] { color: #854d0e !important; }
     body.theme-light .text-\[\#e5c158\] { color: #996515 !important; }
 
@@ -99,8 +108,8 @@
     body.theme-light .bg-zinc-950\/85,
     body.theme-light .bg-black\/20,
     body.theme-light .bg-black\/25 {
-      background-color: #f1f5f9 !important;
-      border-color: #cbd5e1 !important;
+      background-color: #f5f4f2 !important;
+      border-color: #e4e1dd !important;
     }
 
     body.theme-light .border-slate-800,
@@ -108,12 +117,13 @@
     body.theme-light .border-slate-800\/90,
     body.theme-light .border-slate-700,
     body.theme-light .border-white\/5,
+    body.theme-light .border-white\/10,
     body.theme-light .border-zinc-800,
     body.theme-light .border-zinc-800\/80,
     body.theme-light .border-zinc-800\/70,
     body.theme-light .border-zinc-700,
     body.theme-light .border-zinc-700\/80 {
-      border-color: #cbd5e1 !important;
+      border-color: #e4e1dd !important;
     }
 
     body.theme-light .bg-slate-900,
@@ -130,21 +140,24 @@
     body.theme-light .bg-zinc-900\/90,
     body.theme-light .bg-zinc-950,
     body.theme-light .bg-zinc-950\/80 {
-      background-color: #ffffff !important;
-      color: #1e293b !important;
-      border-color: #cbd5e1 !important;
+      background-color: #fbf9f8 !important;
+      color: #211e1c !important;
+      border-color: #e4e1dd !important;
     }
 
     body.theme-light .text-zinc-100,
     body.theme-light .text-zinc-200 {
-      color: #0f172a !important;
+      color: #161513 !important;
     }
     body.theme-light .text-zinc-300,
     body.theme-light .text-zinc-400 {
-      color: #334155 !important;
+      color: #47423e !important;
     }
     body.theme-light .text-zinc-500 {
-      color: #64748b !important;
+      color: #78716c !important;
+    }
+    body.theme-light #main-content-area {
+      background-image: radial-gradient(rgba(49, 45, 42, 0.045) 1px, transparent 1px);
     }
 
     body.theme-light .champagne-gradient {
@@ -180,14 +193,268 @@
     
     .exec-card { 
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
       border: 1px solid var(--border-color);
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 28px -12px rgba(0, 0, 0, 0.65);
+      transition: border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease;
+    }
+
+    /* Linear × Cohere: Superfícies Obsidian, Hierarquia Editorial e Linhas Hairline */
+    .linear-shell {
+      background: #0f1012;
+      border: 1px solid #23252a;
+      border-radius: 16px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 32px -16px rgba(0, 0, 0, 0.72);
+    }
+    .linear-kpi-card {
+      background: #0f1012;
+      border: 1px solid #23252a;
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+      transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    }
+    .linear-kpi-card:hover {
+      background: #131417;
+      border-color: rgba(212, 175, 55, 0.35);
+      transform: translateY(-2px);
+      box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.12), 0 14px 28px -12px rgba(0, 0, 0, 0.7);
+    }
+    .linear-step-cell {
+      background: #121316;
+      border: 1px solid #1f2025;
+      border-radius: 12px;
+      padding: 14px;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
+    }
+    .linear-step-cell:hover {
+      background: #16171b;
+      border-color: #2f3138;
+    }
+    .cohere-eyebrow {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a8f98;
+    }
+    .linear-btn-ghost {
+      background: #141518;
+      color: #d0d6e0;
+      border: 1px solid #26282e;
+      border-radius: 10px;
+      transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .linear-btn-ghost:hover {
+      background: #1b1c21;
+      color: #f7f8f8;
+      border-color: #3a3d46;
+    }
+    .linear-telemetry-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: #141518;
+      border: 1px solid #23252a;
+      color: #d0d6e0;
+      font-size: 11px;
+      font-weight: 500;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
+    }
+    .linear-telemetry-chip:hover {
+      background: #1a1b20;
+      border-color: rgba(212, 175, 55, 0.38);
+      color: #f7f8f8;
+    }
+    .linear-proc-row {
+      background: #121316;
+      border: 1px solid #1f2025;
+      border-radius: 12px;
+      padding: 12px 14px;
+      position: relative;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .linear-proc-row:hover {
+      background: #17181c;
+      border-color: #30323a;
+    }
+    .linear-proc-row.proc-list-item-active {
+      background: #17181d !important;
+      border-color: rgba(212, 175, 55, 0.42) !important;
+      box-shadow: inset 3px 0 0 #d4af37, 0 4px 16px -8px rgba(0, 0, 0, 0.65) !important;
+    }
+
+    /* ============================================================
+       DESIGN SYSTEM CONSOLIDADO (COHERE + LINEAR + ORACLE)
+       ============================================================ */
+
+    /* Cohere: Superfície de Console de IA Sóbria e Editorial (Conformidade OAB) */
+    .ai-console-panel {
+      background: #0f1011;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      transition: border-color 0.18s ease, background-color 0.18s ease;
+    }
+    .ai-console-panel:hover {
+      border-color: rgba(255, 255, 255, 0.13);
+    }
+    .ai-console-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-console-body {
+      font-size: 12.5px;
+      line-height: 1.62;
+      color: #d4d4d8;
+    }
+    body.theme-light .ai-console-panel {
+      background: #f5f4f2 !important;
+      border-color: #e4e1dd !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    }
+    body.theme-light .ai-console-body {
+      color: #211e1c !important;
+    }
+
+    /* Cohere + Linear: Linha de Resposta Rápida em 1 Clique */
+    .ai-suggestion-row {
+      background: #121316;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ai-suggestion-row:hover {
+      background: #17181c;
+      border-color: rgba(212, 175, 55, 0.32);
+    }
+    body.theme-light .ai-suggestion-row {
+      background: #fbf9f8 !important;
+      border-color: #e4e1dd !important;
+    }
+    body.theme-light .ai-suggestion-row:hover {
+      background: #f5f4f2 !important;
+      border-color: rgba(184, 134, 11, 0.45) !important;
+    }
+
+    /* Cohere + Linear: Botão Sóbrio "✨ Melhorar / Humanizar / Sugerir com IA" */
+    .btn-ai-enhance {
+      background: rgba(212, 175, 55, 0.10);
+      color: #f3e5ab;
+      border: 1px solid rgba(212, 175, 55, 0.30);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-ai-enhance:hover {
+      background: rgba(212, 175, 55, 0.18);
+      border-color: rgba(212, 175, 55, 0.55);
+      color: #fef08a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px -2px rgba(212, 175, 55, 0.22);
+    }
+    .btn-ai-enhance:active {
+      transform: scale(0.97);
+    }
+    .btn-ai-enhance:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.45);
+    }
+    body.theme-light .btn-ai-enhance {
+      background: #f7e0a1 !important;
+      background-color: rgba(240, 204, 113, 0.28) !important;
+      color: #854d0e !important;
+      border-color: rgba(184, 134, 11, 0.42) !important;
+      box-shadow: 0 1px 2px rgba(22, 21, 19, 0.05) !important;
+    }
+    body.theme-light .btn-ai-enhance:hover {
+      background-color: rgba(240, 204, 113, 0.48) !important;
+      border-color: #b8860b !important;
+      color: #713f12 !important;
+    }
+
+    /* Linear: Badges Semânticos de Urgência Processual (Alta Escaneabilidade) */
+    .urgency-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+      font-variant-numeric: tabular-nums;
+      border-width: 1px;
+      border-style: solid;
+    }
+    .urgency-badge-critica {
+      background: rgba(244, 63, 94, 0.14);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.42);
+      box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.12);
+    }
+    .urgency-badge-alta {
+      background: rgba(245, 158, 11, 0.14);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.38);
+    }
+    .urgency-badge-media {
+      background: rgba(212, 175, 55, 0.10);
+      color: #e5c158;
+      border-color: rgba(212, 175, 55, 0.28);
+    }
+    .urgency-badge-baixa {
+      background: rgba(39, 39, 42, 0.72);
+      color: #d4d4d8;
+      border-color: rgba(63, 63, 70, 0.85);
+    }
+    body.theme-light .urgency-badge-critica {
+      background: #fef2f2 !important;
+      color: #991b1b !important;
+      border-color: #fca5a5 !important;
+    }
+    body.theme-light .urgency-badge-alta {
+      background: #fffbeb !important;
+      color: #92400e !important;
+      border-color: #fcd34d !important;
+    }
+    body.theme-light .urgency-badge-media {
+      background: #faf6eb !important;
+      color: #854d0e !important;
+      border-color: #e6d39c !important;
+    }
+    body.theme-light .urgency-badge-baixa {
+      background: #f5f4f2 !important;
+      color: #524c46 !important;
+      border-color: #d4cfca !important;
+    }
+
+    /* Oracle: Papel Timbrado Editorial para Leitura de Documentos e Dossiês */
+    .editorial-paper-pane {
+      transition: background-color 0.22s ease, border-color 0.22s ease;
+    }
+    body.theme-light .editorial-paper-pane {
+      background: #fbf9f8 !important;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #e4e1dd !important;
+      box-shadow: inset 0 2px 0 rgba(184, 134, 11, 0.32), 0 4px 16px -6px rgba(22, 21, 19, 0.06) !important;
     }
     #main-content-area {
-      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 28px 28px;
+      background-color: var(--bg-deep);
     }
     /* Cards padrão estáticos NUNCA ganham borda amarela no hover */
     .exec-card-hover {
@@ -203,13 +470,17 @@
       border-color: rgba(212, 175, 55, 0.35);
     }
     .btn-tactile {
-      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     }
     .btn-tactile:hover {
       filter: brightness(1.06);
     }
     .btn-tactile:active {
-      transform: scale(0.97);
+      transform: scale(0.975);
+    }
+    .btn-tactile:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.45);
     }
 
     /* Pílula deslizante em Segmented Controls */
@@ -346,21 +617,21 @@
 
     body.theme-light .exec-input {
       color-scheme: light;
-      background-color: #f8fafc !important;
-      border-color: #cbd5e1 !important;
-      color: #0f172a !important;
+      background-color: #f5f4f2 !important;
+      border-color: #d4cfca !important;
+      color: #161513 !important;
     }
     body.theme-light .exec-input::placeholder {
-      color: #94a3b8 !important; /* slate-400 */
+      color: #8c857e !important;
     }
     body.theme-light .exec-input:hover {
       border-color: rgba(184, 134, 11, 0.5) !important;
-      background-color: #ffffff !important;
+      background-color: #fbf9f8 !important;
     }
     body.theme-light .exec-input:focus {
-      background-color: #ffffff !important;
+      background-color: #fbf9f8 !important;
       border-color: #b8860b !important;
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.2) !important;
+      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.16) !important;
     }
     body.theme-light select.exec-input {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23b8860b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -1779,273 +2050,234 @@
       <div class="w-full max-w-7xl 2xl:max-w-[1800px] mx-auto space-y-6">
         
         <!-- ================= ABA 0: VISÃO GERAL (NOVO COCKPIT EXECUTIVO) ================= -->
-        <div id="aba-inicio" class="space-y-6 tab-pane-anim">
+        <div id="aba-inicio" class="space-y-5 tab-pane-anim">
           
-          <!-- 1. HERO COCKPIT HEADER: SAUDAÇÃO, STATUS & ATALHOS PRIMÁRIOS -->
-          <div id="tour-home-banner" class="exec-card relative overflow-hidden p-5 sm:p-6 rounded-3xl border border-zinc-800/80 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-950/90 shadow-2xl backdrop-blur-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 group">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent"></div>
+          <!-- 1. HERO COCKPIT HEADER (LINEAR × COHERE EXECUTIVE BAR) -->
+          <div id="tour-home-banner" class="linear-shell relative overflow-hidden p-6 sm:p-7 flex flex-col gap-5">
+            <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/55 to-transparent"></div>
             
-            <div class="relative z-10 space-y-2.5 max-w-2xl">
-              <!-- Status chips informativos (estado real em tempo real) -->
+            <!-- Faixa Superior de Telemetria em Tempo Real -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#1f2025]">
               <div class="flex items-center flex-wrap gap-2">
-                <button type="button" onclick="abrirModalQrRapido()" id="home-chip-whatsapp" class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60 hover:border-amber-500/40 transition cursor-pointer">
+                <button type="button" onclick="abrirModalQrRapido()" id="home-chip-whatsapp" class="linear-telemetry-chip cursor-pointer">
                   <span id="home-chip-whatsapp-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                   <span id="home-chip-whatsapp-txt">WhatsApp: Verificando...</span>
                 </button>
-                <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60 hover:border-amber-500/40 transition cursor-pointer">
+                <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="linear-telemetry-chip cursor-pointer">
                   <span id="home-chip-ia-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                   <span id="home-chip-ia-txt">IA: Integrada</span>
                 </button>
-                <button type="button" onclick="ativarAba('agenda')" id="home-chip-expediente" class="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-800/80 text-zinc-300 border border-zinc-700/60 hover:border-amber-500/40 transition cursor-pointer font-mono">
-                  <span id="home-chip-expediente-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                <button type="button" onclick="ativarAba('agenda')" id="home-chip-expediente" class="linear-telemetry-chip font-mono cursor-pointer">
+                  <span id="home-chip-expediente-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
                   <span id="home-chip-expediente-txt">Verificando Expediente...</span>
                 </button>
               </div>
+              <span class="cohere-eyebrow hidden sm:inline-block">Advocacia Studio Pro</span>
+            </div>
+
+            <!-- Linha Principal: Título Editorial + Ações Disciplinadas -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+              <div class="space-y-1.5 max-w-2xl">
+                <h2 id="home-welcome-title" class="font-serif-legal text-3xl sm:text-[34px] font-bold tracking-tight text-[#f7f8f8] leading-tight">
+                  Painel do Advogado
+                </h2>
+                <p class="text-[13px] text-[#8a8f98] leading-relaxed max-w-xl">
+                  Acompanhe o andamento dos processos, responda solicitações urgentes na fila do WhatsApp e consulte pastas cadastradas por CPF ou número de processo.
+                </p>
+              </div>
               
-              <h2 id="home-welcome-title" class="font-serif-legal text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">
-                Painel do Advogado
-              </h2>
-              <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-xl">
-                Acompanhe o andamento dos processos, responda solicitações urgentes na fila do WhatsApp e consulte pastas cadastradas por CPF ou número de processo.
-              </p>
+              <!-- Ações rápidas com hierarquia de 1 acento principal + secundários sóbrios -->
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <button onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-[10px] text-xs font-bold champagne-gradient text-zinc-950 active:scale-[0.98] shadow-[0_1px_12px_rgba(212,175,55,0.22)] flex items-center space-x-2 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 stroke-[2.5]"><use href="#icon-plus"/></svg>
+                  <span>Cadastrar Processo</span>
+                </button>
+                <button onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-3.5 py-2.5 text-xs font-medium flex items-center space-x-1.5 cursor-pointer" title="Testar respostas do robô no simulador">
+                  <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-message"/></svg>
+                  <span>Simulador</span>
+                </button>
+                <button onclick="ativarAba('pausados')" class="btn-tactile linear-btn-ghost px-3.5 py-2.5 text-xs font-medium flex items-center space-x-1.5 cursor-pointer" title="Ver fila de espera de clientes">
+                  <svg class="w-3.5 h-3.5 text-[#d4af37]"><use href="#icon-user-clock"/></svg>
+                  <span>Fila</span>
+                </button>
+                <button onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-3.5 py-2.5 text-xs font-medium flex items-center space-x-1.5 cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+                  <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-users"/></svg>
+                  <span>Dossiê CPC</span>
+                </button>
+              </div>
             </div>
-            
-            <!-- Ações rápidas de alto impacto com acentos visuais equilibrados -->
-            <div class="relative z-10 flex flex-wrap items-center gap-2.5 shrink-0">
-              <button onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-950 active:scale-[0.98] shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center space-x-2 transition-all cursor-pointer">
-                <svg class="w-4 h-4 stroke-[2.5]"><use href="#icon-plus"/></svg>
-                <span>Cadastrar Processo</span>
-              </button>
-              <button onclick="ativarAba('simulador')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-emerald-950/40 text-zinc-200 hover:text-emerald-300 border border-zinc-800 hover:border-emerald-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Testar respostas do robô no simulador">
-                <svg class="w-4 h-4 text-emerald-400"><use href="#icon-message"/></svg>
-                <span>Simulador</span>
-              </button>
-              <button onclick="ativarAba('pausados')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-amber-950/40 text-zinc-200 hover:text-amber-300 border border-zinc-800 hover:border-amber-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Ver fila de espera de clientes">
-                <svg class="w-4 h-4 text-amber-400"><use href="#icon-user-clock"/></svg>
-                <span>Fila de Atendimento</span>
-              </button>
-              <button onclick="ativarAba('dossie-clientes')" class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-medium bg-zinc-900/90 hover:bg-sky-950/40 text-zinc-200 hover:text-sky-300 border border-zinc-800 hover:border-sky-500/40 active:scale-[0.98] flex items-center space-x-1.5 transition-all cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
-                <svg class="w-4 h-4 text-sky-400"><use href="#icon-users"/></svg>
-                <span>Dossiê de Clientes</span>
-              </button>
-            </div>
-            
-            <!-- Iluminação ambiente suave de fundo -->
-            <div class="absolute -right-16 -top-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
           </div>
 
-          <!-- CHECKLIST DE PRIMEIRO USO (PASSO 1, 2, 3, 4) -->
-          <div id="home-onboarding-checklist" class="exec-card p-5 rounded-3xl border border-amber-500/25 bg-zinc-900/50 space-y-4 shadow-xl">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">Primeiros Passos</span>
-                  <span id="checklist-progresso-label" class="text-[11px] font-mono text-zinc-400">0 de 4 concluídos</span>
-                </div>
-                <h3 class="text-sm font-bold text-zinc-100 mt-1">Configure seu escritório em 4 passos simples</h3>
+          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (LINEAR OBSIDIAN METRICS) -->
+          <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            
+            <!-- Card 1: Processos Ativos -->
+            <div class="linear-kpi-card cursor-pointer group flex flex-col justify-between min-h-[136px]" onclick="ativarAba('processos')" title="Clique para ver todos os processos">
+              <div class="flex items-center justify-between">
+                <span class="cohere-eyebrow">Processos</span>
+                <svg class="w-4 h-4 text-[#62666d] group-hover:text-[#d4af37] transition-colors"><use href="#icon-folder"/></svg>
               </div>
-              <button type="button" id="btn-ocultar-checklist" onclick="toggleChecklistPrimeiroUso(false)" class="text-[11px] text-zinc-400 hover:text-zinc-200 px-2.5 py-1 rounded-lg bg-zinc-950/60 border border-zinc-800 cursor-pointer self-start sm:self-center">Ocultar guia</button>
+              <div class="my-2.5 flex items-baseline gap-2">
+                <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-semibold text-[#f7f8f8] tracking-tight">0</span>
+                <span class="text-[11px] text-[#62666d] font-mono">pastas ativas</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-[#8a8f98] pt-2.5 border-t border-[#1e1f24]">
+                <span>Consultas CPF/CNJ</span>
+                <span class="text-[10.5px] text-[#d0d6e0] font-mono"><span id="metric-clientes-reais">0</span> clientes</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Fila de Atendimento -->
+            <div class="linear-kpi-card cursor-pointer group flex flex-col justify-between min-h-[136px]" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
+              <div class="flex items-center justify-between">
+                <span class="cohere-eyebrow">Fila de Atendimento</span>
+                <span id="dot-ping-fila-home" class="relative flex h-2 w-2">
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                </span>
+              </div>
+              <div class="my-2.5 flex items-center justify-between gap-2">
+                <div class="flex items-baseline gap-2">
+                  <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-semibold text-[#f3dc8a] tracking-tight">0</span>
+                  <span id="metric-fila-humana" class="hidden font-mono">0</span>
+                </div>
+                <span id="badge-status-fila-home" class="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/12 text-rose-300 border border-rose-500/25 font-medium font-mono">Aguardando</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-[#8a8f98] pt-2.5 border-t border-[#1e1f24]">
+                <span class="truncate">Triagem humana</span>
+                <span class="text-[10.5px] text-rose-300/90 font-mono">Prioritário</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Automação & Mensagens (Layout limpo sem colisão) -->
+            <div class="linear-kpi-card cursor-pointer group flex flex-col justify-between min-h-[136px]" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
+              <div class="flex items-center justify-between">
+                <span class="cohere-eyebrow">Robô WhatsApp</span>
+                <span class="inline-flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Online
+                </span>
+              </div>
+              <div class="my-2.5 space-y-1">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-lg font-semibold text-[#f7f8f8] tracking-tight">Robô Ativo</span>
+                  <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-md bg-[#16171c] text-emerald-300 border border-[#26282e] font-mono shrink-0">~0h econ.</span>
+                  <span id="metric-mensagens-reais" class="hidden">0</span>
+                </div>
+                <span id="metric-taxa-auto-home" class="text-[10.5px] font-mono text-[#62666d] block truncate">Aguardando uso</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-[#8a8f98] pt-2.5 border-t border-[#1e1f24]">
+                <span>Atendimento 24/7</span>
+                <span class="text-[10.5px] text-[#d0d6e0] font-mono"><span id="home-card-menus">2</span> fluxos</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Expediente & Horário Hoje -->
+            <div class="linear-kpi-card cursor-pointer group flex flex-col justify-between min-h-[136px]" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
+              <div class="flex items-center justify-between">
+                <span class="cohere-eyebrow">Expediente Hoje</span>
+                <svg class="w-4 h-4 text-[#62666d] group-hover:text-[#d4af37] transition-colors"><use href="#icon-calendar"/></svg>
+              </div>
+              <div class="my-2.5 flex items-center justify-between gap-2">
+                <span id="home-card-expediente" class="text-lg font-semibold text-[#f7f8f8] tracking-tight truncate">Verificando...</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#16171c] text-[#8a8f98] border border-[#26282e] shrink-0">Seg–Sex</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-[#8a8f98] pt-2.5 border-t border-[#1e1f24]">
+                <span id="home-card-horario-detalhe" class="truncate">Conforme agenda</span>
+                <span class="text-[10.5px] text-[#d0d6e0] font-mono shrink-0">08h–18h</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- CHECKLIST DE PRIMEIRO USO (COMPACTO & REFINADO) -->
+          <div id="home-onboarding-checklist" class="linear-shell p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#1f2025]">
+              <div class="flex items-center flex-wrap gap-2.5">
+                <span class="text-[10px] font-mono font-semibold uppercase tracking-widest px-2 py-0.5 rounded-md bg-[#d4af37]/12 text-[#f3dc8a] border border-[#d4af37]/30">Setup</span>
+                <h3 class="text-[13px] font-semibold text-[#f7f8f8]">Configure seu escritório em 4 passos</h3>
+                <span id="checklist-progresso-label" class="text-[11px] font-mono text-[#62666d]">0 de 4 concluídos</span>
+              </div>
+              <button type="button" id="btn-ocultar-checklist" onclick="toggleChecklistPrimeiroUso(false)" class="linear-btn-ghost text-[11px] px-2.5 py-1 cursor-pointer self-start sm:self-center">Ocultar guia</button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-              <!-- Passo 1: WhatsApp + QR -->
-              <div id="passo-check-1" class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex flex-col justify-between space-y-3">
+              <!-- Passo 1 -->
+              <div id="passo-check-1" class="linear-step-cell flex flex-col justify-between space-y-3">
                 <div class="space-y-1">
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-amber-400">PASSO 1</span>
-                    <span id="passo-1-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">Pendente</span>
+                    <span class="text-[10px] font-mono font-semibold text-[#d4af37]">01</span>
+                    <span id="passo-1-badge" class="text-[10px] px-2 py-0.5 rounded-md bg-[#1a1b1f] text-[#8a8f98] font-mono">Pendente</span>
                   </div>
-                  <p class="font-bold text-zinc-100">Conectar WhatsApp</p>
-                  <p class="text-[11px] text-zinc-400">Escaneie o QR Code com o celular do escritório.</p>
+                  <p class="font-semibold text-[#f7f8f8]">Conectar WhatsApp</p>
+                  <p class="text-[11px] text-[#8a8f98]">Escaneie o QR Code com o celular do escritório.</p>
                 </div>
-                <button type="button" onclick="abrirModalQrRapido()" class="w-full py-2 px-3 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-[11px] transition cursor-pointer">Abrir QR Code</button>
+                <button type="button" onclick="abrirModalQrRapido()" class="w-full py-1.5 px-3 rounded-lg bg-[#d4af37]/14 hover:bg-[#d4af37]/24 text-[#f3dc8a] border border-[#d4af37]/30 font-semibold text-[11px] transition cursor-pointer">Abrir QR Code</button>
               </div>
-              <!-- Passo 2: Nome do Escritório & Horário -->
-              <div id="passo-check-2" class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex flex-col justify-between space-y-3">
+              <!-- Passo 2 -->
+              <div id="passo-check-2" class="linear-step-cell flex flex-col justify-between space-y-3">
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-amber-400">PASSO 2</span>
-                    <span id="passo-2-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">Pendente</span>
+                    <span class="text-[10px] font-mono font-semibold text-[#d4af37]">02</span>
+                    <span id="passo-2-badge" class="text-[10px] px-2 py-0.5 rounded-md bg-[#1a1b1f] text-[#8a8f98] font-mono">Pendente</span>
                   </div>
-                  <p class="font-bold text-zinc-100">Escritório &amp; Horário</p>
+                  <p class="font-semibold text-[#f7f8f8]">Escritório &amp; Horário</p>
                   <input type="text" id="home-nome-escritorio" placeholder="Ex: Silva &amp; Associados" class="exec-input w-full rounded-lg px-2.5 py-1.5 text-[11px]" oninput="if (window.configGlobal) { window.configGlobal.nomeEscritorio = this.value; if (typeof atualizarPreviewEtapaAoVivo === 'function') atualizarPreviewEtapaAoVivo(); }">
                 </div>
                 <div class="flex gap-1.5">
-                  <button type="button" onclick="salvarNomeEscritorioRapido()" class="flex-1 py-2 px-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold text-[11px] transition cursor-pointer">Salvar Nome</button>
-                  <button type="button" onclick="ativarAba('agenda')" class="py-2 px-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-[11px] transition cursor-pointer">Horários</button>
+                  <button type="button" onclick="salvarNomeEscritorioRapido()" class="flex-1 py-1.5 px-2 rounded-lg bg-[#d4af37]/14 hover:bg-[#d4af37]/24 text-[#f3dc8a] border border-[#d4af37]/30 font-semibold text-[11px] transition cursor-pointer">Salvar</button>
+                  <button type="button" onclick="ativarAba('agenda')" class="linear-btn-ghost py-1.5 px-2.5 text-[11px] font-medium cursor-pointer">Horários</button>
                 </div>
               </div>
-              <!-- Passo 3: Menu Inicial & Simulador -->
-              <div id="passo-check-3" class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex flex-col justify-between space-y-3">
+              <!-- Passo 3 -->
+              <div id="passo-check-3" class="linear-step-cell flex flex-col justify-between space-y-3">
                 <div class="space-y-1">
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-amber-400">PASSO 3</span>
-                    <span id="passo-3-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">Pendente</span>
+                    <span class="text-[10px] font-mono font-semibold text-[#d4af37]">03</span>
+                    <span id="passo-3-badge" class="text-[10px] px-2 py-0.5 rounded-md bg-[#1a1b1f] text-[#8a8f98] font-mono">Pendente</span>
                   </div>
-                  <p class="font-bold text-zinc-100">Menu &amp; Simulador</p>
-                  <p class="text-[11px] text-zinc-400">Ajuste o menu de opções e teste a resposta do robô.</p>
+                  <p class="font-semibold text-[#f7f8f8]">Menu &amp; Simulador</p>
+                  <p class="text-[11px] text-[#8a8f98]">Ajuste o menu de opções e teste a resposta do robô.</p>
                 </div>
                 <div class="flex gap-1.5">
-                  <button type="button" onclick="ativarAba('fluxo')" class="flex-1 py-2 px-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-[11px] transition cursor-pointer">Editar Menu</button>
-                  <button type="button" onclick="ativarAba('simulador')" class="flex-1 py-2 px-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold text-[11px] transition cursor-pointer">Testar</button>
+                  <button type="button" onclick="ativarAba('fluxo')" class="linear-btn-ghost flex-1 py-1.5 px-2 text-[11px] font-medium cursor-pointer">Editar Menu</button>
+                  <button type="button" onclick="ativarAba('simulador')" class="flex-1 py-1.5 px-2 rounded-lg bg-[#d4af37]/14 hover:bg-[#d4af37]/24 text-[#f3dc8a] border border-[#d4af37]/30 font-semibold text-[11px] transition cursor-pointer">Testar</button>
                 </div>
               </div>
-              <!-- Passo 4: 1º Processo -->
-              <div id="passo-check-4" class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex flex-col justify-between space-y-3">
+              <!-- Passo 4 -->
+              <div id="passo-check-4" class="linear-step-cell flex flex-col justify-between space-y-3">
                 <div class="space-y-1">
                   <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-mono font-bold text-amber-400">PASSO 4</span>
-                    <span id="passo-4-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">Pendente</span>
+                    <span class="text-[10px] font-mono font-semibold text-[#d4af37]">04</span>
+                    <span id="passo-4-badge" class="text-[10px] px-2 py-0.5 rounded-md bg-[#1a1b1f] text-[#8a8f98] font-mono">Pendente</span>
                   </div>
-                  <p class="font-bold text-zinc-100">1º Processo</p>
-                  <p class="text-[11px] text-zinc-400">Cadastre um processo ou importe sua planilha.</p>
+                  <p class="font-semibold text-[#f7f8f8]">1º Processo</p>
+                  <p class="text-[11px] text-[#8a8f98]">Cadastre um processo ou importe sua planilha.</p>
                 </div>
                 <div class="flex gap-1.5">
-                  <button type="button" onclick="irParaNovoProcessoDireto()" class="flex-1 py-2 px-2 rounded-xl champagne-gradient text-zinc-950 font-bold text-[11px] transition cursor-pointer">Cadastrar</button>
-                  <button type="button" onclick="ativarAba('processos')" class="py-2 px-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-[11px] transition cursor-pointer">Importar</button>
+                  <button type="button" onclick="irParaNovoProcessoDireto()" class="flex-1 py-1.5 px-2 rounded-lg champagne-gradient text-zinc-950 font-bold text-[11px] transition cursor-pointer">Cadastrar</button>
+                  <button type="button" onclick="ativarAba('processos')" class="linear-btn-ghost py-1.5 px-2.5 text-[11px] font-medium cursor-pointer">Importar</button>
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- 2. BENTO GRID DE TELEMETRIA & KPIS EXECUTIVOS (4 CARDS VERTIX VIVOS & HARMONIOSOS) -->
-          <div id="tour-metrics-bar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <!-- Card 1: Processos Ativos (Acento Dourado) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('processos')" title="Clique para ver todos os processos">
-              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"></div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Processos Cadastrados</span>
-                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 group-hover:bg-amber-500/20 group-hover:border-amber-500/40 transition-all duration-200 shrink-0 shadow-sm">
-                  <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-baseline justify-between">
-                  <div class="flex items-baseline gap-2">
-                    <span id="home-card-processos" class="font-mono tabular-nums text-3xl font-extrabold text-amber-200 tracking-tight block">0</span>
-                    <span class="text-[10px] text-zinc-500 font-mono">pastas</span>
-                  </div>
-                  <!-- Mini 7-day sparkline com acento âmbar -->
-                  <div class="flex items-end gap-1 h-5 opacity-85" title="Atividade dos últimos 7 dias">
-                    <div class="w-1 bg-zinc-700 rounded-t h-2"></div>
-                    <div class="w-1 bg-zinc-600 rounded-t h-2.5"></div>
-                    <div class="w-1 bg-zinc-600 rounded-t h-2"></div>
-                    <div class="w-1 bg-amber-500/50 rounded-t h-3.5"></div>
-                    <div class="w-1 bg-amber-500/70 rounded-t h-3"></div>
-                    <div class="w-1 bg-amber-500/90 rounded-t h-4.5"></div>
-                    <div class="w-1 bg-amber-400 rounded-t h-5 shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
-                  </div>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span>Consultas por CPF/CNJ</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono">
-                    <span id="metric-clientes-reais">0</span> clientes
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 2: Fila do Advogado & Transbordo (Acento Coral/Âmbar) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-amber-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('pausados')" title="Clique para abrir a fila de atendimento">
-              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-rose-400/50 to-transparent"></div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Fila de Atendimento</span>
-                <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 group-hover:bg-rose-500/20 group-hover:border-rose-500/40 transition-all duration-200 shrink-0 shadow-sm">
-                  <svg class="w-4 h-4"><use href="#icon-user-clock"/></svg>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span id="metric-fila-humana-home" class="font-mono tabular-nums text-3xl font-extrabold text-amber-400 tracking-tight block">0</span>
-                    <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                    <span id="badge-status-fila-home" class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/25 font-semibold font-mono">Aguardando</span>
-                  </div>
-                  <span id="dot-ping-fila-home" class="relative flex h-2.5 w-2.5">
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-                  </span>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span class="truncate">Triagem de urgência</span>
-                  <span class="text-[10px] text-rose-400/90 font-mono font-medium">Prioritário</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 3: Automação & Mensagens (Acento Esmeralda WhatsApp) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-emerald-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('fluxo')" title="Clique para gerenciar mensagens e robô">
-              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Mensagens do Robô</span>
-                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/40 transition-all duration-200 shrink-0 shadow-sm">
-                  <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="relative flex h-2 w-2">
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-base font-bold text-emerald-300 tracking-tight block">Robô Ativo</span>
-                    <span id="metric-horas-reais" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-semibold font-mono">~0h economizadas</span>
-                    <span id="metric-mensagens-reais" class="hidden">0</span>
-                  </div>
-                  <span id="metric-taxa-auto-home" class="text-[10px] font-mono text-zinc-300 font-semibold bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700/60">Aguardando uso</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span>Atendimento 24/7</span>
-                  <span class="text-[10px] text-emerald-400/90 font-mono"><span id="home-card-menus">2</span> fluxos ativos</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 4: Expediente & Horário Hoje (Acento Azul Safira / Esmeralda) -->
-            <div class="exec-card exec-card-hover relative overflow-hidden p-5 rounded-2xl border border-zinc-800/80 hover:border-sky-500/40 bg-zinc-900/50 hover:bg-zinc-900/80 shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between" onclick="ativarAba('agenda')" title="Clique para gerenciar horários">
-              <div class="absolute top-0 left-4 right-4 h-[1.5px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent"></div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Expediente Hoje</span>
-                <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/20 group-hover:border-sky-500/40 transition-all duration-200 shrink-0 shadow-sm">
-                  <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="relative flex h-2 w-2">
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span id="home-card-expediente" class="text-base font-bold text-emerald-400 tracking-tight block">Verificando...</span>
-                  </div>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/25">Seg-Sex</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-zinc-400 font-medium pt-1 border-t border-zinc-800/60">
-                  <span id="home-card-horario-detalhe" class="truncate">Conforme agenda</span>
-                  <span class="text-[10px] text-zinc-400 font-mono">08h-18h</span>
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             <!-- Coluna 1: Processos Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
+            <div class="lg:col-span-6 linear-shell p-5 flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+                <div class="flex items-center justify-between border-b border-[#1f2025] pb-3.5 mb-3.5">
                   <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+                    <div class="w-7 h-7 rounded-lg bg-[#16171b] border border-[#26282e] flex items-center justify-center text-[#d4af37]">
+                      <svg class="w-3.5 h-3.5"><use href="#icon-folder"/></svg>
                     </div>
                     <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Processos Recentes</h3>
-                      <span class="text-[10px] text-zinc-400">Pastas e andamentos cadastrados</span>
+                      <h3 class="text-xs font-semibold text-[#f7f8f8]">Processos Recentes</h3>
+                      <span class="text-[11px] text-[#62666d]">Últimas pastas e andamentos atualizados</span>
                     </div>
                   </div>
-                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
+                  <button onclick="ativarAba('processos')" class="btn-tactile group/btn px-2.5 py-1 rounded-lg text-[11px] font-medium text-[#8a8f98] hover:text-[#f3dc8a] hover:bg-[#16171b] flex items-center gap-1 transition-all cursor-pointer">
                     <span>Ver todos</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform">→</span>
                   </button>
                 </div>
                 <div id="home-ultimos-processos" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
@@ -2053,26 +2285,26 @@
             </div>
 
             <!-- Coluna 2: Mensagens Recentes -->
-            <div class="lg:col-span-6 exec-card p-6 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between shadow-lg">
+            <div class="lg:col-span-6 linear-shell p-5 flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-4">
+                <div class="flex items-center justify-between border-b border-[#1f2025] pb-3.5 mb-3.5">
                   <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-                      <svg class="w-4 h-4"><use href="#icon-message"/></svg>
+                    <div class="w-7 h-7 rounded-lg bg-[#16171b] border border-[#26282e] flex items-center justify-center text-[#8a8f98]">
+                      <svg class="w-3.5 h-3.5"><use href="#icon-message"/></svg>
                     </div>
                     <div>
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-100">Mensagens do WhatsApp</h3>
-                      <span class="text-[10px] text-zinc-400">Interações recebidas e enviadas</span>
+                      <h3 class="text-xs font-semibold text-[#f7f8f8]">Mensagens do WhatsApp</h3>
+                      <span class="text-[11px] text-[#62666d]">Fluxo em tempo real de atendimento</span>
                     </div>
                   </div>
-                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-3 py-1.5 rounded-lg text-[11px] font-semibold text-zinc-300 hover:text-amber-300 hover:bg-zinc-800 flex items-center gap-1 transition-all duration-150 cursor-pointer">
-                    <span>Ver histórico</span>
-                    <span class="group-hover/btn:translate-x-0.5 transition-transform duration-150">➔</span>
+                  <button onclick="ativarAba('terminal')" class="btn-tactile group/btn px-2.5 py-1 rounded-lg text-[11px] font-medium text-[#8a8f98] hover:text-[#f3dc8a] hover:bg-[#16171b] flex items-center gap-1 transition-all cursor-pointer">
+                    <span>Histórico</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform">→</span>
                   </button>
                 </div>
                 <div id="home-ultimos-logs" class="space-y-2 max-h-72 overflow-y-auto pr-1">
-                  <div class="text-xs text-zinc-500 text-center py-12 flex flex-col items-center justify-center space-y-2">
-                    <svg class="w-6 h-6 text-zinc-600"><use href="#icon-message"/></svg>
+                  <div class="text-xs text-[#62666d] text-center py-12 flex flex-col items-center justify-center space-y-2">
+                    <svg class="w-5 h-5 text-[#3e4047]"><use href="#icon-message"/></svg>
                     <span>Aguardando novas mensagens...</span>
                   </div>
                 </div>
@@ -2083,88 +2315,82 @@
         </div>
 
         <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
-        <div id="aba-processos" class="hidden space-y-6 tab-pane-anim">
-          <!-- EXECUTIVE SECTION HEADER -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <div id="aba-processos" class="hidden space-y-5 tab-pane-anim">
+          <!-- EXECUTIVE SECTION HEADER (LINEAR × COHERE) -->
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Processos &amp; Clientes
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
-                  Hub Unificado • CPC Art. 319 &amp; IA Forense
-                </span>
+                <span class="cohere-eyebrow text-[#d4af37]">Processos &amp; Clientes</span>
+                <span class="text-[#3e4047]">•</span>
+                <span class="text-[11px] font-mono text-[#62666d]">CPC Art. 319 &amp; IA Forense</span>
               </div>
-              <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                <svg class="w-6 h-6 text-amber-400"><use href="#icon-folder"/></svg>
+              <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
                 Gestão Integrada de Processos &amp; Dossiês
               </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Central de inteligência do escritório: localize clientes por CPF, CNJ, nome ou telefone, gerencie andamentos processuais e qualificação civil (Art. 319 CPC) com documentos auditados por IA.
-              </p>
             </div>
             <div class="flex items-center gap-2">
-              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile px-3.5 py-2 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-amber-500/30 rounded-xl text-xs font-medium active:scale-[0.98] transition flex items-center space-x-1.5 shrink-0 cursor-pointer shadow-sm" title="Ir para configuração das mensagens automáticas">
-                <svg class="w-3.5 h-3.5 text-zinc-400"><use href="#icon-flow"/></svg>
-                <span>Configurar Respostas do Robô ➔</span>
+              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium flex items-center space-x-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
+                <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
+                <span>Respostas do Robô →</span>
               </button>
             </div>
           </div>
 
-          <!-- SMART IMPORT MULTIFORMATO -->
-          <div class="exec-card p-5 rounded-3xl bg-zinc-900/40 border border-zinc-800/80 space-y-4 shadow-xl">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-zinc-800/80 pb-3.5">
-              <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300 shrink-0">
+          <!-- SMART IMPORT MULTIFORMATO (COMPACTO HORIZONTAL — SEMPRE VISÍVEL SEM OCUPAR A TELA TODA) -->
+          <div class="linear-shell p-4 space-y-3">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#16171b] border border-[#26282e] flex items-center justify-center text-[#d4af37] shrink-0">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
                 <div>
-                  <span class="text-xs font-bold text-zinc-100 block">Importação Inteligente de Pastas &amp; Clientes</span>
-                  <span class="text-[11px] text-zinc-400">Planilhas <strong>Excel (.xlsx, .csv)</strong>, <strong>PDFs de Tribunais (PJe/e-SAJ)</strong> ou <strong>Word (.docx)</strong> criam pastas e dossiês automaticamente</span>
+                  <span class="text-xs font-semibold text-[#f7f8f8] block">Importação Inteligente de Pastas &amp; Documentos</span>
+                  <span class="text-[11px] text-[#8a8f98]">Excel (.xlsx/.csv), PDFs PJe/e-SAJ ou Word (.docx) criam pastas automaticamente</span>
                 </div>
               </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button type="button" id="btn-higienizar-base" class="px-3 py-1.5 bg-zinc-900 hover:bg-rose-950/40 text-rose-300 border border-zinc-800 hover:border-rose-800/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Organiza processos duplicados mantendo os registros mais atualizados">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/40 hover:text-rose-300 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer" title="Organiza processos duplicados mantendo os registros mais atualizados">
+                  <svg class="w-3.5 h-3.5 text-rose-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   <span>Unificar Duplicados</span>
                 </button>
-                <button type="button" id="btn-baixar-modelo-xlsx" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer">
-                  <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                  <span>Planilha Modelo (.xlsx)</span>
+                <button type="button" id="btn-baixar-modelo-xlsx" class="linear-btn-ghost px-2.5 py-1.5 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span>Modelo .xlsx</span>
                 </button>
-                <button type="button" id="btn-selecionar-arquivos-proc" class="px-3.5 py-1.5 champagne-gradient rounded-xl text-[11px] font-bold text-zinc-950 shadow-sm active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
+                <button type="button" id="btn-selecionar-arquivos-proc" class="px-3 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                   <span>Selecionar Arquivo(s)</span>
                 </button>
-                <button type="button" id="btn-toggle-dropzone" onclick="window.alternarDropzoneProcessos()" class="px-2.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/80 rounded-xl text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer" title="Mostrar ou recolher área de arrastar arquivos">
-                  <span id="label-toggle-dropzone">Recolher Área de Arquivos</span>
+                <button type="button" id="btn-toggle-dropzone" onclick="window.alternarDropzoneProcessos()" class="linear-btn-ghost px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1 cursor-pointer" title="Mostrar ou recolher área de arrastar arquivos">
+                  <span id="label-toggle-dropzone">Recolher</span>
                 </button>
               </div>
             </div>
 
-            <!-- Dropzone Visual (visível por padrão para fácil uso) -->
-            <div id="dropzone-processos" class="border-2 border-dashed border-amber-500/35 hover:border-amber-400/80 bg-zinc-950/40 hover:bg-amber-500/5 rounded-2xl p-6 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center space-y-2.5 group">
-              <div class="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 group-hover:border-amber-500/40 flex items-center justify-center text-zinc-400 group-hover:text-amber-400 group-hover:scale-105 transition-all shadow-inner">
-                <svg class="w-6 h-6 dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <!-- Dropzone Horizontal Compacta (sempre aberta, economiza 50% de altura vertical) -->
+            <div id="dropzone-processos" class="border border-dashed border-[#d4af37]/35 hover:border-[#d4af37]/75 bg-[#0b0c0e] hover:bg-[#d4af37]/[0.03] rounded-xl px-4 py-3 transition-all duration-150 cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-3 group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-[#141518] border border-[#23252a] group-hover:border-[#d4af37]/40 flex items-center justify-center text-[#8a8f98] group-hover:text-[#d4af37] transition-colors shrink-0">
+                  <svg class="w-4 h-4 dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div class="text-xs text-[#8a8f98] text-center sm:text-left">
+                  <span class="font-semibold text-[#f3dc8a]">Arraste e solte arquivos aqui</span> ou clique para importar em lote
+                </div>
               </div>
-              <div class="text-xs text-zinc-300">
-                <span class="font-bold text-amber-400">Arraste e solte seus arquivos aqui</span> ou clique para navegar
-              </div>
-              <div class="flex items-center justify-center flex-wrap gap-1.5 pt-0.5">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">.xlsx / .csv</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-300 border border-rose-500/20">.pdf (PJe / e-SAJ)</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-300 border border-sky-500/20">.docx</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700">.txt / .log</span>
+              <div class="flex items-center justify-center flex-wrap gap-1.5">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.xlsx / .csv</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.pdf PJe/e-SAJ</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.docx</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.txt</span>
               </div>
               <input type="file" id="input-file-processos-hidden" multiple accept=".xlsx,.xls,.csv,.ods,.pdf,.docx,.txt,.log" class="hidden">
             </div>
           </div>
 
-          <!-- MASTER-DETAIL 2-COLUMN LAYOUT -->
-          <div class="grid grid-cols-12 gap-6 items-start">
+          <!-- MASTER-DETAIL 2-COLUMN WORKSPACE (LINEAR SPLIT SHELL) -->
+          <div class="grid grid-cols-12 gap-5 items-start">
             <!-- COLUNA ESQUERDA: LISTA UNIFICADA DE CLIENTES & PROCESSOS (5 cols) -->
-            <div class="col-span-12 lg:col-span-5 exec-card rounded-3xl p-5 flex flex-col min-h-[520px] max-h-[calc(100vh-200px)] border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+            <div class="col-span-12 lg:col-span-5 linear-shell p-4 flex flex-col min-h-[540px] max-h-[calc(100vh-180px)]">
               <!-- SEGMENTED CONTROL COM PÍLULA DESLIZANTE -->
               <div class="mb-3">
                 <div class="segmented-pill-container w-full flex justify-between" id="segmented-filter-processos">
@@ -2175,127 +2401,121 @@
                 </div>
               </div>
 
-              <div class="flex items-center space-x-2 mb-2.5">
-                <div class="relative flex-1">
-                  <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5"><use href="#icon-search"/></svg>
-                  <input type="text" id="busca-processos" placeholder="Buscar CPF, Nome, CNJ ou Telefone..." class="exec-input w-full rounded-xl pl-9 pr-3 py-2 text-xs">
+              <div class="flex items-center mb-2.5">
+                <div class="relative w-full">
+                  <svg class="w-4 h-4 text-[#62666d] absolute left-3 top-2.5"><use href="#icon-search"/></svg>
+                  <input type="text" id="busca-processos" placeholder="Buscar CPF, Nome, CNJ ou Telefone..." class="exec-input w-full rounded-[10px] pl-9 pr-3 py-2 text-xs">
                 </div>
-                <button type="button" onclick="carregarDadosDemonstracao()" class="p-2 bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 hover:border-amber-500/30 rounded-xl text-xs font-bold transition flex-shrink-0 cursor-pointer shadow-sm" title="Carregar casos reais de exemplo">
-                  <svg class="w-4 h-4"><use href="#icon-sparkles"/></svg>
-                </button>
-                <button type="button" id="btn-limpar-form-proc" class="px-3.5 py-2 champagne-gradient rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm active:scale-[0.98] flex-shrink-0 transition cursor-pointer">
-                  <svg class="w-3.5 h-3.5"><use href="#icon-plus"/></svg>
-                  <span>Novo</span>
-                </button>
+                <button type="button" id="btn-limpar-form-proc" class="hidden" aria-hidden="true"></button>
               </div>
-              <div class="flex items-center justify-between px-1 mb-2.5 text-[10px] text-zinc-400">
-                <span class="font-semibold">Ordenar:</span>
-                <select id="ordem-processos-select" class="exec-input px-2.5 py-1 rounded-lg text-[10px] text-amber-400 font-bold bg-zinc-950 border border-zinc-800">
+              <div class="flex items-center justify-between px-1 mb-2.5 text-[10.5px] text-[#62666d]">
+                <span class="font-medium uppercase tracking-wider text-[10px]">Ordenar</span>
+                <select id="ordem-processos-select" class="exec-input px-2.5 py-1 rounded-lg text-[10.5px] text-[#f3dc8a] font-medium bg-[#0b0c0e] border border-[#23252a]">
                   <option value="recente" selected>Atualização Recente</option>
                   <option value="alfabetica">Ordem Alfabética (A-Z)</option>
                   <option value="alfabetica_desc">Ordem Alfabética (Z-A)</option>
                   <option value="antiga">Mais Antigos</option>
                 </select>
               </div>
-              <div id="lista-processos-box" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[440px]"></div>
+              <div id="lista-processos-box" class="flex-1 overflow-y-auto space-y-1.5 pr-1 min-h-[440px]"></div>
               <!-- Containers de compatibilidade para seletores de teste -->
               <div id="lista-clientes-dossie" class="hidden"></div>
               <span id="contador-dossies-lista" class="hidden">0</span>
             </div>
 
             <!-- COLUNA DIREITA: MASTER-DETAIL CENTRALIZADO (PROCESSOS & DOSSIÊ CIVIL) (7 cols) -->
-            <div id="box-form-processo" class="col-span-12 lg:col-span-7 exec-card rounded-3xl p-6 flex flex-col justify-between min-h-[520px] max-h-[calc(100vh-200px)] overflow-y-auto border border-zinc-800/80 bg-zinc-900/50 shadow-xl">
+            <div id="box-form-processo" class="col-span-12 lg:col-span-7 linear-shell p-5 sm:p-6 flex flex-col justify-between min-h-[540px] max-h-[calc(100vh-180px)] overflow-y-auto">
               <div class="space-y-4">
                 <!-- Cabeçalho do Cliente -->
-                <div class="flex flex-wrap items-center justify-between border-b border-zinc-800/80 pb-3.5 gap-2">
+                <div class="flex flex-wrap items-center justify-between border-b border-[#1f2025] pb-4 gap-3">
                   <div class="flex items-center space-x-3">
-                    <div id="avatar-ficha-proc" class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-zinc-950 font-bold text-xs shadow-md">
+                    <div id="avatar-ficha-proc" class="w-10 h-10 rounded-xl bg-[#18191e] border border-[#d4af37]/35 flex items-center justify-center text-[#f3dc8a] font-bold text-xs">
                       NP
                     </div>
                     <div>
-                      <span id="form-proc-titulo" class="text-sm font-bold text-amber-400 block">Nova Pasta de Processo</span>
-                      <span id="subtitulo-status-ficha" class="text-[11px] text-zinc-400">Preencha o CPF ou Processo e digite o resumo</span>
+                      <span id="form-proc-titulo" class="text-[15px] font-semibold text-[#f7f8f8] block leading-tight">Nova Pasta de Processo</span>
+                      <span id="subtitulo-status-ficha" class="text-[11px] text-[#8a8f98]">Preencha o CPF ou Processo e digite o resumo</span>
                     </div>
                   </div>
 
                   <div class="flex flex-wrap items-center gap-1.5">
-                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-3 py-1.5 champagne-gradient rounded-xl text-[11px] font-extrabold text-zinc-950 shadow-sm active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Copiar qualificação civil Art. 319 CPC">
+                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-3 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Copiar qualificação civil Art. 319 CPC">
                       <svg class="w-3.5 h-3.5 text-zinc-950"><use href="#icon-clipboard"/></svg>
                       <span>Copiar CPC</span>
                     </button>
-                    <button type="button" id="btn-ver-dossie-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-sky-300 border border-sky-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Ver Dossiê Civil do Cliente">
-                      <svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-file-text"/></svg>
+                    <button type="button" id="btn-ver-dossie-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[11px] font-medium cursor-pointer" title="Ver Dossiê Civil do Cliente">
+                      <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-file-text"/></svg>
                       <span>Ver Dossiê</span>
                     </button>
-                    <button type="button" id="btn-solicitar-docs-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-amber-500/30 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Solicitar Documentos pelo WhatsApp">
-                      <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
+                    <button type="button" id="btn-solicitar-docs-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[#f3dc8a] text-[11px] font-medium cursor-pointer" title="Solicitar Documentos pelo WhatsApp">
+                      <svg class="w-3.5 h-3.5 text-[#d4af37]"><use href="#icon-clipboard"/></svg>
                       <span>Solicitar Docs</span>
                     </button>
-                    <button type="button" id="btn-anexar-peca-proc" class="hidden px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/60 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Anexar peças processuais em PDF ou DOCX">
-                      <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-paperclip"/></svg>
+                    <button type="button" id="btn-anexar-peca-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[11px] font-medium cursor-pointer" title="Anexar peças processuais em PDF ou DOCX">
+                      <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-paperclip"/></svg>
                       <span>Anexar Peça</span>
                     </button>
-                    <button type="button" id="btn-resetar-visto-ficha" class="hidden px-3 py-1.5 bg-sky-950/70 hover:bg-sky-900 text-sky-300 border border-sky-700/50 rounded-xl text-[11px] font-semibold active:scale-[0.98] transition cursor-pointer" title="Permite que o cliente consulte novamente no WhatsApp">
+                    <button type="button" id="btn-resetar-visto-ficha" class="hidden linear-btn-ghost px-3 py-1.5 text-sky-300 text-[11px] font-medium cursor-pointer" title="Permite que o cliente consulte novamente no WhatsApp">
                       <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
                       <span>Liberar Reenvio</span>
                     </button>
-                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-rose-950/50 hover:bg-rose-900/70 text-rose-400 border border-rose-800/40 rounded-xl active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
+                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/25 rounded-[9px] active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
                       <svg class="w-4 h-4"><use href="#icon-trash"/></svg>
                     </button>
                   </div>
                 </div>
 
                 <!-- SUB-ABAS DO MASTER-DETAIL: PROCESSO VS DOSSIÊ CIVIL -->
-                <div class="flex items-center space-x-1.5 p-1 bg-zinc-950/80 rounded-2xl border border-zinc-800/80">
-                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
+                <div class="flex items-center space-x-1 p-1 bg-[#0b0c0e] rounded-xl border border-[#1f2025]">
+                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#1a1b20] text-[#f3dc8a] border border-[#d4af37]/35 flex items-center justify-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5"><use href="#icon-folder"/></svg>
                     <span>Ficha do Processo &amp; Andamento</span>
                   </button>
-                  <button type="button" id="subtab-detalhe-dossie" onclick="alternarDetalheProcAba('dossie')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 border border-transparent flex items-center justify-center gap-1.5 cursor-pointer">
+                  <button type="button" id="subtab-detalhe-dossie" onclick="alternarDetalheProcAba('dossie')" class="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent flex items-center justify-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5"><use href="#icon-users"/></svg>
-                    <span>Dossiê Civil &amp; Documentos (CPC Art. 319)</span>
-                    <span id="badge-detalhe-dossie-docs" class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold ml-1">0 docs</span>
+                    <span>Dossiê Civil (CPC Art. 319)</span>
+                    <span id="badge-detalhe-dossie-docs" class="text-[9.5px] px-1.5 py-0.5 rounded bg-[#16171b] text-[#d4af37] border border-[#26282e] font-mono ml-1">0 docs</span>
                   </button>
                 </div>
 
                 <!-- PAINEL 1: ANDAMENTO DO PROCESSO JUDICIAL -->
-                <div id="detalhe-pane-processo" class="space-y-4">
+                <div id="detalhe-pane-processo" class="editorial-paper-pane space-y-4">
                   <input type="hidden" id="proc-id-edit" value="">
 
-                  <div class="grid grid-cols-12 gap-3 p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
+                  <div class="grid grid-cols-12 gap-3 p-4 rounded-xl bg-[#121316] border border-[#1f2025]">
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="text-[11px] font-bold text-amber-400 block mb-1">CPF do Cliente *</label>
-                      <input type="text" id="proc-cpf" inputmode="numeric" placeholder="000.000.000-00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      <label class="cohere-eyebrow text-[10px] block mb-1.5">CPF do Cliente *</label>
+                      <input type="text" id="proc-cpf" inputmode="numeric" placeholder="000.000.000-00" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
                     </div>
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="text-[11px] font-bold text-amber-400 block mb-1">Nº do Processo *</label>
+                      <label class="cohere-eyebrow text-[10px] block mb-1.5">Nº do Processo (CNJ) *</label>
                       <div class="flex items-center gap-1.5">
-                        <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000 (CNJ)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
-                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar número do processo (CNJ)" class="px-2.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-amber-300 text-xs font-semibold shrink-0 transition cursor-pointer">
+                        <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar número do processo (CNJ)" class="linear-btn-ghost px-2.5 py-2 text-[#d4af37] shrink-0 cursor-pointer">
                           <svg class="w-3.5 h-3.5"><use href="#icon-clipboard"/></svg>
                         </button>
                       </div>
                     </div>
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="text-[11px] font-semibold text-zinc-400 block mb-1">Nome do Cliente</label>
-                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                      <label class="cohere-eyebrow text-[10px] block mb-1.5">Nome do Cliente</label>
+                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-lg px-3 py-2 text-xs">
                     </div>
                   </div>
 
                   <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                      <label class="text-xs font-bold text-zinc-300">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
-                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-semibold">
-                        <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-amber-400 rounded cursor-pointer">
+                      <label class="cohere-eyebrow text-[10.5px] text-[#d0d6e0]">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
+                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-medium">
+                        <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-[#d4af37] rounded cursor-pointer">
                         <span>Notificar cliente</span>
                       </label>
                     </div>
-                    <textarea id="proc-resumo" rows="4" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
+                    <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-[13px] resize-none leading-relaxed"></textarea>
                   </div>
 
-                  <div class="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <span class="text-[11px] text-zinc-400">Ao receber o resumo: 1 encerra • 2 chama o advogado.</span>
-                    <button type="button" id="btn-salvar-processo" class="px-6 py-2.5 champagne-gradient font-bold text-xs rounded-xl shadow-md active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
+                  <div class="pt-3.5 border-t border-[#1f2025] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <span class="text-[11px] text-[#62666d] font-mono">Fluxo WhatsApp: [1] Encerra • [2] Chama Advogado</span>
+                    <button type="button" id="btn-salvar-processo" class="px-5 py-2.5 champagne-gradient font-bold text-xs rounded-[10px] shadow-sm active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
                       <svg class="w-4 h-4"><use href="#icon-save"/></svg>
                       <span>Salvar Pasta do Processo</span>
                     </button>
@@ -2303,7 +2523,7 @@
                 </div>
 
                 <!-- PAINEL 2: DOSSIÊ CIVIL & DOCUMENTOS FORENSES (Art. 319 CPC) -->
-                <div id="detalhe-pane-dossie" class="hidden space-y-4">
+                <div id="detalhe-pane-dossie" class="hidden editorial-paper-pane space-y-4">
                   <div id="tab-dossie-clientes" class="space-y-4">
                     <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2">
                       <div>
@@ -2467,7 +2687,7 @@
                 <div class="flex items-center justify-between mb-1">
                   <label class="text-xs font-bold text-zinc-200">Texto de Boas-Vindas / Mensagem deste Menu</label>
                   <div class="flex items-center space-x-2.5">
-                    <button type="button" id="btn-melhorar-msg-etapa" onclick="melhorarTextoAtendimentoEtapaComIA()" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer shadow-sm active:scale-95">
+                    <button type="button" id="btn-melhorar-msg-etapa" onclick="melhorarTextoAtendimentoEtapaComIA()" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2593,7 +2813,7 @@
                       <h4 class="text-xs font-bold text-emerald-400">1. Processo localizado com atualização</h4>
                       <p class="text-[11px] text-zinc-400">Enviada quando há novidade registrada no processo consultado.</p>
                     </div>
-                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-com-atualizacao'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-com-atualizacao'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2608,7 +2828,7 @@
                       <h4 class="text-xs font-bold text-sky-400">2. Processo sem novas movimentações</h4>
                       <p class="text-[11px] text-zinc-400">Enviada quando o cliente já leu a última atualização e consulta de novo.</p>
                     </div>
-                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-ja-visto'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-ja-visto'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2623,7 +2843,7 @@
                       <h4 class="text-xs font-bold text-amber-300">3. Processo cadastrado ainda sem resumo</h4>
                       <p class="text-[11px] text-zinc-400">Enviada quando a pasta existe, mas nenhum andamento foi lançado.</p>
                     </div>
-                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-sem-atualizacao'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-sem-atualizacao'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2638,7 +2858,7 @@
                       <h4 class="text-xs font-bold text-rose-400">4. CPF ou processo não encontrado</h4>
                       <p class="text-[11px] text-zinc-400">Enviada quando o CPF ou número digitado não bate com nenhum cadastro.</p>
                     </div>
-                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-nao-encontrado'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-nao-encontrado'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2653,7 +2873,7 @@
                       <h4 class="text-xs font-bold text-amber-400">5. Quando o cliente digita 1 após consultar (Encerrar)</h4>
                       <p class="text-[11px] text-zinc-400">Despedida cordial e retorno do robô ao estado inicial.</p>
                     </div>
-                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-encerrar'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-encerrar'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2668,7 +2888,7 @@
                       <h4 class="text-xs font-bold text-emerald-300">6. Quando o cliente digita 2 após consultar (Falar com Advogado)</h4>
                       <p class="text-[11px] text-zinc-400">Avisa o cliente e encaminha a conversa para a Fila de Atendimento.</p>
                     </div>
-                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-advogado-pos'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('tpl-msg-advogado-pos'), () => { atualizarExemploCenarioAtivo(); typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2683,7 +2903,7 @@
                       <h4 class="text-xs font-bold text-amber-300">7. Solicitação automática de documentos (Onboarding)</h4>
                       <p class="text-[11px] text-zinc-400">Enviada ao pedir RG/CNH, comprovante de residência e demais peças iniciais.</p>
                     </div>
-                    <button type="button" id="btn-melhorar-template-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('dossie-template-mensagem-docs'), (novoTexto) => { if (window.configGlobal) { window.configGlobal.modeloMensagemSolicitacaoDocs = novoTexto; typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); } atualizarExemploCenarioAtivo(); }, this)" class="btn-tactile text-[11px] font-semibold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                    <button type="button" id="btn-melhorar-template-onboarding" onclick="window.executarMelhoriaMensagemGenerica && window.executarMelhoriaMensagemGenerica(document.getElementById('dossie-template-mensagem-docs'), (novoTexto) => { if (window.configGlobal) { window.configGlobal.modeloMensagemSolicitacaoDocs = novoTexto; typeof marcarAlteracaoPendente === 'function' && marcarAlteracaoPendente(); } atualizarExemploCenarioAtivo(); }, this)" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
@@ -2839,23 +3059,20 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
         <!-- ================= ABA 4: FILA DE ESPERA HUMANA ================= -->
         <div id="aba-pausados" class="hidden space-y-5 tab-pane-anim">
-          <div id="tour-pausados-card" class="exec-card relative overflow-hidden p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-5 shadow-xl">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"></div>
-            <div class="border-b border-zinc-800/80 pb-4 space-y-1.5">
-              <div class="flex items-center flex-wrap gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Fila Humana & Prioridade
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-sky-500/10 text-sky-300 border border-sky-500/20 font-mono">
-                  Sugestões de Resposta Ativas
-                </span>
+          <div id="tour-pausados-card" class="linear-shell relative overflow-hidden p-6 sm:p-7 space-y-5">
+            <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"></div>
+            <div class="border-b border-[#1f2025] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="cohere-eyebrow text-[#d4af37]">Fila Humana &amp; Prioridade</span>
+                  <span class="text-[#3e4047]">•</span>
+                  <span class="text-[11px] font-mono text-[#62666d]">Respostas sugeridas por IA</span>
+                </div>
+                <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-[#f7f8f8]">
+                  Fila de Atendimento do Advogado
+                </h2>
+                <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">Clientes aguardando atendimento humano ou que enviaram áudios/relatos. A IA classifica a urgência e sugere respostas éticas em 1 clique.</p>
               </div>
-              <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-400"><use href="#icon-user-clock"/></svg>
-                Fila de Espera para Atendimento do Advogado
-              </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Clientes que solicitaram falar com o advogado ou enviaram relatos de áudio e texto. A IA analisa a urgência e sintetiza 3 sugestões de resposta para envio com 1 clique.</p>
             </div>
             <div id="lista-pausados" class="space-y-2.5"></div>
           </div>
@@ -3405,83 +3622,73 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         <div id="aba-financeiro" class="hidden space-y-6 tab-pane-anim">
           <div id="tab-financeiro" class="space-y-6">
             <!-- EXECUTIVE SECTION HEADER -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
               <div class="space-y-1">
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Controladoria & PIX
-                  </span>
-                  <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
-                    Auditoria Automática de Comprovantes
-                  </span>
+                  <span class="cohere-eyebrow text-[#d4af37]">Controladoria &amp; PIX</span>
+                  <span class="text-[#3e4047]">•</span>
+                  <span class="text-[11px] font-mono text-[#62666d]">Auditoria Automática de Comprovantes</span>
                 </div>
-                <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                  <svg class="w-6 h-6 text-emerald-400"><use href="#icon-scales"/></svg>
-                  Gestão de Honorários, Régua Semanal & Auditoria PIX
+                <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
+                  Gestão de Honorários &amp; Régua PIX
                 </h2>
-                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                  Configure a frequência de lembretes com Chave PIX, dispare com intervalo seguro de envio e deixe o sistema conferir os comprovantes recebidos no WhatsApp.
-                </p>
               </div>
               <div>
-                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-5 py-3 champagne-gradient rounded-xl text-xs font-bold text-zinc-950 shadow-lg active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer">
-                  <svg class="w-4 h-4 text-zinc-950 inline mr-1.5"><use href="#icon-flow"/></svg>
+                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer">
+                  <svg class="w-4 h-4 text-zinc-950 inline"><use href="#icon-flow"/></svg>
                   <span>Disparar Cobranças da Régua</span>
                 </button>
               </div>
             </div>
 
-            <!-- CARDS DE KPIS FINANCEIROS EXECUTIVOS (4 MÉTRICAS-CHAVE) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- CARDS DE KPIS FINANCEIROS EXECUTIVOS (LINEAR OBSIDIAN TELEMETRY) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <!-- KPI 1: Recebido na Semana (IA) -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-40"></div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Recebido na Semana (IA)</span>
-                  <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-scales"/></svg></div>
+              <div class="linear-kpi-card group flex flex-col justify-between min-h-[130px]">
+                <div class="flex items-center justify-between">
+                  <span class="cohere-eyebrow text-emerald-400/90">Recebido na Semana</span>
+                  <svg class="w-4 h-4 text-[#62666d] group-hover:text-emerald-400 transition-colors"><use href="#icon-scales"/></svg>
                 </div>
-                <div id="kpi-recebido-semana-ia" class="text-2xl sm:text-3xl font-extrabold text-zinc-100 font-mono tabular-nums tracking-tight">R$ 0,00</div>
-                <span class="text-[10px] text-emerald-400/90 font-medium block mt-1.5 flex items-center space-x-1">
-                  <span class="flex items-center gap-1"><svg class="w-3 h-3 text-emerald-400"><use href="#icon-sparkles"/></svg>Cobrança Ativa IA & PIX</span>
-                </span>
+                <div id="kpi-recebido-semana-ia" class="my-2 text-2xl sm:text-[26px] font-semibold text-[#f7f8f8] font-mono tabular-nums tracking-tight">R$ 0,00</div>
+                <div class="text-[11px] text-[#8a8f98] pt-2 border-t border-[#1e1f24] flex items-center gap-1.5">
+                  <svg class="w-3 h-3 text-emerald-400"><use href="#icon-sparkles"/></svg>
+                  <span>Cobrança Ativa IA &amp; PIX</span>
+                </div>
               </div>
 
               <!-- KPI 2: A Receber Esta Semana -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-40"></div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">A Receber Esta Semana</span>
-                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
+              <div class="linear-kpi-card group flex flex-col justify-between min-h-[130px]">
+                <div class="flex items-center justify-between">
+                  <span class="cohere-eyebrow text-[#d4af37]">A Receber na Semana</span>
+                  <svg class="w-4 h-4 text-[#62666d] group-hover:text-[#d4af37] transition-colors"><use href="#icon-calendar"/></svg>
                 </div>
-                <div id="kpi-a-receber-semana" class="text-2xl sm:text-3xl font-extrabold text-amber-300 font-mono tabular-nums tracking-tight">R$ 0,00</div>
-                <span class="text-[10px] text-amber-400/90 font-medium block mt-1.5 flex items-center space-x-1">
-                  <span class="flex items-center gap-1"><svg class="w-3 h-3 text-amber-400"><use href="#icon-calendar"/></svg>Vencimento Segunda a Domingo</span>
-                </span>
+                <div id="kpi-a-receber-semana" class="my-2 text-2xl sm:text-[26px] font-semibold text-[#f3dc8a] font-mono tabular-nums tracking-tight">R$ 0,00</div>
+                <div class="text-[11px] text-[#8a8f98] pt-2 border-t border-[#1e1f24] flex items-center gap-1.5">
+                  <svg class="w-3 h-3 text-[#d4af37]"><use href="#icon-calendar"/></svg>
+                  <span>Vencimento Seg a Dom</span>
+                </div>
               </div>
 
               <!-- KPI 3: Total a Receber Geral -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-40"></div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Total a Receber Geral</span>
-                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
+              <div class="linear-kpi-card group flex flex-col justify-between min-h-[130px]">
+                <div class="flex items-center justify-between">
+                  <span class="cohere-eyebrow">Total a Receber</span>
+                  <svg class="w-4 h-4 text-[#62666d] group-hover:text-[#d4af37] transition-colors"><use href="#icon-user-clock"/></svg>
                 </div>
-                <div id="kpi-total-a-receber" class="text-2xl sm:text-3xl font-extrabold text-amber-200 font-mono tabular-nums tracking-tight">R$ 0,00</div>
-                <span id="kpi-qtd-pendentes" class="text-[10px] text-amber-400/80 font-medium block mt-1.5 font-mono">
+                <div id="kpi-total-a-receber" class="my-2 text-2xl sm:text-[26px] font-semibold text-[#f7f8f8] font-mono tabular-nums tracking-tight">R$ 0,00</div>
+                <span id="kpi-qtd-pendentes" class="text-[11px] text-[#8a8f98] pt-2 border-t border-[#1e1f24] block font-mono">
                   0 parcelas pendentes
                 </span>
               </div>
 
               <!-- KPI 4: Total Já Arrecadado / Quitado -->
-              <div class="exec-card relative overflow-hidden p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 shadow-md group">
-                <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-40"></div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Total Arrecadado / Quitado</span>
-                  <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-inner"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
+              <div class="linear-kpi-card group flex flex-col justify-between min-h-[130px]">
+                <div class="flex items-center justify-between">
+                  <span class="cohere-eyebrow text-emerald-400/90">Total Arrecadado</span>
+                  <svg class="w-4 h-4 text-[#62666d] group-hover:text-emerald-400 transition-colors"><use href="#icon-activity"/></svg>
                 </div>
-                <div id="kpi-total-arrecadado" class="text-2xl sm:text-3xl font-extrabold text-emerald-300 font-mono tabular-nums tracking-tight">R$ 0,00</div>
-                <span id="kpi-contratos-quitados" class="text-[10px] text-emerald-400/80 font-medium block mt-1.5 font-mono">
+                <div id="kpi-total-arrecadado" class="my-2 text-2xl sm:text-[26px] font-semibold text-emerald-300 font-mono tabular-nums tracking-tight">R$ 0,00</div>
+                <span id="kpi-contratos-quitados" class="text-[11px] text-[#8a8f98] pt-2 border-t border-[#1e1f24] block font-mono">
                   0 contratos 100% quitados
                 </span>
               </div>
@@ -7766,27 +7973,27 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const qtdDocsDossie = (dossieLigado && Array.isArray(dossieLigado.documentos)) ? dossieLigado.documentos.length : 0;
 
         const item = document.createElement('div');
-        item.className = `p-3.5 exec-card rounded-2xl cursor-pointer flex items-center justify-between transition ${isSel ? 'proc-list-item-active' : 'hover:border-zinc-700'}`;
+        item.className = `linear-proc-row cursor-pointer flex items-center justify-between group ${isSel ? 'proc-list-item-active' : ''}`;
         item.onclick = () => selecionarProcessoNaLista(p.id, true);
 
         item.innerHTML = `
           <div class="flex items-center space-x-3 overflow-hidden pr-2">
-            <div class="w-9 h-9 rounded-xl champagne-gradient flex items-center justify-center text-zinc-950 font-extrabold text-xs flex-shrink-0 shadow">
+            <div class="w-9 h-9 rounded-lg ${isSel ? 'champagne-gradient text-zinc-950' : 'bg-[#1a1b20] border border-[#2a2c34] text-[#f3dc8a]'} flex items-center justify-center font-bold text-xs flex-shrink-0 transition-colors">
               ${iniciais}
             </div>
-            <div class="overflow-hidden">
-              <div class="flex items-center space-x-2">
-                <span class="text-xs font-bold truncate text-white">${p.nome || 'Cliente'}</span>
+            <div class="overflow-hidden min-w-0">
+              <div class="flex items-center space-x-1.5">
+                <span class="text-[12.5px] font-semibold truncate text-[#f7f8f8]">${p.nome || 'Cliente'}</span>
                 ${tagHtml}
-                <span class="w-2 h-2 rounded-full ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-zinc-600'}"></span>
-                ${qtdDocsDossie > 0 ? `<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30" title="${qtdDocsDossie} documento(s) no Dossiê Civil">📁 ${qtdDocsDossie} docs</span>` : ''}
+                <span class="w-1.5 h-1.5 rounded-full shrink-0 ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-[#3e4047]'}"></span>
+                ${qtdDocsDossie > 0 ? `<span class="text-[9.5px] px-1.5 py-0.5 rounded bg-[#18191e] text-[#f3dc8a] font-mono border border-[#2a2c34] shrink-0" title="${qtdDocsDossie} documento(s) no Dossiê Civil">${qtdDocsDossie} docs</span>` : ''}
               </div>
-              <p class="text-[10px] font-mono text-zinc-400 truncate mt-0.5">
-                CPF: <strong class="text-amber-400">${p.cpf || '-'}</strong> • Nº: <strong class="text-zinc-300">${p.numero || '-'}</strong>
+              <p class="text-[10.5px] font-mono tabular-nums text-[#8a8f98] truncate mt-0.5">
+                <span class="text-[#d4af37]">${p.cpf || '-'}</span> <span class="text-[#3e4047] mx-1">•</span> <span class="text-[#b0b5c0]">${p.numero || '-'}</span>
               </p>
             </div>
           </div>
-          <span class="text-[11px] text-amber-400 font-bold flex-shrink-0">➔</span>
+          <span class="text-xs text-[#62666d] group-hover:text-[#d4af37] group-hover:translate-x-0.5 transition-all flex-shrink-0">→</span>
         `;
         box.appendChild(item);
       });
@@ -8074,10 +8281,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         // Sugestões do Copilot usando index para imunidade total contra aspas (Bug 2)
         const sugestoesHTML = sugestoes.map((sug, idx) => {
           return `
-            <div class="p-2.5 bg-zinc-950/80 border border-zinc-800/80 rounded-xl flex items-start justify-between space-x-2">
-              <p class="text-xs text-zinc-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
-              <button type="button" onclick="aplicarSugestaoCopilot('${cardId}', ${idx})" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-zinc-950 transition whitespace-nowrap cursor-pointer">
-                Usar Esta <svg class="w-3 h-3 text-amber-400 inline ml-1"><use href="#icon-check"/></svg>
+            <div class="ai-suggestion-row">
+              <p class="ai-console-body italic flex-1">"${escaparHtmlTexto(sug)}"</p>
+              <button type="button" onclick="aplicarSugestaoCopilot('${cardId}', ${idx})" class="btn-tactile btn-ai-enhance px-2.5 py-1 text-[11px] font-semibold rounded-lg whitespace-nowrap cursor-pointer shrink-0">
+                Usar Esta <svg class="w-3 h-3 inline ml-1"><use href="#icon-check"/></svg>
               </button>
             </div>
           `;
@@ -8129,32 +8336,32 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         let badgeUrgenciaHTML = '';
 
         if (nivelUrgencia === 'CRITICA') {
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-red-500 border-rose-500 shadow-lg shadow-rose-950/40 ring-1 ring-rose-500/40 mb-3 transition relative";
+          classeCard = "exec-card p-4 rounded-2xl text-xs border-l-4 border-red-500 border-rose-500 shadow-lg shadow-rose-950/30 ring-1 ring-rose-500/30 mb-3 transition relative";
           dotIndicador = '<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>';
-          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold flex items-center space-x-1.5" title="🚨 URGÊNCIA CRÍTICA">
-            <svg class="w-3.5 h-3.5 text-rose-400 flex-shrink-0"><use href="#icon-shield"/></svg>
+          badgeUrgenciaHTML = `<span class="urgency-badge urgency-badge-critica" title="🚨 URGÊNCIA CRÍTICA">
+            <svg class="w-3.5 h-3.5 flex-shrink-0"><use href="#icon-shield"/></svg>
             <span>🚨 URGÊNCIA CRÍTICA (URGÊNCIA MÁXIMA): ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
         } else if (nivelUrgencia === 'ALTA') {
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-500 shadow-md ring-1 ring-amber-500/30 mb-3 transition";
+          classeCard = "exec-card p-4 rounded-2xl text-xs border-l-4 border-amber-500 shadow-md ring-1 ring-amber-500/25 mb-3 transition";
           dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>';
-          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center space-x-1.5">
-            <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0"><use href="#icon-radar"/></svg>
+          badgeUrgenciaHTML = `<span class="urgency-badge urgency-badge-alta">
+            <svg class="w-3.5 h-3.5 flex-shrink-0"><use href="#icon-radar"/></svg>
             <span>ALTA PRIORIDADE (INTIMAÇÃO / BLOQUEIO): ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
         } else if (nivelUrgencia === 'BAIXA') {
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-zinc-600 mb-3 shadow transition";
+          classeCard = "exec-card p-4 rounded-2xl text-xs border-l-4 border-zinc-600 mb-3 shadow transition";
           dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-zinc-500"></span>';
-          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700 font-medium flex items-center space-x-1.5">
-            <svg class="w-3.5 h-3.5 text-zinc-400 flex-shrink-0"><use href="#icon-message"/></svg>
+          badgeUrgenciaHTML = `<span class="urgency-badge urgency-badge-baixa">
+            <svg class="w-3.5 h-3.5 flex-shrink-0"><use href="#icon-message"/></svg>
             <span>DÚVIDA GERAL: ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
         } else {
           // MEDIA (padrão)
-          classeCard = "exec-card p-4 rounded-xl text-xs border-l-4 border-amber-500/60 mb-3 shadow transition";
+          classeCard = "exec-card p-4 rounded-2xl text-xs border-l-4 border-amber-500/60 mb-3 shadow transition";
           dotIndicador = '<span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>';
-          badgeUrgenciaHTML = `<span class="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold flex items-center space-x-1.5">
-            <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0"><use href="#icon-clipboard"/></svg>
+          badgeUrgenciaHTML = `<span class="urgency-badge urgency-badge-media">
+            <svg class="w-3.5 h-3.5 flex-shrink-0"><use href="#icon-clipboard"/></svg>
             <span>ROTINA / ANDAMENTO: ${escaparHtmlTexto(motivoExibicao)}</span>
           </span>`;
         }
@@ -8243,15 +8450,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
             </div>
 
-            <!-- Transcrição e Resumo -->
+            <!-- Transcrição e Resumo (Cohere Editorial AI Console) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio / Mensagens:</span>
-                <p class="text-zinc-300 leading-relaxed">${escaparHtmlTexto(transcricao)}</p>
+              <div class="ai-console-panel space-y-1.5">
+                <span class="ai-console-label text-[#e5c158]"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio / Mensagens</span>
+                <p class="ai-console-body">${escaparHtmlTexto(transcricao)}</p>
               </div>
-              <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (IA):</span>
-                <div class="text-zinc-300 leading-relaxed whitespace-pre-line">${escaparHtmlTexto(resumo)}</div>
+              <div class="ai-console-panel space-y-1.5">
+                <span class="ai-console-label text-emerald-400"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (IA)</span>
+                <div class="ai-console-body whitespace-pre-line">${escaparHtmlTexto(resumo)}</div>
               </div>
             </div>
 
@@ -8271,7 +8478,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <!-- Caixa de Resposta e Envio pelo Advogado -->
             <div class="pt-2 border-t border-zinc-800/80 space-y-2">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <button type="button" id="btn-sugerir-ia-${cardId}" onclick="sugerirRespostaIAFila('${cardId}', '${chave}')" class="btn-tactile inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 font-bold text-xs transition cursor-pointer">
+                <button type="button" id="btn-sugerir-ia-${cardId}" onclick="sugerirRespostaIAFila('${cardId}', '${chave}')" class="btn-tactile btn-ai-enhance inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs cursor-pointer">
                   <span>✨ Sugerir Resposta com IA</span>
                 </button>
                 <span class="text-[10px] text-zinc-400">O cliente permanece pausado após o envio até você clicar em <strong class="text-amber-300">Liberar para o Robô</strong>.</span>
@@ -10832,10 +11039,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
             const listaSugestoesHTML = (dados.sugestoes || []).map((sug, idx) => {
               return `
-              <div class="p-2.5 bg-zinc-950/80 border border-zinc-800/80 rounded-xl transition flex items-start justify-between space-x-2">
-                <p class="text-xs text-zinc-300 leading-relaxed italic flex-1">"${escaparHtmlTexto(sug)}"</p>
-                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', ${idx})" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-[#e5c158]/20 text-[#e5c158] hover:bg-[#e5c158] hover:text-zinc-950 transition whitespace-nowrap cursor-pointer">
-                  Usar Esta <svg class="w-3 h-3 text-amber-400 inline ml-1"><use href="#icon-check"/></svg>
+              <div class="ai-suggestion-row">
+                <p class="ai-console-body italic flex-1">"${escaparHtmlTexto(sug)}"</p>
+                <button type="button" onclick="aplicarSugestaoCopilot('${dados.id}', ${idx})" class="btn-tactile btn-ai-enhance px-2.5 py-1 text-[11px] font-semibold rounded-lg whitespace-nowrap cursor-pointer shrink-0">
+                  Usar Esta <svg class="w-3 h-3 inline ml-1"><use href="#icon-check"/></svg>
                 </button>
               </div>
             `;}).join('');
@@ -10908,15 +11115,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   <audio controls src="${dados.audioBase64}" class="w-full h-8 mt-1"></audio>
                 </div>
 
-                <!-- Seção Transcrição e Resumo Executivo -->
+                <!-- Seção Transcrição e Resumo Executivo (Cohere Editorial AI Console) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                    <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio:</span>
-                    <p class="text-zinc-300 leading-relaxed">${escaparHtmlTexto(dados.transcricao || 'Processando transcrição...')}</p>
+                  <div class="ai-console-panel space-y-1.5">
+                    <span class="ai-console-label text-[#e5c158]"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio</span>
+                    <p class="ai-console-body">${escaparHtmlTexto(dados.transcricao || 'Processando transcrição...')}</p>
                   </div>
-                  <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-                    <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (IA):</span>
-                    <div class="text-zinc-300 leading-relaxed whitespace-pre-line">${escaparHtmlTexto(dados.resumo || 'Sem resumo disponível.')}</div>
+                  <div class="ai-console-panel space-y-1.5">
+                    <span class="ai-console-label text-emerald-400"><svg class="w-3.5 h-3.5 text-emerald-400"><use href="#icon-scales"/></svg>Resumo Executivo (IA)</span>
+                    <div class="ai-console-body whitespace-pre-line">${escaparHtmlTexto(dados.resumo || 'Sem resumo disponível.')}</div>
                   </div>
                 </div>
 
