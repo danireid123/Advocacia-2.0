@@ -1879,6 +1879,12 @@
         </div>
 
         <div class="flex items-center space-x-2">
+          <!-- Toggle Modo Seguro / Robô Pausado Global -->
+          <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
+            <span id="top-modo-seguro-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="top-modo-seguro-text" class="text-emerald-400 font-semibold text-[11px]">Robô: Ativo</span>
+          </button>
+
           <button type="button" id="btn-top-whatsapp-status" onclick="abrirModalQrRapido()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/40 text-xs font-medium transition cursor-pointer" title="Ver status da conexão WhatsApp">
             <span id="top-bar-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
             <span id="top-bar-status-text" class="text-zinc-300 font-semibold text-[11px]">WhatsApp</span>
@@ -2359,9 +2365,9 @@
                   <div class="space-y-2">
                     <div class="flex items-center justify-between">
                       <label class="cohere-eyebrow text-[10.5px] text-[#d0d6e0]">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
-                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-medium">
-                        <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-[#d4af37] rounded cursor-pointer">
-                        <span>Notificar cliente</span>
+                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-zinc-400 hover:text-emerald-400 font-medium transition" title="Marque somente se desejar disparar notificação ativa ao salvar">
+                        <input type="checkbox" id="proc-tem-atualizacao" class="accent-[#d4af37] rounded cursor-pointer">
+                        <span>Avisar cliente no WhatsApp</span>
                       </label>
                     </div>
                     <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-[13px] resize-none leading-relaxed"></textarea>
@@ -2928,6 +2934,21 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">Clientes aguardando atendimento humano ou que enviaram áudios/relatos. A IA classifica a urgência e sugere respostas éticas em 1 clique.</p>
               </div>
             </div>
+
+            <!-- BARRA DE CONTROLE: BUSCA E FILTROS RÁPIDOS NA FILA -->
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80">
+              <div class="relative flex-1">
+                <input type="text" id="busca-fila-advogado" oninput="filtrarFilaAdvogadoUI()" placeholder="Buscar cliente por nome, telefone ou relato..." class="exec-input w-full rounded-xl pl-9 pr-4 py-2 text-xs bg-zinc-900 border border-zinc-700/80 text-zinc-100 placeholder-zinc-500">
+                <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+              <div class="flex items-center space-x-1.5 overflow-x-auto text-xs shrink-0">
+                <button type="button" onclick="setFiltroUrgenciaFila('TODOS')" id="filtro-fila-todos" class="px-3 py-1.5 rounded-lg font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">Todos</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('CRITICA')" id="filtro-fila-critica" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-rose-300 border border-zinc-800 hover:border-rose-500/40 cursor-pointer">🚨 Crítica</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('ALTA')" id="filtro-fila-alta" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-amber-300 border border-zinc-800 hover:border-amber-500/40 cursor-pointer">⚠️ Alta</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('AUDIO')" id="filtro-fila-audio" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-indigo-300 border border-zinc-800 hover:border-indigo-500/40 cursor-pointer">🎙️ Com Áudio</button>
+              </div>
+            </div>
+
             <div id="lista-pausados" class="space-y-2.5"></div>
           </div>
         </div>
@@ -3488,6 +3509,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 </h2>
               </div>
               <div>
+                <button type="button" id="btn-exportar-extrato-financeiro" onclick="exportarExtratoFinanceiroUI()" class="btn-tactile px-3.5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-amber-500/40 text-zinc-100 rounded-[10px] text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Exportar Extrato (CSV)</span>
+                </button>
+              </div>
+              <div>
                 <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer">
                   <svg class="w-4 h-4 text-zinc-950 inline"><use href="#icon-flow"/></svg>
                   <span>Disparar Cobranças da Régua</span>
@@ -3819,6 +3846,50 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <input type="checkbox" id="check-iniciar-windows" checked>
                     <span class="toggle-slider"></span>
                   </label>
+                </div>
+
+                <!-- Seletor de Persona e Tom de Voz da IA -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-xs font-bold text-zinc-200 block">Tom de Voz da IA Jurídica</span>
+                      <span class="text-[11px] text-zinc-400">Personalize a linguagem das respostas e sugestões</span>
+                    </div>
+                    <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Provimento 205 OAB</span>
+                  </div>
+                  <select id="select-tom-ia" onchange="salvarTomIAUI(this.value)" class="exec-input w-full rounded-xl p-2.5 text-xs bg-zinc-900 border border-zinc-700 text-zinc-100">
+                    <option value="acolhedor">👨‍👩‍👧 Acolhedor & Empático (Família / Sucessões / Cível)</option>
+                    <option value="executivo">⚡ Direto & Executivo (Direito Digital / Startups / Empresarial)</option>
+                    <option value="tradicional">⚖️ Clássico & Formal (Trabalhista / Contencioso Cível)</option>
+                    <option value="plantao">🚨 Plantão 24h & Emergência (Criminal / Flagrante)</option>
+                  </select>
+                  <label class="flex items-center space-x-2 cursor-pointer text-[11px] text-zinc-300 pt-1">
+                    <input type="checkbox" id="check-ia-sem-emojis" onchange="salvarOpcaoSemEmojisUI(this.checked)" class="accent-[#d4af37] rounded cursor-pointer">
+                    <span>Sobriedade Estrita: Não utilizar emojis nas respostas geradas pela IA</span>
+                  </label>
+                </div>
+
+                <!-- Configuração Visual da Chave Gemini API -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-xs font-bold text-zinc-200 block">Chave de Inteligência Artificial (Google Gemini)</span>
+                      <span id="status-chave-ia" class="text-[11px] text-zinc-400">Verificando status da chave...</span>
+                    </div>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] font-semibold text-amber-400 hover:underline flex items-center gap-1">
+                      <span>Obter Chave Grátis</span>
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                  </div>
+                  <div class="flex gap-2">
+                    <input type="password" id="input-chave-gemini" placeholder="Cole sua chave AIzaSy... ou deixe vazia para manter a atual" class="exec-input flex-1 rounded-xl p-2.5 text-xs font-mono bg-zinc-900 border border-zinc-700 text-zinc-100">
+                    <button type="button" onclick="salvarChaveGeminiUI()" class="px-4 py-2 champagne-gradient font-bold text-xs rounded-xl transition shadow cursor-pointer">
+                      Salvar Chave
+                    </button>
+                  </div>
+                  <p class="text-[10.5px] text-zinc-500 leading-relaxed">
+                    💡 A chave é armazenada de forma segura e criptografada no computador do seu escritório. Se preferir não usar chave própria, o sistema continuará operando com respostas locais do modelo inteligente de contingência.
+                  </p>
                 </div>
 
                 <!-- Atalhos de Teclado -->
@@ -8280,6 +8351,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const div = document.createElement('div');
         div.className = classeCard;
         div.id = `card-pausado-${cardId}`;
+        div.setAttribute('data-urgencia', nivelUrgencia);
         div.innerHTML = `
           <!-- Linha Principal -->
           <div class="flex items-start justify-between">
@@ -8359,23 +8431,37 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
             </div>
 
+            <!-- Respostas Rápidas (Chips / Canned Responses de 1 Clique) -->
+            <div class="space-y-1.5 pt-1">
+              <span class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider block">Respostas Rápidas (1 Clique):</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Olá! Confirmo o agendamento da sua consulta jurídica. Em breve nossa equipe entrará em contato com os detalhes do atendimento.')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Confirmar Consulta</button>
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Olá! Para prosseguirmos com a distribuição do seu caso, solicitamos o envio das guias de custas e comprovante de recolhimento.')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Solicitar Guia / Custas</button>
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Notícia importante: sua petição foi devidamente protocolada e já temos o comprovante nos autos. Seguiremos acompanhando o andamento.')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Petição Protocolada</button>
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Olá! Poderia nos atender em uma rápida ligação agora para alinharmos os detalhes urgentes do seu caso?')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Pedir para Ligar</button>
+              </div>
+            </div>
+
             <!-- Caixa de Resposta e Envio pelo Advogado -->
             <div class="pt-2 border-t border-zinc-800/80 space-y-2">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <button type="button" id="btn-sugerir-ia-${cardId}" onclick="sugerirRespostaIAFila('${cardId}', '${chave}')" class="btn-tactile btn-ai-enhance inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs cursor-pointer">
                   <span>✨ Sugerir Resposta com IA</span>
                 </button>
-                <span class="text-[10px] text-zinc-400">O cliente permanece pausado após o envio até você clicar em <strong class="text-amber-300">Liberar para o Robô</strong>.</span>
+                <span class="text-[10px] text-zinc-400">Dica: <kbd class="font-mono text-zinc-300 bg-zinc-950 px-1 rounded border border-zinc-700">Ctrl + Enter</kbd> envia a resposta na hora.</span>
               </div>
               <div class="flex flex-col sm:flex-row sm:items-end gap-2.5">
-                <textarea id="input-resposta-${cardId}" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+                <textarea id="input-resposta-${cardId}" onkeydown="if((event.ctrlKey || event.metaKey) && event.key === 'Enter'){ event.preventDefault(); enviarRespostaAdvogadoFila('${cardId}', '${chave}', false); }" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
                 <div class="flex sm:flex-col gap-2">
-                  <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
-                    <span>Enviar Resposta</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                  <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}', true)" title="Envia a mensagem e devolve o cliente ao fluxo automático em 1 só clique" class="px-4 py-2.5 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Enviar e Liberar</span>
                   </button>
-                  <button type="button" onclick="reativarCliente('${chave}')" class="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/40 text-amber-300 font-semibold text-xs rounded-xl transition whitespace-nowrap cursor-pointer">
-                    Liberar para o Robô
+                  <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}', false)" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <span>Enviar Resposta</span>
+                  </button>
+                  <button type="button" onclick="reativarCliente('${chave}')" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/40 text-amber-300 font-semibold text-[11px] rounded-xl transition whitespace-nowrap cursor-pointer">
+                    Liberar p/ Robô
                   </button>
                 </div>
               </div>
@@ -9327,12 +9413,21 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     };
 
-    window.enviarRespostaAdvogadoFila = async (cardId, chave) => {
+    window.aplicarCannedResponse = function(cardId, texto) {
+      const input = document.getElementById(`input-resposta-${cardId}`);
+      if (input) {
+        input.value = texto;
+        input.focus();
+        mostrarToast("⚡ Resposta rápida aplicada! Pressione 'Enviar' ou 'Ctrl+Enter'.");
+      }
+    };
+
+    window.enviarRespostaAdvogadoFila = async (cardId, chave, despausarAutomatico = false) => {
       const input = document.getElementById(`input-resposta-${cardId}`);
       const texto = input ? input.value.trim() : '';
 
       if (!texto) {
-        alert("Por favor, digite ou selecione uma sugestão de resposta rápida antes de enviar.");
+        mostrarToast("⚠️ Por favor, digite ou selecione uma resposta antes de enviar.");
         return;
       }
 
@@ -9340,7 +9435,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       if (api && api.responderClientePausado) {
         try {
-          await api.responderClientePausado({ chave, textoResposta: texto, despausar: false });
+          await api.responderClientePausado({ chave, textoResposta: texto, despausar: Boolean(despausarAutomatico) });
         } catch (e) {
           console.error("Erro no responderClientePausado:", e);
         }
@@ -9352,7 +9447,157 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         input.value = '';
       }
 
-      mostrarToast("✅ Resposta enviada! O cliente continua pausado — clique em 'Liberar para o Robô' quando concluir.");
+      if (despausarAutomatico) {
+        mostrarToast("🚀 Resposta enviada e cliente liberado para o robô com sucesso!");
+        if (api && api.obterPausados) {
+          try {
+            const atualizados = await api.obterPausados();
+            renderizarPausados(atualizados);
+          } catch (_) {}
+        }
+      } else {
+        mostrarToast("✅ Resposta enviada! O cliente permanece em atendimento.");
+      }
+    };
+
+    // Gestão de Filtros e Busca da Fila do Advogado
+    let filtroUrgenciaFilaAtual = 'TODOS';
+
+    window.setFiltroUrgenciaFila = function(filtro) {
+      filtroUrgenciaFilaAtual = filtro;
+      const ids = ['filtro-fila-todos', 'filtro-fila-critica', 'filtro-fila-alta', 'filtro-fila-audio'];
+      ids.forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.className = "px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+      });
+      const btnAtivo = document.getElementById(`filtro-fila-${filtro.toLowerCase()}`);
+      if (btnAtivo) {
+        btnAtivo.className = "px-3 py-1.5 rounded-lg font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+      }
+      filtrarFilaAdvogadoUI();
+    };
+
+    window.filtrarFilaAdvogadoUI = function() {
+      const termo = (document.getElementById('busca-fila-advogado')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('#lista-pausados > div');
+      cards.forEach(card => {
+        const textoCard = card.innerText.toLowerCase();
+        const urgencia = card.getAttribute('data-urgencia') || 'MEDIA';
+        const temAudio = card.querySelector('.audio-player-wrapper') !== null || textoCard.includes('[mensagem de voz]');
+        
+        let passaFiltro = true;
+        if (filtroUrgenciaFilaAtual === 'CRITICA' && urgencia !== 'CRITICA') passaFiltro = false;
+        if (filtroUrgenciaFilaAtual === 'ALTA' && urgencia !== 'ALTA' && urgencia !== 'CRITICA') passaFiltro = false;
+        if (filtroUrgenciaFilaAtual === 'AUDIO' && !temAudio) passaFiltro = false;
+
+        let passaBusca = true;
+        if (termo && !textoCard.includes(termo)) passaBusca = false;
+
+        if (passaFiltro && passaBusca) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    };
+
+    // Toggle do Modo Seguro / Robô Pausado Globalmente
+    window.toggleModoSeguroGlobalUI = async function() {
+      configGlobal.roboPausadoGlobal = !Boolean(configGlobal.roboPausadoGlobal);
+      configGlobal.modoSeguroAtivo = configGlobal.roboPausadoGlobal;
+      atualizarIndicadorModoSeguroUI();
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig(configGlobal);
+      }
+      mostrarToast(configGlobal.roboPausadoGlobal 
+        ? "🛡️ Modo Seguro ATIVADO: O robô está pausado globalmente. Todas as mensagens aguardam na Fila." 
+        : "⚡ Modo Seguro DESATIVADO: Robô liberado para respostas automáticas.");
+    };
+
+    function atualizarIndicadorModoSeguroUI() {
+      const dot = document.getElementById('top-modo-seguro-dot');
+      const txt = document.getElementById('top-modo-seguro-text');
+      const btn = document.getElementById('btn-top-modo-seguro');
+      const estaPausado = Boolean(configGlobal.roboPausadoGlobal || configGlobal.modoSeguroAtivo);
+
+      if (dot && txt && btn) {
+        if (estaPausado) {
+          dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+          txt.className = "text-amber-400 font-bold text-[11px]";
+          txt.innerText = "Modo Seguro: Pausado";
+          btn.className = "flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-xs font-semibold transition cursor-pointer";
+        } else {
+          dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+          txt.className = "text-emerald-400 font-semibold text-[11px]";
+          txt.innerText = "Robô: Ativo";
+          btn.className = "flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer";
+        }
+      }
+    }
+
+    // Configuração Visual de Tom de IA e Chave Gemini API
+    window.salvarTomIAUI = async function(novoTom) {
+      if (!configGlobal.ia) configGlobal.ia = {};
+      configGlobal.ia.tomVoz = novoTom;
+      configGlobal.tomCorporativo = novoTom === 'executivo';
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig(configGlobal);
+      }
+      mostrarToast(`🎭 Tom de voz da IA atualizado para: ${novoTom}`);
+    };
+
+    window.salvarOpcaoSemEmojisUI = async function(semEmojis) {
+      if (!configGlobal.ia) configGlobal.ia = {};
+      configGlobal.ia.semEmojis = semEmojis;
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig(configGlobal);
+      }
+      mostrarToast(semEmojis ? "🏛️ Sobriedade Ativada: Sem emojis nas respostas da IA." : "✨ Emojis permitidos nas respostas.");
+    };
+
+    window.salvarChaveGeminiUI = async function() {
+      const input = document.getElementById('input-chave-gemini');
+      const chaveDigitada = input ? input.value.trim() : '';
+      if (!chaveDigitada) {
+        mostrarToast("⚠️ Nenhuma nova chave digitada.");
+        return;
+      }
+      if (!chaveDigitada.startsWith('AIza')) {
+        alert("Aviso: Chaves do Google Gemini costumam iniciar com 'AIza...'. Verifique se copiou a chave correta.");
+      }
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig({
+          ...configGlobal,
+          nova_gemini_api_key: chaveDigitada
+        });
+        if (input) input.value = '';
+        const st = document.getElementById('status-chave-ia');
+        if (st) st.innerHTML = '<span class="text-emerald-400 font-bold">✓ Chave personalizada configurada e ativa</span>';
+        mostrarToast("🔑 Chave Google Gemini atualizada e ativa no sistema!");
+      }
+    };
+
+    // Exportação em 1 Clique de Extrato Financeiro (CSV)
+    window.exportarExtratoFinanceiroUI = function() {
+      const fin = configGlobal.financeiro || {};
+      const parcelas = fin.parcelas || [];
+      if (!parcelas.length) {
+        mostrarToast("⚠️ Nenhuma parcela de honorários registrada para exportar.");
+        return;
+      }
+
+      let csv = "ID;Cliente;Telefone;Contrato;Vencimento;Valor (R$);Status;Data Pagamento;Valor Pago (R$);Multa (R$);Juros (R$);Transacao\n";
+      parcelas.forEach(p => {
+        csv += `"${p.id || ''}";"${p.clienteNome || ''}";"${p.clienteTelefone || p.telefone || ''}";"${p.contratoId || ''}";"${p.vencimento || ''}";"${(p.valor || 0).toFixed(2)}";"${p.status || 'PENDENTE'}";"${p.dataPagamento || ''}";"${(p.valorPago || 0).toFixed(2)}";"${(p.valorMulta || 0).toFixed(2)}";"${(p.valorJuros || 0).toFixed(2)}";"${p.idTransacao || ''}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Extrato_Financeiro_Advocacia_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      mostrarToast("📊 Extrato financeiro exportado em CSV com sucesso!");
     };
 
     window.reativarCliente = async (num) => {
@@ -9371,6 +9616,25 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     async function salvarConfiguracaoCompleta(silencioso = false) {
       garantirEstruturaAgenda();
       garantirEstruturaProcessos();
+      atualizarIndicadorModoSeguroUI();
+
+      // Inicializa seletores de IA visual
+      const selTom = document.getElementById('select-tom-ia');
+      if (selTom && configGlobal.ia && configGlobal.ia.tomVoz) {
+        selTom.value = configGlobal.ia.tomVoz;
+      }
+      const chkEmojis = document.getElementById('check-ia-sem-emojis');
+      if (chkEmojis && configGlobal.ia && typeof configGlobal.ia.semEmojis === 'boolean') {
+        chkEmojis.checked = configGlobal.ia.semEmojis;
+      }
+      const stChave = document.getElementById('status-chave-ia');
+      if (stChave) {
+        if (configGlobal.temApiKeyConfigurada) {
+          stChave.innerHTML = `<span class="text-emerald-400 font-bold">✓ Chave Ativa: ${configGlobal.geminiApiKeyMascarada || 'Configurada'}</span>`;
+        } else {
+          stChave.innerHTML = `<span class="text-amber-400 font-medium">Usando contingência local (adicione sua chave Gemini para máxima precisão)</span>`;
+        }
+      }
       localStorage.setItem('adv_bot_config_backup', JSON.stringify(configGlobal));
       if (window.api && window.api.salvarConfig) await window.api.salvarConfig(configGlobal);
       const badgeAutosave = document.getElementById('badge-autosave');
@@ -9741,6 +10005,25 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       garantirEstruturaAgenda();
       garantirEstruturaProcessos();
+      atualizarIndicadorModoSeguroUI();
+
+      // Inicializa seletores de IA visual
+      const selTom = document.getElementById('select-tom-ia');
+      if (selTom && configGlobal.ia && configGlobal.ia.tomVoz) {
+        selTom.value = configGlobal.ia.tomVoz;
+      }
+      const chkEmojis = document.getElementById('check-ia-sem-emojis');
+      if (chkEmojis && configGlobal.ia && typeof configGlobal.ia.semEmojis === 'boolean') {
+        chkEmojis.checked = configGlobal.ia.semEmojis;
+      }
+      const stChave = document.getElementById('status-chave-ia');
+      if (stChave) {
+        if (configGlobal.temApiKeyConfigurada) {
+          stChave.innerHTML = `<span class="text-emerald-400 font-bold">✓ Chave Ativa: ${configGlobal.geminiApiKeyMascarada || 'Configurada'}</span>`;
+        } else {
+          stChave.innerHTML = `<span class="text-amber-400 font-medium">Usando contingência local (adicione sua chave Gemini para máxima precisão)</span>`;
+        }
+      }
       popularSeletorDeEtapas();
       carregarEtapaNoEditor('raiz');
       const elBoasVindasInit = document.getElementById('input-msg-boasvindas');

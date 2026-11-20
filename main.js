@@ -1030,6 +1030,35 @@ async function processarMensagemEntrada(msg) {
             return false;
         }
 
+        // MODO SEGURO / ROBÔ PAUSADO GLOBALMENTE:
+        // Se ativado pelo advogado, nenhuma mensagem ou menu automático sai.
+        // O contato é encaminhado silenciosamente para a Fila do Advogado em modo espera.
+        if (config.roboPausadoGlobal === true || config.modoSeguroAtivo === true) {
+            const horaMsg = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const novaMsg = { de: 'cliente', texto: textoOriginal, hora: horaMsg };
+            if (!historicoConversas[remetenteChave]) historicoConversas[remetenteChave] = [];
+            historicoConversas[remetenteChave].push(novaMsg);
+
+            await anexarMensagemOuAudioAoPausado(remetenteChave, {
+                novaMsg,
+                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY },
+                motivo: 'Modo Seguro / Robô Pausado pelo Advogado'
+            });
+
+            if (mainWindow && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-log', {
+                    numero: identidade.telefoneFormatado,
+                    nome: identidade.nomeCliente || '',
+                    exibicao: identidade.exibicao,
+                    msg: `[Modo Seguro - Fila] ${textoOriginal}`,
+                    tipo: 'cliente',
+                    origem: 'cliente',
+                    hora: horaMsg
+                });
+            }
+            return false;
+        }
+
         const gatilhoDigitado = extrairGatilhoLimpo(textoOriginal);
 
         const registroPausa = contatosPausados[remetenteChave] || contatosPausados[msg.from];
@@ -1885,6 +1914,16 @@ ipcMain.handle('listar-documentos-cliente', async (event, clienteId) => {
 function sanitizarConfigParaRenderer(cfg) {
     if (!cfg || typeof cfg !== 'object') return cfg;
     const copia = JSON.parse(JSON.stringify(cfg));
+    // Mascara apiKey deixando visível apenas os últimos 4 dígitos para visualização segura no frontend
+    const chaveReal = copia.gemini_api_key || copia.geminiApiKey || (copia.ia && (copia.ia.apiKey || copia.ia.gemini_api_key)) || '';
+    if (chaveReal && typeof chaveReal === 'string' && chaveReal.trim()) {
+        const limpa = chaveReal.trim();
+        copia.geminiApiKeyMascarada = limpa.length > 8 ? `••••••••••••${limpa.slice(-4)}` : '••••••••';
+        copia.temApiKeyConfigurada = true;
+    } else {
+        copia.geminiApiKeyMascarada = '';
+        copia.temApiKeyConfigurada = false;
+    }
     delete copia.gemini_api_key;
     delete copia.geminiApiKey;
     if (copia.ia && typeof copia.ia === 'object') {
@@ -1929,6 +1968,19 @@ ipcMain.handle('salvar-config', (e, nc) => {
     }
     if (nc.gemini_api_key === undefined && atualEmMemoria && atualEmMemoria.gemini_api_key !== undefined) {
         nc.gemini_api_key = atualEmMemoria.gemini_api_key;
+    }
+    // Permite ao usuário atualizar a GEMINI_API_KEY diretamente pela interface de Configurações
+    if (typeof nc.nova_gemini_api_key === 'string') {
+        const chaveNova = nc.nova_gemini_api_key.trim();
+        if (chaveNova) {
+            nc.gemini_api_key = chaveNova;
+            process.env.GEMINI_API_KEY = chaveNova;
+        } else if (nc.remover_gemini_api_key) {
+            delete nc.gemini_api_key;
+            delete process.env.GEMINI_API_KEY;
+        }
+        delete nc.nova_gemini_api_key;
+        delete nc.remover_gemini_api_key;
     }
     salvarConfigDisco(nc, true);
     if (typeof nc.iniciar_com_windows !== 'undefined') {
