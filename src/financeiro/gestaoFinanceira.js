@@ -258,6 +258,147 @@ function calcularEncargosParcela(parcela, config = {}, dataReferencia = null) {
 }
 
 /**
+ * Remove acentos e caracteres especiais incompatíveis com o padrão EMV BACEN.
+ */
+function removerAcentosBacen(texto) {
+    return String(texto || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^\x20-\x7E]/g, '')
+        .trim();
+}
+
+/**
+ * Formata um campo TLV (Tag-Length-Value) no padrão EMV QRCPS-MPM.
+ */
+function formatarCampoTLV(id, valor) {
+    const strValor = String(valor ?? '');
+    const tam = String(strValor.length).padStart(2, '0');
+    return `${String(id).padStart(2, '0')}${tam}${strValor}`;
+}
+
+/**
+ * Normaliza a chave PIX conforme regras do DICT / Banco Central:
+ * - E-mail: minúsculas sem espaços
+ * - Chave Aleatória (EVP UUID): 36 caracteres minúsculos
+ * - Telefone: formato internacional +55DDDNUMERO
+ * - CPF / CNPJ: somente dígitos (11 ou 14 dígitos, sem máscara)
+ */
+function normalizarChavePixBacen(chavePix, tipoChave = '') {
+    const bruta = String(chavePix || '').trim();
+    if (!bruta) return '';
+
+    const tipoUpper = String(tipoChave || '').toUpperCase().trim();
+
+    if (bruta.includes('@') || tipoUpper === 'EMAIL' || tipoUpper === 'E-MAIL') {
+        return bruta.toLowerCase().replace(/\s+/g, '');
+    }
+
+    if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(bruta) || tipoUpper === 'ALEATORIA' || tipoUpper === 'EVP') {
+        return bruta.toLowerCase();
+    }
+
+    const apenasDigitos = bruta.replace(/\D/g, '');
+    const pareceTelefoneFormatado = bruta.startsWith('+') || /^\(\d{2}\)/.test(bruta) || /^\d{2}\s+9?\d{4}-\d{4}$/.test(bruta);
+    const ehTipoTelefone = tipoUpper.includes('TEL') || tipoUpper.includes('CEL') || tipoUpper.includes('FONE');
+
+    if (ehTipoTelefone || pareceTelefoneFormatado) {
+        if (!apenasDigitos) return bruta;
+        if ((apenasDigitos.length === 12 || apenasDigitos.length === 13) && apenasDigitos.startsWith('55')) {
+            return `+${apenasDigitos}`;
+        }
+        if (apenasDigitos.length === 10 || apenasDigitos.length === 11) {
+            return `+55${apenasDigitos}`;
+        }
+        return `+${apenasDigitos}`;
+    }
+
+    if (apenasDigitos.length === 14 || tipoUpper === 'CNPJ') {
+        return apenasDigitos;
+    }
+
+    if ((apenasDigitos.length === 12 || apenasDigitos.length === 13) && apenasDigitos.startsWith('55')) {
+        return `+${apenasDigitos}`;
+    }
+
+    if (apenasDigitos.length === 10) {
+        return `+55${apenasDigitos}`;
+    }
+
+    if (apenasDigitos.length === 11) {
+        return apenasDigitos;
+    }
+
+    return apenasDigitos || bruta;
+}
+
+/**
+ * Calcula o CRC16-CCITT (polinômio 0x1021, valor inicial 0xFFFF)
+ * exigido pelo padrão EMV QRCPS-MPM do Banco Central do Brasil.
+ * Retorna string hexadecimal maiúscula de 4 dígitos.
+ */
+function calcularCRC16Pix(payload) {
+    const str = String(payload || '');
+    let crc = 0xFFFF;
+    const polinomio = 0x1021;
+
+    for (let i = 0; i < str.length; i++) {
+        crc ^= (str.charCodeAt(i) & 0xFF) << 8;
+        for (let bit = 0; bit < 8; bit++) {
+            if ((crc & 0x8000) !== 0) {
+                crc = ((crc << 1) ^ polinomio) & 0xFFFF;
+            } else {
+                crc = (crc << 1) & 0xFFFF;
+            }
+        }
+    }
+
+    return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+
+/**
+ * Gera o payload oficial BR Code PIX (Copia-e-Cola) no padrão EMV QRCPS-MPM do Banco Central.
+ */
+function gerarBrCodePix({ chavePix, tipoChave = '', beneficiario = 'Escritorio de Advocacia', cidade = 'BRASILIA', valor = 0, txid = '***' } = {}) {
+    const chaveNormalizada = normalizarChavePixBacen(chavePix, tipoChave);
+
+    const nomeSanitizado = (removerAcentosBacen(beneficiario) || 'ESCRITORIO DE ADVOCACIA').slice(0, 25);
+    const cidadeSanitizada = (removerAcentosBacen(cidade) || 'BRASILIA').slice(0, 15);
+
+    let txidSanitizado = '***';
+    if (txid && String(txid).trim() !== '***') {
+        const alfanum = String(txid).replace(/[^a-zA-Z0-9]/g, '').slice(0, 25);
+        txidSanitizado = alfanum.length > 0 ? alfanum : '***';
+    }
+
+    const campo00 = formatarCampoTLV('00', '01');
+
+    const subCampoGui = formatarCampoTLV('00', 'br.gov.bcb.pix');
+    const subCampoChave = formatarCampoTLV('01', chaveNormalizada);
+    const campo26 = formatarCampoTLV('26', `${subCampoGui}${subCampoChave}`);
+
+    const campo52 = formatarCampoTLV('52', '0000');
+    const campo53 = formatarCampoTLV('53', '986');
+
+    const numValor = typeof valor === 'number' ? valor : parseFloat(String(valor || '0').replace(',', '.'));
+    const campo54 = (Number.isFinite(numValor) && numValor > 0)
+        ? formatarCampoTLV('54', numValor.toFixed(2))
+        : '';
+
+    const campo58 = formatarCampoTLV('58', 'BR');
+    const campo59 = formatarCampoTLV('59', nomeSanitizado);
+    const campo60 = formatarCampoTLV('60', cidadeSanitizada);
+
+    const subCampoTxid = formatarCampoTLV('05', txidSanitizado);
+    const campo62 = formatarCampoTLV('62', subCampoTxid);
+
+    const payloadSemCrc = `${campo00}${campo26}${campo52}${campo53}${campo54}${campo58}${campo59}${campo60}${campo62}6304`;
+    const crc16 = calcularCRC16Pix(payloadSemCrc);
+
+    return `${payloadSemCrc}${crc16}`;
+}
+
+/**
  * Gera mensagem cordial e personalizada de cobrança com chave PIX Copia-e-Cola,
  * incorporando automaticamente encargos de mora editáveis se a parcela estiver vencida.
  */
@@ -268,9 +409,23 @@ function gerarMensagemCobrancaPix(parcela, config = {}, dataReferencia = null) {
     const encargos = calcularEncargosParcela(p, config, dataReferencia);
     const nomeCliente = (p.clienteNome || p.nome || 'Cliente').toString().trim();
     const vencimento = (p.vencimento || 'em aberto').toString().trim();
-    const chavePix = (cfgCob.chavePix || '').toString().trim() || '[Chave PIX não configurada]';
+    const chavePixCrua = (cfgCob.chavePix || '').toString().trim();
+    const chavePix = chavePixCrua || '[Chave PIX não configurada]';
     const tipoChave = (cfgCob.tipoChave || 'PIX').toString().trim();
     const beneficiario = (cfgCob.beneficiario || config?.nomeEscritorio || 'Escritório de Advocacia').toString().trim();
+    const cidade = (cfgCob.cidade || config?.cidadeEscritorio || 'BRASILIA').toString().trim();
+    const txid = p.id ? (String(p.id).replace(/[^a-zA-Z0-9]/g, '').slice(0, 25) || '***') : '***';
+
+    const brCode = chavePixCrua
+        ? gerarBrCodePix({
+            chavePix: chavePixCrua,
+            tipoChave,
+            beneficiario,
+            cidade,
+            valor: encargos.valorTotalAtualizado,
+            txid
+        })
+        : '[Chave PIX não configurada]';
 
     let linhaValor = `• 💰 *Valor:* R$ ${formatarMoedaBR(encargos.valorOriginal)}`;
     if (encargos.estaVencida && (encargos.valorMulta > 0 || encargos.valorJuros > 0)) {
@@ -283,8 +438,9 @@ function gerarMensagemCobrancaPix(parcela, config = {}, dataReferencia = null) {
         `Passando de forma cordial para lembrar da parcela referente aos seus honorários advocatícios:\n` +
         `${linhaValor}\n` +
         `• 📅 *Vencimento:* ${vencimento}${encargos.estaVencida ? ` *(em atraso há ${encargos.diasAtraso} dia(s))*` : ''}\n\n` +
-        `🔑 *Chave PIX Copia-e-Cola (${tipoChave}):*\n` +
-        `${chavePix}\n\n` +
+        `📋 *PIX Copia-e-Cola Oficial (Banco Central):*\n` +
+        `${brCode}\n\n` +
+        `🔑 *Chave PIX Direta (${tipoChave}):* ${chavePix}\n` +
         `• 🏛️ *Beneficiário:* ${beneficiario}\n\n` +
         `Assim que realizar o pagamento, basta nos enviar a *foto ou print do comprovante* aqui mesmo nesta conversa para darmos baixa automática. Muito obrigado!`
     );
@@ -849,6 +1005,10 @@ function salvarConfiguracaoCobranca(novaConfigCobranca, config) {
 module.exports = {
     filtrarParcelasElegiveis,
     calcularEncargosParcela,
+    gerarBrCodePix,
+    calcularCRC16Pix,
+    normalizarChavePixBacen,
+    removerAcentosBacen,
     gerarMensagemCobrancaPix,
     dispararReguaCobranca,
     darBaixaParcela,
