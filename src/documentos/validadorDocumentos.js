@@ -32,6 +32,8 @@ const TIPOS_DOCUMENTO = {
   CTPS: 'CTPS',
   CERTIDAO: 'CERTIDAO',
   CONTRATO: 'CONTRATO',
+  LAUDO_MEDICO: 'LAUDO_MEDICO',
+  CNIS: 'CNIS',
   OUTRO: 'OUTRO'
 };
 
@@ -44,6 +46,8 @@ const MAPA_ROTULOS_TIPO = {
   CTPS: 'Carteira de Trabalho (CTPS)',
   CERTIDAO: 'Certidão Civil',
   CONTRATO: 'Contrato / Instrumento Jurídico',
+  LAUDO_MEDICO: 'Laudo / Exame Médico',
+  CNIS: 'Extrato Previdenciário (CNIS)',
   OUTRO: 'Documento Digitalizado'
 };
 

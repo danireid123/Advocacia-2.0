@@ -107,6 +107,8 @@ function documentoSatisfazItem(tipoDetectado, itemPendente) {
     if (p.includes('CTPS') && (t.includes('CTPS') || t.includes('CARTEIRA'))) return true;
     if (p.includes('CERTIDAO') && t.includes('CERTIDAO')) return true;
     if (p.includes('CONTRATO') && (t.includes('CONTRATO') || t.includes('COMPROVANTE'))) return true;
+    if (p.includes('LAUDO') && (t.includes('LAUDO') || t.includes('MEDICO') || t.includes('EXAME'))) return true;
+    if (p.includes('CNIS') && (t.includes('CNIS') || t.includes('INSS') || t.includes('EXTRATO'))) return true;
     return false;
 }
 
@@ -336,7 +338,12 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
     });
 
     if (!removeuAoMenosUm && sessao.documentosPendentes.length > 0) {
-        sessao.documentosPendentes.shift();
+        // Se o documento é OUTRO ou não reconhecido, NÃO faz shift cego!
+        // Apenas dá baixa se for expressamente identificado como compatível
+        if (laudo.tipoDocumento && laudo.tipoDocumento !== 'OUTRO') {
+            sessao.documentosPendentes.shift();
+            removeuAoMenosUm = true;
+        }
     }
     sessao.itensPendentes = [...sessao.documentosPendentes];
     sessao.atualizadoEm = new Date().toISOString();
@@ -357,7 +364,21 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
         }
         sessao.ultimoDocRecebidoEm = new Date().toISOString();
         dossieConsolidado = consolidarDossie(chaveTel, config);
-        msgFeedback = `${laudo.mensagemFeedbackWhatsApp}\n\n📋 *Ainda faltam (${sessao.documentosPendentes.length}):* ${sessao.documentosPendentes.join(', ')}.`;
+        const pendentesAmigaveis = sessao.documentosPendentes.map(item => {
+            const rotulos = {
+                'RG_OU_CNH': 'RG ou CNH',
+                'COMPROVANTE_RESIDENCIA': 'Comprovante de Residência',
+                'CTPS': 'Carteira de Trabalho',
+                'TERMO_RESCISAO': 'Termo de Rescisão / Holerites',
+                'LAUDO_MEDICO': 'Laudos / Exames Médicos',
+                'CNIS': 'Extrato CNIS (Meu INSS)',
+                'CERTIDAO': 'Certidão de Nascimento/Casamento',
+                'COMPROVANTE_RENDA': 'Comprovante de Renda',
+                'CONTRATO_COMPROVANTE': 'Contrato ou Comprovante'
+            };
+            return rotulos[item] || item.replace(/_/g, ' ');
+        }).join(', ');
+        msgFeedback = `${laudo.mensagemFeedbackWhatsApp}\n\n📋 *Ainda faltam (${sessao.documentosPendentes.length}):* ${pendentesAmigaveis}.`;
     }
 
     return {

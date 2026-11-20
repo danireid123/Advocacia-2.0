@@ -604,8 +604,8 @@ function detectarUrgenciaECronologiaLocal(texto, contexto = {}) {
     };
   }
 
-  // 1. Detecção de Urgência Crítica (Furador de Fila)
-  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|delegacia|flagrante|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(judicial|de\s+conta|banc[aá]rio)|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
+  // 1. Detecção de Urgência Crítica (Furador de Fila) - Inclui Contencioso e Direito Digital / LGPD
+  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|delegacia|flagrante|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(judicial|de\s+conta|banc[aá]rio)|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o|vazamento\s+de\s+dados|incidente\s+de\s+seguran[cç]a|ransomware|ataque\s+hacker|notifica[cç][aã]o\s+anpd|\banpd\b|prazo\s+de\s+3\s+dias\s+[uú]teis|conta\s+invadida|perfil\s+hackeado|medida\s+protetiva|aliena[cç][aã]o\s+parental)/i;
 
   // 2. Detecção de Oportunidade Comercial / Fechamento
   const regexComercial = /(fechar\s+contrato|assinar\s+contrato|proposta\s+de\s+honor[aá]rios?|quanto\s+custa|pagar\s+honor[aá]rios?|dar\s+entrada\s+(hoje|urgente|no\s+processo)|documentos?\s+para\s+iniciar|fechamento|contratar|quero\s+contratar)/i;

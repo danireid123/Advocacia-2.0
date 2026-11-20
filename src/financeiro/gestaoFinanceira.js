@@ -126,14 +126,50 @@ function filtrarParcelasElegiveis(config, dataReferencia = null, ignorarDiaSeman
     }
 
     const freqMaxima = Number(cfgCob.frequenciaSemanal || 2);
+    const agoraRef = dataReferencia ? (dataReferencia instanceof Date ? dataReferencia : new Date(dataReferencia)) : new Date();
+    agoraRef.setHours(23, 59, 59, 999);
 
     return parcelas.filter(p => {
         if (!p || typeof p !== 'object') return false;
         const status = String(p.status || 'PENDENTE').toUpperCase();
-        if (status === 'PAGO' || status === 'QUITADO' || status === 'CANCELADO') return false;
+        if (status === 'PAGO' || status === 'QUITADO' || status === 'CANCELADO' || status === 'ARQUIVADO') return false;
+
+        // Reset semanal automático: se mudou a semana civil desde o último disparo, reseta cobrancasNaSemana
+        if (p.ultimoDisparoSemana) {
+            const dtUltimo = new Date(p.ultimoDisparoSemana);
+            if (!isNaN(dtUltimo.getTime())) {
+                const diffDias = Math.floor((agoraRef.getTime() - dtUltimo.getTime()) / (1000 * 60 * 60 * 24));
+                if (diffDias >= 7) {
+                    p.cobrancasNaSemana = 0;
+                }
+            }
+        }
 
         const cobrancasSemana = Number(p.cobrancasNaSemana || 0);
         if (freqMaxima > 0 && cobrancasSemana >= freqMaxima) return false;
+
+        // PROTEÇÃO CRÍTICA: Somente parcelas vencidas ou que vencem no dia de hoje (ou tolerância)
+        if (p.vencimento) {
+            let dtVenc = null;
+            if (p.vencimento.includes('/')) {
+                const partes = p.vencimento.split('/');
+                if (partes.length === 3) {
+                    dtVenc = new Date(parseInt(partes[2], 10), parseInt(partes[1], 10) - 1, parseInt(partes[0], 10), 23, 59, 59, 999);
+                }
+            } else if (p.vencimento.includes('-')) {
+                const partes = p.vencimento.split('-');
+                if (partes.length === 3) {
+                    dtVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 23, 59, 59, 999);
+                }
+            }
+
+            if (dtVenc && !isNaN(dtVenc.getTime())) {
+                // Se a parcela vence no futuro além de hoje, NÃO cobra na régua
+                if (dtVenc.getTime() > agoraRef.getTime()) {
+                    return false;
+                }
+            }
+        }
 
         return true;
     });
@@ -318,6 +354,7 @@ async function dispararReguaCobranca(config, opcoesEnvio = {}, opcoesExtra = {})
             await funcaoEnvio(telefone, mensagem, parcela);
             enviado = true;
             parcela.ultimaCobrancaEm = new Date().toISOString();
+            parcela.ultimoDisparoSemana = new Date().toISOString();
             parcela.cobrancasNaSemana = Number(parcela.cobrancasNaSemana || 0) + 1;
         } catch (err) {
             erroEnvio = err.message || String(err);
@@ -373,10 +410,10 @@ function darBaixaParcela(parcelaId, config, dadosBaixa = {}) {
     parcela.valorMulta = (encargos.estaVencida && encargos.aplicarEncargos) ? encargos.valorMulta : 0;
     parcela.valorJuros = (encargos.estaVencida && encargos.aplicarEncargos) ? encargos.valorJuros : 0;
     parcela.diasAtrasoNaBaixa = encargos.diasAtraso;
-    parcela.idTransacao = dadosBaixa.idTransacao || parcela.idTransacao || `BAIXA_${Date.now()}`;
+    parcela.idTransacao = dadosBaixa.idTransacao || parcela.idTransacao || (dadosBaixa.origem === 'IA_COMPROVANTE' ? `PIX_${Date.now()}` : `BAIXA_MANUAL_${Date.now()}`);
     parcela.bancoOrigem = dadosBaixa.bancoOrigem || parcela.bancoOrigem || 'Manual / Confirmado';
     parcela.nomePagador = dadosBaixa.nomePagador || parcela.clienteNome || '';
-    if (dadosBaixa.origem) parcela.origemPagamento = dadosBaixa.origem;
+    parcela.origemPagamento = dadosBaixa.origem || parcela.origemPagamento || 'MANUAL';
 
     // Localiza todas as parcelas do mesmo contrato ou mesmo cliente
     const contratoId = parcela.contratoId;
@@ -722,9 +759,8 @@ function obterMetricasFinanceiras(config, dataReferencia = null) {
             const intermediadoIA = Boolean(
                 p.origemPagamento === 'IA' ||
                 p.origemPagamento === 'IA_COMPROVANTE' ||
-                p.cobrancasNaSemana > 0 ||
-                p.intermediadoIA ||
-                p.idTransacao
+                p.intermediadoIA === true ||
+                (p.origemPagamento !== 'MANUAL' && p.cobrancasNaSemana > 0 && String(p.idTransacao || '').startsWith('PIX_'))
             );
 
             if (dataPagto >= seteDiasAtras && intermediadoIA) {
@@ -735,8 +771,19 @@ function obterMetricasFinanceiras(config, dataReferencia = null) {
             totalParcelasPendentes++;
 
             if (p.vencimento) {
-                const dtVenc = new Date(p.vencimento + 'T12:00:00');
-                if (!isNaN(dtVenc.getTime()) && dtVenc >= inicioSemana && dtVenc <= fimSemana) {
+                let dtVenc = null;
+                if (p.vencimento.includes('/')) {
+                    const partes = p.vencimento.split('/');
+                    if (partes.length === 3) {
+                        dtVenc = new Date(parseInt(partes[2], 10), parseInt(partes[1], 10) - 1, parseInt(partes[0], 10), 12, 0, 0);
+                    }
+                } else if (p.vencimento.includes('-')) {
+                    const partes = p.vencimento.split('-');
+                    if (partes.length === 3) {
+                        dtVenc = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10), 12, 0, 0);
+                    }
+                }
+                if (dtVenc && !isNaN(dtVenc.getTime()) && dtVenc >= inicioSemana && dtVenc <= fimSemana) {
                     aReceberEstaSemana += valor;
                 }
             }

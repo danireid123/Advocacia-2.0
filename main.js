@@ -463,7 +463,7 @@ function isMensagemCritica(texto, cfg = null) {
             return isCriticaShared(texto, configAtiva);
         }
     } catch (_) {}
-    const regexTermos = /\b(urgente|socorro|delegacia|flagrante|oficial\s+de\s+justi[cç]a|mandado|busca\s+e\s+apreens[aã]o|intima[cç][aã]o|liminar|\buti\b|audi[eê]ncia\s+hoje|bloquearam\s+minha\s+conta|sisbajud|bacenjud|plano\s+de\s+sa[uú]de\s+negou|\bpreso\b|despejo)\b/i;
+    const regexTermos = /\b(urgente|socorro|delegacia|flagrante|oficial\s+de\s+justi[cç]a|mandado|busca\s+e\s+apreens[aã]o|intima[cç][aã]o|liminar|\buti\b|audi[eê]ncia\s+hoje|bloquearam\s+minha\s+conta|sisbajud|bacenjud|plano\s+de\s+sa[uú]de\s+negou|\bpreso\b|despejo|vazamento\s+de\s+dados|incidente\s+de\s+seguran[cç]a|ransomware|ataque\s+hacker|anpd|conta\s+invadida|perfil\s+hackeado|medida\s+protetiva|aliena[cç][aã]o\s+parental)\b/i;
     return regexTermos.test(texto.toLowerCase());
 }
 
@@ -1204,6 +1204,7 @@ async function processarMensagemEntrada(msg) {
         }
 
         // Interceptação imediata de emergência crítica antes de saudações/menu
+        // (Examina texto original para que 'Bom dia, tivemos um vazamento...' não seja engolido por saudações)
         if (isMensagemCritica(textoOriginal, config)) {
             await colocarNaFilaHumana(
                 "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",

@@ -4866,15 +4866,48 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       resultsBox.innerHTML = html;
     }
 
+    let spotlightIndexSelecionado = -1;
+
+    function atualizarDestaqueSpotlight(itens) {
+      itens.forEach((el, idx) => {
+        if (idx === spotlightIndexSelecionado) {
+          el.classList.add('bg-zinc-800', 'border-amber-500/40');
+          el.classList.remove('hover:bg-zinc-800');
+          el.scrollIntoView({ block: 'nearest' });
+        } else {
+          el.classList.remove('bg-zinc-800', 'border-amber-500/40');
+        }
+      });
+    }
+
     const inputSpotlightEl = document.getElementById('spotlight-input');
     if (inputSpotlightEl) {
       inputSpotlightEl.addEventListener('input', (e) => {
+        spotlightIndexSelecionado = -1;
         renderizarSpotlightItens(e.target.value);
       });
       inputSpotlightEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const primeiroItem = document.querySelector('.spotlight-item');
-          if (primeiroItem) primeiroItem.click();
+        const itens = document.querySelectorAll('.spotlight-item');
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (itens.length > 0) {
+            spotlightIndexSelecionado = (spotlightIndexSelecionado + 1) % itens.length;
+            atualizarDestaqueSpotlight(itens);
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (itens.length > 0) {
+            spotlightIndexSelecionado = (spotlightIndexSelecionado - 1 + itens.length) % itens.length;
+            atualizarDestaqueSpotlight(itens);
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (itens.length > 0) {
+            const itemEscolhido = (spotlightIndexSelecionado >= 0 && spotlightIndexSelecionado < itens.length)
+              ? itens[spotlightIndexSelecionado]
+              : itens[0];
+            if (itemEscolhido) itemEscolhido.click();
+          }
         } else if (e.key === 'Escape') {
           toggleSpotlight(false);
         }
