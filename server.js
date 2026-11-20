@@ -1017,6 +1017,38 @@ const server = http.createServer(async (req, res) => {
             }
         }
 
+        // 6. Endpoint /verificar-lembretes-parciais (Disparo/Verificação de Lembrete 48h de Dossiê Parcial)
+        if (url.pathname === '/verificar-lembretes-parciais' && req.method === 'POST') {
+            if (!verificarAutenticacao(req, url)) {
+                return res.json({ erro: 'Não autorizado' }, 401);
+            }
+            try {
+                const body = await lerCorpoJson(req);
+                const { verificarLembretesDossieParcial } = require('./src/onboarding/onboardingController');
+                const cfg = carregarConfig();
+                const enviarMsgFn = async (telefone, mensagem) => {
+                    const digitos = apenasNumeros(telefone);
+                    if (client && (statusConexao === 'ready' || statusConexao === 'CONECTADO') && digitos) {
+                        const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                        await client.sendMessage(chatId, mensagem);
+                        return true;
+                    }
+                    return false;
+                };
+                const rel = await verificarLembretesDossieParcial(cfg, {
+                    ...body,
+                    enviarMensagemWhatsApp: body.simulacao ? null : enviarMsgFn,
+                    isContactIgnored: (tel, c) => isContactIgnored(tel, c)
+                });
+                if (rel && rel.totalEnviados > 0) {
+                    salvarConfigDisco(cfg);
+                }
+                return res.json({ sucesso: true, ...rel });
+            } catch (err) {
+                return res.json({ erro: 'Erro ao verificar lembretes: ' + err.message }, 500);
+            }
+        }
+
         // 7. Endpoint /qr (Interface visual para escanear QR Code, protegida por token)
         if (url.pathname === '/qr') {
             if (!verificarAutenticacao(req, url)) {
@@ -1034,7 +1066,7 @@ const server = http.createServer(async (req, res) => {
             } else if (ultimoQrDataUrl) {
                 res.end(`
                     <html><body style="font-family:sans-serif;text-align:center;padding:50px;background:#0d1117;color:#fff;">
-                        <h1 style="color:#e5c158;">📱 Escaneie o QR Code do WhatsApp</h1>
+                        <h1 style="color:#d4af37;">📱 Escaneie o QR Code do WhatsApp</h1>
                         <p>Abra seu WhatsApp > Dispositivos conectados > Conectar dispositivo</p>
                         <img src="${ultimoQrDataUrl}" style="border:8px solid #fff;border-radius:12px;margin:20px auto;display:block;" />
                         <script>setTimeout(() => location.reload(), 15000);</script>
@@ -1152,6 +1184,36 @@ function iniciarMonitorMemoria() {
     }, 5 * 60 * 1000);
 }
 
+// Agendador autônomo de Lembretes de Dossiê Incompleto (48h)
+function iniciarAgendadorLembretesParciais() {
+    setInterval(async () => {
+        try {
+            if (!client || (statusConexao !== 'ready' && statusConexao !== 'CONECTADO')) return;
+            const cfg = carregarConfig();
+            const { verificarLembretesDossieParcial } = require('./src/onboarding/onboardingController');
+            const enviarMsgFn = async (telefone, mensagem) => {
+                const digitos = apenasNumeros(telefone);
+                if (client && (statusConexao === 'ready' || statusConexao === 'CONECTADO') && digitos) {
+                    const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                    await client.sendMessage(chatId, mensagem);
+                    return true;
+                }
+                return false;
+            };
+            const rel = await verificarLembretesDossieParcial(cfg, {
+                enviarMensagemWhatsApp: enviarMsgFn,
+                isContactIgnored: (tel, c) => isContactIgnored(tel, c)
+            });
+            if (rel && rel.totalEnviados > 0) {
+                salvarConfigDisco(cfg);
+                console.log(`[Server Headless] ${rel.totalEnviados} lembrete(s) automático(s) de 48h disparado(s).`);
+            }
+        } catch (err) {
+            console.error('[Server Headless] Erro no agendador de lembretes:', err.message);
+        }
+    }, 60 * 1000);
+}
+
 // Inicialização autônoma se executado diretamente
 if (require.main === module) {
     server.listen(PORT, () => {
@@ -1162,6 +1224,7 @@ if (require.main === module) {
         iniciarBotHeadless();
         iniciarKeepAliveAntiSleep();
         iniciarMonitorMemoria();
+        iniciarAgendadorLembretesParciais();
     });
 }
 

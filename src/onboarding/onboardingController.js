@@ -352,6 +352,10 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
     } else {
         sessao.status = 'DOCS_PARCIAIS';
         sessao.estado = 'DOCS_PARCIAIS';
+        if (!sessao.parcialDesde) {
+            sessao.parcialDesde = new Date().toISOString();
+        }
+        sessao.ultimoDocRecebidoEm = new Date().toISOString();
         dossieConsolidado = consolidarDossie(chaveTel, config);
         msgFeedback = `${laudo.mensagemFeedbackWhatsApp}\n\n📋 *Ainda faltam (${sessao.documentosPendentes.length}):* ${sessao.documentosPendentes.join(', ')}.`;
     }
@@ -520,6 +524,182 @@ function obterDossies(config = {}) {
     return mapa;
 }
 
+/**
+ * Varre as sessões de onboarding e dossiês que se encontram em DOCS_PARCIAIS
+ * e dispara automaticamente um lembrete amigável caso tenham transcorrido 48h
+ * desde o último envio parcial sem que os documentos pendentes tenham sido completados.
+ * 
+ * @param {Object} config - Configuração geral do sistema
+ * @param {Object} options - Opções de execução e injeção de dependências
+ * @returns {Promise<Object>} Relatório de lembretes verificados e disparados
+ */
+async function verificarLembretesDossieParcial(config = {}, options = {}) {
+    garantirEstruturaOnboarding(config);
+    const agora = options.dataReferencia ? new Date(options.dataReferencia) : new Date();
+    const horasLimite = typeof options.horasLimite === 'number' ? options.horasLimite : 48;
+    const forcarDisparo = Boolean(options.forcarDisparo);
+    const enviarMsgFn = typeof options.enviarMensagemWhatsApp === 'function' ? options.enviarMensagemWhatsApp : null;
+    const isIgnoredFn = typeof options.isContactIgnored === 'function' ? options.isContactIgnored : null;
+
+    const relatorio = {
+        totalVerificados: 0,
+        totalElegiveis: 0,
+        totalEnviados: 0,
+        detalhes: []
+    };
+
+    const sessoes = config.onboardingSessoes || {};
+    const dossies = config.dossiesClientes || {};
+
+    // Mapeia todos os telefones únicos que possuem sessão ou dossiê
+    const chavesUnicas = new Set([...Object.keys(sessoes), ...Object.keys(dossies)]);
+
+    for (const tel of chavesUnicas) {
+        const sessao = sessoes[tel] || {};
+        const dossie = dossies[tel] || {};
+
+        const statusSessao = sessao.status || sessao.estado || '';
+        const statusDossie = dossie.status || '';
+
+        // Só atua se estiver explicitamente em DOCS_PARCIAIS
+        if (statusSessao !== 'DOCS_PARCIAIS' && statusDossie !== 'DOCS_PARCIAIS') {
+            continue;
+        }
+
+        relatorio.totalVerificados++;
+
+        // Obtém pendências
+        const pendentes = Array.isArray(sessao.documentosPendentes) && sessao.documentosPendentes.length > 0
+            ? sessao.documentosPendentes
+            : (Array.isArray(dossie.documentosPendentes) && dossie.documentosPendentes.length > 0
+                ? dossie.documentosPendentes
+                : []);
+
+        if (pendentes.length === 0) {
+            continue;
+        }
+
+        // Checa se o contato está na lista de contatos ignorados / VIP silencioso
+        if (isIgnoredFn && isIgnoredFn(tel, config)) {
+            continue;
+        }
+
+        // Determina a data base de referência para contagem de horas
+        const dataBaseStr = sessao.parcialDesde || sessao.ultimoDocRecebidoEm || sessao.atualizadoEm || dossie.atualizadoEm || sessao.iniciadoEm;
+        const dataBase = dataBaseStr ? new Date(dataBaseStr) : agora;
+        const diffHoras = (agora.getTime() - dataBase.getTime()) / (1000 * 60 * 60);
+
+        // Verifica se completou 48 horas (ou se o disparo foi forçado)
+        if (diffHoras < horasLimite && !forcarDisparo) {
+            continue;
+        }
+
+        // Evita reenvio excessivo: se já enviou lembrete nas últimas 48h, respeita o intervalo
+        if (sessao.ultimoLembreteParcialEm && !forcarDisparo) {
+            const horasDesdeUltimoLembrete = (agora.getTime() - new Date(sessao.ultimoLembreteParcialEm).getTime()) / (1000 * 60 * 60);
+            if (horasDesdeUltimoLembrete < horasLimite) {
+                continue;
+            }
+        }
+
+        relatorio.totalElegiveis++;
+
+        // Formatação amigável dos nomes dos documentos faltantes
+        const pendentesFormatados = pendentes.map(p => {
+            const rotulo = p.replace(/_/g, ' ').toLowerCase();
+            return rotulo.charAt(0).toUpperCase() + rotulo.slice(1);
+        }).join(', ');
+
+        const nomeCliente = sessao.clienteNome || dossie.clienteNome || dossie.nome || 'Cliente';
+        const docsRecebidosQtd = Array.isArray(sessao.documentosRecebidos) ? sessao.documentosRecebidos.length : (Array.isArray(dossie.documentos) ? dossie.documentos.length : 0);
+
+        // Template de mensagem amigável e acolhedor (anti-robô)
+        const templateBase = (config && typeof config.modeloMensagemLembreteDossieParcial === 'string' && config.modeloMensagemLembreteDossieParcial.trim())
+            ? config.modeloMensagemLembreteDossieParcial
+            : (
+                `⚖️ *Lembrete de Documentação — Advocacia Pro*\n\n` +
+                `Olá, *{nome}*! Tudo bem? Esperamos que esteja tendo uma excelente semana! 😊\n\n` +
+                `Passando para te avisar que já registramos com sucesso parte dos seus documentos para a abertura do seu caso.\n\n` +
+                `📋 *Para darmos entrada no processo, ainda precisamos apenas de:*\n` +
+                `👉 *{documentos_pendentes}*\n\n` +
+                `Assim que você puder, envie por aqui mesmo uma foto nítida ou arquivo em PDF. Nossa equipe jurídica está pronta para avançar com o seu pedido!\n\n` +
+                `Qualquer dúvida, estamos à disposição. ⚖️`
+            );
+
+        const mensagemFinal = templateBase
+            .replace(/\{nome\}/gi, () => nomeCliente)
+            .replace(/\{documentos_pendentes\}/gi, () => pendentesFormatados)
+            .replace(/\{total_pendentes\}/gi, () => String(pendentes.length))
+            .replace(/\{total_recebidos\}/gi, () => String(docsRecebidosQtd));
+
+        let enviado = false;
+        if (enviarMsgFn) {
+            try {
+                const resEnvio = await enviarMsgFn(tel, mensagemFinal);
+                enviado = (resEnvio !== false);
+            } catch (errEnvio) {
+                console.error(`[Lembrete Dossiê Parcial] Erro ao enviar mensagem para ${tel}:`, errEnvio.message);
+                enviado = false;
+            }
+        } else {
+            // Em testes unitários ou sem client conectado direto
+            enviado = true;
+        }
+
+        if (enviado) {
+            const agoraISO = agora.toISOString();
+            const agoraFormatado = agora.toLocaleString('pt-BR');
+
+            // Atualiza sessão
+            sessao.ultimoLembreteParcialEm = agoraISO;
+            sessao.lembretesParciaisEnviados = (sessao.lembretesParciaisEnviados || 0) + 1;
+            sessao.atualizadoEm = agoraISO;
+            if (!Array.isArray(sessao.historicoLembretes)) sessao.historicoLembretes = [];
+            sessao.historicoLembretes.push({
+                data: agoraISO,
+                dataTexto: agoraFormatado,
+                documentosPendentes: [...pendentes],
+                mensagem: mensagemFinal
+            });
+
+            // Atualiza dossiê
+            if (dossie && typeof dossie === 'object') {
+                dossie.ultimoLembreteParcialEm = agoraISO;
+                dossie.lembretesParciaisEnviados = sessao.lembretesParciaisEnviados;
+                dossie.atualizadoEm = agoraISO;
+            }
+
+            // Atualiza linha do tempo pré-processual
+            if (config.processos && Array.isArray(config.processos.lista)) {
+                const proc = config.processos.lista.find(p =>
+                    (p.telefoneCliente && p.telefoneCliente === tel) ||
+                    (dossie.cpf && p.cpf && p.cpf === dossie.cpf)
+                );
+                if (proc) {
+                    if (!Array.isArray(proc.linhaDoTempo)) proc.linhaDoTempo = [];
+                    proc.linhaDoTempo.push({
+                        data: agoraFormatado,
+                        evento: `⏰ Lembrete automático de 48h enviado ao cliente solicitando: ${pendentesFormatados}.`
+                    });
+                    proc.dataAtualizacaoTexto = agoraFormatado;
+                    proc.temAtualizacao = true;
+                }
+            }
+
+            relatorio.totalEnviados++;
+            relatorio.detalhes.push({
+                telefone: tel,
+                nome: nomeCliente,
+                documentosPendentes: pendentes,
+                horasDecorridas: Math.round(diffHoras),
+                mensagem: mensagemFinal
+            });
+        }
+    }
+
+    return relatorio;
+}
+
 module.exports = {
     PRESETS_ONBOARDING,
     iniciarSessaoOnboarding,
@@ -527,5 +707,6 @@ module.exports = {
     processarMidiaOnboarding,
     consolidarDossie,
     obterDossies,
+    verificarLembretesDossieParcial,
     garantirEstruturaOnboarding
 };
