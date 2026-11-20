@@ -4,6 +4,25 @@
   <meta charset="UTF-8">
   <title>Advocacia Studio Pro • v2.0 (Executive Suite)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'gold-primary': '#d4af37',
+              'gold-soft': '#f3dc8a',
+              amber: {
+                400: '#f3dc8a',
+                500: '#d4af37',
+                600: '#b89228'
+              }
+            }
+          }
+        }
+      };
+    }
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
@@ -12,8 +31,10 @@
       --bg-surface: #0f1012;
       --bg-elevated: #141518;
       --bg-surface-3: #1a1b1f;
-      --gold-champagne: #d4af37;
-      --gold-light: #f3dc8a;
+      --gold-primary: #d4af37;
+      --gold-soft: #f3dc8a;
+      --gold-champagne: var(--gold-primary);
+      --gold-light: var(--gold-soft);
       --text-main: #f7f8f8;
       --text-muted: #8a8f98;
       --text-tertiary: #7c828d;
@@ -29,8 +50,10 @@
       --bg-surface: #0f1012;
       --bg-elevated: #141518;
       --bg-surface-3: #1a1b1f;
-      --gold-champagne: #d4af37;
-      --gold-light: #f3dc8a;
+      --gold-primary: #d4af37;
+      --gold-soft: #f3dc8a;
+      --gold-champagne: var(--gold-primary);
+      --gold-light: var(--gold-soft);
       --text-main: #f7f8f8;
       --text-muted: #8a8f98;
       --text-tertiary: #7c828d;
@@ -43,6 +66,59 @@
       background-image:
         radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.045) 0%, transparent 65%);
       color: var(--text-main);
+    }
+
+    /* =========================================================================
+       NAVEGAÇÃO ACESSÍVEL POR TECLADO (WCAG AA - FOCO VISÍVEL EM OURO EXECUTIVO)
+       ========================================================================= */
+    :focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid #d4af37 !important;
+      outline-offset: 2px !important;
+    }
+
+    /* =========================================================================
+       ESTABILIDADE DOS TOOLTIPS DA SIDEBAR (RAIL NAVIGATION)
+       ========================================================================= */
+    body:not(.sidebar-expanded) .sidebar-rail-btn {
+      position: relative;
+    }
+    body:not(.sidebar-expanded) .sidebar-rail-btn::after {
+      content: attr(data-rail-title);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%) translateX(-4px);
+      background: #141518;
+      color: #f7f8f8;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none !important;
+      z-index: 100 !important;
+      transition: opacity 0.15s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.15s ease;
+    }
+    body:not(.sidebar-expanded) .sidebar-rail-btn:hover::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    /* Blindagem geral para evitar piscadeira ou bloqueio por tooltips */
+    .tooltip, [role="tooltip"], .floating-tooltip {
+      pointer-events: none !important;
+      z-index: 100 !important;
     }
 
 
@@ -270,7 +346,7 @@
     }
     .urgency-badge-media {
       background: rgba(212, 175, 55, 0.10);
-      color: #e5c158;
+      color: var(--gold-soft);
       border-color: rgba(212, 175, 55, 0.28);
     }
     .urgency-badge-baixa {
@@ -358,7 +434,7 @@
     }
     
     .champagne-gradient { 
-      background: linear-gradient(135deg, #e5c158 0%, #c59b27 50%, #9e7812 100%); 
+      background: linear-gradient(135deg, var(--gold-soft) 0%, var(--gold-primary) 100%); 
       color: #09090b;
     }
     .champagne-gradient:hover {
@@ -501,7 +577,7 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
     input:checked + .toggle-slider {
-      background: linear-gradient(135deg, #e5c158 0%, #b8860b 100%);
+      background: linear-gradient(135deg, var(--gold-soft) 0%, var(--gold-primary) 100%);
       border-color: #f3e5ab;
     }
     input:checked + .toggle-slider:before {
@@ -1399,7 +1475,7 @@
 
       <!-- Abas Internas do Dossiê Unificado -->
       <div class="flex items-center flex-wrap gap-2 border-b border-zinc-800 pb-2">
-        <button type="button" id="tab-btn-docs" onclick="window.alternarAbaDossie && window.alternarAbaDossie('docs')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40 cursor-pointer">
+        <button type="button" id="tab-btn-docs" onclick="window.alternarAbaDossie && window.alternarAbaDossie('docs')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">
           Peças Anexadas (<span id="dossie-count-docs">0</span>)
         </button>
         <button type="button" id="tab-btn-qualificacao" onclick="window.alternarAbaDossie && window.alternarAbaDossie('qualificacao')" class="px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-transparent cursor-pointer">
@@ -2435,7 +2511,7 @@
 
           <!-- BARRA DE 2 SUB-ABAS NO TOPO -->
           <div class="p-1.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/90 flex flex-col sm:flex-row gap-1.5 shadow-inner">
-            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer">
+            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30 shadow-sm cursor-pointer">
               <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
               <span>1. Editar Menus &amp; Funções</span>
             </button>
@@ -4149,7 +4225,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       if (badge) {
         badge.innerText = "● Salvando...";
-        badge.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#d4af37]/15 text-[#e5c158] border border-[#d4af37]/30 flex items-center gap-1.5 font-mono";
+        badge.className = "text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30 flex items-center gap-1.5 font-mono";
       }
       if (btnSalvar) btnSalvar.classList.add('unsaved-glow');
       if (labelSalvar) labelSalvar.innerText = "Salvar Agora ●";
@@ -4954,7 +5030,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
             destinoLabel = 'Chama Advogado';
           } else if (op.tipo === 'processo') {
-            badgeClass = 'bg-[#d4af37]/15 text-[#e5c158] border-[#d4af37]/30';
+            badgeClass = 'bg-[#d4af37]/15 text-[#d4af37] border-[#d4af37]/30';
             destinoLabel = 'Busca CPF/Processo';
           }
           opHtml += `
@@ -4966,7 +5042,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         });
         card.innerHTML = `
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold ${isSel ? 'text-[#e5c158]' : ''}">${item.dados.titulo || item.id}</span>
+            <span class="text-xs font-bold ${isSel ? 'text-[#d4af37]' : ''}">${item.dados.titulo || item.id}</span>
             <span class="text-[10px] text-zinc-400">${(item.dados.opcoes || []).length} opções</span>
           </div>
           <div class="space-y-1.5">${opHtml || '<span class="text-[11px] text-zinc-500 italic">Sem opções cadastradas</span>'}</div>
@@ -5333,9 +5409,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         card.className = `p-4 exec-card rounded-xl space-y-3 border ${temAcaoFila ? 'border-amber-500/30' : 'border-zinc-800/80'}`;
         card.innerHTML = `
           <div class="flex items-center space-x-2.5">
-            <input type="text" id="op-gatilho-${idx}" class="w-11 exec-input rounded-lg px-2 py-1.5 text-xs text-center font-bold text-[#e5c158]">
+            <input type="text" id="op-gatilho-${idx}" class="w-11 exec-input rounded-lg px-2 py-1.5 text-xs text-center font-bold text-[#d4af37]">
             <input type="text" id="op-rotulo-${idx}" placeholder="Título..." class="flex-1 exec-input rounded-lg px-3 py-1.5 text-xs">
-            <select id="op-tipo-${idx}" class="exec-input rounded-lg px-2.5 py-1.5 text-xs text-[#e5c158] font-semibold">
+            <select id="op-tipo-${idx}" class="exec-input rounded-lg px-2.5 py-1.5 text-xs text-[#d4af37] font-semibold">
               <option value="texto" ${op.tipo === 'texto' ? 'selected' : ''}>Responder Texto</option>
               <option value="submenu" ${op.tipo === 'submenu' ? 'selected' : ''}>Abrir Submenu</option>
               <option value="processo" ${op.tipo === 'processo' ? 'selected' : ''}>Consultar Processo (CPF/CNJ)</option>
@@ -5611,7 +5687,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const pnlEd = document.getElementById('painel-fluxo-editor');
       const pnlAc = document.getElementById('painel-fluxo-acoes');
 
-      const activeClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] bg-[#e5c158]/15 text-[#e5c158] border border-[#e5c158]/30 shadow-sm cursor-pointer";
+      const activeClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30 shadow-sm cursor-pointer";
       const inactiveClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent cursor-pointer";
 
       if (btnMsg) btnMsg.className = (aba === 'mensagens') ? activeClass : inactiveClass;
@@ -5728,7 +5804,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div class="exec-card p-5 rounded-2xl space-y-4 border ${ehFila ? 'border-amber-500/40' : 'border-zinc-800/80'} transition shadow-md">
               <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-3">
                 <div class="flex items-center space-x-2.5">
-                  <span class="px-2.5 py-1 rounded-lg bg-zinc-800 text-[#e5c158] font-bold text-xs font-mono border border-zinc-700">Gatilho: [ ${escaparHtmlTexto(op.gatilho || String(idx + 1))} ]</span>
+                  <span class="px-2.5 py-1 rounded-lg bg-zinc-800 text-[#d4af37] font-bold text-xs font-mono border border-zinc-700">Gatilho: [ ${escaparHtmlTexto(op.gatilho || String(idx + 1))} ]</span>
                   <span class="font-bold text-zinc-100 text-sm">${escaparHtmlTexto(op.rotulo || 'Opção sem título')}</span>
                   <span class="text-[10px] text-zinc-400 bg-zinc-900 px-2.5 py-0.5 rounded-full border border-zinc-800/80">${escaparHtmlTexto(menu.titulo)}</span>
                 </div>
@@ -5750,7 +5826,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                       <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
-                    <span class="text-[11px] text-[#e5c158]">Ex: peça áudio ou resumo do caso</span>
+                    <span class="text-[11px] text-[#d4af37]">Ex: peça áudio ou resumo do caso</span>
                   </div>
                 </div>
                 <textarea id="central-resposta-${menu.id}-${idx}" rows="2" class="w-full exec-input rounded-xl p-3 text-xs resize-none leading-relaxed" placeholder="Mensagem que o robô responde quando o cliente escolhe esta opção..." oninput="atualizarRespostaOpcaoCentral('${menu.id}', ${idx}, this.value)">${escaparHtmlTexto(op.resposta || '')}</textarea>
@@ -6643,7 +6719,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       tabs.forEach(t => {
         if (!t.btn || !t.box) return;
         if (t.name === aba) {
-          t.btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#e5c158] border border-[#d4af37]/40 shadow-sm cursor-pointer";
+          t.btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 shadow-sm cursor-pointer";
           t.box.classList.remove('hidden');
         } else {
           t.btn.className = "px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-400 hover:text-white border border-transparent cursor-pointer";
@@ -6700,7 +6776,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             const dataAnexo = doc.anexadoEm || doc.adicionadoEm || doc.data || '';
             card.innerHTML = `
               <div class="flex items-center justify-between">
-                <span class="font-bold text-[#e5c158] flex items-center space-x-1.5">
+                <span class="font-bold text-[#d4af37] flex items-center space-x-1.5">
                   <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>
                   <span>${doc.tipoPeca || 'Peça Processual'}</span>
                 </span>
@@ -6781,7 +6857,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             item.className = "p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 text-xs space-y-1";
             const textoHist = h.textoHumanizado || h.textoBruto || h.descricao || h.resumoAnterior || '-';
             item.innerHTML = `
-              <div class="flex items-center justify-between text-[10px] text-[#e5c158] font-bold">
+              <div class="flex items-center justify-between text-[10px] text-[#d4af37] font-bold">
                 <span class="flex items-center gap-1"><svg class="w-3 h-3 text-amber-400"><use href="#icon-calendar"/></svg>${h.data || '-'}</span>
                 <span class="text-zinc-500 font-normal uppercase text-[9px]">${h.origem || 'atualização'}</span>
               </div>
@@ -7233,7 +7309,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           <td class="p-2.5 whitespace-nowrap">${tagSituacao}</td>
           <td class="p-2.5 font-semibold text-white whitespace-nowrap">${p.nome || 'Cliente'}</td>
           <td class="p-2.5 text-zinc-300 font-mono text-[10px] whitespace-nowrap">${p.cpf || '-'}</td>
-          <td class="p-2.5 text-[#e5c158] font-mono text-[10px] whitespace-nowrap">${p.numeroProcesso || '-'}</td>
+          <td class="p-2.5 text-[#d4af37] font-mono text-[10px] whitespace-nowrap">${p.numeroProcesso || '-'}</td>
           <td class="p-2.5 text-zinc-400 max-w-xs truncate" title="${p.resumo || ''}">${p.resumo || '-'}</td>
         `;
         if (tbody) tbody.appendChild(tr);
@@ -8116,7 +8192,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const cronologiaHTML = `
           <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80 space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+              <span class="text-[10px] text-[#d4af37] font-bold uppercase tracking-wider flex items-center space-x-1.5">
                 <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-calendar"/></svg>Cronologia dos Fatos (Dos Fatos p/ Petição):</span>
               </span>
               <button type="button" onclick="copiarTopicoDosFatos('${cardId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer">
@@ -8151,7 +8227,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <span class="font-bold text-white text-sm">${tituloExibicao}</span>
                 <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Chegou às ${horaChegada}</span>
               </div>
-              <span class="text-[11px] text-[#e5c158] block mt-0.5">${subtituloTel}</span>
+              <span class="text-[11px] text-[#d4af37] block mt-0.5">${subtituloTel}</span>
               <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                 ${badgeUrgenciaHTML}
                 ${!badgeUrgenciaHTML ? `
@@ -8190,7 +8266,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
             <!-- Mensagens do Cliente -->
             <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80">
-              <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider block mb-1.5 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-message"/></svg>Histórico de Mensagens Enviadas:</span>
+              <span class="text-[10px] text-[#d4af37] font-bold uppercase tracking-wider block mb-1.5 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-message"/></svg>Histórico de Mensagens Enviadas:</span>
               <div class="space-y-1.5">
                 ${listaMsgsHTML}
               </div>
@@ -8199,7 +8275,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <!-- Transcrição e Resumo (Cohere Editorial AI Console) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               <div class="ai-console-panel space-y-1.5">
-                <span class="ai-console-label text-[#e5c158]"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio / Mensagens</span>
+                <span class="ai-console-label text-[#d4af37]"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio / Mensagens</span>
                 <p class="ai-console-body">${escaparHtmlTexto(transcricao)}</p>
               </div>
               <div class="ai-console-panel space-y-1.5">
@@ -8213,7 +8289,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
             <!-- 3 Sugestões Rápidas de Resposta -->
             <div class="space-y-2">
-              <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+              <span class="text-[10px] text-[#d4af37] font-bold uppercase tracking-wider flex items-center space-x-1.5">
                 <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg>Sugestões Prontas de Resposta:</span>
               </span>
               <div class="space-y-2">
@@ -8560,7 +8636,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <span class="text-xs font-bold text-white truncate">${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>
             </div>
-            <span class="text-[10px] font-mono text-[#e5c158] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
+            <span class="text-[10px] font-mono text-[#d4af37] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
             <div class="mt-2 pt-2 border-t border-zinc-800/80 flex items-center justify-end">
               <button type="button" onclick="event.stopPropagation(); window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos('${escaparHtmlTexto(id)}', '${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-[#f3e5ab] border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer" title="Solicitar novos documentos pelo WhatsApp">
                 📄 Solicitar Docs
@@ -8602,7 +8678,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         <div class="p-3.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 hover:border-amber-500/40 transition-all space-y-2.5 flex flex-col justify-between group shadow-sm">
           <div class="space-y-2">
             <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold text-[#e5c158] flex items-center gap-1.5 truncate">
+              <span class="text-xs font-bold text-[#d4af37] flex items-center gap-1.5 truncate">
                 <svg class="w-3.5 h-3.5 text-amber-400 shrink-0"><use href="#icon-file-text"/></svg>
                 <span class="truncate">${escaparHtmlTexto(tipoFormatado)}</span>
               </span>
@@ -8882,7 +8958,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 ${badgeStatus}
                 ${badgeUltima}
                 ${badgeQuitadoTotal}
-                <span class="text-[12px] font-mono text-[#e5c158] font-extrabold">R$ ${Number(p.valor || 0).toFixed(2).replace('.', ',')}</span>
+                <span class="text-[12px] font-mono text-[#d4af37] font-extrabold">R$ ${Number(p.valor || 0).toFixed(2).replace('.', ',')}</span>
               </div>
               <div class="text-[10px] text-zinc-400 font-mono flex items-center space-x-3">
                 <span>📱 Tel: +${escaparHtmlTexto(p.clienteTelefone || '')}</span>
@@ -9040,7 +9116,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </strong>
             </div>
             <p class="text-xs text-zinc-200">
-              <span class="font-bold text-white">${escaparHtmlTexto(nomeCliente)}</span> realizou o pagamento de <span class="font-mono font-bold text-[#e5c158]">R$ ${valorFormatado}</span>.
+              <span class="font-bold text-white">${escaparHtmlTexto(nomeCliente)}</span> realizou o pagamento de <span class="font-mono font-bold text-[#d4af37]">R$ ${valorFormatado}</span>.
             </p>
             <div class="text-[10px] text-zinc-400 font-mono">
               Status: Parcela ${parcNum} de ${parcTot} liquidada com sucesso!
@@ -9237,9 +9313,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         if (chipWaDot) chipWaDot.className = 'w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse';
         if (chipWaTxt) chipWaTxt.innerText = 'WhatsApp: Autenticando...';
       } else if (st === 'waiting_qr') {
-        txtEl.innerText = 'Leitura de QR Code'; if (topTxtEl) topTxtEl.innerText = 'Ler QR Code'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-[#e5c158] animate-pulse';
+        txtEl.innerText = 'Leitura de QR Code'; if (topTxtEl) topTxtEl.innerText = 'Ler QR Code'; if (topDotEl) topDotEl.className = 'w-2 h-2 rounded-full bg-[#d4af37] animate-pulse';
         if (!subDetalhe && subEl) subEl.innerText = 'Escaneie no celular para conectar';
-        dotEl.className = 'w-2 h-2 rounded-full bg-[#e5c158] animate-pulse';
+        dotEl.className = 'w-2 h-2 rounded-full bg-[#d4af37] animate-pulse';
         if (chipWaDot) chipWaDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse';
         if (chipWaTxt) chipWaTxt.innerText = 'WhatsApp: Aguardando QR';
       } else if (st === 'initializing') {
@@ -10133,7 +10209,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             divWrap.className = 'flex justify-start mb-2.5';
             divWrap.innerHTML = `
               <div class="max-w-[82%] bg-[#202c33] border border-zinc-700/60 text-zinc-100 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow text-xs relative">
-                <div class="flex items-center space-x-1.5 text-[10px] text-[#e5c158] font-bold mb-1">
+                <div class="flex items-center space-x-1.5 text-[10px] text-[#d4af37] font-bold mb-1">
                   <span>⚖️ Escritório de Advocacia</span>
                   <span class="text-zinc-400 font-normal">• Robô Automático</span>
                 </div>
@@ -10421,7 +10497,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               }
               if (btnMic) {
                 btnMic.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
-                btnMic.classList.add('bg-zinc-800', 'text-[#e5c158]');
+                btnMic.classList.add('bg-zinc-800', 'text-[#d4af37]');
               }
               if (timer) timer.classList.add('hidden');
               if (btnCancelar) btnCancelar.classList.add('hidden');
@@ -10462,7 +10538,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               }
               if (btnCancelar) btnCancelar.classList.remove('hidden');
               if (btnMic) {
-                btnMic.classList.remove('bg-zinc-800', 'text-[#e5c158]');
+                btnMic.classList.remove('bg-zinc-800', 'text-[#d4af37]');
                 btnMic.classList.add('bg-rose-600', 'text-white', 'animate-pulse');
               }
 
@@ -10497,7 +10573,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             const btnCancelar = document.getElementById('btn-cancelar-gravacao');
             if (btnMic) {
               btnMic.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
-              btnMic.classList.add('bg-zinc-800', 'text-[#e5c158]');
+              btnMic.classList.add('bg-zinc-800', 'text-[#d4af37]');
             }
             if (timer) timer.classList.add('hidden');
             if (btnCancelar) btnCancelar.classList.add('hidden');
@@ -10802,7 +10878,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             const cronologiaHTML = `
               <div class="bg-zinc-950/60 p-3 rounded-xl border border-zinc-800/80 space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                  <span class="text-[10px] text-[#d4af37] font-bold uppercase tracking-wider flex items-center space-x-1.5">
                     <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-calendar"/></svg>Cronologia dos Fatos (Dos Fatos p/ Petição):</span>
                   </span>
                   <button type="button" onclick="copiarTopicoDosFatos('${dados.id}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer">
@@ -10838,7 +10914,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <span class="font-bold text-white text-sm">${dados.nome}</span>
                     <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Chegou às ${dados.horario}</span>
                   </div>
-                  <span class="text-[11px] text-[#e5c158] block mt-0.5">Telefone: ${dados.telefone}</span>
+                  <span class="text-[11px] text-[#d4af37] block mt-0.5">Telefone: ${dados.telefone}</span>
                   <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                     ${badgeUrgenciaHTML}
                     <span class="text-[10px] text-amber-400">Robô pausado • Mensagem de voz recebida</span>
@@ -10869,7 +10945,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <!-- Seção Transcrição e Resumo Executivo (Cohere Editorial AI Console) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                   <div class="ai-console-panel space-y-1.5">
-                    <span class="ai-console-label text-[#e5c158]"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio</span>
+                    <span class="ai-console-label text-[#d4af37]"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>Transcrição do Áudio</span>
                     <p class="ai-console-body">${escaparHtmlTexto(dados.transcricao || 'Processando transcrição...')}</p>
                   </div>
                   <div class="ai-console-panel space-y-1.5">
@@ -10883,7 +10959,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
                 <!-- Sugestões de Resposta com 1 Clique -->
                 <div class="space-y-2">
-                  <span class="text-[10px] text-[#e5c158] font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                  <span class="text-[10px] text-[#d4af37] font-bold uppercase tracking-wider flex items-center space-x-1.5">
                     <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sparkles"/></svg>Sugestões Prontas de Resposta:</span>
                   </span>
                   <div class="space-y-2">
@@ -10923,8 +10999,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             if (input) {
               input.value = texto;
               input.focus();
-              input.classList.add('ring-2', 'ring-[#e5c158]');
-              setTimeout(() => input.classList.remove('ring-2', 'ring-[#e5c158]'), 800);
+              input.classList.add('ring-2', 'ring-[#d4af37]');
+              setTimeout(() => input.classList.remove('ring-2', 'ring-[#d4af37]'), 800);
             }
           }
 
@@ -11131,6 +11207,14 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         observer.observe(b, { childList: true, characterData: true, subtree: true });
       });
     } catch (e) {}
+
+    // Estabilidade dos Tooltips do Rail Lateral: popula data-rail-title e neutraliza oscilações
+    document.querySelectorAll('.sidebar-rail-btn').forEach(btn => {
+      const tip = btn.getAttribute('title') || btn.getAttribute('data-desc') || '';
+      if (tip) {
+        btn.setAttribute('data-rail-title', tip);
+      }
+    });
   })();
   </script>
 <script>
