@@ -8628,16 +8628,29 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           const id = dossie.clienteId || dossie.clienteTelefone;
           const ativo = window.dossieClienteSelecionadoId === id;
           const qtdDocs = Array.isArray(dossie.documentos) ? dossie.documentos.length : 0;
+          const isParcial = dossie.status === 'DOCS_PARCIAIS' || (Array.isArray(dossie.documentosPendentes) && dossie.documentosPendentes.length > 0);
+          const badgeStatusHtml = isParcial
+            ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/25">⏳ Parcial (${qtdDocs} docs)</span>`
+            : `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>`;
+          const lembreteInfoHtml = isParcial
+            ? `<span class="text-[9.5px] text-amber-400/90 block mt-0.5 font-medium flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Lembrete 48h programado</span>`
+            : '';
+          const btnLembreteHtml = isParcial
+            ? `<button type="button" onclick="event.stopPropagation(); window.dispararLembreteParcialManual && window.dispararLembreteParcialManual('${escaparHtmlTexto(id)}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer mr-1.5" title="Enviar lembrete amigável de 48h agora">⏰ Lembrete 48h</button>`
+            : '';
+
           const card = document.createElement('div');
           card.className = `p-3.5 rounded-xl border transition cursor-pointer ${ativo ? 'proc-list-item-active' : 'exec-card hover:border-zinc-700'}`;
           card.onclick = () => selecionarClienteDossie(id);
           card.innerHTML = `
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white truncate">${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>
+              ${badgeStatusHtml}
             </div>
             <span class="text-[10px] font-mono text-[#d4af37] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
+            ${lembreteInfoHtml}
             <div class="mt-2 pt-2 border-t border-zinc-800/80 flex items-center justify-end">
+              ${btnLembreteHtml}
               <button type="button" onclick="event.stopPropagation(); window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos('${escaparHtmlTexto(id)}', '${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-[#f3e5ab] border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer" title="Solicitar novos documentos pelo WhatsApp">
                 📄 Solicitar Docs
               </button>
@@ -8653,6 +8666,22 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
       } catch (e) {
         console.warn('Erro ao renderizar dossiês:', e);
+      }
+    };
+
+    window.dispararLembreteParcialManual = async function(telAlvo) {
+      try {
+        if (window.api && typeof window.api.verificarLembretesDossieParcial === 'function') {
+          const res = await window.api.verificarLembretesDossieParcial({ forcarDisparo: true });
+          if (res && res.totalEnviados > 0) {
+            alert(`✅ Lembrete automático de 48h enviado para ${res.totalEnviados} cliente(s) com documentação parcial!`);
+            if (typeof window.carregarERenderizarDossies === 'function') window.carregarERenderizarDossies();
+          } else {
+            alert('ℹ️ Nenhum dossiê parcial com pendências para envio no momento.');
+          }
+        }
+      } catch (e) {
+        alert('Erro ao enviar lembrete: ' + e.message);
       }
     };
 

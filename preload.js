@@ -80,6 +80,7 @@ const apiBridge = {
     obterMetricasFinanceiras: (dados) => ipcRenderer.invoke('obter-metricas-financeiras', dados),
     processarMidiaOnboarding: (dados) => ipcRenderer.invoke('onboarding-processar-midia', dados),
     consolidarDossieCliente: (telefone) => ipcRenderer.invoke('onboarding-consolidar-dossie', telefone),
+    verificarLembretesDossieParcial: (dados) => ipcRenderer.invoke('onboarding-verificar-lembretes-parciais', dados),
 
     // Listeners Específicos Legados
     aoReceberQR: (callback) => ipcRenderer.on('bot-qr', (_e, qr) => callback(qr)),

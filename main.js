@@ -3412,6 +3412,37 @@ setInterval(async () => {
     }
 }, 60 * 1000);
 
+// Agendador periódico de Lembrete de Dossiê Parcial (48 horas)
+setInterval(async () => {
+    try {
+        if (!client || (statusAtualBot !== 'ready' && statusAtualBot !== 'CONECTADO')) return;
+        const cfg = carregarConfig();
+        const { verificarLembretesDossieParcial } = require('./src/onboarding/onboardingController');
+        const enviarMsgFn = async (telefone, mensagem) => {
+            const digitos = apenasNumeros(telefone);
+            if (client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && digitos) {
+                const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                await client.sendMessage(chatId, mensagem);
+                return true;
+            }
+            return false;
+        };
+        const rel = await verificarLembretesDossieParcial(cfg, {
+            enviarMensagemWhatsApp: enviarMsgFn,
+            isContactIgnored: (tel, c) => isContactIgnored(tel, c)
+        });
+        if (rel && rel.totalEnviados > 0) {
+            salvarConfigDisco(cfg);
+            console.log(`[Lembrete Dossiê Parcial] ${rel.totalEnviados} lembrete(s) automático(s) de 48h disparado(s).`);
+            if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-processos-sync', cfg);
+            }
+        }
+    } catch (err) {
+        console.error('[Lembrete Dossiê Parcial] Erro no agendador:', err.message);
+    }
+}, 60 * 1000);
+
 ipcMain.handle('dar-baixa-parcela', async (event, payload = {}) => {
     try {
         const { darBaixaParcela } = require('./src/financeiro/gestaoFinanceira');
@@ -3521,6 +3552,37 @@ ipcMain.handle('onboarding-consolidar-dossie', async (event, payload = {}) => {
         return { sucesso: Boolean(dossie), dossie };
     } catch (err) {
         console.error('[IPC onboarding-consolidar-dossie] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('onboarding-verificar-lembretes-parciais', async (event, payload = {}) => {
+    try {
+        const { verificarLembretesDossieParcial } = require('./src/onboarding/onboardingController');
+        const cfg = carregarConfig();
+        const enviarMsgFn = async (telefone, mensagem) => {
+            const digitos = apenasNumeros(telefone);
+            if (client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && digitos) {
+                const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+                await client.sendMessage(chatId, mensagem);
+                return true;
+            }
+            return false;
+        };
+        const rel = await verificarLembretesDossieParcial(cfg, {
+            ...payload,
+            enviarMensagemWhatsApp: payload.simulacao ? null : enviarMsgFn,
+            isContactIgnored: (tel, c) => isContactIgnored(tel, c)
+        });
+        if (rel && rel.totalEnviados > 0) {
+            salvarConfigDisco(cfg);
+            if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-processos-sync', cfg);
+            }
+        }
+        return { sucesso: true, ...rel };
+    } catch (err) {
+        console.error('[IPC onboarding-verificar-lembretes-parciais] Erro:', err);
         return { sucesso: false, erro: err.message };
     }
 });
