@@ -16,7 +16,7 @@
       --gold-light: #f3dc8a;
       --text-main: #f7f8f8;
       --text-muted: #8a8f98;
-      --text-tertiary: #62666d;
+      --text-tertiary: #7c828d;
       --card-bg: #0f1012;
       --border-color: #23252a;
       --border-strong: #32343b;
@@ -33,7 +33,7 @@
       --gold-light: #f3dc8a;
       --text-main: #f7f8f8;
       --text-muted: #8a8f98;
-      --text-tertiary: #62666d;
+      --text-tertiary: #7c828d;
       --card-bg: #0f1012;
       --border-color: #23252a;
       --border-strong: #32343b;
@@ -45,28 +45,6 @@
       color: var(--text-main);
     }
 
-    /* ============================================================
-       MODO CLARO EDITORIAL — PAPEL TIMBRADO NOBRE (INSPIRADO NO ORACLE)
-       Tons quentes relaxantes (#f1efed / #fbf9f8 / #f5f4f2), zero branco estourado
-       ============================================================ */
-    body.theme-light {
-      --bg-deep: #f1efed;
-      --bg-surface: #fbf9f8;
-      --bg-elevated: #f5f4f2;
-      --gold-champagne: #b8860b;
-      --gold-light: #854d0e;
-      --text-main: #161513;
-      --text-muted: #524c46;
-      --card-bg: #fbf9f8;
-      --border-color: #e4e1dd;
-      --input-bg: #f5f4f2;
-      --inner-box-bg: #f5f4f2;
-      background-color: #f1efed !important;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(184, 134, 11, 0.06) 0px, transparent 42%),
-        radial-gradient(at 100% 100%, rgba(212, 207, 202, 0.22) 0px, transparent 45%) !important;
-      color: #161513 !important;
-    }
 
     body { 
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; 
@@ -76,105 +54,12 @@
       transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
     }
 
-    body.theme-light .exec-card {
-      background: #fbf9f8 !important;
-      border-color: #e4e1dd !important;
-      box-shadow: 0 1px 2px rgba(22, 21, 19, 0.04), 0 8px 24px -8px rgba(22, 21, 19, 0.07) !important;
-    }
-    body.theme-light .exec-card:hover {
-      border-color: rgba(184, 134, 11, 0.42) !important;
-    }
-    body.theme-light .exec-input {
-      background: #f5f4f2 !important;
-      border-color: #d4cfca !important;
-      color: #161513 !important;
-    }
-    body.theme-light .exec-input:focus {
-      background: #fbf9f8 !important;
-      border-color: #b8860b !important;
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.16) !important;
-    }
 
-    body.theme-light .text-white { color: #161513 !important; }
-    body.theme-light .text-slate-200,
-    body.theme-light .text-slate-300 { color: #211e1c !important; }
-    body.theme-light .text-slate-400 { color: #524c46 !important; }
-    body.theme-light .text-slate-500 { color: #78716c !important; }
-    body.theme-light .text-\[\#f3e5ab\] { color: #854d0e !important; }
-    body.theme-light .text-\[\#e5c158\] { color: #996515 !important; }
 
-    body.theme-light .bg-zinc-950\/60,
-    body.theme-light .bg-zinc-950\/70,
-    body.theme-light .bg-zinc-950\/85,
-    body.theme-light .bg-black\/20,
-    body.theme-light .bg-black\/25 {
-      background-color: #f5f4f2 !important;
-      border-color: #e4e1dd !important;
-    }
 
-    body.theme-light .border-slate-800,
-    body.theme-light .border-slate-800\/80,
-    body.theme-light .border-slate-800\/90,
-    body.theme-light .border-slate-700,
-    body.theme-light .border-white\/5,
-    body.theme-light .border-white\/10,
-    body.theme-light .border-zinc-800,
-    body.theme-light .border-zinc-800\/80,
-    body.theme-light .border-zinc-800\/70,
-    body.theme-light .border-zinc-700,
-    body.theme-light .border-zinc-700\/80 {
-      border-color: #e4e1dd !important;
-    }
 
-    body.theme-light .bg-slate-900,
-    body.theme-light .bg-slate-900\/90,
-    body.theme-light .bg-slate-800,
-    body.theme-light .bg-slate-800\/70,
-    body.theme-light .bg-slate-800\/80,
-    body.theme-light .bg-slate-800\/90,
-    body.theme-light .bg-zinc-900,
-    body.theme-light .bg-zinc-900\/40,
-    body.theme-light .bg-zinc-900\/50,
-    body.theme-light .bg-zinc-900\/60,
-    body.theme-light .bg-zinc-900\/70,
-    body.theme-light .bg-zinc-900\/90,
-    body.theme-light .bg-zinc-950,
-    body.theme-light .bg-zinc-950\/80 {
-      background-color: #fbf9f8 !important;
-      color: #211e1c !important;
-      border-color: #e4e1dd !important;
-    }
 
-    body.theme-light .text-zinc-100,
-    body.theme-light .text-zinc-200 {
-      color: #161513 !important;
-    }
-    body.theme-light .text-zinc-300,
-    body.theme-light .text-zinc-400 {
-      color: #47423e !important;
-    }
-    body.theme-light .text-zinc-500 {
-      color: #78716c !important;
-    }
-    body.theme-light #main-content-area {
-      background-image: radial-gradient(rgba(49, 45, 42, 0.045) 1px, transparent 1px);
-    }
 
-    body.theme-light .champagne-gradient {
-      background: linear-gradient(135deg, #d4af37 0%, #a16207 100%) !important;
-      color: #ffffff !important;
-    }
-    body.theme-light .champagne-gradient * {
-      color: #ffffff !important;
-    }
-    body.theme-light #qr-box {
-      background-color: #ffffff !important;
-      border-color: #cbd5e1 !important;
-    }
-    body.theme-light .proc-list-item-active {
-      background: rgba(184, 134, 11, 0.12) !important;
-      border-color: #b8860b !important;
-    }
 
     input, textarea, select {
       user-select: text !important;
@@ -316,14 +201,6 @@
       line-height: 1.62;
       color: #d4d4d8;
     }
-    body.theme-light .ai-console-panel {
-      background: #f5f4f2 !important;
-      border-color: #e4e1dd !important;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
-    }
-    body.theme-light .ai-console-body {
-      color: #211e1c !important;
-    }
 
     /* Cohere + Linear: Linha de Resposta Rápida em 1 Clique */
     .ai-suggestion-row {
@@ -340,14 +217,6 @@
     .ai-suggestion-row:hover {
       background: #17181c;
       border-color: rgba(212, 175, 55, 0.32);
-    }
-    body.theme-light .ai-suggestion-row {
-      background: #fbf9f8 !important;
-      border-color: #e4e1dd !important;
-    }
-    body.theme-light .ai-suggestion-row:hover {
-      background: #f5f4f2 !important;
-      border-color: rgba(184, 134, 11, 0.45) !important;
     }
 
     /* Cohere + Linear: Botão Sóbrio "✨ Melhorar / Humanizar / Sugerir com IA" */
@@ -371,18 +240,6 @@
     .btn-ai-enhance:focus-visible {
       outline: none;
       box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.45);
-    }
-    body.theme-light .btn-ai-enhance {
-      background: #f7e0a1 !important;
-      background-color: rgba(240, 204, 113, 0.28) !important;
-      color: #854d0e !important;
-      border-color: rgba(184, 134, 11, 0.42) !important;
-      box-shadow: 0 1px 2px rgba(22, 21, 19, 0.05) !important;
-    }
-    body.theme-light .btn-ai-enhance:hover {
-      background-color: rgba(240, 204, 113, 0.48) !important;
-      border-color: #b8860b !important;
-      color: #713f12 !important;
     }
 
     /* Linear: Badges Semânticos de Urgência Processual (Alta Escaneabilidade) */
@@ -421,37 +278,10 @@
       color: #d4d4d8;
       border-color: rgba(63, 63, 70, 0.85);
     }
-    body.theme-light .urgency-badge-critica {
-      background: #fef2f2 !important;
-      color: #991b1b !important;
-      border-color: #fca5a5 !important;
-    }
-    body.theme-light .urgency-badge-alta {
-      background: #fffbeb !important;
-      color: #92400e !important;
-      border-color: #fcd34d !important;
-    }
-    body.theme-light .urgency-badge-media {
-      background: #faf6eb !important;
-      color: #854d0e !important;
-      border-color: #e6d39c !important;
-    }
-    body.theme-light .urgency-badge-baixa {
-      background: #f5f4f2 !important;
-      color: #524c46 !important;
-      border-color: #d4cfca !important;
-    }
 
     /* Oracle: Papel Timbrado Editorial para Leitura de Documentos e Dossiês */
     .editorial-paper-pane {
       transition: background-color 0.22s ease, border-color 0.22s ease;
-    }
-    body.theme-light .editorial-paper-pane {
-      background: #fbf9f8 !important;
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid #e4e1dd !important;
-      box-shadow: inset 0 2px 0 rgba(184, 134, 11, 0.32), 0 4px 16px -6px rgba(22, 21, 19, 0.06) !important;
     }
     #main-content-area {
       background-color: var(--bg-deep);
@@ -554,15 +384,6 @@
       color: #f4f4f5 !important;
       border-color: rgba(63, 63, 70, 0.4) !important;
     }
-    body.theme-light .sidebar-tab-active {
-      background: linear-gradient(90deg, rgba(184, 134, 11, 0.12) 0%, rgba(212, 175, 55, 0.04) 100%) !important;
-      border-color: rgba(184, 134, 11, 0.45) !important;
-      color: #854d0e !important;
-      box-shadow: 0 2px 10px -2px rgba(184, 134, 11, 0.2) !important;
-    }
-    body.theme-light .sidebar-tab-active svg {
-      color: #b8860b !important;
-    }
 
     .exec-input {
       background: var(--input-bg);
@@ -615,31 +436,6 @@
       opacity: 1;
     }
 
-    body.theme-light .exec-input {
-      color-scheme: light;
-      background-color: #f5f4f2 !important;
-      border-color: #d4cfca !important;
-      color: #161513 !important;
-    }
-    body.theme-light .exec-input::placeholder {
-      color: #8c857e !important;
-    }
-    body.theme-light .exec-input:hover {
-      border-color: rgba(184, 134, 11, 0.5) !important;
-      background-color: #fbf9f8 !important;
-    }
-    body.theme-light .exec-input:focus {
-      background-color: #fbf9f8 !important;
-      border-color: #b8860b !important;
-      box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.16) !important;
-    }
-    body.theme-light select.exec-input {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23b8860b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    }
-    body.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
-    body.theme-light input[type="time"]::-webkit-calendar-picker-indicator {
-      filter: none;
-    }
 
     .proc-list-item-active {
       background: rgba(212, 175, 55, 0.14) !important;
@@ -811,7 +607,7 @@
 
   
     /* Elevação de contraste WCAG AA para textos secundários e microlegendas */
-    body:not(.theme-light) .text-zinc-500 {
+    .text-zinc-500 {
       color: #94a3b8 !important; /* slate-400 com ratio > 4.5:1 sobre zinc-950 */
     }
     /* Elevação de Piso Mínimo de Acessibilidade Visual (Padrão 12px para leitura sênior) */
@@ -1210,24 +1006,6 @@
     }
 
     /* Light Theme Adaptations */
-    body.theme-light #main-sidebar {
-      background: rgba(255, 255, 255, 0.98) !important;
-      border-color: #cbd5e1 !important;
-    }
-    body.theme-light .sidebar-rail-btn {
-      color: #64748b;
-    }
-    body.theme-light .sidebar-rail-btn:hover {
-      background: #f1f5f9;
-      color: #0f172a;
-    }
-    body.theme-light .sidebar-rail-btn.active,
-    body.theme-light .sidebar-rail-btn.sidebar-tab-active {
-      background: linear-gradient(90deg, rgba(184, 134, 11, 0.12) 0%, rgba(212, 175, 55, 0.04) 100%) !important;
-      border-color: rgba(184, 134, 11, 0.45) !important;
-      color: #854d0e !important;
-    }
-    body.theme-light #tour-qr-card { background: #ffffff !important; }
 
     /* Ajustes da Sidebar Brand & Search */
     body:not(.sidebar-expanded) .sidebar-top-brand {
@@ -3926,19 +3704,6 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
 
               <div class="space-y-4">
-                <!-- Modo Visual Claro / Escuro -->
-                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
-                  <div>
-                    <span class="text-xs font-bold text-zinc-200 block">Tema da Interface</span>
-                    <span class="text-[11px] text-zinc-400">Alternar entre paleta noturna executiva e tema claro</span>
-                  </div>
-                  <button id="btn-toggle-theme" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-amber-400 hover:text-amber-300 transition active:scale-95 cursor-pointer">
-                    <svg id="theme-icon-sun" class="w-4 h-4 hidden"><use href="#icon-sun"/></svg>
-                    <svg id="theme-icon-moon" class="w-4 h-4"><use href="#icon-moon"/></svg>
-                    <span class="text-xs font-semibold text-zinc-300">Alternar Tema</span>
-                  </button>
-                </div>
-
                 <!-- Iniciar com o Windows -->
                 <div id="tour-autostart-box" class="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80">
                   <div>
@@ -4284,29 +4049,11 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (!Array.isArray(configGlobal.processos.lista)) configGlobal.processos.lista = [];
     }
 
-    function aplicarTema(tema) {
-      if (tema === 'light') {
-        document.body.classList.remove('theme-dark');
-        document.body.classList.add('theme-light');
-        const iconSun = document.getElementById('theme-icon-sun');
-        if (iconSun) iconSun.classList.remove('hidden');
-        const iconMoon = document.getElementById('theme-icon-moon');
-        if (iconMoon) iconMoon.classList.add('hidden');
-      } else {
-        document.body.classList.remove('theme-light');
-        document.body.classList.add('theme-dark');
-        const iconSun = document.getElementById('theme-icon-sun');
-        if (iconSun) iconSun.classList.add('hidden');
-        const iconMoon = document.getElementById('theme-icon-moon');
-        if (iconMoon) iconMoon.classList.remove('hidden');
-      }
-      localStorage.setItem('adv_bot_theme', tema);
+    function aplicarTema() {
+      document.body.classList.remove('theme-light');
+      document.body.classList.add('theme-dark');
+      localStorage.setItem('adv_bot_theme', 'dark');
     }
-
-    safeOn('btn-toggle-theme', 'click', () => {
-      const atual = document.body.classList.contains('theme-light') ? 'light' : 'dark';
-      aplicarTema(atual === 'light' ? 'dark' : 'light');
-    });
 
     const formatDrawer = document.getElementById('format-drawer');
     const btnToggleFormat = document.getElementById('btn-toggle-format');
@@ -4937,8 +4684,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       { id: 'dossie', titulo: 'Dossiê de Clientes (Art. 319 CPC)', desc: 'Ficha cadastral e documentos de qualificação civil', icone: 'icon-users', acao: () => { ativarAba('dossie-clientes'); } },
       { id: 'financeiro', titulo: 'Financeiro & Cobrança PIX', desc: 'Honorários, régua semanal e conciliação', icone: 'icon-scales', acao: () => { ativarAba('financeiro'); } },
       { id: 'backup', titulo: 'Fazer Cópia de Segurança (.JSON)', desc: 'Exportar todos os dados locais em arquivo seguro', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
-      { id: 'configuracoes', titulo: 'Configurações do Sistema', desc: 'Gerenciar WhatsApp, preferências e sessão', icone: 'icon-settings', acao: () => { ativarAba('configuracoes'); } },
-      { id: 'tema', titulo: 'Alternar Tema Claro / Escuro', desc: 'Mudar a estética do aplicativo', icone: 'icon-sun', acao: () => { const btn = document.getElementById('btn-toggle-theme'); if (btn) btn.click(); } }
+      { id: 'configuracoes', titulo: 'Configurações do Sistema', desc: 'Gerenciar WhatsApp, preferências e sessão', icone: 'icon-settings', acao: () => { ativarAba('configuracoes'); } }
     ];
 
     window.toggleSpotlight = function(abrir) {
@@ -9712,10 +9458,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             garantirEstruturaAgenda();
             garantirEstruturaProcessos();
             localStorage.setItem('adv_bot_config_backup', JSON.stringify(configGlobal));
-            if(window.api) await window.api.salvarConfig(configGlobal);
+            if (window.api && typeof window.api.restaurarBackupCompleto === 'function') {
+              await window.api.restaurarBackupCompleto(configGlobal);
+            } else if (window.api) {
+              await window.api.salvarConfig(configGlobal);
+            }
           }
           popularSeletorDeEtapas(); carregarEtapaNoEditor('raiz'); renderizarAgendaSemanal(); renderizarModuloProcessos(); renderizarTelaInicial();
-          mostrarToast("Backup restaurado com sucesso!");
+          if (typeof window.carregarERenderizarFinanceiro === 'function') await window.carregarERenderizarFinanceiro();
+          mostrarToast("Backup completo restaurado com sucesso!");
         } catch(err) { alert("Arquivo inválido."); }
       };
       r.readAsText(f);
