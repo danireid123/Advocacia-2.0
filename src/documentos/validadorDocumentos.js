@@ -14,10 +14,9 @@ const { obterApiKeyAtiva } = require('../ia/tradutorJuridico');
 // Constantes fundamentais
 const TIMEOUT_MULTIMODAL_AUDIO = 20000; // 20s rígido via AbortController
 const MODELOS_GEMINI_PADRAO = [
-  'gemini-3.5-flash-lite',
-  'gemini-3.5-flash',
-  'gemini-flash-lite-latest',
   'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-flash-lite-latest',
   'gemini-1.5-flash'
 ];
 
