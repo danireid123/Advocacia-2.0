@@ -183,11 +183,17 @@ function salvarConfigDisco(cfg) {
 function isContactIgnored(numeroOuId) {
     const cfg = carregarConfig();
     const lista = cfg.contatosIgnorados || [];
-    const digitos = apenasNumeros(numeroOuId);
-    if (!digitos) return false;
+    const normTel = (v) => {
+        let d = apenasNumeros(v);
+        if (d.length >= 12 && d.startsWith('55')) d = d.slice(2);
+        return d;
+    };
+    const digitos = normTel(numeroOuId);
+    if (!digitos || digitos.length < 8) return false;
     return lista.some(item => {
-        const itemDig = apenasNumeros(typeof item === 'object' && item !== null ? (item.numero || item.telefone) : item);
-        return itemDig === digitos;
+        const itemDig = normTel(typeof item === 'object' && item !== null ? (item.numero || item.telefone) : item);
+        if (!itemDig || itemDig.length < 8) return false;
+        return itemDig === digitos || itemDig.slice(-8) === digitos.slice(-8);
     });
 }
 
@@ -245,13 +251,15 @@ function montarTextoEtapa(etapa) {
     return txt.trim();
 }
 
-function buscarProcessoPorNumero(config, digitosBusca) {
-    if (!config || !config.processos) return null;
-    const lista = Array.isArray(config.processos) ? config.processos : (Array.isArray(config.processos.lista) ? config.processos.lista : []);
-    if (!lista || lista.length === 0) return null;
-    if (!digitosBusca || digitosBusca.length < 5) return null;
+const processosSelecionaveisPorContato = {};
 
-    return lista.find(p => {
+function buscarProcessosPorNumero(config, digitosBusca) {
+    if (!config || !config.processos) return [];
+    const lista = Array.isArray(config.processos) ? config.processos : (Array.isArray(config.processos.lista) ? config.processos.lista : []);
+    if (!lista || lista.length === 0) return [];
+    if (!digitosBusca || digitosBusca.length < 5) return [];
+
+    return lista.filter(p => {
         const cpfLimpo = apenasNumeros(p.cpf);
         const numLimpo = apenasNumeros(p.numero || p.numeroProcesso || p.processo || '');
         return (cpfLimpo && cpfLimpo === digitosBusca) ||
@@ -259,6 +267,11 @@ function buscarProcessoPorNumero(config, digitosBusca) {
                (cpfLimpo && cpfLimpo.length >= 5 && (digitosBusca.includes(cpfLimpo) || cpfLimpo.includes(digitosBusca))) ||
                (numLimpo && numLimpo.length >= 5 && (digitosBusca.includes(numLimpo) || numLimpo.includes(digitosBusca)));
     });
+}
+
+function buscarProcessoPorNumero(config, digitosBusca) {
+    const lista = buscarProcessosPorNumero(config, digitosBusca);
+    return lista.length > 0 ? lista[0] : null;
 }
 
 async function formatarMensagemProcesso(config, proc, remetenteChave) {
@@ -595,7 +608,27 @@ async function processarMensagemEntrada(msg) {
             return true;
         }
 
-        // 2. Se aguardando documento do processo
+        // 2. Seleção múltipla de processos caso CPF/CNPJ tenha mais de um
+        if (estadoAtual === 'selecionando_processo') {
+            if (textoOriginal === '0') {
+                delete processosSelecionaveisPorContato[remetenteChave];
+                estadosUsuarios[remetenteChave] = 'raiz';
+                await responder(montarTextoEtapa(config.fluxo.raiz));
+                return true;
+            }
+            const listaSel = processosSelecionaveisPorContato[remetenteChave] || [];
+            const idxEscolha = parseInt(textoOriginal.trim(), 10) - 1;
+            if (!Number.isNaN(idxEscolha) && idxEscolha >= 0 && idxEscolha < listaSel.length) {
+                const procEscolhido = listaSel[idxEscolha];
+                delete processosSelecionaveisPorContato[remetenteChave];
+                estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
+                const msgProc = await formatarMensagemProcesso(config, procEscolhido, remetenteChave);
+                await responder(msgProc);
+                return true;
+            }
+        }
+
+        // 2b. Se aguardando documento do processo
         if (estadoAtual === 'aguardando_processo') {
             const digitos = apenasNumeros(textoOriginal);
             if (textoOriginal === '0') {
@@ -604,11 +637,16 @@ async function processarMensagemEntrada(msg) {
                 return true;
             }
 
-            const proc = buscarProcessoPorNumero(config, digitos);
-            if (proc) {
+            const procs = buscarProcessosPorNumero(config, digitos);
+            if (procs.length === 1) {
                 estadosUsuarios[remetenteChave] = 'pos_consulta_processo';
-                const msgProc = await formatarMensagemProcesso(config, proc, remetenteChave);
+                const msgProc = await formatarMensagemProcesso(config, procs[0], remetenteChave);
                 await responder(msgProc);
+            } else if (procs.length > 1) {
+                processosSelecionaveisPorContato[remetenteChave] = procs;
+                estadosUsuarios[remetenteChave] = 'selecionando_processo';
+                const linhas = procs.map((p, idx) => `*${idx + 1}* - Processo \`${p.numero || p.numeroProcesso || 'Pré-Processual'}\`${p.area ? ` (${p.area})` : ''}`);
+                await responder(`📂 Localizamos *${procs.length} processos* vinculados a este documento:\n\n${linhas.join('\n')}\n\nDigite o *número da opção* (1 a ${procs.length}) para consultar ou *0* para voltar.`);
             } else {
                 const tpls = config.processos?.mensagens || {};
                 await responder(tpls.msg_nao_encontrado || "⚠️ Processo ou CPF não localizado. Digite novamente ou 0 para voltar.");
