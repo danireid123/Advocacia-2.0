@@ -1794,6 +1794,41 @@ async function agendarProcessamentoComDebounce(msg, fnProcessar) {
     }
 }
 
+// IPC: Abrir documento físico anexado / auditado no leitor padrão do sistema
+ipcMain.handle('abrir-documento-anexo', async (event, caminhoArquivo) => {
+    try {
+        if (!caminhoArquivo) return { sucesso: false, erro: 'Caminho não fornecido' };
+        const fsMod = require('fs');
+        const pathMod = require('path');
+        let resolved = pathMod.isAbsolute(caminhoArquivo) ? caminhoArquivo : pathMod.resolve(process.cwd(), caminhoArquivo);
+        if (!fsMod.existsSync(resolved)) {
+            const baseDir = pathMod.resolve(process.cwd(), 'documentos_clientes');
+            const posRel = pathMod.join(baseDir, caminhoArquivo);
+            if (fsMod.existsSync(posRel)) resolved = posRel;
+        }
+        if (fsMod.existsSync(resolved)) {
+            await shell.openPath(resolved);
+            return { sucesso: true, caminho: resolved };
+        }
+        return { sucesso: false, erro: 'Arquivo não encontrado no disco: ' + caminhoArquivo };
+    } catch (err) {
+        console.error('[IPC abrir-documento-anexo] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+// IPC: Listar documentos de um cliente do disco físico
+ipcMain.handle('listar-documentos-cliente', async (event, clienteId) => {
+    try {
+        const { listarDocumentosCliente } = require('./src/documentos/armazenamentoDocs');
+        const docs = typeof listarDocumentosCliente === 'function' ? listarDocumentosCliente(clienteId) : [];
+        return { sucesso: true, docs: docs || [] };
+    } catch (err) {
+        console.error('[IPC listar-documentos-cliente] Erro:', err);
+        return { sucesso: false, erro: err.message, docs: [] };
+    }
+});
+
 function sanitizarConfigParaRenderer(cfg) {
     if (!cfg || typeof cfg !== 'object') return cfg;
     const copia = JSON.parse(JSON.stringify(cfg));
