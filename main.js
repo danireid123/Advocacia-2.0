@@ -471,6 +471,8 @@ function isForaDeExpediente(config) {
     try {
         const agenda = config && config.agenda;
         if (!agenda) return false;
+        // Modo Plantão 24h Global (atende a criminalistas e plantões contínuos)
+        if (agenda.plantao24hGlobal || agenda.plantao24h) return false;
         const agora = new Date();
         const diaSemana = String(agora.getDay());
         const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
@@ -506,6 +508,8 @@ function estaEmHorarioAlmoco(config) {
     try {
         const agenda = config && config.agenda;
         if (!agenda || !agenda.almoco_ativo) return false;
+        // Modo Plantão 24h Global suprime pausa de almoço automática
+        if (agenda.plantao24hGlobal || agenda.plantao24h) return false;
         const agora = new Date();
         const diaSemana = String(agora.getDay());
         const confDia = agenda[diaSemana];

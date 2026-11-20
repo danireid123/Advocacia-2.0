@@ -1813,10 +1813,10 @@
               <span id="badge-simulador" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Testes</span>
             </button>
 
-            <!-- Horários & Almoço -->
-            <button type="button" id="nav-btn-agenda" data-desc="Horários de funcionamento do escritório" class="sidebar-rail-btn" title="Horários & Almoço">
+            <!-- Agenda & Horários -->
+            <button type="button" id="nav-btn-agenda" data-desc="Pauta de compromissos, audiências e horários do escritório" class="sidebar-rail-btn" title="Agenda & Horários">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
-              <span class="sidebar-btn-label">Horários & Almoço</span>
+              <span class="sidebar-btn-label">Agenda & Horários</span>
             </button>
 
             <!-- Alias mantido para compatibilidade e integridade de seletores DOM -->
@@ -2858,7 +2858,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         </div>
 
-        <!-- ================= ABA 3: HORÁRIOS & ALMOÇO ================= -->
+        <!-- ================= ABA 3: HORÁRIOS & COMPROMISSOS ================= -->
         <div id="aba-agenda" class="hidden space-y-5 tab-pane-anim">
           <div id="tour-agenda-card" class="exec-card relative overflow-hidden p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-6 shadow-xl">
             <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"></div>
@@ -2867,24 +2867,91 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <div class="flex items-center flex-wrap gap-2">
                   <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Disponibilidade & Turnos
+                    Turnos & Prazos
                   </span>
                   <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                    Avisos Transparentes
+                    Plantão & Agenda Jurídica
                   </span>
                 </div>
                 <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
                   <svg class="w-5 h-5 text-amber-400"><use href="#icon-calendar"/></svg>
-                  Horários de Atendimento & Intervalo de Almoço
+                  Agenda, Audiências & Horários de Atendimento
                 </h2>
-                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Defina a grade semanal de funcionamento e horário de almoço. Fora do expediente, o robô inclui aviso gentil e segue adiantando o atendimento.</p>
+                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Gerencie compromissos com clientes, audiências judiciais e controle os horários de funcionamento do robô no WhatsApp.</p>
               </div>
-              <button id="btn-salvar-agenda" class="btn-tactile flex items-center space-x-2 px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer shrink-0">
-                <svg class="w-4 h-4"><use href="#icon-save"/></svg>
-                <span>Salvar Horários</span>
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <!-- Toggle Modo Plantão 24h em 1 Clique -->
+                <button type="button" id="btn-toggle-plantao-24h" onclick="togglePlantao24hUI()" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-zinc-900 text-zinc-300 border border-zinc-700 hover:border-amber-500/40" title="Ativa atendimento 24h sem interrupção de almoço ou fechamento">
+                  <span id="dot-plantao-24h" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                  <span id="label-plantao-24h">Modo Plantão 24h: Desligado</span>
+                </button>
+                <button id="btn-salvar-agenda" class="btn-tactile flex items-center space-x-2 px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer">
+                  <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+                  <span>Salvar Horários</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SUB-ABAS DA AGENDA: COMPROMISSOS VS HORÁRIOS DO BOT -->
+            <div class="p-1 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex gap-1 text-xs">
+              <button type="button" id="subtab-agenda-compromissos" onclick="alternarSubAbaAgenda('compromissos')" class="flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
+                <span>1. Compromissos &amp; Audiências</span>
+                <span id="badge-total-compromissos" class="px-1.5 py-0.2 rounded-md bg-zinc-900 text-amber-300 font-mono text-[10px]">0</span>
+              </button>
+              <button type="button" id="subtab-agenda-horarios" onclick="alternarSubAbaAgenda('horarios')" class="flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4"><use href="#icon-coffee"/></svg>
+                <span>2. Horários do Robô &amp; Almoço</span>
               </button>
             </div>
 
+            <!-- PAINEL SUB-ABA 1: COMPROMISSOS & AUDIÊNCIAS -->
+            <div id="painel-agenda-compromissos" class="space-y-4">
+              <!-- Formulário Rápido de Novo Compromisso -->
+              <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-zinc-200 block flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-plus"/></svg>
+                    Agendar Nova Audiência ou Reunião
+                  </span>
+                  <span class="text-[10px] text-zinc-400">Notificação rápida na pauta do escritório</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 text-xs">
+                  <div class="col-span-12 sm:col-span-4">
+                    <label class="text-[10.5px] text-zinc-400 block mb-1">Título / Assunto *</label>
+                    <input type="text" id="comp-titulo" placeholder="Ex: Audiência de Instrução / Consulta Inicial" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                  </div>
+                  <div class="col-span-12 sm:col-span-3">
+                    <label class="text-[10.5px] text-zinc-400 block mb-1">Cliente / Envolvido</label>
+                    <input type="text" id="comp-cliente" placeholder="Nome do cliente ou processo" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                  </div>
+                  <div class="col-span-12 sm:col-span-3">
+                    <label class="text-[10.5px] text-zinc-400 block mb-1">Data &amp; Horário *</label>
+                    <input type="datetime-local" id="comp-data" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                  </div>
+                  <div class="col-span-12 sm:col-span-2 flex items-end">
+                    <button type="button" onclick="adicionarCompromissoAgendaUI()" class="w-full py-2.5 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl shadow transition cursor-pointer flex items-center justify-center space-x-1.5">
+                      <span>Agendar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Compromissos Agendados -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between px-1">
+                  <span class="text-xs font-bold text-zinc-300">Pauta de Compromissos do Escritório</span>
+                </div>
+                <div id="lista-compromissos-agenda" class="space-y-2">
+                  <div class="p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
+                    Nenhum compromisso agendado. Adicione uma audiência ou reunião acima para acompanhar na pauta.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PAINEL SUB-ABA 2: HORÁRIOS DO ROBÔ & ALMOÇO (CONFIGURAÇÃO EXISTENTE) -->
+            <div id="painel-agenda-horarios" class="hidden space-y-4">
             <div class="grid grid-cols-12 gap-4">
               <div class="col-span-12 lg:col-span-7 p-5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 space-y-3.5">
                 <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
@@ -2948,6 +3015,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div class="space-y-2.5 pt-2">
               <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Expediente por Dia da Semana:</span>
               <div id="grade-dias-semana" class="space-y-2.5"></div>
+            </div>
             </div>
           </div>
         </div>
@@ -8054,9 +8122,146 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     }
 
+    // Controle de Sub-Abas da Agenda: Compromissos vs Horários
+    window.alternarSubAbaAgenda = function(subAba) {
+      const pComp = document.getElementById('painel-agenda-compromissos');
+      const pHor = document.getElementById('painel-agenda-horarios');
+      const tComp = document.getElementById('subtab-agenda-compromissos');
+      const tHor = document.getElementById('subtab-agenda-horarios');
+
+      if (subAba === 'compromissos') {
+        if (pComp) pComp.classList.remove('hidden');
+        if (pHor) pHor.classList.add('hidden');
+        if (tComp) tComp.className = "flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer";
+        if (tHor) tHor.className = "flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+        renderizarCompromissosAgendaUI();
+      } else {
+        if (pComp) pComp.classList.add('hidden');
+        if (pHor) pHor.classList.remove('hidden');
+        if (tComp) tComp.className = "flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+        if (tHor) tHor.className = "flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer";
+      }
+    };
+
+    // Toggle 1-Clique: Modo Plantão 24h Global
+    window.togglePlantao24hUI = function() {
+      garantirEstruturaAgenda();
+      configGlobal.agenda.plantao24hGlobal = !Boolean(configGlobal.agenda.plantao24hGlobal);
+      marcarAlteracaoPendente();
+      atualizarEstadoVisualPlantao24h();
+      renderizarAgendaSemanal();
+      mostrarToast(configGlobal.agenda.plantao24hGlobal 
+        ? "🚨 Modo Plantão 24h ATIVADO: Atendimento ininterrupto. Avisos de fechamento e intervalo de almoço foram suprimidos!" 
+        : "Horários normais de expediente e pausas restaurados.");
+    };
+
+    function atualizarEstadoVisualPlantao24h() {
+      const btn = document.getElementById('btn-toggle-plantao-24h');
+      const dot = document.getElementById('dot-plantao-24h');
+      const lbl = document.getElementById('label-plantao-24h');
+      const isAtivo = Boolean(configGlobal?.agenda?.plantao24hGlobal);
+
+      if (btn && dot && lbl) {
+        if (isAtivo) {
+          btn.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm";
+          dot.className = "w-2 h-2 rounded-full bg-rose-400 animate-pulse";
+          lbl.innerText = "Modo Plantão 24h: Ligado (Sem Pausas)";
+        } else {
+          btn.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-zinc-900 text-zinc-300 border border-zinc-700 hover:border-amber-500/40";
+          dot.className = "w-2 h-2 rounded-full bg-zinc-500";
+          lbl.innerText = "Modo Plantão 24h: Desligado";
+        }
+      }
+    }
+
+    // Gestão de Compromissos & Audiências na Pauta
+    window.adicionarCompromissoAgendaUI = function() {
+      const tit = (document.getElementById('comp-titulo')?.value || '').trim();
+      const cli = (document.getElementById('comp-cliente')?.value || '').trim();
+      const dt = document.getElementById('comp-data')?.value || '';
+
+      if (!tit || !dt) {
+        mostrarToast("⚠️ Informe ao menos o Título e a Data/Horário do compromisso!");
+        return;
+      }
+
+      if (!configGlobal.agenda) configGlobal.agenda = {};
+      if (!Array.isArray(configGlobal.agenda.compromissos)) {
+        configGlobal.agenda.compromissos = [];
+      }
+
+      configGlobal.agenda.compromissos.push({
+        id: `comp_${Date.now()}`,
+        titulo: tit,
+        cliente: cli,
+        dataHora: dt,
+        criadoEm: new Date().toISOString()
+      });
+
+      marcarAlteracaoPendente();
+      document.getElementById('comp-titulo').value = '';
+      document.getElementById('comp-cliente').value = '';
+      document.getElementById('comp-data').value = '';
+      renderizarCompromissosAgendaUI();
+      mostrarToast("📅 Compromisso agendado na pauta com sucesso!");
+    };
+
+    window.removerCompromissoAgendaUI = function(idComp) {
+      if (!configGlobal.agenda?.compromissos) return;
+      configGlobal.agenda.compromissos = configGlobal.agenda.compromissos.filter(c => c.id !== idComp);
+      marcarAlteracaoPendente();
+      renderizarCompromissosAgendaUI();
+      mostrarToast("Compromisso removido da pauta.");
+    };
+
+    function renderizarCompromissosAgendaUI() {
+      const container = document.getElementById('lista-compromissos-agenda');
+      const badge = document.getElementById('badge-total-compromissos');
+      const lista = (configGlobal.agenda && Array.isArray(configGlobal.agenda.compromissos)) 
+        ? configGlobal.agenda.compromissos 
+        : [];
+
+      if (badge) badge.innerText = String(lista.length);
+      if (!container) return;
+
+      if (!lista.length) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
+            Nenhum compromisso agendado. Adicione uma audiência ou reunião acima para acompanhar na pauta.
+          </div>
+        `;
+        return;
+      }
+
+      // Ordenar por data cronológica
+      const ordenados = [...lista].sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+      container.innerHTML = ordenados.map(c => {
+        const dtFormatada = new Date(c.dataHora).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        const ehPassado = new Date(c.dataHora) < new Date();
+        return `
+          <div class="flex items-center justify-between p-3.5 rounded-xl border border-zinc-800/80 bg-zinc-900/60 hover:border-amber-500/30 transition text-xs">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg ${ehPassado ? 'bg-zinc-800 text-zinc-500' : 'bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30'} flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
+              </div>
+              <div>
+                <span class="font-bold text-zinc-100 block text-xs">${escaparHtmlTexto(c.titulo)}</span>
+                <span class="text-[11px] text-zinc-400">${c.cliente ? `Cliente: <strong>${escaparHtmlTexto(c.cliente)}</strong> • ` : ''}<span class="font-mono text-amber-300">${dtFormatada}</span></span>
+              </div>
+            </div>
+            <button type="button" onclick="removerCompromissoAgendaUI('${c.id}')" class="p-2 rounded-lg bg-zinc-950 hover:bg-rose-950/50 text-zinc-500 hover:text-rose-400 border border-zinc-800 transition cursor-pointer" title="Remover da pauta">
+              <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderizarAgendaSemanal() {
       garantirEstruturaAgenda();
       carregarConfiguracaoAgendaNosCampos();
+      atualizarEstadoVisualPlantao24h();
+      renderizarCompromissosAgendaUI();
       const container = document.getElementById('grade-dias-semana');
       if (!container) return;
       container.innerHTML = '';
