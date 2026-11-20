@@ -588,6 +588,11 @@ async function processarMensagemEntrada(msg) {
         if (!statusExpediente.aberto && !avisoForaHorarioRecente[remetenteChave]) {
             avisoForaHorarioRecente[remetenteChave] = Date.now();
             await responder(statusExpediente.msg);
+            if (statusExpediente.motivo === 'almoco') {
+                return true;
+            }
+        } else if (!statusExpediente.aberto && statusExpediente.motivo === 'almoco') {
+            return true;
         }
 
         // 2. Se aguardando documento do processo
@@ -686,7 +691,24 @@ async function processarMensagemEntrada(msg) {
             }
         }
 
-        // Fallback: Menu Raiz
+        // Fallback: Tratamento humanizado de dúvidas livres ou mensagens fora das opções numéricas
+        const ehPerguntaOuRelato = textoOriginal.includes('?') ||
+            /\b(quanto|como|qual|quais|onde|posso|tem|aceita|duvida|dúvida|valor|custo|advogado|consulta|doutor|doutora|urgente|ajuda|preciso|processo|problema|caso|audiencia|acordo)\b/i.test(textoOriginal) ||
+            textoOriginal.trim().split(/\s+/).length >= 4;
+
+        if (ehPerguntaOuRelato) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Compreendi sua mensagem! Para fornecer uma orientação jurídica precisa para sua dúvida, estou transferindo seu contato para um de nossos advogados.",
+                "Dúvida livre no fluxo: " + textoOriginal
+            );
+            return true;
+        }
+
+        if (estadoAtual !== 'raiz' && estadoAtual !== 'pos_consulta_processo') {
+            await responder("Não identifiquei essa opção nesta etapa. Por favor, digite o número correspondente à opção desejada ou digite *0* para voltar ao Menu Principal.");
+            return true;
+        }
+
         estadosUsuarios[remetenteChave] = 'raiz';
         await responder(montarTextoEtapa(config.fluxo.raiz));
         return true;

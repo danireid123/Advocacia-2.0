@@ -352,6 +352,7 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
     } else {
         sessao.status = 'DOCS_PARCIAIS';
         sessao.estado = 'DOCS_PARCIAIS';
+        dossieConsolidado = consolidarDossie(chaveTel, config);
         msgFeedback = `${laudo.mensagemFeedbackWhatsApp}\n\n📋 *Ainda faltam (${sessao.documentosPendentes.length}):* ${sessao.documentosPendentes.join(', ')}.`;
     }
 
@@ -404,6 +405,10 @@ function consolidarDossie(clienteTelefone, config = {}) {
         ...docsSessao
     ];
 
+    const isParcial = Array.isArray(sessao.documentosPendentes) && sessao.documentosPendentes.length > 0;
+    const statusDossie = isParcial ? 'DOCS_PARCIAIS' : 'CONSOLIDADO';
+    const totalDocsEsperados = docsSessao.length + (Array.isArray(sessao.documentosPendentes) ? sessao.documentosPendentes.length : 0);
+
     const dossie = {
         id: existente.id || `cli_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         clienteTelefone: chaveTel,
@@ -414,7 +419,8 @@ function consolidarDossie(clienteTelefone, config = {}) {
         rg: civilAcumulado.rg || '',
         rgOrgaoEmissor: civilAcumulado.rgOrgaoEmissor || 'SSP',
         area: sessao.preset || existente.area || 'Geral',
-        status: 'CONSOLIDADO',
+        status: statusDossie,
+        documentosPendentes: sessao.documentosPendentes || [],
         civil: civilAcumulado,
         qualificacao: civilAcumulado,
         qualificacaoCPC: textoQualificacaoCPC,
@@ -425,8 +431,8 @@ function consolidarDossie(clienteTelefone, config = {}) {
 
     config.dossiesClientes[chaveTel] = dossie;
     if (config.onboardingSessoes[chaveTel]) {
-        config.onboardingSessoes[chaveTel].status = 'CONSOLIDADO';
-        config.onboardingSessoes[chaveTel].estado = 'CONSOLIDADO';
+        config.onboardingSessoes[chaveTel].status = statusDossie;
+        config.onboardingSessoes[chaveTel].estado = statusDossie;
     }
 
     // Cria ou atualiza Caso Pré-Processual em config.processos.lista
@@ -439,6 +445,16 @@ function consolidarDossie(clienteTelefone, config = {}) {
     const provasNomes = todosDocumentos.map(d => d.tipoRotulo || d.tipo || d.arquivo || 'Documento Auditado');
     const agoraFormatado = new Date().toLocaleString('pt-BR');
 
+    const fasePreProc = isParcial
+        ? `Documentação Parcial (${docsSessao.length}/${totalDocsEsperados || (docsSessao.length + 1)} recebidos)`
+        : 'Pré-Processual (Dossiê Consolidado)';
+    const tagPreProc = isParcial
+        ? `Documentação Parcial (${docsSessao.length}/${totalDocsEsperados || (docsSessao.length + 1)})`
+        : 'Dossiê Consolidado';
+    const resumoPreProc = isParcial
+        ? `Dossiê em andamento (${docsSessao.length}/${totalDocsEsperados || (docsSessao.length + 1)} recebidos). Faltam: ${(sessao.documentosPendentes || []).join(', ')}.`
+        : `Dossiê documental consolidado com ${todosDocumentos.length} documento(s) auditado(s) via IA. Qualificação civil pronta para elaboração da Petição Inicial.`;
+
     if (!jaExistePreProc) {
         const novoPreProc = {
             id: `preproc_${Date.now()}`,
@@ -448,14 +464,15 @@ function consolidarDossie(clienteTelefone, config = {}) {
             cpf: cpfFinal,
             telefoneCliente: chaveTel,
             tipo: 'Pré-Processual',
-            fase: 'Pré-Processual (Dossiê Consolidado)',
+            fase: fasePreProc,
+            tag: tagPreProc,
             area: dossie.area,
             temAtualizacao: true,
             dataAtualizacaoTexto: agoraFormatado,
-            resumo: `Dossiê documental consolidado com ${todosDocumentos.length} documento(s) auditado(s) via IA. Qualificação civil pronta para elaboração da Petição Inicial.`,
+            resumo: resumoPreProc,
             linhaDoTempo: [
-                { data: agoraFormatado, evento: `Solicitação e conferência multimodal de documentos (${dossie.area}) concluída.` },
-                { data: agoraFormatado, evento: `Qualificação civil Art. 319 CPC gerada automaticamente para ${nomeFinal}.` }
+                { data: agoraFormatado, evento: isParcial ? `Recepção parcial de documentos (${docsSessao.length}/${totalDocsEsperados || (docsSessao.length + 1)} entregues). Faltam: ${(sessao.documentosPendentes || []).join(', ')}.` : `Solicitação e conferência multimodal de documentos (${dossie.area}) concluída.` },
+                { data: agoraFormatado, evento: `Qualificação civil Art. 319 CPC atualizada para ${nomeFinal}.` }
             ],
             provasAnexadas: provasNomes
         };
@@ -463,8 +480,16 @@ function consolidarDossie(clienteTelefone, config = {}) {
     } else {
         jaExistePreProc.nome = nomeFinal;
         jaExistePreProc.cpf = cpfFinal || jaExistePreProc.cpf;
+        jaExistePreProc.fase = fasePreProc;
+        jaExistePreProc.tag = tagPreProc;
+        jaExistePreProc.resumo = resumoPreProc;
         jaExistePreProc.provasAnexadas = provasNomes;
         jaExistePreProc.dataAtualizacaoTexto = agoraFormatado;
+        if (!Array.isArray(jaExistePreProc.linhaDoTempo)) jaExistePreProc.linhaDoTempo = [];
+        jaExistePreProc.linhaDoTempo.push({
+            data: agoraFormatado,
+            evento: `Documento recebido: ${provasNomes[provasNomes.length - 1] || 'Novo Anexo'}. ${isParcial ? `Faltam: ${(sessao.documentosPendentes || []).join(', ')}` : 'Documentação completa.'}`
+        });
     }
 
     return dossie;

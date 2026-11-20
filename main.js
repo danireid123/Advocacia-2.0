@@ -501,6 +501,23 @@ function isForaDeExpediente(config) {
     }
 }
 
+function estaEmHorarioAlmoco(config) {
+    try {
+        const agenda = config && config.agenda;
+        if (!agenda || !agenda.almoco_ativo) return false;
+        const agora = new Date();
+        const diaSemana = String(agora.getDay());
+        const confDia = agenda[diaSemana];
+        if (!confDia || !confDia.ativo) return false;
+        const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+        const minAlmocoIni = converterHoraParaMinutos(agenda.almoco_inicio || '12:00');
+        const minAlmocoFim = converterHoraParaMinutos(agenda.almoco_fim || '13:30');
+        return (minutosAgora >= minAlmocoIni && minutosAgora < minAlmocoFim);
+    } catch (_) {
+        return false;
+    }
+}
+
 function converterHoraParaMinutos(horaStr) {
     const partes = String(horaStr || '00:00').split(':');
     return (parseInt(partes[0], 10) || 0) * 60 + (parseInt(partes[1], 10) || 0);
@@ -551,15 +568,6 @@ function obterPrefixoHorario(config, remetenteChave) {
         if (!dentroDoHorario) {
             registrarAviso();
             return (agenda.msg_fora_expediente || '').trim() + '\n\n';
-        }
-
-        if (agenda.almoco_ativo) {
-            const minAlmocoIni = converterHoraParaMinutos(agenda.almoco_inicio || '12:00');
-            const minAlmocoFim = converterHoraParaMinutos(agenda.almoco_fim || '13:30');
-            if (minutosAgora >= minAlmocoIni && minutosAgora < minAlmocoFim) {
-                registrarAviso();
-                return (agenda.msg_almoco || '').trim() + '\n\n';
-            }
         }
     } catch (e) {}
     return '';
@@ -1156,6 +1164,17 @@ async function processarMensagemEntrada(msg) {
             return true;
         }
 
+        // Interceptação de Horário de Almoço (suprime envio de menu numérico)
+        if (estaEmHorarioAlmoco(config)) {
+            const ultimoAlmoco = avisoForaHorarioRecente[remetenteChave + '_almoco'] || 0;
+            if (Date.now() - ultimoAlmoco >= 15 * 60 * 1000) {
+                avisoForaHorarioRecente[remetenteChave + '_almoco'] = Date.now();
+                const msgAlmoco = ((config.agenda && config.agenda.msg_almoco) || "Nosso escritório está em intervalo de almoço no momento. Retornaremos em breve!").trim();
+                await responderCliente(msgAlmoco);
+            }
+            return true;
+        }
+
         // Busca direta por CPF ou Número de Processo antes das saudações (ex: "Bom dia CPF 12345678900")
         const digitosDiretos = apenasNumeros(textoOriginal);
         if (digitosDiretos.length >= 9 && estadoAtual !== 'aguardando_processo') {
@@ -1255,6 +1274,24 @@ async function processarMensagemEntrada(msg) {
                 await responderCliente(opcaoEscolhida.resposta);
                 return true;
             }
+        }
+
+        // Tratamento humanizado de dúvidas livres ou mensagens fora das opções numéricas
+        const ehPerguntaOuRelato = textoOriginal.includes('?') ||
+            /\b(quanto|como|qual|quais|onde|posso|tem|aceita|duvida|dúvida|valor|custo|advogado|consulta|doutor|doutora|urgente|ajuda|preciso|processo|problema|caso|audiencia|acordo)\b/i.test(textoOriginal) ||
+            textoOriginal.trim().split(/\s+/).length >= 4;
+
+        if (ehPerguntaOuRelato) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Compreendi sua mensagem! Para fornecer uma orientação jurídica precisa para sua dúvida, estou transferindo seu contato para um de nossos advogados.",
+                "Dúvida livre no fluxo: " + textoOriginal
+            );
+            return true;
+        }
+
+        if (estadoAtual !== 'raiz' && estadoAtual !== 'pos_consulta_processo') {
+            await responderCliente("Não identifiquei essa opção nesta etapa. Por favor, digite o número correspondente à opção desejada ou digite *0* para voltar ao Menu Principal.");
+            return true;
         }
 
         estadosUsuarios[remetenteChave] = 'raiz';
@@ -2255,6 +2292,9 @@ async function executarSimulacaoMensagem(payload = {}) {
                         apiKey
                     }, config);
                     salvarConfigDisco(config, true);
+                    if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('bot-processos-sync', config);
+                    }
                     return {
                         success: true,
                         sucesso: true,
@@ -2282,6 +2322,9 @@ async function executarSimulacaoMensagem(payload = {}) {
                         apiKey
                     }, config);
                     salvarConfigDisco(config, true);
+                    if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('bot-processos-sync', config);
+                    }
                     return {
                         success: true,
                         sucesso: true,
@@ -2530,6 +2573,17 @@ async function executarSimulacaoMensagem(payload = {}) {
             return finalizarSimulacao();
         }
 
+        // Interceptação de Horário de Almoço no Simulador (suprime envio de menu numérico)
+        if (estaEmHorarioAlmoco(config) || (payload && payload.testarAlmoco)) {
+            const ultimoAlmoco = avisoForaHorarioRecente[remetenteChave + '_almoco'] || 0;
+            if (Date.now() - ultimoAlmoco >= 15 * 60 * 1000 || (payload && payload.testarAlmoco)) {
+                avisoForaHorarioRecente[remetenteChave + '_almoco'] = Date.now();
+                const msgAlmoco = ((config.agenda && config.agenda.msg_almoco) || "Nosso escritório está em intervalo de almoço no momento. Retornaremos em breve!").trim();
+                await responderCliente(msgAlmoco);
+            }
+            return finalizarSimulacao();
+        }
+
         // Busca direta por CPF ou Número de Processo antes das saudações (ex: "Bom dia CPF 12345678900")
         const digitosDiretos = apenasNumeros(mockMsg.body);
         if (digitosDiretos.length >= 9 && estadoAtual !== 'aguardando_processo') {
@@ -2629,6 +2683,24 @@ async function executarSimulacaoMensagem(payload = {}) {
                 await responderCliente(opcaoEscolhida.resposta);
                 return finalizarSimulacao();
             }
+        }
+
+        // Tratamento humanizado de dúvidas livres ou mensagens fora das opções numéricas
+        const ehPerguntaOuRelato = mockMsg.body.includes('?') ||
+            /\b(quanto|como|qual|quais|onde|posso|tem|aceita|duvida|dúvida|valor|custo|advogado|consulta|doutor|doutora|urgente|ajuda|preciso|processo|problema|caso|audiencia|acordo)\b/i.test(mockMsg.body) ||
+            mockMsg.body.trim().split(/\s+/).length >= 4;
+
+        if (ehPerguntaOuRelato) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Compreendi sua mensagem! Para fornecer uma orientação jurídica precisa para sua dúvida, estou transferindo seu contato para um de nossos advogados.",
+                "Dúvida livre no fluxo: " + mockMsg.body
+            );
+            return finalizarSimulacao();
+        }
+
+        if (estadoAtual !== 'raiz' && estadoAtual !== 'pos_consulta_processo') {
+            await responderCliente("Não identifiquei essa opção nesta etapa. Por favor, digite o número correspondente à opção desejada ou digite *0* para voltar ao Menu Principal.");
+            return finalizarSimulacao();
         }
 
         estadosUsuarios[remetenteChave] = 'raiz';
@@ -3310,6 +3382,9 @@ ipcMain.handle('onboarding-processar-midia', async (event, payload = {}) => {
             apiKey: cfg.gemini_api_key || process.env.GEMINI_API_KEY
         }, cfg);
         salvarConfigDisco(cfg);
+        if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-processos-sync', cfg);
+        }
         return resultado;
     } catch (err) {
         console.error('[IPC onboarding-processar-midia] Erro:', err);
@@ -3324,6 +3399,9 @@ ipcMain.handle('onboarding-consolidar-dossie', async (event, payload = {}) => {
         const tel = typeof payload === 'string' ? payload : (payload.clienteTelefone || payload.telefone);
         const dossie = consolidarDossie(tel, cfg);
         salvarConfigDisco(cfg);
+        if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('bot-processos-sync', cfg);
+        }
         return { sucesso: Boolean(dossie), dossie };
     } catch (err) {
         console.error('[IPC onboarding-consolidar-dossie] Erro:', err);

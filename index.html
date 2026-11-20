@@ -4512,6 +4512,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     window.obterEstiloTag = function(tag) {
       if (!tag) return '';
       const t = tag.toLowerCase();
+      if (t.includes('parcial') || t.includes('pendente')) {
+        return 'bg-amber-500/20 text-amber-300 border border-amber-500/40';
+      }
       if (t.includes('audiência') || t.includes('audiencia') || t.includes('urgente') || t.includes('prazo')) {
         return 'bg-amber-500/15 text-amber-300 border border-amber-500/30';
       }
@@ -7604,19 +7607,57 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
         if (!jaEstaNaLista) {
           const dNome = d.nome || d.clienteNome || (d.civil && d.civil.nomeCompleto) || 'Cliente';
+          const totalDocs = (d.documentos || []).length;
+          const pendentes = Array.isArray(d.documentosPendentes) ? d.documentosPendentes : [];
+          const ehParcial = d.status === 'DOCS_PARCIAIS' || pendentes.length > 0;
+          const tagTexto = ehParcial ? `Doc. Parcial (${totalDocs}/${totalDocs + pendentes.length})` : 'Dossiê Civil';
+          const faseTexto = ehParcial ? `Pré-Processual (Doc. Parcial: ${totalDocs}/${totalDocs + pendentes.length})` : 'Pré-Processual (Dossiê Civil)';
+          const resumoTexto = ehParcial
+            ? `Dossiê em andamento (${totalDocs}/${totalDocs + pendentes.length} recebidos). Faltam: ${pendentes.join(', ')}.`
+            : `Dossiê civil com ${totalDocs} documento(s) auditado(s).`;
+
           listaBase.push({
             id: d.id || ('dossie_' + (dTel || dCpf || Date.now())),
             nome: dNome,
             cpf: d.cpf || (d.civil && d.civil.cpf) || '',
             telefone: dTel,
             telefoneCliente: dTel,
-            numero: dProc || 'Pré-Processual (Dossiê Civil)',
-            numeroProcesso: dProc || 'Pré-Processual (Dossiê Civil)',
-            resumo: `Dossiê civil com ${(d.documentos || []).length} documento(s) auditado(s).`,
-            temAtualizacao: false,
+            numero: dProc || faseTexto,
+            numeroProcesso: dProc || faseTexto,
+            resumo: resumoTexto,
+            temAtualizacao: ehParcial,
             isDossieOnly: true,
-            tag: 'Dossiê Civil',
+            tag: tagTexto,
             updatedAt: d.atualizadoEm ? new Date(d.atualizadoEm).getTime() : (d.dataCriacao || Date.now()),
+            consultasPorContato: {}
+          });
+        }
+      });
+
+      // Unificação Real: Incluir sessões de onboarding ativas com documentos parciais
+      const sessoesMapa = (configGlobal && configGlobal.onboardingSessoes) || {};
+      Object.entries(sessoesMapa).forEach(([telK, sess]) => {
+        if (!sess || !Array.isArray(sess.documentosRecebidos) || sess.documentosRecebidos.length === 0) return;
+        const sTel = telK.replace(/\D/g, '');
+        const sCpf = ((sess.qualificacaoAcumulada && sess.qualificacaoAcumulada.cpf) || '').replace(/\D/g, '');
+        const jaConsta = (sTel && processosIdsOuCpfs.has(sTel)) || (sCpf && processosIdsOuCpfs.has(sCpf));
+        if (!jaConsta) {
+          const recCount = sess.documentosRecebidos.length;
+          const pendList = Array.isArray(sess.documentosPendentes) ? sess.documentosPendentes : [];
+          const totExp = recCount + pendList.length;
+          listaBase.push({
+            id: 'sessao_onb_' + sTel,
+            nome: sess.clienteNome || (sess.qualificacaoAcumulada && sess.qualificacaoAcumulada.nomeCompleto) || 'Cliente',
+            cpf: (sess.qualificacaoAcumulada && sess.qualificacaoAcumulada.cpf) || '',
+            telefone: sTel,
+            telefoneCliente: sTel,
+            numero: `Pré-Processual (Doc. Parcial: ${recCount}/${totExp})`,
+            numeroProcesso: `Pré-Processual (Doc. Parcial: ${recCount}/${totExp})`,
+            resumo: `Envio parcial de documentos (${recCount}/${totExp} validados). Faltam: ${pendList.join(', ')}.`,
+            temAtualizacao: true,
+            isDossieOnly: true,
+            tag: `Doc. Parcial (${recCount}/${totExp})`,
+            updatedAt: sess.atualizadoEm ? new Date(sess.atualizadoEm).getTime() : Date.now(),
             consultasPorContato: {}
           });
         }
@@ -10248,6 +10289,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 }
               }
 
+              // Sincronização em tempo real de processos e tela inicial
+              if (window.api && typeof window.api.carregarConfig === 'function') {
+                try {
+                  configGlobal = await window.api.carregarConfig();
+                  if (typeof renderizarModuloProcessos === 'function') renderizarModuloProcessos();
+                  if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
+                } catch (eSync) {}
+              }
+
               if (res && res.sucesso && res.resposta) {
                 adicionarBalaoBot(res.resposta, res.transbordo === true, res.podeDespausar === true || res.pausado === true);
 
@@ -10621,6 +10671,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 if (res && res.pix && res.pix.resultadoBaixa && res.pix.resultadoBaixa.success) {
                   window.exibirNotificacaoPagamento(res.pix.resultadoBaixa);
                   await window.carregarERenderizarFinanceiro();
+                }
+
+                // Sincronização em tempo real imediata de processos e dossiês após envio de documento
+                if (window.api && typeof window.api.carregarConfig === 'function') {
+                  try {
+                    configGlobal = await window.api.carregarConfig();
+                    if (typeof renderizarModuloProcessos === 'function') renderizarModuloProcessos();
+                    if (typeof renderizarTelaInicial === 'function') renderizarTelaInicial();
+                  } catch (eSync) {}
                 }
               } else {
                 removerIndicadorDigitando();

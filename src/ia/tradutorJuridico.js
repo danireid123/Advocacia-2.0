@@ -416,18 +416,25 @@ async function catalogarPecaProcessual(textoPeca, opcoes = {}) {
         };
     }
 
-    // Heurística de classificação do tipo de peça (decisões têm prioridade sobre citações no relatório)
+    // Heurística de classificação do tipo de peça (decisões/sentenças têm prioridade absoluta sobre termos citados no relatório fático)
     const textoMin = textoPeca.toLowerCase();
     let tipoPeca = 'DOCUMENTO_PROCESSUAL';
-    if (textoMin.includes('sentença') || textoMin.includes('julgo procedente') || textoMin.includes('julgo improcedente') || textoMin.includes('dispositivo')) {
+
+    const ehSentenca = /(senten[cç]a|julgo\s+(?:totalmente\s+|parcialmente\s+|em\s+parte\s+)?(?:procedente|improcedente)s?|julgo\s+(?:extinto|o\s+feito|improcedente|procedente)|extingo\s+o\s+(?:processo|feito)|com\s+resolu[cç][aã]o\s+d[oe]\s+m[eé]rito|sem\s+resolu[cç][aã]o\s+d[oe]\s+m[eé]rito|dispositivo|ant[eo]\s+o\s+exposto|p\.?\s*r\.?\s*i\.?(?:c\.?)?)/i.test(textoMin);
+    const ehRecurso = /(ac[oó]rd[aã]o|apela[cç][aã]o|agravo\s+de\s+instrumento|recurso\s+inominado|embargos\s+de\s+declara[cç][aã]o)/i.test(textoMin);
+    const ehLaudo = /(laudo\s+pericial|per[ií]cia\s+t[eé]cnica|conclus[aã]o\s+pericial)/i.test(textoMin);
+    const ehDespacho = /(despacho|intima[cç][aã]o|cite-se|intime-se|manifeste-se)/i.test(textoMin);
+    const ehPeticaoInicial = !ehSentenca && !ehRecurso && !ehLaudo && /(peti[cç][aã]o\s+inicial|a[cç][aã]o\s+declarat[oó]ria|a[cç][aã]o\s+ordin[aá]ria|excelent[ií]ssim[oa]|d[aá]-se\s+[aà]\s+causa)/i.test(textoMin);
+
+    if (ehSentenca) {
         tipoPeca = 'SENTENCA';
-    } else if (textoMin.includes('acórdão') || textoMin.includes('apelação') || textoMin.includes('agravo')) {
+    } else if (ehRecurso) {
         tipoPeca = 'RECURSO';
-    } else if (textoMin.includes('petição inicial') || textoMin.includes('ação declaratória') || textoMin.includes('ação ordinária') || textoMin.includes('excelentíssimo senhor')) {
+    } else if (ehPeticaoInicial) {
         tipoPeca = 'PETICAO_INICIAL';
-    } else if (textoMin.includes('laudo pericial') || textoMin.includes('perícia')) {
+    } else if (ehLaudo) {
         tipoPeca = 'LAUDO_PERICIAL';
-    } else if (textoMin.includes('despacho') || textoMin.includes('intimação')) {
+    } else if (ehDespacho) {
         tipoPeca = 'DESPACHO';
     }
 
@@ -454,7 +461,7 @@ async function catalogarPecaProcessual(textoPeca, opcoes = {}) {
             modoBruto: true,
             json: true,
             systemInstruction: instrucaoCatalogo,
-            timeoutMs: 15000
+            timeoutMs: opcoes.timeoutMs || 15000
         });
 
         // Só aceita resultado vindo de IA/cache. Em fallback o "texto" é o próprio prompt — nunca parsear.
