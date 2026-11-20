@@ -78,6 +78,7 @@ const apiBridge = {
     adicionarParcelaFinanceiro: (dados) => ipcRenderer.invoke('financeiro-adicionar-parcela', dados),
     excluirContratoFinanceiro: (dados) => ipcRenderer.invoke('excluir-contrato-financeiro', dados),
     obterMetricasFinanceiras: (dados) => ipcRenderer.invoke('obter-metricas-financeiras', dados),
+    calcularEncargosParcela: (dados) => ipcRenderer.invoke('calcular-encargos-parcela', dados),
     processarMidiaOnboarding: (dados) => ipcRenderer.invoke('onboarding-processar-midia', dados),
     consolidarDossieCliente: (telefone) => ipcRenderer.invoke('onboarding-consolidar-dossie', telefone),
     verificarLembretesDossieParcial: (dados) => ipcRenderer.invoke('onboarding-verificar-lembretes-parciais', dados),

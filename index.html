@@ -3619,6 +3619,35 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                       <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1.5">Nome do Beneficiário (Titular da Conta)</label>
                       <input type="text" id="beneficiarioPix" placeholder="Ex: Silva &amp; Associados Sociedade de Advogados" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
                     </div>
+
+                    <!-- Encargos Moratórios: Multa e Juros Editáveis (Art. 395 Código Civil) -->
+                    <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/90 space-y-3">
+                      <div class="flex items-center justify-between">
+                        <label class="text-[11px] font-bold text-amber-300 tracking-wide flex items-center gap-1.5 cursor-pointer">
+                          <input type="checkbox" id="aplicarJurosMulta" class="w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-900 text-amber-500 focus:ring-amber-500/30">
+                          Atualizar Parcelas Vencidas com Multa e Juros
+                        </label>
+                        <span class="text-[9.5px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-mono font-bold">Editável</span>
+                      </div>
+                      <div class="grid grid-cols-12 gap-2.5">
+                        <div class="col-span-6">
+                          <label class="text-[10.5px] font-semibold text-zinc-300 block mb-1">Multa por Atraso (%)</label>
+                          <div class="relative">
+                            <input type="number" step="0.1" min="0" max="100" id="percentualMulta" value="2.0" placeholder="2.0" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-300 pr-7">
+                            <span class="absolute right-2.5 top-2 text-xs text-zinc-500 font-bold">%</span>
+                          </div>
+                          <span class="text-[9px] text-zinc-500 block mt-0.5">Padrão legal: 2.0%</span>
+                        </div>
+                        <div class="col-span-6">
+                          <label class="text-[10.5px] font-semibold text-zinc-300 block mb-1">Juros de Mora (% / mês)</label>
+                          <div class="relative">
+                            <input type="number" step="0.1" min="0" max="100" id="percentualJurosMes" value="1.0" placeholder="1.0" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-300 pr-7">
+                            <span class="absolute right-2.5 top-2 text-xs text-zinc-500 font-bold">%</span>
+                          </div>
+                          <span class="text-[9px] text-zinc-500 block mt-0.5">Padrão legal: 1.0%/mês</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Info Box -->
@@ -8913,6 +8942,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const elBenef = document.getElementById('beneficiarioPix');
         if (elBenef && cfgCob.beneficiario !== undefined) elBenef.value = cfgCob.beneficiario;
 
+        const chkAplicar = document.getElementById('aplicarJurosMulta');
+        if (chkAplicar) chkAplicar.checked = cfgCob.aplicarJurosMulta !== false;
+        const elMulta = document.getElementById('percentualMulta');
+        if (elMulta) elMulta.value = cfgCob.percentualMulta !== undefined ? cfgCob.percentualMulta : 2.0;
+        const elJuros = document.getElementById('percentualJurosMes');
+        if (elJuros) elJuros.value = cfgCob.percentualJurosMes !== undefined ? cfgCob.percentualJurosMes : 1.0;
+
         const diasAtivos = Array.isArray(cfgCob.diasDaSemana) ? cfgCob.diasDaSemana : ['SEGUNDA', 'QUINTA'];
         document.querySelectorAll('.check-dia-cobranca').forEach(chk => {
           chk.checked = diasAtivos.includes(chk.value);
@@ -8978,6 +9014,24 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const badgeUltima = ehUltimaPendente ? '<span class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">⚠️ Última Pendente</span>' : '';
         const badgeQuitadoTotal = contratoQuitado ? '<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-500/50 font-extrabold animate-pulse">🎉 CONTRATO TOTALMENTE QUITADO (100% PAGO)</span>' : '';
 
+        let detalheEncargos = '';
+        let valorTotalFinal = Number(p.valor || 0);
+        if (estaVencida) {
+          const cfgCob = window.configGlobal?.configuracaoCobranca || {};
+          const aplicar = cfgCob.aplicarJurosMulta !== false;
+          const taxaMulta = Number(cfgCob.percentualMulta !== undefined ? cfgCob.percentualMulta : 2.0);
+          const taxaJuros = Number(cfgCob.percentualJurosMes !== undefined ? cfgCob.percentualJurosMes : 1.0);
+          const dtVencObj = new Date(vencimentoValido + 'T23:59:59');
+          const agoraObj = new Date();
+          const diffDias = Math.max(1, Math.floor((agoraObj - dtVencObj) / (1000 * 60 * 60 * 24)));
+          if (aplicar) {
+            const vMulta = (valorTotalFinal * taxaMulta) / 100;
+            const vJuros = (valorTotalFinal * (taxaJuros / 30 / 100)) * diffDias;
+            valorTotalFinal = valorTotalFinal + vMulta + vJuros;
+            detalheEncargos = `<span class="text-[10px] text-rose-300 font-mono font-semibold block mt-0.5">⚠️ Total Atualizado: R$ ${valorTotalFinal.toFixed(2).replace('.', ',')} (Multa ${taxaMulta}%: R$ ${vMulta.toFixed(2).replace('.', ',')} + Juros ${taxaJuros}%/mês [${diffDias}d]: R$ ${vJuros.toFixed(2).replace('.', ',')})</span>`;
+          }
+        }
+
         return `
           <div class="p-3.5 rounded-xl exec-card flex items-center justify-between text-xs border-l-4 ${pago ? 'border-emerald-500' : (estaVencida ? 'border-rose-500' : (ehUltimaPendente ? 'border-amber-400' : 'border-indigo-400'))} ${contratoQuitado ? 'bg-emerald-950/20 border-emerald-500' : ''}">
             <div class="space-y-1">
@@ -8989,6 +9043,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 ${badgeQuitadoTotal}
                 <span class="text-[12px] font-mono text-[#d4af37] font-extrabold">R$ ${Number(p.valor || 0).toFixed(2).replace('.', ',')}</span>
               </div>
+              ${detalheEncargos}
               <div class="text-[10px] text-zinc-400 font-mono flex items-center space-x-3">
                 <span>📱 Tel: +${escaparHtmlTexto(p.clienteTelefone || '')}</span>
                 <span>📅 Vencimento: ${escaparHtmlTexto(p.vencimento || '-')}</span>
@@ -9022,19 +9077,22 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const tipoChave = (document.getElementById('tipoChavePix')?.value || 'CNPJ').trim();
       const chavePix = (document.getElementById('chavePix')?.value || '').trim();
       const beneficiario = (document.getElementById('beneficiarioPix')?.value || '').trim();
+      const aplicarJurosMulta = document.getElementById('aplicarJurosMulta')?.checked !== false;
+      const percentualMulta = Math.max(0, Number(document.getElementById('percentualMulta')?.value) || 0);
+      const percentualJurosMes = Math.max(0, Number(document.getElementById('percentualJurosMes')?.value) || 0);
       const diasDaSemana = [];
       document.querySelectorAll('.check-dia-cobranca').forEach(chk => {
         if (chk.checked) diasDaSemana.push(chk.value);
       });
 
-      const payload = { frequenciaSemanal, diasDaSemana, chavePix, tipoChave, beneficiario };
+      const payload = { frequenciaSemanal, diasDaSemana, chavePix, tipoChave, beneficiario, aplicarJurosMulta, percentualMulta, percentualJurosMes };
       if (window.configGlobal) {
         window.configGlobal.configuracaoCobranca = { ...(window.configGlobal.configuracaoCobranca || {}), ...payload };
       }
       if (window.api && typeof window.api.salvarConfigCobranca === 'function') {
         await window.api.salvarConfigCobranca(payload);
       }
-      mostrarToast('💾 Configuração da Régua de Cobrança Semanal e Chave PIX salva!');
+      mostrarToast('💾 Configuração da Régua de Cobrança, Chave PIX, Multa e Juros salva!');
     };
 
     window.atualizarResumoParcelamentoUI = function() {
