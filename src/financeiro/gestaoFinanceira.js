@@ -613,6 +613,16 @@ function adicionarParcela(dadosParcela, config) {
     const valorTotal = Number(dadosParcela.valor || 0);
     const parcelasCriadas = [];
 
+    // Normalização amigável de telefone: se o advogado digitar (11) 99999-9999, converte para 5511...
+    let telRaw = String(dadosParcela.clienteTelefone || dadosParcela.telefone || '').trim();
+    const digitosTel = telRaw.replace(/\D/g, '');
+    let telNormalizado = telRaw;
+    if (digitosTel.length === 10 || digitosTel.length === 11) {
+        telNormalizado = `55${digitosTel}`;
+    } else if (digitosTel.length === 12 || digitosTel.length === 13) {
+        telNormalizado = digitosTel;
+    }
+
     // Se o usuário solicitou criar todas as N parcelas de uma vez
     if (totalParcelas > 1 && dadosParcela.criarTodasParcelas) {
         const valorPorParcela = dadosParcela.modoValor === 'PARCELA'
@@ -629,7 +639,7 @@ function adicionarParcela(dadosParcela, config) {
                 parcelaNumero: i,
                 totalParcelas,
                 clienteNome: String(dadosParcela.clienteNome || dadosParcela.nome || 'Cliente').trim(),
-                clienteTelefone: String(dadosParcela.clienteTelefone || dadosParcela.telefone || '').trim(),
+                clienteTelefone: telNormalizado,
                 descricao: String(dadosParcela.descricao || 'Honorários Advocatícios').trim(),
                 valor: valorPorParcela,
                 vencimento: dtVenc.toISOString().slice(0, 10),
@@ -650,7 +660,7 @@ function adicionarParcela(dadosParcela, config) {
         parcelaNumero: parseInt(dadosParcela.parcelaNumero || 1, 10),
         totalParcelas,
         clienteNome: String(dadosParcela.clienteNome || dadosParcela.nome || 'Cliente').trim(),
-        clienteTelefone: String(dadosParcela.clienteTelefone || dadosParcela.telefone || '').trim(),
+        clienteTelefone: telNormalizado,
         descricao: String(dadosParcela.descricao || 'Honorários Advocatícios').trim(),
         valor: valorTotal,
         vencimento: String(dadosParcela.vencimento || new Date().toISOString().slice(0, 10)).trim(),

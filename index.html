@@ -26,6 +26,21 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
+    body.modo-leitura-conforto {
+      font-size: 15px !important;
+    }
+    body.modo-leitura-conforto .text-xs,
+    body.modo-leitura-conforto .text-\[11px\],
+    body.modo-leitura-conforto .text-\[10px\] {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+    }
+    body.modo-leitura-conforto .exec-input,
+    body.modo-leitura-conforto textarea,
+    body.modo-leitura-conforto input {
+      font-size: 14px !important;
+    }
+
     :root {
       --bg-deep: #08080a;
       --bg-surface: #0f1012;
@@ -1845,8 +1860,8 @@
               <span id="badge-ignorados" class="sidebar-btn-badge bg-purple-500/10 text-purple-300 border border-purple-500/20">0</span>
             </button>
 
-            <!-- Cópia de Segurança (.JSON) -->
-            <button type="button" id="nav-btn-backup" data-desc="Exportar e restaurar cópias de segurança locais (.JSON)" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
+            <!-- Cópia de Segurança do Escritório -->
+            <button type="button" id="nav-btn-backup" data-desc="Exportar e restaurar cópias de segurança do escritório no computador" class="sidebar-rail-btn" title="Cópia de Segurança do Escritório">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
               <span class="sidebar-btn-label">Cópia de Segurança</span>
             </button>
@@ -1879,6 +1894,11 @@
         </div>
 
         <div class="flex items-center space-x-2">
+          <!-- Botão Acessibilidade / Letra Confortável para Leitura -->
+          <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-zinc-300 transition cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
+            <span>A+</span>
+          </button>
+
           <!-- Toggle Modo Seguro / Robô Pausado Global -->
           <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
             <span id="top-modo-seguro-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
@@ -2188,12 +2208,16 @@
                 Gestão Integrada de Processos &amp; Dossiês
               </h2>
             </div>
-            <div class="flex items-center gap-2">
-              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium flex items-center space-x-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
-                <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
-                <span>Respostas do Robô →</span>
-              </button>
-            </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="irParaNovoClienteDireto()" class="btn-tactile px-3.5 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Cadastrar cliente rápido sem exigir número de processo na justiça">
+                  <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                  <span>+ Novo Cliente</span>
+                </button>
+                <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-medium flex items-center space-x-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
+                  <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
+                  <span>Respostas do Robô →</span>
+                </button>
+              </div>
           </div>
 
           <!-- SMART IMPORT MULTIFORMATO (COMPACTO HORIZONTAL — SEMPRE VISÍVEL SEM OCUPAR A TELA TODA) -->
@@ -2342,23 +2366,34 @@
                 <div id="detalhe-pane-processo" class="editorial-paper-pane space-y-4">
                   <input type="hidden" id="proc-id-edit" value="">
 
+                  <!-- SELETOR AMIGÁVEL DE TIPO DE PASTA (JUDICIAL VS EXTRAJUDICIAL/CONSULTORIA) -->
+                  <div class="flex items-center space-x-2 p-1.5 rounded-xl bg-[#0e0f12] border border-[#1f2025] text-xs">
+                    <span class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider px-2">Tipo de Pasta:</span>
+                    <button type="button" id="btn-tipo-pasta-judicial" onclick="setTipoPastaFormulario('JUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">
+                      ⚖️ Processo Judicial (CNJ)
+                    </button>
+                    <button type="button" id="btn-tipo-pasta-extra" onclick="setTipoPastaFormulario('EXTRAJUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer">
+                      🏠 Extrajudicial / Consultoria / Imobiliário
+                    </button>
+                  </div>
+
                   <div class="grid grid-cols-12 gap-3 p-4 rounded-xl bg-[#121316] border border-[#1f2025]">
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="cohere-eyebrow text-[10px] block mb-1.5">CPF do Cliente *</label>
-                      <input type="text" id="proc-cpf" inputmode="numeric" placeholder="000.000.000-00" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                      <label id="label-proc-nome" class="cohere-eyebrow text-[10px] block mb-1.5 font-bold text-zinc-200">Nome do Cliente *</label>
+                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-lg px-3 py-2 text-xs">
                     </div>
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="cohere-eyebrow text-[10px] block mb-1.5">Nº do Processo (CNJ) *</label>
+                      <label id="label-proc-cpf" class="cohere-eyebrow text-[10px] block mb-1.5">CPF ou Telefone WhatsApp</label>
+                      <input type="text" id="proc-cpf" placeholder="(11) 99999-9999 ou CPF" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div class="col-span-12 sm:col-span-4">
+                      <label id="label-proc-numero" class="cohere-eyebrow text-[10px] block mb-1.5">Nº do Processo ou Referência</label>
                       <div class="flex items-center gap-1.5">
-                        <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
-                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar número do processo (CNJ)" class="linear-btn-ghost px-2.5 py-2 text-[#d4af37] shrink-0 cursor-pointer">
+                        <input type="text" id="proc-numero" placeholder="CNJ ou ex: Locação Apt 42 / Usucapião" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar identificador da pasta" class="linear-btn-ghost px-2.5 py-2 text-[#d4af37] shrink-0 cursor-pointer">
                           <svg class="w-3.5 h-3.5"><use href="#icon-clipboard"/></svg>
                         </button>
                       </div>
-                    </div>
-                    <div class="col-span-12 sm:col-span-4">
-                      <label class="cohere-eyebrow text-[10px] block mb-1.5">Nome do Cliente</label>
-                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-lg px-3 py-2 text-xs">
                     </div>
                   </div>
 
@@ -3146,7 +3181,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
               <button id="btn-exportar-dados" class="w-full py-3.5 champagne-gradient font-bold text-xs rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer flex items-center justify-center space-x-2">
                 <svg class="w-4 h-4"><use href="#icon-download"/></svg>
-                <span>Baixar Backup Completo (.JSON)</span>
+                <span>Salvar Cópia do Escritório no Computador</span>
               </button>
             </div>
 
@@ -3515,9 +3550,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 </button>
               </div>
               <div>
-                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer">
+                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer" title="Envia lembrete cordial via WhatsApp apenas para clientes com parcelas vencidas ou do dia">
                   <svg class="w-4 h-4 text-zinc-950 inline"><use href="#icon-flow"/></svg>
-                  <span>Disparar Cobranças da Régua</span>
+                  <span>Enviar Lembretes de Pagamento</span>
                 </button>
               </div>
             </div>
@@ -3708,7 +3743,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     </div>
                     <div class="col-span-12 sm:col-span-6">
                       <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">WhatsApp *</label>
-                      <input type="text" id="fin-novo-tel" placeholder="5511999999999" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      <input type="text" id="fin-novo-tel" placeholder="(11) 99999-9999 ou 5511..." class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
                     </div>
                     <div class="col-span-12 sm:col-span-4">
                       <label class="text-[11px] font-bold text-emerald-400 tracking-wide block mb-1">Valor de cada Parcela (R$)</label>
@@ -4660,6 +4695,40 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     window.irParaNovoProcessoDireto = function() {
       ativarAba('processos');
       limparFormularioProcesso();
+      setTipoPastaFormulario('JUDICIAL');
+    };
+
+    let tipoPastaFormularioAtual = 'JUDICIAL';
+
+    window.irParaNovoClienteDireto = function() {
+      ativarAba('processos');
+      limparFormularioProcesso();
+      setTipoPastaFormulario('EXTRAJUDICIAL');
+      const inputNome = document.getElementById('proc-nome');
+      if (inputNome) inputNome.focus();
+    };
+
+    window.setTipoPastaFormulario = function(tipo) {
+      tipoPastaFormularioAtual = tipo;
+      const btnJud = document.getElementById('btn-tipo-pasta-judicial');
+      const btnExt = document.getElementById('btn-tipo-pasta-extra');
+      const lblCpf = document.getElementById('label-proc-cpf');
+      const lblNum = document.getElementById('label-proc-numero');
+      const inNum = document.getElementById('proc-numero');
+
+      if (tipo === 'EXTRAJUDICIAL') {
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+        if (lblCpf) lblCpf.innerText = "WhatsApp ou CPF";
+        if (lblNum) lblNum.innerText = "Identificador / Assunto";
+        if (inNum) inNum.placeholder = "Ex: Contrato Locação / Compra e Venda / Assessoria";
+      } else {
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+        if (lblCpf) lblCpf.innerText = "CPF do Cliente *";
+        if (lblNum) lblNum.innerText = "Nº do Processo (CNJ) *";
+        if (inNum) inNum.placeholder = "0000000-00.2026.8.00.0000";
+      }
     };
 
     // Quick-Start: Injetar 3 Processos Realistas e Histórico de WhatsApp
@@ -7072,9 +7141,17 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const digitosCpf = cpf.replace(/\D/g, '');
       const digitosNum = numero.replace(/\D/g, '');
 
-      if (digitosCpf.length < 5 && digitosNum.length < 5) {
-        alert("Preencha ao menos o CPF ou o Número do Processo (mínimo de 5 números)!");
-        return;
+      // Flexibilização inteligente: Se for cliente/caso extrajudicial, basta ter o Nome e CPF ou WhatsApp (ou ref)
+      if (tipoPastaFormularioAtual === 'EXTRAJUDICIAL') {
+        if (!nome || nome === 'Cliente') {
+          mostrarToast("⚠️ Por favor, informe o Nome do Cliente!");
+          return;
+        }
+      } else {
+        if (digitosCpf.length < 5 && digitosNum.length < 5 && !nome) {
+          mostrarToast("⚠️ Preencha ao menos o CPF, Número do Processo ou Nome do Cliente!");
+          return;
+        }
       }
 
       // Paridade total v2.0 com backend unificado
@@ -9500,6 +9577,20 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           card.classList.add('hidden');
         }
       });
+    };
+
+    // Acessibilidade: Modo Letra Maior / Leitura Confortável
+    window.toggleFonteConfortoUI = function() {
+      const body = document.body;
+      const ativo = body.classList.toggle('modo-leitura-conforto');
+      localStorage.setItem('adv_bot_leitura_conforto', ativo ? 'true' : 'false');
+      const btn = document.getElementById('btn-top-fonte-conforto');
+      if (btn) {
+        btn.className = ativo 
+          ? "px-2.5 py-1.5 rounded-xl bg-[#d4af37]/20 border border-[#d4af37]/50 text-[11px] font-bold text-[#d4af37] transition cursor-pointer shadow-sm"
+          : "px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-zinc-300 transition cursor-pointer";
+      }
+      mostrarToast(ativo ? "🔍 Modo de Leitura Confortável Ativado (Letras Maiores)" : "Tamanho de texto padrão restaurado.");
     };
 
     // Toggle do Modo Seguro / Robô Pausado Globalmente
