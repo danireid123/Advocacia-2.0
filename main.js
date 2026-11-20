@@ -3485,6 +3485,20 @@ ipcMain.handle('obter-metricas-financeiras', async () => {
     }
 });
 
+ipcMain.handle('calcular-encargos-parcela', async (event, payload = {}) => {
+    try {
+        const { calcularEncargosParcela } = require('./src/financeiro/gestaoFinanceira');
+        const cfg = carregarConfig();
+        const parcela = payload.parcela || payload;
+        const dataRef = payload.dataReferencia || null;
+        const res = calcularEncargosParcela(parcela, cfg, dataRef);
+        return { sucesso: true, ...res };
+    } catch (err) {
+        console.error('[IPC calcular-encargos-parcela] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
 ipcMain.handle('excluir-contrato-financeiro', async (event, payload = {}) => {
     try {
         const { excluirContratoFinanceiro } = require('./src/financeiro/gestaoFinanceira');
