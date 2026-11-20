@@ -28,7 +28,7 @@ async function executarTestesAcoesMensagens() {
     const indexHTML = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 
     assert(indexHTML.includes('id="subtab-fluxo-editor"'), 'Deve possuir subaba do Editor de Menus');
-    assert(indexHTML.includes('id="subtab-fluxo-acoes"'), 'Deve possuir subaba da Central de Ações');
+    assert(indexHTML.includes('id="subtab-fluxo-mensagens"'), 'Deve possuir subaba de Mensagens de CPF e Documentos');
     assert(indexHTML.includes('id="painel-fluxo-editor"'), 'Deve possuir container do painel editor');
     assert(indexHTML.includes('id="painel-fluxo-acoes"'), 'Deve possuir container do painel de ações');
     assert(indexHTML.includes('id="badge-total-acoes-ativas"'), 'Deve possuir badge de contagem de ações ativas');
