@@ -22,7 +22,9 @@ const qrcode = require('qrcode');
 const {
     traduzirAndamentoParaCliente,
     processarAudioECopilot,
-    analisarUrgenciaECronologia
+    analisarUrgenciaECronologia,
+    isMensagemCritica,
+    obterApiKeyAtiva
 } = require('./src/ia/tradutorJuridico');
 const { criarConfigPadraoV2, migrarConfigV1ParaV2 } = require('./migracao');
 
@@ -199,13 +201,25 @@ function verificarExpediente(cfg) {
         return { aberto: false, motivo: 'fora_expediente', msg: cfg.agenda.msg_fora_expediente };
     }
 
+    if (regraDia.plantao24h) {
+        return { aberto: true, motivo: null };
+    }
+
     const agoraMin = agora.getHours() * 60 + agora.getMinutes();
     const [hAb, mAb] = (regraDia.abertura || '08:00').split(':').map(Number);
     const [hFe, mFe] = (regraDia.fechamento || '18:00').split(':').map(Number);
     const aberturaMin = hAb * 60 + mAb;
     const fechamentoMin = hFe * 60 + mFe;
 
-    if (agoraMin < aberturaMin || agoraMin >= fechamentoMin) {
+    let dentroDoHorario = false;
+    if (aberturaMin <= fechamentoMin) {
+        dentroDoHorario = (agoraMin >= aberturaMin && agoraMin < fechamentoMin);
+    } else {
+        // Turno noturno / plantão criminal que atravessa a meia-noite (ex: 18:00 às 08:00)
+        dentroDoHorario = (agoraMin >= aberturaMin || agoraMin < fechamentoMin);
+    }
+
+    if (!dentroDoHorario) {
         return { aberto: false, motivo: 'fora_expediente', msg: cfg.agenda.msg_fora_expediente };
     }
 
@@ -344,7 +358,7 @@ async function anexarMensagemOuAudioAoPausado(chave, { novaMsg = null, novoAudio
     const textoConsolidado = linhasConsolidadas.join('\n');
     try {
         const cfg = carregarConfig();
-        const apiKey = (contexto && contexto.apiKey) || cfg.gemini_api_key || process.env.GEMINI_API_KEY;
+        const apiKey = (contexto && contexto.apiKey) || obterApiKeyAtiva(undefined, cfg) || undefined;
         const analise = await analisarUrgenciaECronologia(textoConsolidado, {
             apiKey,
             nome: item.nome,
@@ -407,7 +421,7 @@ async function processarMensagemEntrada(msg) {
                     const bufferMidia = Buffer.from(media.data, 'base64');
                     const mimeType = media.mimetype || 'image/jpeg';
                     const nomeArquivo = media.filename || `midia_${Date.now()}.${mimeType.includes('pdf') ? 'pdf' : 'jpg'}`;
-                    const apiKey = config.gemini_api_key || process.env.GEMINI_API_KEY;
+                    const apiKey = obterApiKeyAtiva(undefined, config) || undefined;
                     const { obterSessaoAtiva, processarMidiaOnboarding } = require('./src/onboarding/onboardingController');
                     const { processarComprovanteRecebido } = require('./src/financeiro/gestaoFinanceira');
 
@@ -475,7 +489,7 @@ async function processarMensagemEntrada(msg) {
                     const mimeType = media.mimetype || 'audio/ogg';
                     const resAudio = await processarAudioECopilot(audioBase64, mimeType, {
                         telefone: remetenteChave,
-                        apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY
+                        apiKey: obterApiKeyAtiva(undefined, config) || undefined
                     });
 
                     dadosAudiosPorContato[remetenteChave] = {
@@ -514,7 +528,7 @@ async function processarMensagemEntrada(msg) {
             await anexarMensagemOuAudioAoPausado(remetenteChave, {
                 novaMsg,
                 novoAudio,
-                contexto: { apiKey: config.gemini_api_key || process.env.GEMINI_API_KEY }
+                contexto: { apiKey: obterApiKeyAtiva(undefined, config) || undefined }
             });
             console.log(`[Server] Mensagem/áudio cumulativo anexado ao contato pausado ${remetenteChave}`);
             return false;
@@ -555,7 +569,7 @@ async function processarMensagemEntrada(msg) {
                 transcricao: audioSalvo.transcricao || null,
                 resumo: audioSalvo.resumo || null,
                 sugestoesResposta: audioSalvo.sugestoesResposta || null,
-                nivelUrgencia: audioSalvo.nivelUrgencia || 'ROTINA',
+                nivelUrgencia: opcoesExtras.nivelUrgencia || audioSalvo.nivelUrgencia || 'ROTINA',
                 motivoUrgencia: audioSalvo.motivoUrgencia || motivo,
                 cronologiaFatos: audioSalvo.cronologiaFatos || [],
                 acoes: acoesItem,
@@ -574,6 +588,11 @@ async function processarMensagemEntrada(msg) {
         if (!statusExpediente.aberto && !avisoForaHorarioRecente[remetenteChave]) {
             avisoForaHorarioRecente[remetenteChave] = Date.now();
             await responder(statusExpediente.msg);
+            if (statusExpediente.motivo === 'almoco') {
+                return true;
+            }
+        } else if (!statusExpediente.aberto && statusExpediente.motivo === 'almoco') {
+            return true;
         }
 
         // 2. Se aguardando documento do processo
@@ -609,6 +628,16 @@ async function processarMensagemEntrada(msg) {
                 await colocarNaFilaHumana(tpls.msg_chamar_advogado_pos_proc || "👨‍⚖️ Um advogado da nossa equipe já foi avisado e já está chegando.");
                 return true;
             }
+        }
+
+        // 3.5. Interceptação imediata de emergência crítica (padrão + palavras personalizadas)
+        if (isMensagemCritica(textoOriginal, config)) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Mensagem com prioridade crítica identificada. Nossa equipe jurídica foi acionada em alerta máximo.",
+                "Emergência: " + textoOriginal,
+                { nivelUrgencia: 'CRITICA' }
+            );
+            return true;
         }
 
         // 4. Verificação de palavras-chave para transbordo
@@ -662,7 +691,24 @@ async function processarMensagemEntrada(msg) {
             }
         }
 
-        // Fallback: Menu Raiz
+        // Fallback: Tratamento humanizado de dúvidas livres ou mensagens fora das opções numéricas
+        const ehPerguntaOuRelato = textoOriginal.includes('?') ||
+            /\b(quanto|como|qual|quais|onde|posso|tem|aceita|duvida|dúvida|valor|custo|advogado|consulta|doutor|doutora|urgente|ajuda|preciso|processo|problema|caso|audiencia|acordo)\b/i.test(textoOriginal) ||
+            textoOriginal.trim().split(/\s+/).length >= 4;
+
+        if (ehPerguntaOuRelato) {
+            await colocarNaFilaHumana(
+                "👨‍⚖️ Compreendi sua mensagem! Para fornecer uma orientação jurídica precisa para sua dúvida, estou transferindo seu contato para um de nossos advogados.",
+                "Dúvida livre no fluxo: " + textoOriginal
+            );
+            return true;
+        }
+
+        if (estadoAtual !== 'raiz' && estadoAtual !== 'pos_consulta_processo') {
+            await responder("Não identifiquei essa opção nesta etapa. Por favor, digite o número correspondente à opção desejada ou digite *0* para voltar ao Menu Principal.");
+            return true;
+        }
+
         estadosUsuarios[remetenteChave] = 'raiz';
         await responder(montarTextoEtapa(config.fluxo.raiz));
         return true;
@@ -1022,8 +1068,9 @@ const server = http.createServer(async (req, res) => {
 });
 
 // Sistema Keep-Alive Anti-Sleep para Render Free Tier (evita suspensão após 15 min de inatividade)
-const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || 'https://advocacia-2-0.onrender.com';
+const RENDER_EXTERNAL_URL = (process.env.RENDER_EXTERNAL_URL || '').trim();
 function iniciarKeepAliveAntiSleep() {
+    if (!RENDER_EXTERNAL_URL) return;
     console.log(`[Keep-Alive Anti-Sleep] Ativado para o endpoint público: ${RENDER_EXTERNAL_URL}/health`);
     // Ping a cada 10 minutos (Render dorme com 15 min de inatividade)
     setInterval(() => {

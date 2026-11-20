@@ -180,6 +180,40 @@ INSTRUÇÕES OBRIGATÓRIAS:
 4. Explique apenas o que o andamento significa na prática para o cliente e que a equipe jurídica está atenta aos próximos passos.`;
 
 /**
+ * Sanitizador determinístico pós-geração com Guardrails OAB (Provimento 205/2021)
+ * Enforce: máximo 3 frases curtas e remoção/substituição de promessas de vitória,
+ * prazos garantidos ou valores monetários líquidos e certos.
+ *
+ * @param {string} texto
+ * @returns {string}
+ */
+function sanitizarConformidadeOAB(texto) {
+    if (!texto || typeof texto !== 'string') return '';
+    let s = texto.trim();
+
+    // 1. Substitui promessas de vitória garantida / ganho de causa
+    s = s.replace(/\b(vit[oó]ria\s+(garantida|certa)|ganho\s+de\s+causa\s+garantido|certeza\s+de\s+vit[oó]ria|100%\s+de\s+chance|causa\s+ganha|garantimos\s+(o\s+resultado|a\s+vit[oó]ria))\b/gi, 'atuação jurídica diligente nos autos');
+
+    // 2. Substitui promessas de prazos de sentença / alvará / liberação
+    s = s.replace(/\b(o\s+juiz\s+vai\s+assinar\s+em|prazo\s+garantido\s+de|dinheiro\s+na\s+conta\s+em\s+\d+\s+dias|alvar[aá]\s+liberado\s+em\s+\d+\s+dias|certeza\s+de\s+libera[cç][aã]o\s+em)\b/gi, 'acompanhamento processual contínuo');
+
+    // 3. Substitui promessas de valores líquidos certos / garantidos
+    s = s.replace(/\b(valor\s+garantido\s+de|quantia\s+certa\s+a\s+receber\s+de|recebimento\s+certo\s+de)\b/gi, 'valor pleiteado em juízo');
+
+    // 4. Divide em frases preservando abreviações forenses comuns (art., fls., etc.)
+    const protegido = s.replace(/\b(art|fls|fl|n[ºo]|dra?|sra?|prof|etc)\.\s*/gi, m => m.replace('.', '___DOT___'));
+    const partes = protegido
+        .split(/(?<=[.!?])\s+/)
+        .map(f => f.replace(/___DOT___/g, '.').trim())
+        .filter(Boolean);
+
+    if (partes.length > 3) {
+        s = partes.slice(0, 3).join(' ');
+    }
+    return s.trim();
+}
+
+/**
  * Traduz um andamento jurídico usando a API Gemini 1.5 Flash com Cache MD5 e Fallback Instantâneo (< 2.8s).
  *
  * @param {string} textoAndamento - Texto bruto do andamento/resumo do processo
@@ -300,7 +334,7 @@ async function traduzirAndamentoJuridico(textoAndamento, opcoes = {}) {
         const textoGerado = parts.map(p => p.text || '').filter(Boolean).join('\n').trim();
 
         if (textoGerado) {
-            const traducaoFinal = textoGerado;
+            const traducaoFinal = modoBruto ? textoGerado : sanitizarConformidadeOAB(textoGerado);
 
             // Salva no cache em memória
             cacheEmMemoria.set(hash, traducaoFinal);
@@ -382,18 +416,25 @@ async function catalogarPecaProcessual(textoPeca, opcoes = {}) {
         };
     }
 
-    // Heurística de classificação do tipo de peça
+    // Heurística de classificação do tipo de peça (decisões/sentenças têm prioridade absoluta sobre termos citados no relatório fático)
     const textoMin = textoPeca.toLowerCase();
     let tipoPeca = 'DOCUMENTO_PROCESSUAL';
-    if (textoMin.includes('petição inicial') || textoMin.includes('ação declaratória') || textoMin.includes('ação ordinária') || textoMin.includes('excelentíssimo senhor')) {
-        tipoPeca = 'PETICAO_INICIAL';
-    } else if (textoMin.includes('sentença') || textoMin.includes('julgo procedente') || textoMin.includes('julgo improcedente')) {
+
+    const ehSentenca = /(senten[cç]a|julgo\s+(?:totalmente\s+|parcialmente\s+|em\s+parte\s+)?(?:procedente|improcedente)s?|julgo\s+(?:extinto|o\s+feito|improcedente|procedente)|extingo\s+o\s+(?:processo|feito)|com\s+resolu[cç][aã]o\s+d[oe]\s+m[eé]rito|sem\s+resolu[cç][aã]o\s+d[oe]\s+m[eé]rito|dispositivo|ant[eo]\s+o\s+exposto|p\.?\s*r\.?\s*i\.?(?:c\.?)?)/i.test(textoMin);
+    const ehRecurso = /(ac[oó]rd[aã]o|apela[cç][aã]o|agravo\s+de\s+instrumento|recurso\s+inominado|embargos\s+de\s+declara[cç][aã]o)/i.test(textoMin);
+    const ehLaudo = /(laudo\s+pericial|per[ií]cia\s+t[eé]cnica|conclus[aã]o\s+pericial)/i.test(textoMin);
+    const ehDespacho = /(despacho|intima[cç][aã]o|cite-se|intime-se|manifeste-se)/i.test(textoMin);
+    const ehPeticaoInicial = !ehSentenca && !ehRecurso && !ehLaudo && /(peti[cç][aã]o\s+inicial|a[cç][aã]o\s+declarat[oó]ria|a[cç][aã]o\s+ordin[aá]ria|excelent[ií]ssim[oa]|d[aá]-se\s+[aà]\s+causa)/i.test(textoMin);
+
+    if (ehSentenca) {
         tipoPeca = 'SENTENCA';
-    } else if (textoMin.includes('laudo pericial') || textoMin.includes('perícia')) {
-        tipoPeca = 'LAUDO_PERICIAL';
-    } else if (textoMin.includes('acórdão') || textoMin.includes('apelação') || textoMin.includes('agravo')) {
+    } else if (ehRecurso) {
         tipoPeca = 'RECURSO';
-    } else if (textoMin.includes('despacho') || textoMin.includes('intimação')) {
+    } else if (ehPeticaoInicial) {
+        tipoPeca = 'PETICAO_INICIAL';
+    } else if (ehLaudo) {
+        tipoPeca = 'LAUDO_PERICIAL';
+    } else if (ehDespacho) {
         tipoPeca = 'DESPACHO';
     }
 
@@ -420,7 +461,7 @@ async function catalogarPecaProcessual(textoPeca, opcoes = {}) {
             modoBruto: true,
             json: true,
             systemInstruction: instrucaoCatalogo,
-            timeoutMs: 15000
+            timeoutMs: opcoes.timeoutMs || 15000
         });
 
         // Só aceita resultado vindo de IA/cache. Em fallback o "texto" é o próprio prompt — nunca parsear.
@@ -564,7 +605,7 @@ function detectarUrgenciaECronologiaLocal(texto, contexto = {}) {
   }
 
   // 1. Detecção de Urgência Crítica (Furador de Fila)
-  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(de\s+)?conta|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
+  const regexCritica = /(oficial\s+de\s+justi[cç]a|mandado|intima[cç][aã]o|delegacia|flagrante|audi[eê]ncia\s+(amanh[aã]|hoje|pr[oó]xima|urgente)|bloqueio\s+(judicial|de\s+conta|banc[aá]rio)|bloquearam\s+minha\s+conta|sisbajud|bacenjud|pris[aã]o|mandado\s+de\s+pris[aã]o|liminar|prazo\s+fatal|prazo\s+vencendo|despejo|ordem\s+de\s+despejo|busca\s+e\s+apreens[aã]o|penhora|leil[aã]o)/i;
 
   // 2. Detecção de Oportunidade Comercial / Fechamento
   const regexComercial = /(fechar\s+contrato|assinar\s+contrato|proposta\s+de\s+honor[aá]rios?|quanto\s+custa|pagar\s+honor[aá]rios?|dar\s+entrada\s+(hoje|urgente|no\s+processo)|documentos?\s+para\s+iniciar|fechamento|contratar|quero\s+contratar)/i;
@@ -572,11 +613,17 @@ function detectarUrgenciaECronologiaLocal(texto, contexto = {}) {
   let nivelUrgencia = 'ROTINA';
   let motivoUrgencia = 'Consulta geral sobre andamento processual';
 
+  const palavrasCustom = extrairPalavrasUrgenciaCustomizadas(contexto?.config || contexto);
+  const termoCustomEncontrado = buscarPalavraCustomizadaNoTexto(txt, palavrasCustom);
+
   const matchCritico = txt.match(regexCritica);
   if (matchCritico) {
     nivelUrgencia = 'CRITICA';
     const termo = matchCritico[0].toLowerCase();
     motivoUrgencia = `Menção urgente a "${termo}" relatado pelo cliente`;
+  } else if (termoCustomEncontrado) {
+    nivelUrgencia = 'CRITICA';
+    motivoUrgencia = `Palavra-chave de urgência "${termoCustomEncontrado}" relatada pelo cliente`;
   } else {
     const matchComercial = txt.match(regexComercial);
     if (matchComercial) {
@@ -638,7 +685,7 @@ async function processarAudioECopilot(audioBufferOuBase64, mimeType = 'audio/web
     return {
       sucesso: false,
       modoLocal: true,
-      transcricao: "[Modo Local] Chave Gemini não configurada no .env. Áudio mantido para escuta manual.",
+      transcricao: "[Modo Contingência] Transcrição automática indisponível no momento. Áudio mantido para escuta manual.",
       resumo: "• Áudio recebido aguardando reprodução manual pelo advogado.\n• Nenhuma transcrição automática foi processada.",
       nivelUrgencia: fallbackLocal.nivelUrgencia,
       motivoUrgencia: fallbackLocal.motivoUrgencia,
@@ -932,7 +979,7 @@ Sua missão é aprimorar a mensagem de atendimento enviada pelo escritório ao c
 
 DIRETRIZES OBRIGATÓRIAS:
 1. TERMOS TÉCNICOS ACESSÍVEIS: Incorpore termos jurídicos precisos quando oportuno (ex: "análise dos autos", "instrução probatória", "distribuição da petição inicial", "resguardo de direitos", "análise pericial", "manifestação processual", "cumprimento de despacho"), explicando-os brevemente com máxima empatia e sem juridiquês hermético.
-2. EMOJIS ELEGANTES E ESTRUTURAÇÃO WHATSAPP: Adicione emojis sóbrios e acolhedores no WhatsApp (ex: ⚖️, 📋, 👨‍⚖️, 🏛️, 📌, 🤝, ✨, 💬, 📲) formatando com negritos (*texto*) e tópicos (•) para tornar a leitura fluida no celular.
+2. ESTRUTURAÇÃO CLARA PARA WHATSAPP (TOM SOBRIO): Formate com negritos (*texto*) e tópicos (•) para facilitar a leitura no celular, preservando o tom corporativo e formal da advocacia. Use emojis apenas se o texto original já tiver estilo informal ou se forem estritamente discretos; em textos corporativos, priorize redação limpa sem excesso de emojis.
 3. INTERAÇÕES E CHAMADAS PARA AÇÃO (CTA): Finalize ou inclua interações claras, acolhedoras e gentis (ex: convidando o cliente a enviar documentos comprobatórios, gravar áudio relatando o ocorrido ou aguardar com tranquilidade o acompanhamento da equipe).
 4. ÉTICA OAB RIGOROSA (Provimento 205/2021):
    - Proibição absoluta de prometer vitórias judiciais, garantia de resultado ou ganho de causa.
@@ -1132,6 +1179,139 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
     };
 }
 
+function normalizarTextoSimples(str) {
+    return String(str || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
+function extrairPalavrasUrgenciaCustomizadas(origem) {
+    if (!origem) return [];
+    const bruto = typeof origem === 'string'
+        ? origem
+        : (origem.palavras_urgencia ?? origem.palavrasUrgencia ?? origem?.agenda?.palavras_urgencia ?? '');
+    if (Array.isArray(bruto)) {
+        return bruto.map(s => String(s || '').trim()).filter(Boolean);
+    }
+    return String(bruto || '')
+        .split(/[,;\n]+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+}
+
+function buscarPalavraCustomizadaNoTexto(texto, palavras = []) {
+    if (!texto || !Array.isArray(palavras) || palavras.length === 0) return null;
+    const textoNorm = normalizarTextoSimples(texto);
+    for (const palavra of palavras) {
+        const pNorm = normalizarTextoSimples(palavra);
+        if (!pNorm) continue;
+        const escapada = pNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(?:^|[^a-z0-9])${escapada}(?:$|[^a-z0-9])`, 'i');
+        if (regex.test(textoNorm)) return palavra;
+    }
+    return null;
+}
+
+function isMensagemCritica(texto, config = null) {
+    if (!texto || typeof texto !== 'string') return false;
+    const regexTermos = /\b(urgente|socorro|delegacia|flagrante|oficial\s+de\s+justi[cç]a|mandado|busca\s+e\s+apreens[aã]o|intima[cç][aã]o|liminar|\buti\b|audi[eê]ncia\s+hoje|bloquearam\s+minha\s+conta|sisbajud|bacenjud|plano\s+de\s+sa[uú]de\s+negou|\bpreso\b|despejo|acidente\s+de\s+trabalho)\b/i;
+    if (regexTermos.test(texto)) return true;
+    const palavrasCustom = extrairPalavrasUrgenciaCustomizadas(config);
+    if (buscarPalavraCustomizadaNoTexto(texto, palavrasCustom)) return true;
+    const analise = detectarUrgenciaECronologiaLocal(texto, { config });
+    return Boolean(analise && (analise.nivel === 'CRITICA' || analise.nivelUrgencia === 'CRITICA'));
+}
+
+function gerarSugestaoFilaFallback(dados = {}) {
+    const nome = (dados.nome && !String(dados.nome).startsWith('Cliente')) ? String(dados.nome).split(' ')[0] : '';
+    const saudacao = nome ? `Olá, ${nome}! ` : 'Olá! ';
+    const motivo = String(dados.motivo || dados.motivoUrgencia || '').toLowerCase();
+    const msgs = Array.isArray(dados.historicoMensagens) ? dados.historicoMensagens : [];
+    const ultimaCliente = [...msgs].reverse().find(m => m && m.de === 'cliente' && m.texto);
+    const textoCliente = String((ultimaCliente && ultimaCliente.texto) || dados.transcricao || '').toLowerCase();
+    const combinado = `${motivo} ${textoCliente}`;
+
+    if (/(delegacia|flagrante|preso|pris[aã]o|mandado|oficial\s+de\s+justi[cç]a|urgente|emerg[eê]ncia)/.test(combinado)) {
+        return `${saudacao}Recebi seu relato com prioridade máxima e já estou analisando a situação agora mesmo. Por favor, me envie aqui qualquer documento, foto ou endereço do local para que eu possa agir imediatamente.`;
+    }
+    if (/(audi[eê]ncia|intima[cç][aã]o|prazo|despejo|bloqueio|sisbajud|bacenjud)/.test(combinado)) {
+        return `${saudacao}Já recebi sua mensagem sobre esse caso urgente e estou verificando os detalhes do processo agora. Se tiver a foto ou PDF da intimação/decisão, pode me mandar aqui para agilizarmos.`;
+    }
+    if (/(processo|andamento|senten[cç]a|alvar[aá])/.test(combinado)) {
+        return `${saudacao}Já estou consultando a sua pasta processual para verificar os detalhes atualizados do seu caso. Assim que confirmar as informações, te explico tudo por aqui com clareza.`;
+    }
+    return `${saudacao}Recebi sua mensagem e já estou analisando seu atendimento pessoalmente. Pode me enviar mais detalhes ou documentos por aqui para que eu possa te orientar da melhor forma.`;
+}
+
+async function sugerirRespostaFilaComIA(dados = {}, contexto = {}) {
+    const inicio = Date.now();
+    const apiKey = obterApiKeyAtiva(contexto?.apiKey, contexto?.config);
+    const fallback = gerarSugestaoFilaFallback(dados);
+
+    if (!apiKey) {
+        return { sucesso: true, sugestao: fallback, fonte: 'fallback', duracaoMs: Date.now() - inicio };
+    }
+
+    const historicoTxt = (Array.isArray(dados.historicoMensagens) ? dados.historicoMensagens : [])
+        .slice(-10)
+        .map(m => `${m.de === 'cliente' ? 'Cliente' : (m.de === 'advogado' ? 'Advogado' : 'Robô')}: ${m.texto || ''}`)
+        .join('\n');
+
+    const prompt = [
+        `Nome do cliente: ${dados.nome || 'Cliente'}`,
+        `Motivo da fila: ${dados.motivo || dados.motivoUrgencia || 'Atendimento humano'}`,
+        dados.transcricao ? `Transcrição de áudio: ${dados.transcricao}` : '',
+        dados.resumo ? `Resumo do caso: ${dados.resumo}` : '',
+        historicoTxt ? `Histórico recente:\n${historicoTxt}` : '',
+        '',
+        'Redija UMA sugestão de resposta direta, empática e profissional do advogado para enviar agora ao cliente via WhatsApp (máximo 3 frases curtas, sem prometer prazos de sentença, percentuais de êxito ou valores líquidos).'
+    ].filter(Boolean).join('\n');
+
+    const timeoutMs = (contexto && contexto.timeoutMs) || TIMEOUT_PADRAO_TEXTO;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    const modelosCandidatos = [
+        contexto.modelo,
+        process.env.GEMINI_MODEL,
+        ...MODELOS_GEMINI_PADRAO
+    ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
+
+    const requestBody = {
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION_OAB }] },
+        generationConfig: { temperature: 0.35, maxOutputTokens: 320 }
+    };
+
+    try {
+        for (const modelo of modelosCandidatos) {
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                    signal: controller.signal
+                });
+                if (!resp.ok) continue;
+                const data = await resp.json();
+                const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (texto && texto.trim()) {
+                    clearTimeout(timeoutId);
+                    const limpo = typeof sanitizarConformidadeOAB === 'function' ? sanitizarConformidadeOAB(texto.trim()) : texto.trim();
+                    return { sucesso: true, sugestao: limpo, fonte: 'ia', modelo, duracaoMs: Date.now() - inicio };
+                }
+            } catch (_) {}
+        }
+    } finally {
+        clearTimeout(timeoutId);
+    }
+
+    return { sucesso: true, sugestao: fallback, fonte: 'fallback', duracaoMs: Date.now() - inicio };
+}
+
 module.exports = {
     TIMEOUT_PADRAO_TEXTO,
     TIMEOUT_MULTIMODAL_AUDIO,
@@ -1144,6 +1324,9 @@ module.exports = {
     processarAudioECopilot,
     analisarUrgenciaECronologia,
     detectarUrgenciaECronologiaLocal,
+    extrairPalavrasUrgenciaCustomizadas,
+    isMensagemCritica,
+    sugerirRespostaFilaComIA,
     melhorarMensagemComIA,
     melhorarMensagemLocalmente,
     SYSTEM_INSTRUCTION_MELHORAR_MENSAGEM,
@@ -1153,5 +1336,6 @@ module.exports = {
     obterEstatisticasCache,
     limparCacheMemoria,
     SYSTEM_INSTRUCTION_OAB,
+    sanitizarConformidadeOAB,
     obterApiKeyAtiva
 };

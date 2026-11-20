@@ -32,6 +32,11 @@ Nenhuma alteração vinda de worktree (`bugfix/*`, `feature/*`, `design/*`, `tea
 - Você atua com precisão cirúrgica: aplique diffs pontuais em vez de reescrever arquivos completos.
 - Ao auditar worktrees, leia apenas o `git diff` e os logs de teste, poupando o contexto da sessão.
 
+### 6. Chave de IA 100% Invisível ao Cliente (Zero API Key na UI)
+- **A chave da IA (Google Gemini) é exclusivamente do proprietário/desenvolvedor do software**, gerenciada internamente via ambiente/backend (`.env` / `process.env.GEMINI_API_KEY` / configuração interna padrão do servidor), nunca pelo advogado comprador.
+- **Proibição absoluta na interface (`index.html` e fluxos visuais):** Nunca criar, exibir, mover para Configurações ou solicitar campos de `Chave Google Gemini`, `API Key`, login/cadastro de chave de IA ou alertas pedindo ao cliente final para configurar chave própria.
+- O cliente final deve usar todos os recursos de IA de forma transparente, sem qualquer preocupação técnica com chaves ou credenciais de IA.
+
 ---
 
 ## 🎨 Diretrizes Oficiais de Design System (Incorporadas da Worktree Design)

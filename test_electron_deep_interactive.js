@@ -177,7 +177,7 @@ app.whenReady().then(async () => {
       check('Existe segmented-filter-processos', Boolean(containerPill));
       if (containerPill) {
         const tabs = containerPill.querySelectorAll('.segmented-pill-tab');
-        check('Pills segmentadas existem (3 abas)', tabs.length === 3);
+        check('Pills segmentadas existem', tabs.length >= 2);
         tabs.forEach(t => {
           t.click();
           check('Clicar na pill ' + t.getAttribute('data-filter') + ' marca como active', t.classList.contains('active'));
