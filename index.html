@@ -271,8 +271,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 11px 10px;
+      gap: 14px;
+      padding: 13px 12px;
       margin: 0;
       border-bottom: 1px solid #1c1d22;
       border-radius: 10px;
@@ -2537,12 +2537,12 @@
         </div>
       </div>
 
-      <!-- CONTEÚDO PRINCIPAL COM PROPORÇÕES EXECUTIVAS EQUILIBRADAS -->
-      <main id="main-content-area" class="relative z-10 flex-1 px-6 lg:px-8 pt-5 pb-8 overflow-y-auto">
-      <div class="w-full max-w-[1560px] mx-auto space-y-5">
+      <!-- CONTEÚDO PRINCIPAL COM RESPIRO CALCULADO PARA TELA CHEIA -->
+      <main id="main-content-area" class="relative z-10 flex-1 px-6 lg:px-10 pt-7 pb-10 overflow-y-auto">
+      <div class="w-full max-w-[1640px] mx-auto space-y-6">
         
         <!-- ================= ABA 0: VISÃO GERAL (OPÇÃO A — COCKPIT EXECUTIVO) ================= -->
-        <div id="aba-inicio" class="relative space-y-4 tab-pane-anim">
+        <div id="aba-inicio" class="relative space-y-6 tab-pane-anim">
 
           <!-- Compatibilidade invisível para hooks legados (isolado para nunca vazar no layout) -->
           <div class="hidden" aria-hidden="true">
@@ -2555,13 +2555,13 @@
             <span id="home-chip-expediente-txt">Verificando Expediente...</span>
           </div>
 
-          <!-- 1. HERO EDITORIAL COMPACTO -->
-          <div id="tour-home-banner" class="relative z-10 pt-1 flex flex-col lg:flex-row lg:items-end justify-between gap-3.5">
-            <div class="space-y-1 min-w-0">
-              <h2 id="home-welcome-title" class="font-serif-legal text-[30px] sm:text-[34px] font-bold tracking-tight text-[#f7f8f8] leading-[1.1] truncate">
+          <!-- 1. HERO EDITORIAL COM RESPIRO -->
+          <div id="tour-home-banner" class="relative z-10 pt-1 pb-0.5 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div class="space-y-1.5 min-w-0">
+              <h2 id="home-welcome-title" class="font-serif-legal text-[32px] sm:text-[36px] font-bold tracking-tight text-[#f7f8f8] leading-[1.08] truncate">
                 Bem-vindo, Dr(a)
               </h2>
-              <p class="text-[13px] text-[#8a8f98] flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <p class="text-[13px] text-[#8a8f98] flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
                 <span>Painel do Escritório</span>
                 <span class="text-[#3e4047]">·</span>
                 <span id="home-hero-atendimento-label">Atendimento 24/7</span>
@@ -2569,126 +2569,126 @@
             </div>
 
             <!-- 4 Ações Rápidas Disciplinadas (1 Ouro Nobre + 3 Obsidian Ghost) -->
-            <div class="flex flex-wrap items-center gap-2 shrink-0">
-              <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold champagne-gradient text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition-all duration-150 cursor-pointer">
+            <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold champagne-gradient text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition-all duration-150 cursor-pointer">
                 <svg class="w-3.5 h-3.5 stroke-[2.5]"><use href="#icon-plus"/></svg>
                 <span>Novo Processo</span>
               </button>
-              <button type="button" onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Testar respostas do robô no simulador">
+              <button type="button" onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Testar respostas do robô no simulador">
                 Simulador
               </button>
-              <button type="button" onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+              <button type="button" onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
                 Dossiê CPC
               </button>
-              <button type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Calcular prazos processuais em dias úteis (CPC / CLT)">
+              <button type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Calcular prazos processuais em dias úteis (CPC / CLT)">
                 Calculadora de Prazos
               </button>
             </div>
           </div>
 
-          <!-- 2. KPI STRIP EXECUTIVO (4 CARDS COMPACTOS DE ALTA DENSIDADE) -->
-          <div id="tour-metrics-bar" class="relative z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
+          <!-- 2. KPI STRIP EXECUTIVO (4 CARDS COM RESPIRO REFINADO) -->
+          <div id="tour-metrics-bar" class="relative z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-5">
 
             <!-- KPI 1: Processos Ativos -->
-            <div class="linear-kpi-card p-4 flex flex-col justify-between cursor-pointer group min-h-[112px]" onclick="ativarAba('processos')" title="Abrir carteira de processos">
+            <div class="linear-kpi-card p-5 flex flex-col justify-between cursor-pointer group min-h-[126px]" onclick="ativarAba('processos')" title="Abrir carteira de processos">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Processos Ativos</span>
+                <span class="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Processos Ativos</span>
                 <svg class="w-4 h-4 text-[#555963] group-hover:text-[#c59b27] transition-colors shrink-0"><use href="#icon-folder"/></svg>
               </div>
-              <div class="my-1.5 flex items-baseline gap-2">
-                <span id="home-card-processos" class="font-mono tabular-nums text-[28px] leading-none font-semibold text-[#f7f8f8] tracking-tight">0</span>
-                <span class="text-[11px] font-mono text-[#62666d]">pastas</span>
+              <div class="my-3 flex items-baseline gap-2">
+                <span id="home-card-processos" class="font-mono tabular-nums text-[30px] leading-none font-semibold text-[#f7f8f8] tracking-tight">0</span>
+                <span class="text-[11.5px] font-mono text-[#62666d]">pastas</span>
               </div>
-              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-2 border-t border-[#1c1d22]">
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
                 <span id="home-kpi-processos-sub" class="truncate">Consultas CPF/CNJ ativas</span>
                 <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0">→</span>
               </div>
             </div>
 
             <!-- KPI 2: Fila de Atendimento Humano -->
-            <div class="linear-kpi-card p-4 flex flex-col justify-between cursor-pointer group min-h-[112px]" onclick="ativarAba('pausados')" title="Abrir fila de atendimento humano">
+            <div class="linear-kpi-card p-5 flex flex-col justify-between cursor-pointer group min-h-[126px]" onclick="ativarAba('pausados')" title="Abrir fila de atendimento humano">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Fila Humana</span>
+                <span class="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Fila Humana</span>
                 <div class="flex items-center gap-1.5 shrink-0">
                   <span id="dot-ping-fila-home" class="relative hidden flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                   </span>
-                  <span id="badge-status-fila-home" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/12 text-emerald-400 border border-emerald-500/25 font-medium font-mono">Fila limpa</span>
+                  <span id="badge-status-fila-home" class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/12 text-emerald-400 border border-emerald-500/25 font-medium font-mono">Fila limpa</span>
                 </div>
               </div>
-              <div class="my-1.5 flex items-baseline gap-2">
-                <span id="metric-fila-humana-home" class="font-mono tabular-nums text-[28px] leading-none font-semibold text-[#d4af37] tracking-tight">0</span>
+              <div class="my-3 flex items-baseline gap-2">
+                <span id="metric-fila-humana-home" class="font-mono tabular-nums text-[30px] leading-none font-semibold text-[#d4af37] tracking-tight">0</span>
                 <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                <span class="text-[11px] font-mono text-[#62666d]">aguardando</span>
+                <span class="text-[11.5px] font-mono text-[#62666d]">aguardando</span>
               </div>
-              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-2 border-t border-[#1c1d22]">
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
                 <span id="home-fila-subtexto" class="truncate">Nenhum cliente aguardando advogado</span>
                 <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0 ml-1">→</span>
               </div>
             </div>
 
             <!-- KPI 3: Honorários & PIX (Financeiro Real) -->
-            <div class="linear-kpi-card p-4 flex flex-col justify-between cursor-pointer group min-h-[112px]" onclick="ativarAba('financeiro')" title="Abrir módulo financeiro e cobrança PIX">
+            <div class="linear-kpi-card p-5 flex flex-col justify-between cursor-pointer group min-h-[126px]" onclick="ativarAba('financeiro')" title="Abrir módulo financeiro e cobrança PIX">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Honorários a Receber</span>
+                <span class="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Honorários a Receber</span>
                 <svg class="w-4 h-4 text-[#555963] group-hover:text-emerald-400 transition-colors shrink-0"><use href="#icon-scales"/></svg>
               </div>
-              <div class="my-1.5 flex items-baseline gap-2 min-w-0">
-                <span id="home-kpi-financeiro-valor" class="font-mono tabular-nums text-[24px] leading-none font-semibold text-[#f7f8f8] tracking-tight truncate">R$ 0,00</span>
+              <div class="my-3 flex items-baseline gap-2 min-w-0">
+                <span id="home-kpi-financeiro-valor" class="font-mono tabular-nums text-[26px] leading-none font-semibold text-[#f7f8f8] tracking-tight truncate">R$ 0,00</span>
               </div>
-              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-2 border-t border-[#1c1d22]">
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
                 <span id="home-kpi-financeiro-sub" class="truncate font-mono text-[11px]">0 parcelas pendentes</span>
                 <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0">→</span>
               </div>
             </div>
 
             <!-- KPI 4: WhatsApp & Plantão -->
-            <div class="linear-kpi-card p-4 flex flex-col justify-between min-h-[112px]">
+            <div class="linear-kpi-card p-5 flex flex-col justify-between min-h-[126px]">
               <div class="flex items-center justify-between gap-2">
-                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98]">WhatsApp &amp; Plantão</span>
+                <span class="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#8a8f98]">WhatsApp &amp; Plantão</span>
                 <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#8a8f98] hover:text-[#f7f8f8] px-2 py-0.5 rounded-full bg-[#16171c] border border-[#26282e] transition-colors cursor-pointer" title="Status da Inteligência Artificial">
                   <span id="home-chip-ia-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                   <span id="home-chip-ia-txt">IA Ativa</span>
                 </button>
               </div>
-              <div class="my-1.5 flex items-center justify-between gap-2">
+              <div class="my-3 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                   <span id="home-wa-status-dot" class="relative flex h-2.5 w-2.5 shrink-0">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c59b27] opacity-60"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#c59b27]"></span>
                   </span>
-                  <span id="home-wa-status-label" class="text-[16px] font-semibold text-[#f7f8f8] tracking-tight truncate">Verificando</span>
+                  <span id="home-wa-status-label" class="text-[17px] font-semibold text-[#f7f8f8] tracking-tight truncate">Verificando</span>
                   <span id="home-wa-latencia" class="text-[10.5px] font-mono text-[#62666d] shrink-0"></span>
                 </div>
-                <button type="button" onclick="abrirModalQrRapido()" class="btn-tactile shrink-0 px-2 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#2a2c34] hover:border-[#c59b27]/50 text-[10.5px] font-medium text-[#d0d6e0] hover:text-[#d8af37] flex items-center gap-1 active:scale-[0.97] transition-all cursor-pointer" title="Abrir QR Code do WhatsApp">
+                <button type="button" onclick="abrirModalQrRapido()" class="btn-tactile shrink-0 px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#2a2c34] hover:border-[#c59b27]/50 text-[10.5px] font-medium text-[#d0d6e0] hover:text-[#d8af37] flex items-center gap-1.5 active:scale-[0.97] transition-all cursor-pointer" title="Abrir QR Code do WhatsApp">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h6v6H3V3zm12 0h6v6h-6V3zM3 15h6v6H3v-6zm12 3h2v3h-2v-3zm4-3h2v6h-2v-6zm-4-3h6v2h-6v-2z"/></svg>
                   <span>QR</span>
                 </button>
               </div>
-              <button type="button" onclick="ativarAba('agenda')" class="w-full text-left text-[11px] text-[#8a8f98] hover:text-[#d0d6e0] transition-colors pt-2 border-t border-[#1c1d22] cursor-pointer flex items-center justify-between gap-2" title="Configurar horários de expediente e plantão">
+              <button type="button" onclick="ativarAba('agenda')" class="w-full text-left text-[11.5px] text-[#8a8f98] hover:text-[#d0d6e0] transition-colors pt-3 border-t border-[#1c1d22] cursor-pointer flex items-center justify-between gap-2" title="Configurar horários de expediente e plantão">
                 <span id="home-card-horario-detalhe" class="truncate">Expediente: 08h às 18h</span>
-                <span id="home-card-expediente" class="text-[#d0d6e0] font-medium font-mono text-[10px] shrink-0">Verificando...</span>
+                <span id="home-card-expediente" class="text-[#d0d6e0] font-medium font-mono text-[10.5px] shrink-0">Verificando...</span>
               </button>
             </div>
 
           </div>
 
           <!-- 3. WORKSPACE PRINCIPAL ASSIMÉTRICO: ESQUERDA 8 COLS (GRÁFICO + PROCESSOS) | DIREITA 4 COLS (FEED AO VIVO) -->
-          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
             <!-- COLUNA ESQUERDA (8 cols): Gráfico de Tráfego + Processos Recentes -->
-            <div class="lg:col-span-8 flex flex-col gap-4 min-w-0">
+            <div class="lg:col-span-8 flex flex-col gap-5 min-w-0">
 
               <!-- Card 1: Tráfego de Atendimento WhatsApp -->
-              <div class="linear-shell p-5 flex flex-col justify-between relative overflow-hidden">
+              <div class="linear-shell p-6 flex flex-col justify-between relative overflow-hidden">
                 <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c59b27]/35 to-transparent pointer-events-none"></div>
 
                 <!-- Cabeçalho do Gráfico + Métricas Tabulares -->
-                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 mb-3">
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
                   <div class="space-y-1.5">
-                    <h3 class="text-[15px] font-semibold text-[#f7f8f8] tracking-tight">Tráfego de Atendimento WhatsApp</h3>
-                    <div class="flex flex-wrap items-center gap-4 text-[11.5px] text-[#8a8f98]">
+                    <h3 class="text-[15.5px] font-semibold text-[#f7f8f8] tracking-tight">Tráfego de Atendimento WhatsApp</h3>
+                    <div class="flex flex-wrap items-center gap-4 text-[12px] text-[#8a8f98]">
                       <button type="button" id="btn-legend-recebidas" onclick="window.alternarSerieGraficoHome && window.alternarSerieGraficoHome('recebidas')" class="inline-flex items-center gap-1.5 hover:text-[#f7f8f8] transition-colors cursor-pointer">
                         <span class="w-2 h-2 rounded-full bg-[#c59b27] inline-block shrink-0"></span>
                         <span>Mensagens Recebidas</span>
@@ -2701,18 +2701,18 @@
                   </div>
 
                   <!-- Contadores em Tempo Real -->
-                  <div class="flex items-center gap-3 shrink-0 self-start sm:self-center">
+                  <div class="flex items-center gap-3.5 shrink-0 self-start sm:self-center">
                     <div class="flex items-baseline gap-1.5">
-                      <span id="metric-mensagens-reais" class="font-mono tabular-nums text-[22px] leading-none font-semibold text-[#d4af37]">0</span>
-                      <span class="text-[11.5px] text-[#8a8f98]">msgs hoje</span>
+                      <span id="metric-mensagens-reais" class="font-mono tabular-nums text-[24px] leading-none font-semibold text-[#d4af37]">0</span>
+                      <span class="text-xs text-[#8a8f98]">msgs hoje</span>
                     </div>
-                    <span class="h-3.5 w-px bg-[#26282e]"></span>
-                    <span id="metric-horas-reais" class="font-mono tabular-nums text-[12.5px] font-medium text-[#d0d6e0]">~0.0h economizadas</span>
+                    <span class="h-4 w-px bg-[#26282e]"></span>
+                    <span id="metric-horas-reais" class="font-mono tabular-nums text-[13px] font-medium text-[#d0d6e0]">~0.0h economizadas</span>
                   </div>
                 </div>
 
-                <!-- Área Interativa do Gráfico SVG (Proporção Fixa Elegante) -->
-                <div id="home-traffic-chart-wrap" class="relative w-full h-[176px] select-none">
+                <!-- Área Interativa do Gráfico SVG (Proporção Calculada) -->
+                <div id="home-traffic-chart-wrap" class="relative w-full h-[204px] select-none">
                   <svg id="home-traffic-svg" viewBox="0 0 640 168" preserveAspectRatio="none" class="w-full h-full block overflow-visible">
                     <defs>
                       <linearGradient id="homeGradGold" x1="0" y1="0" x2="0" y2="1">
@@ -2740,9 +2740,9 @@
                   <div id="home-chart-dot-gold-el" class="home-chart-dot-gold-el" style="left:50%;top:40%;"></div>
 
                   <!-- Tooltip Flutuante Glassmorphic -->
-                  <div id="home-traffic-tooltip" class="home-chart-tooltip pointer-events-none absolute top-2 left-1/2 rounded-[9px] px-2.5 py-1.5 text-[11px] z-20 whitespace-nowrap">
+                  <div id="home-traffic-tooltip" class="home-chart-tooltip pointer-events-none absolute top-2 left-1/2 rounded-[10px] px-3 py-2 text-[11px] z-20 whitespace-nowrap">
                     <div id="home-tooltip-title" class="font-semibold text-[#f7f8f8] leading-tight text-[11.5px]">Pico de Atendimento: 14h</div>
-                    <div id="home-tooltip-sub" class="text-[#a1a6b0] font-mono text-[10px] mt-0.5 flex items-center gap-1.5">
+                    <div id="home-tooltip-sub" class="text-[#a1a6b0] font-mono text-[10.5px] mt-0.5 flex items-center gap-1.5">
                       <span class="w-1.5 h-1.5 rounded-full bg-[#c59b27]"></span>
                       <span>Aguardando tráfego hoje</span>
                     </div>
@@ -2750,34 +2750,34 @@
                 </div>
 
                 <!-- Eixo X nítido em HTML -->
-                <div id="home-chart-xaxis-html" class="flex items-center justify-between pt-2.5 mt-1 border-t border-[#1c1d22] text-[10.5px] font-mono tabular-nums text-[#6e737d] select-none">
+                <div id="home-chart-xaxis-html" class="flex items-center justify-between pt-3 mt-1.5 border-t border-[#1c1d22] text-[11px] font-mono tabular-nums text-[#6e737d] select-none">
                   <span>08h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span>
                 </div>
               </div>
 
               <!-- Card 2: Processos Recentes -->
-              <div class="linear-shell p-5 flex flex-col">
-                <div class="flex items-center justify-between pb-3 mb-1 border-b border-[#1c1d22]">
+              <div class="linear-shell p-6 flex flex-col">
+                <div class="flex items-center justify-between pb-3.5 mb-2 border-b border-[#1c1d22]">
                   <div class="flex items-center gap-2">
-                    <h3 class="text-[15px] font-semibold text-[#f7f8f8] tracking-tight">Processos Recentes</h3>
-                    <span class="text-[11px] text-[#62666d] hidden sm:inline">· Últimas pastas atualizadas</span>
+                    <h3 class="text-[15.5px] font-semibold text-[#f7f8f8] tracking-tight">Processos Recentes</h3>
+                    <span class="text-[11.5px] text-[#62666d] hidden sm:inline">· Últimas pastas atualizadas</span>
                   </div>
                   <button type="button" onclick="ativarAba('processos')" class="group/btn text-xs font-medium text-[#8a8f98] hover:text-[#d4af37] flex items-center gap-1 transition-colors cursor-pointer">
                     <span>Ver todos</span>
                     <span class="group-hover/btn:translate-x-0.5 transition-transform">→</span>
                   </button>
                 </div>
-                <div id="home-ultimos-processos" class="max-h-[250px] overflow-y-auto overflow-x-hidden"></div>
+                <div id="home-ultimos-processos" class="max-h-[268px] overflow-y-auto overflow-x-hidden"></div>
               </div>
 
             </div>
 
             <!-- COLUNA DIREITA (4 cols): Mensagens em Tempo Real (acompanha altura da esquerda) -->
-            <div class="lg:col-span-4 linear-shell p-5 flex flex-col justify-between min-h-[380px]">
-              <div class="flex items-center justify-between pb-3 mb-1 border-b border-[#1c1d22] shrink-0">
+            <div class="lg:col-span-4 linear-shell p-6 flex flex-col justify-between min-h-[420px]">
+              <div class="flex items-center justify-between pb-3.5 mb-2 border-b border-[#1c1d22] shrink-0">
                 <div class="flex items-center gap-2">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <h3 class="text-[15px] font-semibold text-[#f7f8f8] tracking-tight">Mensagens em Tempo Real</h3>
+                  <h3 class="text-[15.5px] font-semibold text-[#f7f8f8] tracking-tight">Mensagens em Tempo Real</h3>
                 </div>
                 <button type="button" onclick="ativarAba('terminal')" class="group/btn text-xs font-medium text-[#8a8f98] hover:text-[#d4af37] flex items-center gap-1 transition-colors cursor-pointer">
                   <span>Histórico</span>
@@ -2786,7 +2786,7 @@
               </div>
 
               <div id="home-ultimos-logs" class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col justify-center">
-                <div class="text-xs text-[#6e737d] text-center py-8 px-2 flex flex-col items-center justify-center gap-3">
+                <div class="text-xs text-[#6e737d] text-center py-8 px-3 flex flex-col items-center justify-center gap-3">
                   <div class="w-10 h-10 rounded-xl bg-[#15161a] border border-[#23252a] flex items-center justify-center text-[#6e737d]">
                     <svg class="w-4 h-4"><use href="#icon-message"/></svg>
                   </div>
@@ -2794,19 +2794,19 @@
                     <p class="text-[13px] font-medium text-[#a1a6b0]">Nenhuma mensagem nesta sessão</p>
                     <p class="text-[11.5px] text-[#62666d] leading-relaxed">As conversas do WhatsApp e os testes do Simulador aparecem aqui ao vivo.</p>
                   </div>
-                  <button type="button" onclick="ativarAba('simulador')" class="linear-btn-ghost px-3.5 py-1.5 text-xs font-medium text-[#d0d6e0] hover:text-[#d4af37] cursor-pointer mt-0.5">
+                  <button type="button" onclick="ativarAba('simulador')" class="linear-btn-ghost px-3.5 py-2 text-xs font-medium text-[#d0d6e0] hover:text-[#d4af37] cursor-pointer mt-1">
                     Testar no Simulador →
                   </button>
                 </div>
               </div>
 
               <!-- Rodapé de Ações Rápidas da Coluna Lateral -->
-              <div class="pt-3 mt-3 border-t border-[#1c1d22] grid grid-cols-2 gap-2 shrink-0">
-                <button type="button" onclick="ativarAba('pausados')" class="linear-btn-ghost py-2 px-2.5 text-[11.5px] font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
+              <div class="pt-4 mt-4 border-t border-[#1c1d22] grid grid-cols-2 gap-2.5 shrink-0">
+                <button type="button" onclick="ativarAba('pausados')" class="linear-btn-ghost py-2.5 px-3 text-xs font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-user-clock"/></svg>
                   <span>Fila Humana</span>
                 </button>
-                <button type="button" onclick="ativarAba('simulador')" class="linear-btn-ghost py-2 px-2.5 text-[11.5px] font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
+                <button type="button" onclick="ativarAba('simulador')" class="linear-btn-ghost py-2.5 px-3 text-xs font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-message"/></svg>
                   <span>Simulador</span>
                 </button>
