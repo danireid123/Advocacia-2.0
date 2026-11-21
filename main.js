@@ -2168,6 +2168,18 @@ ipcMain.handle('restaurar-backup-completo', (e, backupCfg) => {
             return { sucesso: false, erro: 'Estrutura de backup inválida.' };
         }
         const atualEmMemoria = carregarConfig();
+
+        // Snapshot automático de segurança antes de restaurar (evita perda irreversível)
+        try {
+            if (atualEmMemoria && typeof atualEmMemoria === 'object') {
+                const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+                const preRestorePath = path.join(getAppBaseDir(), `config.pre-restore.${stamp}.json`);
+                fs.writeFileSync(preRestorePath, JSON.stringify(atualEmMemoria, null, 2), 'utf8');
+            }
+        } catch (snapErr) {
+            console.warn('[Backup] Aviso ao criar snapshot pré-restore:', snapErr.message);
+        }
+
         const restaurado = JSON.parse(JSON.stringify(backupCfg));
 
         hidratarChaveApiAoCarregar(backupCfg, restaurado);
@@ -2176,9 +2188,23 @@ ipcMain.handle('restaurar-backup-completo', (e, backupCfg) => {
             restaurado.gemini_api_key = atualEmMemoria.gemini_api_key;
         }
         if (!restaurado.processos) restaurado.processos = { lista: [] };
-        if (!restaurado.financeiro) restaurado.financeiro = { parcelas: [] };
-        if (!restaurado.dossiesClientes) restaurado.dossiesClientes = {};
-        if (!restaurado.onboardingSessoes) restaurado.onboardingSessoes = {};
+
+        // Preserva registros financeiros e dossiês existentes em memória caso o backup não contenha
+        if (!restaurado.financeiro || !Array.isArray(restaurado.financeiro.parcelas) || restaurado.financeiro.parcelas.length === 0) {
+            if (atualEmMemoria && atualEmMemoria.financeiro && Array.isArray(atualEmMemoria.financeiro.parcelas) && atualEmMemoria.financeiro.parcelas.length > 0) {
+                restaurado.financeiro = JSON.parse(JSON.stringify(atualEmMemoria.financeiro));
+            } else if (!restaurado.financeiro) {
+                restaurado.financeiro = { parcelas: [] };
+            }
+        }
+        if (!restaurado.dossiesClientes || Object.keys(restaurado.dossiesClientes).length === 0) {
+            if (atualEmMemoria && atualEmMemoria.dossiesClientes && Object.keys(atualEmMemoria.dossiesClientes).length > 0) {
+                restaurado.dossiesClientes = JSON.parse(JSON.stringify(atualEmMemoria.dossiesClientes));
+            } else {
+                restaurado.dossiesClientes = {};
+            }
+        }
+        if (!restaurado.onboardingSessoes) restaurado.onboardingSessoes = (atualEmMemoria && atualEmMemoria.onboardingSessoes) || {};
 
         salvarConfigDisco(restaurado, true);
         const configSanitizada = sanitizarConfigParaRenderer(restaurado);
@@ -3589,14 +3615,23 @@ ipcMain.handle('disparar-regua-cobranca', async (event, opcoes = {}) => {
     try {
         const { dispararReguaCobranca } = require('./src/financeiro/gestaoFinanceira');
         const cfg = carregarConfig();
+        const whatsappConectado = Boolean(client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO'));
+        if (!whatsappConectado && !opcoes.modoSimulado) {
+            return {
+                sucesso: false,
+                erro: 'WhatsApp desconectado. Conecte o aparelho antes de disparar lembretes de cobrança.',
+                enviados: 0
+            };
+        }
         const enviarMsgFn = async (telefone, mensagem) => {
             const digitos = apenasNumeros(telefone);
-            if (client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && digitos) {
+            if (whatsappConectado && digitos) {
                 const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
                 await client.sendMessage(chatId, mensagem);
                 return true;
             }
-            return true; // Simulado com sucesso quando WhatsApp offline
+            if (opcoes.modoSimulado) return true;
+            return false;
         };
         const relatorio = await dispararReguaCobranca(cfg, {
             enviarMensagemWhatsApp: enviarMsgFn,

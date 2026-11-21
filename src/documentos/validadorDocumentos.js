@@ -403,7 +403,7 @@ Critérios Obrigatórios:
    - defeitos: array contendo zero ou mais itens entre: "BORRAO", "REFLEXO", "CORTE", "ESCURO". Se nítido, [].
    - confiancaScore: float de 0.0 a 1.0 representando o nível de certeza pericial.
 2. CLASSIFICAÇÃO TIPOLÓGICA:
-   - tipoDocumento: estritamente um de: "RG_FRENTE", "RG_VERSO", "RG_COMPLETO", "CNH", "COMPROVANTE_RESIDENCIA", "CTPS", "CERTIDAO", "CONTRATO", "OUTRO".
+   - tipoDocumento: estritamente um de: "RG_FRENTE", "RG_VERSO", "RG_COMPLETO", "CNH", "COMPROVANTE_RESIDENCIA", "CTPS", "CERTIDAO", "CONTRATO", "LAUDO_MEDICO", "CNIS", "DOC_RURAL", "OUTRO".
 3. EXTRAÇÃO DE DADOS CIVIS (OCR):
    - Extraia com exatidão: nomeCompleto, cpf, rg, rgOrgaoEmissor, filiacaoMae, filiacaoPai, dataNascimento.
    - endereco: logradouro, numero, complemento, bairro, cidade, uf, cep. (vazio se ausente).

@@ -1042,6 +1042,15 @@ function melhorarMensagemLocalmente(textoOriginal, contexto = {}) {
         resultadoFinal = resultadoFinal.replace(/🤝✨$/, 'para o devido *resguardo e defesa de seus direitos*! 🤝✨');
     }
 
+    const semEmojis = Boolean(contexto?.semEmojis ?? contexto?.config?.ia?.semEmojis);
+    if (semEmojis) {
+        resultadoFinal = resultadoFinal
+            .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, '')
+            .replace(/[ \t]{2,}/g, ' ')
+            .replace(/\n /g, '\n')
+            .trim();
+    }
+
     return resultadoFinal;
 }
 
@@ -1067,7 +1076,9 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
     }
 
     carregarCacheDisco();
-    const hash = 'melhoria::' + calcularHash(textoLimpo);
+    const tomVoz = String(contexto?.tomVoz || contexto?.config?.ia?.tomVoz || 'acolhedor').trim();
+    const semEmojis = Boolean(contexto?.semEmojis ?? contexto?.config?.ia?.semEmojis);
+    const hash = `melhoria::${tomVoz}::${semEmojis ? 'noemoji' : 'emoji'}::` + calcularHash(textoLimpo);
     if (cacheEmMemoria.has(hash)) {
         const textoCache = cacheEmMemoria.get(hash);
         return {
@@ -1102,7 +1113,15 @@ async function melhorarMensagemComIA(textoOriginal, contexto = {}) {
         ...MODELOS_GEMINI_PADRAO
     ].filter(Boolean).filter((m, i, arr) => arr.indexOf(m) === i);
 
-    const promptUsuario = `Aprimore a seguinte mensagem jurídica para WhatsApp mantendo termos técnicos acessíveis, emojis adequados e interação gentil com o cliente:\n\n"""\n${textoLimpo}\n"""`;
+    const regraTom = tomVoz === 'formal'
+        ? 'Use tom jurídico formal, sóbrio e corporativo.'
+        : tomVoz === 'direto'
+            ? 'Use tom objetivo, direto e conciso.'
+            : 'Use tom acolhedor, cordial e empático.';
+    const regraEmoji = semEmojis
+        ? 'PROIBIDO usar qualquer emoji (sobriedade estrita OAB).'
+        : 'Use emojis com moderação e elegância jurídica.';
+    const promptUsuario = `Aprimore a seguinte mensagem jurídica para WhatsApp mantendo termos técnicos acessíveis. ${regraTom} ${regraEmoji} PRESERVE EXATAMENTE quaisquer variáveis entre chaves como {nome}, {cpf}, {processo}, {resumo}, {data}, {escritorio}, {documentos}, {preset}:\n\n"""\n${textoLimpo}\n"""`;
 
     const requestBody = {
         contents: [

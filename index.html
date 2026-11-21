@@ -18,18 +18,23 @@
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
     body.modo-leitura-conforto {
-      font-size: 15px !important;
+      font-size: 16px !important;
     }
     body.modo-leitura-conforto .text-xs,
+    body.modo-leitura-conforto .text-\[12\.5px\],
+    body.modo-leitura-conforto .text-\[11\.5px\],
     body.modo-leitura-conforto .text-\[11px\],
-    body.modo-leitura-conforto .text-\[10px\] {
-      font-size: 13px !important;
-      line-height: 1.5 !important;
+    body.modo-leitura-conforto .text-\[10\.5px\],
+    body.modo-leitura-conforto .text-\[10px\],
+    body.modo-leitura-conforto .text-\[9\.5px\] {
+      font-size: 14px !important;
+      line-height: 1.55 !important;
     }
     body.modo-leitura-conforto .exec-input,
     body.modo-leitura-conforto textarea,
-    body.modo-leitura-conforto input {
-      font-size: 14px !important;
+    body.modo-leitura-conforto input,
+    body.modo-leitura-conforto select {
+      font-size: 15px !important;
     }
 
     :root {
@@ -1825,6 +1830,20 @@
     }
 
     /* 5. Blindagem Completa do Modo Claro (Estilo Claude / Oracle Papel Editorial) */
+    html.theme-light .bg-\[\#08080a\],
+    html.theme-light .bg-\[\#08080a\]\/35 {
+      background-color: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A !important;
+    }
+    html.theme-light .bg-\[\#111111\],
+    html.theme-light .bg-\[\#111111\]\/90,
+    html.theme-light .bg-\[\#101010\],
+    html.theme-light .bg-\[\#121212\],
+    html.theme-light .bg-\[\#141414\],
+    html.theme-light .bg-\[\#161616\],
+    html.theme-light .bg-\[\#181818\],
+    html.theme-light .bg-\[\#0a0a0a\],
     html.theme-light #main-content-area .bg-\[\#0d0e11\],
     html.theme-light #main-content-area .bg-\[\#0b0c0e\],
     html.theme-light #main-content-area .bg-\[\#0f1012\],
@@ -1833,15 +1852,37 @@
       background-color: #FFFFFF !important;
       color: #0F172A !important;
     }
+    html.theme-light .border-\[\#222222\],
+    html.theme-light .border-\[\#262626\],
+    html.theme-light .border-\[\#262626\]\/90,
+    html.theme-light .border-\[\#202020\],
+    html.theme-light .border-\[\#1a1a1a\],
+    html.theme-light .border-\[\#1c1c1c\],
+    html.theme-light .border-\[\#2a2a2a\],
     html.theme-light #main-content-area .border-\[\#1f2025\],
     html.theme-light #main-content-area .border-\[\#23252a\] {
       border-color: #CBD5E1 !important;
     }
+    html.theme-light .home-chart-tooltip {
+      background: rgba(255, 255, 255, 0.96) !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A !important;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+    }
+    html.theme-light #home-chart-grid line {
+      stroke: #E2E8F0 !important;
+    }
+    html.theme-light .text-\[\#f7f8f8\],
+    html.theme-light .text-\[\#e4e7ec\],
+    html.theme-light .text-\[\#d0d6e0\],
     html.theme-light #main-content-area .text-\[\#f7f8f8\],
     html.theme-light #main-content-area .text-\[\#e4e7ec\],
     html.theme-light #main-content-area .text-\[\#d0d6e0\] {
       color: #0F172A !important;
     }
+    html.theme-light .text-\[\#8a8f98\],
+    html.theme-light .text-\[\#62666d\],
+    html.theme-light .text-\[\#a1a6b0\],
     html.theme-light #main-content-area .text-\[\#8a8f98\],
     html.theme-light #main-content-area .text-\[\#62666d\] {
       color: #475569 !important;
@@ -3162,21 +3203,21 @@
                   </div>
 
                   <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label class="cohere-eyebrow text-[10.5px] text-[#d0d6e0]">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
-                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-zinc-400 hover:text-emerald-400 font-medium transition" title="Marque somente se desejar disparar notificação ativa ao salvar">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                      <label class="cohere-eyebrow text-[10.5px] text-[#d0d6e0]">Resumo do Andamento</label>
+                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-zinc-400 hover:text-emerald-400 font-medium transition" title="Quando marcado, o robô poderá informar este resumo SE o cliente consultar o processo no WhatsApp. Salvar não envia mensagem automaticamente.">
                         <input type="checkbox" id="proc-tem-atualizacao" class="accent-[#d4af37] rounded cursor-pointer">
-                        <span>Avisar cliente no WhatsApp</span>
+                        <span>Liberar resumo para consulta no WhatsApp</span>
                       </label>
                     </div>
-                    <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-[13px] resize-none leading-relaxed"></textarea>
+                    <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento do caso (somente salvo na ficha local)..." class="exec-input w-full rounded-xl p-3.5 text-[13px] resize-none leading-relaxed"></textarea>
                   </div>
 
                   <div class="pt-3.5 border-t border-[#1c1c1c] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <span class="text-[11px] text-[#62666d] font-mono">Fluxo WhatsApp: [1] Encerra • [2] Chama Advogado</span>
+                    <span class="text-[11px] text-emerald-400/90 font-medium">🔒 Salvar grava apenas na ficha local — nenhuma mensagem é enviada agora.</span>
                     <button type="button" id="btn-salvar-processo" class="px-5 py-2.5 champagne-gradient font-bold text-xs rounded-[10px] shadow-sm active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
                       <svg class="w-4 h-4"><use href="#icon-save"/></svg>
-                      <span>Salvar Pasta do Processo</span>
+                      <span>Salvar Pasta</span>
                     </button>
                   </div>
                 </div>
@@ -3341,8 +3382,11 @@
                 </div>
 
                 <div class="sm:col-span-5 space-y-1">
-                  <label for="calc-prazo-feriados-locais" class="text-[11px] font-semibold text-zinc-400 block">Feriados Locais / Suspensões (opcional)</label>
-                  <input type="text" id="calc-prazo-feriados-locais" oninput="calcularPrazoProcessualUI()" placeholder="Ex: 25/01/2026, 09/07/2026" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                  <div class="flex items-center justify-between gap-2">
+                    <label for="calc-prazo-feriados-locais" class="text-[11px] font-semibold text-zinc-400 block">Feriados Locais / Suspensões (salvo)</label>
+                    <button type="button" onclick="aplicarFeriadosForensesPadraoUI()" class="text-[10px] font-semibold text-amber-400 hover:text-amber-300 underline cursor-pointer" title="Insere feriados forenses da Lei 5.010/66 (11/08, 01/11, 08/12) do ano atual">+ Forenses (Lei 5.010)</button>
+                  </div>
+                  <input type="text" id="calc-prazo-feriados-locais" oninput="salvarFeriadosLocaisPrazoUI(); calcularPrazoProcessualUI();" placeholder="Ex: 25/01/2026, 11/08/2026, 08/12/2026" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
                 </div>
 
                 <div class="sm:col-span-6 space-y-1">
@@ -4699,6 +4743,38 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
           </div>
 
+          <!-- CARD 0: IDENTIDADE DO ESCRITÓRIO & ASSINATURA -->
+          <div class="exec-card p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/60 backdrop-blur-xl space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800/80 pb-3">
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <svg class="w-5 h-5"><use href="#icon-scales"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-zinc-100">Identidade do Escritório &amp; Assinatura</h3>
+                  <p class="text-[11px] text-zinc-400">Usado automaticamente na variável <code class="text-amber-400">{escritorio}</code>, documentos e respostas do atendimento</p>
+                </div>
+              </div>
+              <button type="button" id="btn-salvar-identidade-escritorio" onclick="salvarIdentidadeEscritorioUI()" class="btn-tactile px-4 py-2 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl shadow cursor-pointer">
+                Salvar Identidade
+              </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div class="space-y-1">
+                <label for="cfg-nome-escritorio" class="text-[11px] font-semibold text-zinc-400 block">Nome do Escritório</label>
+                <input type="text" id="cfg-nome-escritorio" placeholder="Ex: Silva &amp; Associados Advocacia" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+              </div>
+              <div class="space-y-1">
+                <label for="cfg-oab-escritorio" class="text-[11px] font-semibold text-zinc-400 block">Advogado(a) Responsável / OAB</label>
+                <input type="text" id="cfg-oab-escritorio" placeholder="Ex: Dra. Patrícia Lemos — OAB/SP 123.456" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+              </div>
+              <div class="space-y-1">
+                <label for="cfg-assinatura-padrao" class="text-[11px] font-semibold text-zinc-400 block">Assinatura Padrão (opcional)</label>
+                <input type="text" id="cfg-assinatura-padrao" placeholder="Ex: Atenciosamente, Equipe Jurídica" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+              </div>
+            </div>
+          </div>
+
           <!-- Grade de Painéis de Configuração -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -5021,10 +5097,15 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
             </div>
 
             <div class="space-y-3 text-xs">
-              <div>
-                <label class="text-[11px] text-zinc-400 font-semibold block mb-1">Cliente Selecionado</label>
-                <input type="text" id="onboarding-modal-cliente-nome" readonly class="exec-input w-full rounded-xl px-3 py-2 text-xs font-bold text-amber-300">
-                <input type="hidden" id="onboarding-modal-cliente-tel">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="text-[11px] text-zinc-400 font-semibold block mb-1">Cliente Selecionado</label>
+                  <input type="text" id="onboarding-modal-cliente-nome" readonly class="exec-input w-full rounded-xl px-3 py-2 text-xs font-bold text-amber-300">
+                </div>
+                <div>
+                  <label class="text-[11px] text-zinc-400 font-semibold block mb-1">WhatsApp de Destino (Editável)</label>
+                  <input type="text" id="onboarding-modal-cliente-tel" placeholder="(11) 99999-9999" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
               </div>
 
               <div>
@@ -5458,10 +5539,11 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         const kpiQtdEl = document.getElementById('kpi-qtd-pendentes');
         if (elFinVal && kpiTotalEl && kpiTotalEl.innerText.trim()) {
           elFinVal.innerText = kpiTotalEl.innerText.trim();
-        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.cobrancas)) {
+        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.parcelas || configGlobal.financeiro.cobrancas)) {
+          const listaFin = configGlobal.financeiro.parcelas || configGlobal.financeiro.cobrancas || [];
           let soma = 0, pend = 0;
-          configGlobal.financeiro.cobrancas.forEach(c => {
-            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && !c.arquivado) {
+          listaFin.forEach(c => {
+            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && c.status !== 'ARQUIVADO' && !c.arquivado) {
               soma += Number(c.valor || 0);
               pend++;
             }
@@ -5492,10 +5574,11 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         const kpiQtdEl = document.getElementById('kpi-qtd-pendentes');
         if (elFinVal && kpiTotalEl && kpiTotalEl.innerText.trim()) {
           elFinVal.innerText = kpiTotalEl.innerText.trim();
-        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.cobrancas)) {
+        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.parcelas || configGlobal.financeiro.cobrancas)) {
+          const listaFin = configGlobal.financeiro.parcelas || configGlobal.financeiro.cobrancas || [];
           let soma = 0, pend = 0;
-          configGlobal.financeiro.cobrancas.forEach(c => {
-            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && !c.arquivado) {
+          listaFin.forEach(c => {
+            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && c.status !== 'ARQUIVADO' && !c.arquivado) {
               soma += Number(c.valor || 0);
               pend++;
             }
@@ -6105,10 +6188,11 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         const kpiQtdEl = document.getElementById('kpi-qtd-pendentes');
         if (elFinVal && kpiTotalEl && kpiTotalEl.innerText.trim()) {
           elFinVal.innerText = kpiTotalEl.innerText.trim();
-        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.cobrancas)) {
+        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.parcelas || configGlobal.financeiro.cobrancas)) {
+          const listaFin = configGlobal.financeiro.parcelas || configGlobal.financeiro.cobrancas || [];
           let soma = 0, pend = 0;
-          configGlobal.financeiro.cobrancas.forEach(c => {
-            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && !c.arquivado) {
+          listaFin.forEach(c => {
+            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && c.status !== 'ARQUIVADO' && !c.arquivado) {
               soma += Number(c.valor || 0);
               pend++;
             }
@@ -6365,16 +6449,20 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
 
     // Command Palette Spotlight (Ctrl + K)
     const COMANDOS_SPOTLIGHT = [
+      { id: 'inicio', titulo: 'Visão Geral (Painel Inicial)', desc: 'Resumo executivo, indicadores e mensagens recentes', icone: 'icon-home', acao: () => { ativarAba('inicio'); } },
       { id: 'novo-proc', titulo: 'Cadastrar Novo Processo', desc: 'Abre o formulário de cadastro de autos e cliente', icone: 'icon-plus', acao: () => { irParaNovoProcessoDireto(); } },
-      { id: 'demo-data', titulo: 'Carregar Dados de Demonstração', desc: 'Injeta 3 processos com tags reais e histórico de WhatsApp', icone: 'icon-sparkles', acao: () => { carregarDadosDemonstracao(); } },
       { id: 'proc', titulo: 'Consultar Processos (CPF/CNJ)', desc: 'Buscar e gerenciar processos cadastrados', icone: 'icon-folder', acao: () => { ativarAba('processos'); } },
-      { id: 'simulador', titulo: 'Simulador WhatsApp', desc: 'Testar respostas do robô em ambiente seguro', icone: 'icon-message', acao: () => { ativarAba('simulador'); } },
+      { id: 'agenda', titulo: 'Agenda & Horários do Robô', desc: 'Audiências, prazos, expediente e pausa de almoço', icone: 'icon-clock', acao: () => { ativarAba('agenda'); } },
+      { id: 'calc-prazos', titulo: 'Calculadora de Prazos (CPC / CLT)', desc: 'Calcular prazos em dias úteis com feriados e recesso', icone: 'icon-clock', acao: () => { abrirModalCalculadoraPrazos(); } },
       { id: 'fila', titulo: 'Fila de Atendimento do Advogado', desc: 'Clientes aguardando atendimento humano urgente', icone: 'icon-user-clock', acao: () => { ativarAba('pausados'); } },
       { id: 'fluxo', titulo: 'Menu Automático do Robô', desc: 'Editar opções e fluxos de atendimento', icone: 'icon-flow', acao: () => { ativarAba('fluxo'); } },
-      { id: 'dossie', titulo: 'Dossiê de Clientes (Art. 319 CPC)', desc: 'Ficha cadastral e documentos de qualificação civil', icone: 'icon-users', acao: () => { ativarAba('dossie-clientes'); } },
+      { id: 'simulador', titulo: 'Simulador WhatsApp', desc: 'Testar respostas do robô em ambiente seguro', icone: 'icon-message', acao: () => { ativarAba('simulador'); } },
       { id: 'financeiro', titulo: 'Financeiro & Cobrança PIX', desc: 'Honorários, régua semanal e conciliação', icone: 'icon-scales', acao: () => { ativarAba('financeiro'); } },
-      { id: 'backup', titulo: 'Salvar Cópia do Escritório', desc: 'Salvar cópia completa dos processos e dados no computador', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
-      { id: 'configuracoes', titulo: 'Configurações do Sistema', desc: 'Gerenciar WhatsApp, preferências e sessão', icone: 'icon-settings', acao: () => { ativarAba('configuracoes'); } }
+      { id: 'historico', titulo: 'Histórico de Mensagens', desc: 'Acompanhar conversas do robô e do escritório', icone: 'icon-message', acao: () => { ativarAba('terminal'); } },
+      { id: 'ignorados', titulo: 'Contatos Bloqueados / Ignorados', desc: 'Números silenciados que o robô não responde', icone: 'icon-ban', acao: () => { ativarAba('ignorados'); } },
+      { id: 'backup', titulo: 'Salvar Cópia do Escritório (Backup)', desc: 'Exportar ou restaurar dados do escritório', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
+      { id: 'configuracoes', titulo: 'Configurações do Sistema', desc: 'Identidade do escritório, WhatsApp e preferências', icone: 'icon-settings', acao: () => { ativarAba('configuracoes'); } },
+      { id: 'demo-data', titulo: 'Carregar Dados de Demonstração', desc: 'Injeta 3 processos com tags reais e histórico de WhatsApp', icone: 'icon-sparkles', acao: () => { carregarDadosDemonstracao(); } }
     ];
 
     window.toggleSpotlight = function(abrir) {
@@ -6766,6 +6854,9 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         btnTopConfig.classList.toggle('bg-amber-500/20', isConfig);
         btnTopConfig.classList.toggle('border-amber-500/50', isConfig);
         btnTopConfig.classList.toggle('text-amber-300', isConfig);
+        if (isConfig && typeof window.carregarIdentidadeEscritorioUI === 'function') {
+          window.carregarIdentidadeEscritorioUI();
+        }
       }
       const topBarName = document.getElementById('top-bar-page-name');
       if (topBarName) {
@@ -7998,7 +8089,14 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
 
     safeOn('btn-excluir-etapa', 'click', () => {
       if (etapaSelecionada === 'raiz') return;
-      delete configGlobal.fluxo.etapas[etapaSelecionada];
+      const etapaRemovida = etapaSelecionada;
+      delete configGlobal.fluxo.etapas[etapaRemovida];
+      // Limpa opções órfãs na raiz que apontavam para este submenu
+      if (configGlobal.fluxo.raiz && Array.isArray(configGlobal.fluxo.raiz.opcoes)) {
+        configGlobal.fluxo.raiz.opcoes = configGlobal.fluxo.raiz.opcoes.filter(
+          op => !(op.tipo === 'submenu' && op.destino === etapaRemovida)
+        );
+      }
       etapaSelecionada = 'raiz';
       popularSeletorDeEtapas();
       carregarEtapaNoEditor('raiz');
@@ -8067,12 +8165,12 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       if (typeof sincronizarTodosBaloesWhatsApp === 'function') sincronizarTodosBaloesWhatsApp();
     });
 
-    let draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
+    let draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: false };
 
     function limparFormularioProcesso() {
       idProcessoSelecionado = '';
       window.dossieClienteSelecionadoId = '';
-      draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: true };
+      draftNovoProcesso = { nome: '', cpf: '', numero: '', resumo: '', temAtualizacao: false };
       const elId = document.getElementById('proc-id-edit');
       const elNome = document.getElementById('proc-nome');
       const elCpf = document.getElementById('proc-cpf');
@@ -8085,7 +8183,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       if (elCpf) elCpf.value = '';
       if (elNumero) elNumero.value = '';
       if (elResumo) elResumo.value = '';
-      if (elCheck) elCheck.checked = true;
+      if (elCheck) elCheck.checked = false;
 
       const setVal = (idEl, val) => { const el = document.getElementById(idEl); if (el) el.value = val || ''; };
       setVal('dossie-nome', '');
@@ -9307,7 +9405,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const elPrev = document.getElementById('dossie-preview-cpc');
       if (elPrev) {
         const emailFmt = email ? `com endereço eletrônico ${email}, ` : '';
-        elPrev.innerText = `${nome.toUpperCase()}, ${nacionalidade}, ${estCivil || 'em união estável'}, ${prof || 'profissional autônomo(a)'}, portador(a) do RG sob o nº ${rg || '[RG]'}, inscrito(a) no CPF sob o nº ${cpf || '[CPF]'}, ${emailFmt}residente e domiciliado(a) em ${end || '[ENDEREÇO]'}.`;
+        elPrev.innerText = `${nome.toUpperCase()}, ${nacionalidade}, ${estCivil || '[estado civil não informado]'}, ${prof || '[profissão não informada]'}, portador(a) do RG sob o nº ${rg || '[RG não informado]'}, inscrito(a) no CPF sob o nº ${cpf || '[CPF não informado]'}, ${emailFmt}residente e domiciliado(a) em ${end || '[endereço não informado]'}.`;
       }
 
       salvarConfiguracaoCompleta(false);
@@ -9789,9 +9887,37 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         }
       }
 
+      // Restaurar feriados locais salvos anteriormente pelo escritório
+      const elFeriados = document.getElementById('calc-prazo-feriados-locais');
+      if (elFeriados && !elFeriados.value) {
+        const salvos = (configGlobal && configGlobal.feriadosLocaisPrazos) || localStorage.getItem('adv_calc_feriados_locais') || '';
+        if (salvos) elFeriados.value = salvos;
+      }
+
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       calcularPrazoProcessualUI();
+    };
+
+    window.salvarFeriadosLocaisPrazoUI = function() {
+      const val = (document.getElementById('calc-prazo-feriados-locais')?.value || '').trim();
+      try { localStorage.setItem('adv_calc_feriados_locais', val); } catch (e) {}
+      if (configGlobal && typeof configGlobal === 'object') {
+        configGlobal.feriadosLocaisPrazos = val;
+      }
+    };
+
+    window.aplicarFeriadosForensesPadraoUI = function() {
+      const elFeriados = document.getElementById('calc-prazo-feriados-locais');
+      if (!elFeriados) return;
+      const ano = new Date().getFullYear();
+      const padrao = [`11/08/${ano}`, `01/11/${ano}`, `08/12/${ano}`];
+      const atuais = (elFeriados.value || '').split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+      const mesclados = Array.from(new Set([...atuais, ...padrao]));
+      elFeriados.value = mesclados.join(', ');
+      window.salvarFeriadosLocaisPrazoUI();
+      calcularPrazoProcessualUI();
+      mostrarToast('📅 Feriados Forenses (Lei 5.010: 11/08, 01/11 e 08/12) adicionados e salvos!');
     };
 
     window.fecharModalCalculadoraPrazos = function() {
@@ -10426,8 +10552,8 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
               <div class="mt-2.5 flex flex-wrap items-center gap-2">
                 <button type="button" onclick="alternarResumoCliente('${cardId}')" class="btn-tactile inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-semibold transition text-xs shadow-sm cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-file-text"/></svg>
-                  <span id="label-resumo-${cardId}">Ver Resumo do Cliente</span>
-                  <svg id="seta-resumo-${cardId}" class="w-3.5 h-3.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                  <span id="label-resumo-${cardId}">${nivelUrgencia === 'CRITICA' ? 'Ocultar Resumo do Cliente' : 'Ver Resumo do Cliente'}</span>
+                  <svg id="seta-resumo-${cardId}" class="w-3.5 h-3.5 transform transition-transform duration-200 ${nivelUrgencia === 'CRITICA' ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <button type="button" onclick="abrirModalSolicitarDocumentos('${chave}', '${escaparHtmlTexto(tituloExibicao)}')" class="btn-tactile btn-solicitar-docs inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#d4af37]/20 hover:bg-[#d4af37]/30 border border-[#d4af37]/40 text-[#f3e5ab] font-bold transition text-xs shadow-sm cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-amber-300"><use href="#icon-clipboard"/></svg>
@@ -10436,10 +10562,16 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
               </div>
             </div>
 
-            <button type="button" onclick="reativarCliente('${chave}')" title="Concluir atendimento e liberar este contato para o robô automático" class="px-3 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 border border-amber-500/40 text-amber-300 font-semibold rounded-xl transition flex items-center space-x-1.5 text-xs cursor-pointer">
-              <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
-              <span>Liberar para o Robô</span>
-            </button>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="bloquearContatoDaFila('${chave}', '${escaparHtmlTexto(tituloExibicao)}')" title="Bloquear este número para que o robô não responda mais" class="px-2.5 py-1.5 bg-zinc-900/90 hover:bg-rose-500/15 border border-zinc-800 hover:border-rose-500/40 text-zinc-400 hover:text-rose-400 font-semibold rounded-xl transition flex items-center space-x-1 text-xs cursor-pointer">
+                <svg class="w-3.5 h-3.5"><use href="#icon-ban"/></svg>
+                <span>Bloquear</span>
+              </button>
+              <button type="button" onclick="reativarCliente('${chave}')" title="Concluir atendimento e liberar este contato para o robô automático" class="px-3 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 border border-amber-500/40 text-amber-300 font-semibold rounded-xl transition flex items-center space-x-1.5 text-xs cursor-pointer">
+                <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
+                <span>Liberar para o Robô</span>
+              </button>
+            </div>
           </div>
 
           <!-- PAINEL EXPANSÍVEL: RESUMO, TRANSCRIÇÃO DE ÁUDIO/MENSAGENS E SUGESTÕES COPILOT -->
@@ -11527,6 +11659,13 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         }
       }
       mostrarToast(`✅ Honorário lançado com sucesso (${totalParcelas}x)!`);
+      // Limpar formulário após lançamento para evitar duplicidade acidental
+      ['fin-novo-nome', 'fin-novo-tel', 'fin-novo-valor', 'fin-novo-vencimento'].forEach(idEl => {
+        const el = document.getElementById(idEl);
+        if (el) el.value = '';
+      });
+      const elParc = document.getElementById('fin-novo-total-parcelas');
+      if (elParc) elParc.value = '1';
       await window.carregarERenderizarFinanceiro();
     };
 
@@ -11758,7 +11897,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       cards.forEach(card => {
         const textoCard = card.innerText.toLowerCase();
         const urgencia = card.getAttribute('data-urgencia') || 'MEDIA';
-        const temAudio = card.querySelector('.audio-player-wrapper') !== null || textoCard.includes('[mensagem de voz]');
+        const temAudio = card.querySelector('audio') !== null || card.querySelector('.audio-player-wrapper') !== null || textoCard.includes('[mensagem de voz]') || textoCard.includes('áudio');
         
         let passaFiltro = true;
         if (filtroUrgenciaFilaAtual === 'CRITICA' && urgencia !== 'CRITICA') passaFiltro = false;
@@ -11774,6 +11913,61 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
           card.classList.add('hidden');
         }
       });
+    };
+
+    window.bloquearContatoDaFila = async function(chave, nome) {
+      const numeroLimpo = String(chave || '').replace(/@.*$/, '').replace(/\D/g, '');
+      if (!numeroLimpo) {
+        mostrarToast('⚠️ Não foi possível identificar o telefone deste contato.');
+        return;
+      }
+      if (!confirm(`Bloquear ${nome || numeroLimpo} (${numeroLimpo})? O robô não responderá mais este número.`)) return;
+      try {
+        if (window.api && typeof window.api.adicionarIgnorado === 'function') {
+          await window.api.adicionarIgnorado({ numero: numeroLimpo, motivo: 'Bloqueado via Fila do Advogado' });
+        } else {
+          if (!Array.isArray(configGlobal.contatosIgnorados)) configGlobal.contatosIgnorados = [];
+          configGlobal.contatosIgnorados.push({ numero: numeroLimpo, motivo: 'Bloqueado via Fila do Advogado', data: new Date().toLocaleDateString('pt-BR') });
+        }
+        if (typeof reativarCliente === 'function') {
+          await reativarCliente(chave);
+        }
+        if (typeof carregarContatosIgnorados === 'function') carregarContatosIgnorados();
+        mostrarToast(`🚫 Contato ${nome || numeroLimpo} bloqueado com sucesso.`);
+      } catch (e) {
+        mostrarToast('Erro ao bloquear contato: ' + (e.message || e));
+      }
+    };
+
+    window.salvarIdentidadeEscritorioUI = async function() {
+      const nome = (document.getElementById('cfg-nome-escritorio')?.value || '').trim();
+      const oab = (document.getElementById('cfg-oab-escritorio')?.value || '').trim();
+      const assinatura = (document.getElementById('cfg-assinatura-padrao')?.value || '').trim();
+      configGlobal.nomeEscritorio = nome || configGlobal.nomeEscritorio || 'Advocacia Studio Pro';
+      configGlobal.oabEscritorio = oab;
+      configGlobal.assinaturaPadrao = assinatura;
+      try {
+        const conta = JSON.parse(localStorage.getItem('adv_bot_user_account') || '{}');
+        if (nome) conta.office = nome;
+        localStorage.setItem('adv_bot_user_account', JSON.stringify(conta));
+      } catch (e) {}
+      if (typeof salvarConfiguracaoCompleta === 'function') {
+        await salvarConfiguracaoCompleta(false);
+      }
+      mostrarToast('✅ Identidade do escritório e assinatura salvas com sucesso!');
+    };
+
+    window.carregarIdentidadeEscritorioUI = function() {
+      const elNome = document.getElementById('cfg-nome-escritorio');
+      const elOab = document.getElementById('cfg-oab-escritorio');
+      const elAss = document.getElementById('cfg-assinatura-padrao');
+      if (elNome && !elNome.value) {
+        let fallbackOffice = '';
+        try { fallbackOffice = JSON.parse(localStorage.getItem('adv_bot_user_account') || '{}').office || ''; } catch (e) {}
+        elNome.value = (configGlobal && configGlobal.nomeEscritorio) || fallbackOffice || '';
+      }
+      if (elOab && !elOab.value) elOab.value = (configGlobal && configGlobal.oabEscritorio) || '';
+      if (elAss && !elAss.value) elAss.value = (configGlobal && configGlobal.assinaturaPadrao) || '';
     };
 
     // Acessibilidade: Modo Letra Maior / Leitura Confortável
@@ -11813,13 +12007,13 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         if (estaPausado) {
           dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
           txt.className = "text-amber-400 font-bold text-[11px]";
-          txt.innerText = "Modo Seguro: Pausado";
-          btn.className = "flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-xs font-semibold transition cursor-pointer";
+          txt.innerText = "Modo Seguro ATIVO · Robô Pausado";
+          btn.className = "h-8 flex items-center space-x-2 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-xs font-semibold transition cursor-pointer";
         } else {
           dot.className = "w-2 h-2 rounded-full bg-emerald-400";
           txt.className = "text-emerald-400 font-semibold text-[11px]";
           txt.innerText = "Robô: Ativo";
-          btn.className = "flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer";
+          btn.className = "h-8 flex items-center space-x-2 px-3 rounded-lg bg-[#111111]/90 hover:bg-[#181818] border border-[#222222] text-xs font-semibold transition cursor-pointer";
         }
       }
     }
@@ -12667,31 +12861,38 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
               }
             }
 
+            const isAdvogado = String(log.tipo || '').toLowerCase() === 'advogado';
+            const isSaida = isRobo || isAdvogado;
+
             const div = document.createElement('div');
-            div.className = `log-entry-row flex w-full group ${isRobo ? 'justify-end' : 'justify-start'}`;
-            div.setAttribute('data-tipo', isRobo ? 'robo' : 'cliente');
+            div.className = `log-entry-row flex w-full group ${isSaida ? 'justify-end' : 'justify-start'}`;
+            div.setAttribute('data-tipo', isSaida ? 'robo' : 'cliente');
             div.setAttribute('data-contato', contatoChave);
             div.setAttribute('data-texto', `${nomeExibicao} ${numeroExibicao} ${rawMsg}`);
 
             const filtroTipoAtivo = window.filtroLogLedgerAtivo || 'todos';
             const ocultoPorContato = (window.contatoChatAuditSelecionado !== '__todos__' && window.contatoChatAuditSelecionado !== contatoChave);
-            const ocultoPorTipo = (filtroTipoAtivo !== 'todos' && filtroTipoAtivo !== (isRobo ? 'robo' : 'cliente'));
+            const ocultoPorTipo = (filtroTipoAtivo !== 'todos' && filtroTipoAtivo !== (isSaida ? 'robo' : 'cliente'));
             if (ocultoPorContato || ocultoPorTipo) {
               div.classList.add('hidden');
             }
 
-            if (isRobo) {
+            if (isSaida) {
+              const corCard = isAdvogado
+                ? 'bg-amber-950/35 border border-amber-500/35 text-amber-100'
+                : 'bg-emerald-950/40 border border-emerald-600/30 text-emerald-100';
+              const corTitulo = isAdvogado ? 'text-amber-300' : 'text-emerald-400';
+              const rotuloSaida = isAdvogado ? '<span>👨‍⚖️</span><span>Advogado (Manual)</span>' : '<span>🤖</span><span>Robô do Escritório</span>';
               div.innerHTML = `
-                <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm p-3.5 bg-emerald-950/40 border border-emerald-600/30 text-emerald-100 shadow-md space-y-1">
+                <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm p-3.5 ${corCard} shadow-md space-y-1">
                   <div class="flex items-center justify-between gap-3 text-[10px]">
-                    <span class="font-bold text-emerald-400 flex items-center gap-1">
-                      <span>🤖</span>
-                      <span>Robô do Escritório</span>
+                    <span class="font-bold ${corTitulo} flex items-center gap-1">
+                      ${rotuloSaida}
                     </span>
-                    <span class="font-mono text-emerald-400/70">${escaparHtmlTexto(horaExibicao)}</span>
+                    <span class="font-mono opacity-75">${escaparHtmlTexto(horaExibicao)}</span>
                   </div>
                   <p class="text-xs leading-relaxed break-words whitespace-pre-wrap">${escaparHtmlTexto(rawMsg)}</p>
-                  <div class="flex justify-end text-[10px] text-emerald-400/80 font-mono">✓✓ Entregue</div>
+                  <div class="flex justify-end text-[10px] opacity-80 font-mono">✓✓ Entregue</div>
                 </div>
               `;
             } else {
