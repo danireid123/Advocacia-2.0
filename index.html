@@ -3625,110 +3625,102 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         </div>
 
-        <!-- ================= ABA 3: HORÁRIOS & COMPROMISSOS ================= -->
+        <!-- ================= ABA 3: HORÁRIOS & COMPROMISSOS (HIGIENIZADO & PADRONIZADO) ================= -->
         <div id="aba-agenda" class="hidden space-y-5 tab-pane-anim">
-          <div id="tour-agenda-card" class="exec-card relative overflow-hidden p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-6 shadow-xl">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"></div>
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-4 gap-4">
-              <div class="space-y-1.5">
-                <div class="flex items-center flex-wrap gap-2">
-                  <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Turnos & Prazos
-                  </span>
-                  <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                    Plantão & Agenda Jurídica
-                  </span>
-                </div>
-                <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-amber-400"><use href="#icon-calendar"/></svg>
-                  Agenda, Audiências & Horários de Atendimento
+          <div id="tour-agenda-card" class="space-y-5">
+            <!-- Cabeçalho Editorial Limpo -->
+            <div class="pt-1 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div class="space-y-1 min-w-0">
+                <h2 class="font-serif-legal text-[28px] sm:text-[32px] font-bold tracking-tight text-[#f7f8f8] leading-tight">
+                  Agenda, Audiências &amp; Horários de Atendimento
                 </h2>
-                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Gerencie compromissos com clientes, audiências judiciais e controle os horários de funcionamento do robô no WhatsApp.</p>
+                <p class="text-[13px] text-[#8a8f98] max-w-2xl leading-relaxed">
+                  Gerencie compromissos com clientes, audiências judiciais e controle os horários de funcionamento do robô no WhatsApp.
+                </p>
               </div>
-              <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <div class="flex flex-wrap items-center gap-2.5 shrink-0">
                 <!-- Toggle Modo Plantão 24h em 1 Clique -->
-                <button type="button" id="btn-toggle-plantao-24h" onclick="togglePlantao24hUI()" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-zinc-900 text-zinc-300 border border-zinc-700 hover:border-amber-500/40" title="Ativa atendimento 24h sem interrupção de almoço ou fechamento">
-                  <span id="dot-plantao-24h" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                <button type="button" id="btn-toggle-plantao-24h" onclick="togglePlantao24hUI()" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-xs font-medium transition flex items-center gap-2 cursor-pointer" title="Ativa atendimento 24h sem interrupção de almoço ou fechamento">
+                  <span id="dot-plantao-24h" class="w-2 h-2 rounded-full bg-[#62666d]"></span>
                   <span id="label-plantao-24h">Modo Plantão 24h: Desligado</span>
                 </button>
-                <button id="btn-salvar-agenda" class="btn-tactile flex items-center space-x-2 px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer">
-                  <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+                <button id="btn-salvar-agenda" class="btn-tactile flex items-center gap-1.5 px-4 py-2.5 champagne-gradient text-[#08080a] text-xs font-bold rounded-xl active:scale-[0.98] transition cursor-pointer">
+                  <svg class="w-3.5 h-3.5"><use href="#icon-save"/></svg>
                   <span>Salvar Horários</span>
                 </button>
               </div>
             </div>
 
-            <!-- SUB-ABAS DA AGENDA: COMPROMISSOS VS HORÁRIOS DO BOT -->
-            <div class="p-1 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex gap-1 text-xs">
-              <button type="button" id="subtab-agenda-compromissos" onclick="alternarSubAbaAgenda('compromissos')" class="flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
+            <!-- SUB-ABAS DA AGENDA (SEGMENTED CONTROL OBSIDIAN) -->
+            <div class="p-1 rounded-xl bg-[#0c0d10] border border-[#23252a] flex flex-col sm:flex-row gap-1 text-xs">
+              <button type="button" id="subtab-agenda-compromissos" onclick="alternarSubAbaAgenda('compromissos')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-calendar"/></svg>
                 <span>1. Compromissos &amp; Audiências</span>
-                <span id="badge-total-compromissos" class="px-1.5 py-0.2 rounded-md bg-zinc-900 text-amber-300 font-mono text-[10px]">0</span>
+                <span id="badge-total-compromissos" class="px-1.5 py-0.5 rounded bg-[#0c0d10] text-[#d4af37] border border-[#26282e] font-mono text-[10px] leading-none">0</span>
               </button>
-              <button type="button" id="subtab-agenda-horarios" onclick="alternarSubAbaAgenda('horarios')" class="flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4"><use href="#icon-coffee"/></svg>
+              <button type="button" id="subtab-agenda-horarios" onclick="alternarSubAbaAgenda('horarios')" class="flex-1 py-2.5 px-4 rounded-lg font-medium transition text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-3.5 h-3.5"><use href="#icon-coffee"/></svg>
                 <span>2. Horários do Robô &amp; Almoço</span>
               </button>
             </div>
 
             <!-- PAINEL SUB-ABA 1: COMPROMISSOS & AUDIÊNCIAS -->
-            <div id="painel-agenda-compromissos" class="space-y-4">
-              <!-- Formulário Rápido de Novo Compromisso -->
-              <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-zinc-200 block flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-plus"/></svg>
-                    Agendar Nova Audiência ou Reunião
-                  </span>
-                  <span class="text-[10px] text-zinc-400">Notificação rápida na pauta do escritório</span>
+            <div id="painel-agenda-compromissos" class="space-y-5">
+              <!-- Card 1: Formulário Rápido de Novo Compromisso -->
+              <div class="linear-shell p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-[#1c1d22]">
+                  <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-plus"/></svg>
+                    <span>Agendar Nova Audiência ou Reunião</span>
+                  </h3>
+                  <span class="text-[11.5px] text-[#6e737d]">Notificação rápida na pauta do escritório</span>
                 </div>
-                <div class="grid grid-cols-12 gap-3 text-xs">
+                <div class="grid grid-cols-12 gap-4 text-xs items-end">
                   <div class="col-span-12 sm:col-span-4">
-                    <label class="text-[10.5px] text-zinc-400 block mb-1">Título / Assunto *</label>
-                    <input type="text" id="comp-titulo" placeholder="Ex: Audiência de Instrução / Consulta Inicial" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    <label class="text-[11.5px] font-medium text-[#d0d6e0] block mb-1.5">Título / Assunto *</label>
+                    <input type="text" id="comp-titulo" placeholder="Ex: Audiência de Instrução / Consulta Inicial" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
                   </div>
                   <div class="col-span-12 sm:col-span-3">
-                    <label class="text-[10.5px] text-zinc-400 block mb-1">Cliente / Envolvido</label>
-                    <input type="text" id="comp-cliente" placeholder="Nome do cliente ou processo" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    <label class="text-[11.5px] font-medium text-[#d0d6e0] block mb-1.5">Cliente / Envolvido</label>
+                    <input type="text" id="comp-cliente" placeholder="Nome do cliente ou processo" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
                   </div>
                   <div class="col-span-12 sm:col-span-3">
-                    <label class="text-[10.5px] text-zinc-400 block mb-1">Data &amp; Horário *</label>
-                    <input type="datetime-local" id="comp-data" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                    <label class="text-[11.5px] font-medium text-[#d0d6e0] block mb-1.5">Data &amp; Horário *</label>
+                    <input type="datetime-local" id="comp-data" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
                   </div>
-                  <div class="col-span-12 sm:col-span-2 flex items-end">
-                    <button type="button" onclick="adicionarCompromissoAgendaUI()" class="w-full py-2.5 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl shadow transition cursor-pointer flex items-center justify-center space-x-1.5">
+                  <div class="col-span-12 sm:col-span-2">
+                    <button type="button" onclick="adicionarCompromissoAgendaUI()" class="btn-tactile w-full py-2.5 champagne-gradient text-[#08080a] font-bold text-xs rounded-xl active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-1.5">
                       <span>Agendar</span>
                     </button>
                   </div>
                 </div>
               </div>
 
-              <!-- Lista de Compromissos Agendados -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between px-1">
-                  <span class="text-xs font-bold text-zinc-300">Pauta de Compromissos do Escritório</span>
+              <!-- Card 2: Lista de Compromissos Agendados -->
+              <div class="linear-shell p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3.5 border-b border-[#1c1d22]">
+                  <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight">Pauta de Compromissos do Escritório</h3>
                 </div>
-                <div id="lista-compromissos-agenda" class="space-y-2">
-                  <div class="p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
+                <div id="lista-compromissos-agenda" class="space-y-2.5">
+                  <div class="py-10 text-center text-xs text-[#6e737d]">
                     Nenhum compromisso agendado. Adicione uma audiência ou reunião acima para acompanhar na pauta.
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- PAINEL SUB-ABA 2: HORÁRIOS DO ROBÔ & ALMOÇO (CONFIGURAÇÃO EXISTENTE) -->
-            <div id="painel-agenda-horarios" class="hidden space-y-4">
-            <div class="grid grid-cols-12 gap-4">
-              <div class="col-span-12 lg:col-span-7 p-5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 space-y-3.5">
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <!-- PAINEL SUB-ABA 2: HORÁRIOS DO ROBÔ & ALMOÇO -->
+            <div id="painel-agenda-horarios" class="hidden space-y-5">
+            <div class="grid grid-cols-12 gap-5">
+              <div class="col-span-12 lg:col-span-7 linear-shell p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-[#1c1d22] pb-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-[#16171c] border border-[#26282e] flex items-center justify-center text-[#c59b27]">
                       <svg class="w-4 h-4"><use href="#icon-coffee"/></svg>
                     </div>
                     <div>
-                      <span class="text-xs font-bold text-zinc-200 block">Pausa de Almoço Automática</span>
-                      <span class="text-[11px] text-zinc-400">Adiciona aviso de almoço no início da resposta</span>
+                      <span class="text-[13.5px] font-semibold text-[#f7f8f8] block">Pausa de Almoço Automática</span>
+                      <span class="text-[11.5px] text-[#8a8f98]">Adiciona aviso de almoço no início da resposta</span>
                     </div>
                   </div>
                   <label class="toggle-switch">
@@ -3737,52 +3729,52 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   </label>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xs text-zinc-400">Início:</span>
-                    <input type="time" id="agenda-almoco-inicio" class="exec-input flex-1 rounded-xl px-3 py-1.5 text-xs">
+                <div class="grid grid-cols-2 gap-3.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-[#8a8f98]">Início</span>
+                    <input type="time" id="agenda-almoco-inicio" class="exec-input flex-1 rounded-xl px-3 py-2 text-xs">
                   </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xs text-zinc-400">Término:</span>
-                    <input type="time" id="agenda-almoco-fim" class="exec-input flex-1 rounded-xl px-3 py-1.5 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-[#8a8f98]">Término</span>
+                    <input type="time" id="agenda-almoco-fim" class="exec-input flex-1 rounded-xl px-3 py-2 text-xs">
                   </div>
                 </div>
                 <div>
-                  <label class="text-[11px] text-zinc-400 block mb-1">Início da mensagem enviado no horário de almoço:</label>
-                  <input type="text" id="agenda-msg-almoco" placeholder="Aviso de almoço..." class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                  <label class="text-[11.5px] text-[#8a8f98] block mb-1.5">Início da mensagem enviado no horário de almoço</label>
+                  <input type="text" id="agenda-msg-almoco" placeholder="Aviso de almoço..." class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
                   <div id="guardrail-aviso-agenda-msg-almoco" class="guardrail-oab-alerta hidden"></div>
                 </div>
               </div>
 
-              <div class="col-span-12 lg:col-span-5 p-5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 space-y-3 flex flex-col justify-between">
+              <div class="col-span-12 lg:col-span-5 linear-shell p-6 space-y-3 flex flex-col justify-between">
                 <div>
-                  <div class="flex items-center space-x-2 mb-2">
-                    <svg class="w-4 h-4 text-amber-400"><use href="#icon-moon-msg"/></svg>
-                    <span class="text-xs font-bold text-zinc-200">Início da Mensagem Fora de Expediente</span>
+                  <div class="flex items-center gap-2 mb-2">
+                    <svg class="w-4 h-4 text-[#c59b27]"><use href="#icon-moon-msg"/></svg>
+                    <span class="text-[13.5px] font-semibold text-[#f7f8f8]">Mensagem Fora de Expediente</span>
                   </div>
-                  <p class="text-[11px] text-zinc-400 mb-2">Texto colocado no começo da resposta quando o escritório está fechado:</p>
-                  <textarea id="agenda-msg-fora" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none leading-relaxed"></textarea>
+                  <p class="text-[11.5px] text-[#8a8f98] mb-3">Texto colocado no começo da resposta quando o escritório está fechado:</p>
+                  <textarea id="agenda-msg-fora" rows="4" class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
                   <div id="guardrail-aviso-agenda-msg-fora" class="guardrail-oab-alerta hidden"></div>
                 </div>
               </div>
             </div>
 
-            <div class="p-5 rounded-2xl bg-zinc-950/60 border border-rose-500/20 space-y-2.5">
+            <div class="linear-shell p-6 space-y-3">
               <div class="flex items-center justify-between flex-wrap gap-2">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-4 h-4 text-rose-400"><use href="#icon-shield"/></svg>
-                  <span class="text-xs font-bold text-zinc-200">Palavras-Chave de Urgência Crítica & Alerta Noturno</span>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-rose-400/90"><use href="#icon-shield"/></svg>
+                  <span class="text-[13.5px] font-semibold text-[#f7f8f8]">Palavras-Chave de Urgência Crítica &amp; Alerta Noturno</span>
                 </div>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 font-semibold">Furador de Fila + Alerta Sonoro</span>
+                <span class="text-[10.5px] px-2.5 py-0.5 rounded-full bg-rose-500/12 text-rose-300 border border-rose-500/25 font-medium font-mono">Prioridade Máxima + Alerta</span>
               </div>
-              <p class="text-[11px] text-zinc-400 leading-relaxed">
-                Termos padrão já ativos: <span class="text-zinc-300 font-mono">delegacia, flagrante, preso, oficial de justiça, mandado, intimação, liminar, sisbajud, bacenjud, despejo</span>. Adicione palavras extras da sua área separadas por vírgula:
+              <p class="text-[11.5px] text-[#8a8f98] leading-relaxed">
+                Termos padrão já ativos: <span class="text-[#d0d6e0] font-mono">delegacia, flagrante, preso, oficial de justiça, mandado, intimação, liminar, sisbajud, bacenjud, despejo</span>. Adicione palavras extras separadas por vírgula:
               </p>
-              <input type="text" id="agenda-palavras-urgencia" placeholder="Ex: audiência de custódia, busca e apreensão, penhora online, bloqueio de salário" class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+              <input type="text" id="agenda-palavras-urgencia" placeholder="Ex: audiência de custódia, busca e apreensão, penhora online, bloqueio de salário" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
             </div>
 
-            <div class="space-y-2.5 pt-2">
-              <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Expediente por Dia da Semana:</span>
+            <div class="linear-shell p-6 space-y-3.5">
+              <h3 class="text-[14px] font-semibold text-[#f7f8f8] pb-3 border-b border-[#1c1d22]">Expediente por Dia da Semana</h3>
               <div id="grade-dias-semana" class="space-y-2.5"></div>
             </div>
             </div>
@@ -9599,17 +9591,20 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const tComp = document.getElementById('subtab-agenda-compromissos');
       const tHor = document.getElementById('subtab-agenda-horarios');
 
+      const activeAgendaTab = "flex-1 py-2.5 px-4 rounded-lg font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm flex items-center justify-center gap-2 cursor-pointer";
+      const inactiveAgendaTab = "flex-1 py-2.5 px-4 rounded-lg font-medium transition text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+
       if (subAba === 'compromissos') {
         if (pComp) pComp.classList.remove('hidden');
         if (pHor) pHor.classList.add('hidden');
-        if (tComp) tComp.className = "flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer";
-        if (tHor) tHor.className = "flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+        if (tComp) tComp.className = activeAgendaTab;
+        if (tHor) tHor.className = inactiveAgendaTab;
         renderizarCompromissosAgendaUI();
       } else {
         if (pComp) pComp.classList.add('hidden');
         if (pHor) pHor.classList.remove('hidden');
-        if (tComp) tComp.className = "flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer";
-        if (tHor) tHor.className = "flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer";
+        if (tComp) tComp.className = inactiveAgendaTab;
+        if (tHor) tHor.className = activeAgendaTab;
       }
     };
 
