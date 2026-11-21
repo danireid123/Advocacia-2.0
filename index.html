@@ -271,8 +271,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
-      padding: 15px 12px;
+      gap: 12px;
+      padding: 11px 10px;
       margin: 0;
       border-bottom: 1px solid #1c1d22;
       border-radius: 10px;
@@ -2537,12 +2537,12 @@
         </div>
       </div>
 
-      <!-- CONTEÚDO PRINCIPAL FLUIDO DE PONTA A PONTA (FULL-VIEWPORT PROPORTIONAL) -->
-      <main id="main-content-area" class="relative z-10 flex-1 px-6 lg:px-9 pt-5 pb-6 overflow-y-auto flex flex-col">
-      <div class="w-full flex-1 flex flex-col">
+      <!-- CONTEÚDO PRINCIPAL COM PROPORÇÕES EXECUTIVAS EQUILIBRADAS -->
+      <main id="main-content-area" class="relative z-10 flex-1 px-6 lg:px-8 pt-5 pb-8 overflow-y-auto">
+      <div class="w-full max-w-[1560px] mx-auto space-y-5">
         
-        <!-- ================= ABA 0: VISÃO GERAL (COCKPIT EXECUTIVO v2.4 FULL-FIT) ================= -->
-        <div id="aba-inicio" class="relative flex-1 grid grid-rows-[auto_minmax(290px,1.18fr)_minmax(240px,0.92fr)] gap-5 tab-pane-anim">
+        <!-- ================= ABA 0: VISÃO GERAL (OPÇÃO A — COCKPIT EXECUTIVO) ================= -->
+        <div id="aba-inicio" class="relative space-y-4 tab-pane-anim">
 
           <!-- Compatibilidade invisível para hooks legados (isolado para nunca vazar no layout) -->
           <div class="hidden" aria-hidden="true">
@@ -2555,219 +2555,264 @@
             <span id="home-chip-expediente-txt">Verificando Expediente...</span>
           </div>
 
-          <!-- 1. OPEN EDITORIAL HERO HEADER -->
-          <div id="tour-home-banner" class="relative z-10 pt-1 pb-0.5 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-            <div class="space-y-1.5 min-w-0">
-              <h2 id="home-welcome-title" class="font-serif-legal text-3xl sm:text-[40px] xl:text-[44px] font-bold tracking-tight text-[#f7f8f8] leading-[1.06] truncate">
+          <!-- 1. HERO EDITORIAL COMPACTO -->
+          <div id="tour-home-banner" class="relative z-10 pt-1 flex flex-col lg:flex-row lg:items-end justify-between gap-3.5">
+            <div class="space-y-1 min-w-0">
+              <h2 id="home-welcome-title" class="font-serif-legal text-[30px] sm:text-[34px] font-bold tracking-tight text-[#f7f8f8] leading-[1.1] truncate">
                 Bem-vindo, Dr(a)
               </h2>
-              <p class="text-[13.5px] text-[#8a8f98] flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <p class="text-[13px] text-[#8a8f98] flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <span>Painel do Escritório</span>
-                <span class="text-[#3e4047]">·</span>
-                <span><span id="home-card-processos" class="font-mono tabular-nums font-medium text-[#d0d6e0]">0</span> processos ativos</span>
                 <span class="text-[#3e4047]">·</span>
                 <span id="home-hero-atendimento-label">Atendimento 24/7</span>
               </p>
             </div>
 
             <!-- 4 Ações Rápidas Disciplinadas (1 Ouro Nobre + 3 Obsidian Ghost) -->
-            <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-              <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-[13px] font-bold champagne-gradient text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition-all duration-150 cursor-pointer">
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold champagne-gradient text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition-all duration-150 cursor-pointer">
                 <svg class="w-3.5 h-3.5 stroke-[2.5]"><use href="#icon-plus"/></svg>
                 <span>Novo Processo</span>
               </button>
-              <button type="button" onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-[13px] font-medium active:scale-[0.98] cursor-pointer" title="Testar respostas do robô no simulador">
+              <button type="button" onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Testar respostas do robô no simulador">
                 Simulador
               </button>
-              <button type="button" onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-[13px] font-medium active:scale-[0.98] cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+              <button type="button" onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
                 Dossiê CPC
               </button>
-              <button type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-4 py-2.5 rounded-xl text-[13px] font-medium active:scale-[0.98] cursor-pointer" title="Calcular prazos processuais em dias úteis (CPC / CLT)">
+              <button type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Calcular prazos processuais em dias úteis (CPC / CLT)">
                 Calculadora de Prazos
               </button>
             </div>
           </div>
 
-          <!-- 2. MAIN BENTO GRID: GRÁFICO DE TRÁFEGO (8 COLS) + STATUS OPERACIONAL (4 COLS) -->
-          <div id="tour-metrics-bar" class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-0">
+          <!-- 2. KPI STRIP EXECUTIVO (4 CARDS COMPACTOS DE ALTA DENSIDADE) -->
+          <div id="tour-metrics-bar" class="relative z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
 
-            <!-- Esquerda (8 cols): Tráfego de Atendimento WhatsApp -->
-            <div class="lg:col-span-8 linear-shell p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden min-h-0">
-              <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c59b27]/35 to-transparent pointer-events-none"></div>
-
-              <!-- Cabeçalho do Gráfico + Métricas Tabulares -->
-              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 mb-3 shrink-0">
-                <div class="space-y-1.5">
-                  <h3 class="text-[16px] font-semibold text-[#f7f8f8] tracking-tight">Tráfego de Atendimento WhatsApp</h3>
-                  <div class="flex flex-wrap items-center gap-4 text-[12px] text-[#8a8f98]">
-                    <button type="button" id="btn-legend-recebidas" onclick="window.alternarSerieGraficoHome && window.alternarSerieGraficoHome('recebidas')" class="inline-flex items-center gap-1.5 hover:text-[#f7f8f8] transition-colors cursor-pointer">
-                      <span class="w-2 h-2 rounded-full bg-[#c59b27] inline-block shrink-0"></span>
-                      <span>Mensagens Recebidas</span>
-                    </button>
-                    <button type="button" id="btn-legend-ia" onclick="window.alternarSerieGraficoHome && window.alternarSerieGraficoHome('ia')" class="inline-flex items-center gap-1.5 hover:text-[#f7f8f8] transition-colors cursor-pointer">
-                      <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0"></span>
-                      <span>Respostas Automáticas da IA</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Contadores em Tempo Real -->
-                <div class="flex items-center gap-3.5 shrink-0 self-start sm:self-center">
-                  <div class="flex items-baseline gap-1.5">
-                    <span id="metric-mensagens-reais" class="font-mono tabular-nums text-[24px] leading-none font-semibold text-[#d4af37]">0</span>
-                    <span class="text-xs text-[#8a8f98]">msgs hoje</span>
-                  </div>
-                  <span class="h-4 w-px bg-[#26282e]"></span>
-                  <span id="metric-horas-reais" class="font-mono tabular-nums text-[13.5px] font-medium text-[#d0d6e0]">~0.0h economizadas</span>
-                </div>
+            <!-- KPI 1: Processos Ativos -->
+            <div class="linear-kpi-card p-4 flex flex-col justify-between cursor-pointer group min-h-[112px]" onclick="ativarAba('processos')" title="Abrir carteira de processos">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Processos Ativos</span>
+                <svg class="w-4 h-4 text-[#555963] group-hover:text-[#c59b27] transition-colors shrink-0"><use href="#icon-folder"/></svg>
               </div>
-
-              <!-- Área Interativa do Gráfico SVG (Expande proporcionalmente com a tela!) -->
-              <div id="home-traffic-chart-wrap" class="relative w-full flex-1 min-h-[175px] select-none">
-                <svg id="home-traffic-svg" viewBox="0 0 640 168" preserveAspectRatio="none" class="w-full h-full block overflow-visible">
-                  <defs>
-                    <linearGradient id="homeGradGold" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#c59b27" stop-opacity="0.30"/>
-                      <stop offset="72%" stop-color="#805a08" stop-opacity="0.06"/>
-                      <stop offset="100%" stop-color="#c59b27" stop-opacity="0.0"/>
-                    </linearGradient>
-                    <linearGradient id="homeGradEmerald" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#34d399" stop-opacity="0.28"/>
-                      <stop offset="72%" stop-color="#10b981" stop-opacity="0.05"/>
-                      <stop offset="100%" stop-color="#34d399" stop-opacity="0.0"/>
-                    </linearGradient>
-                  </defs>
-                  <!-- Linhas de grade sutis -->
-                  <g id="home-chart-grid" stroke="#1c1d22" stroke-width="1"></g>
-                  <!-- Curvas de área -->
-                  <path id="home-chart-area-gold" fill="url(#homeGradGold)" d=""/>
-                  <path id="home-chart-area-emerald" fill="url(#homeGradEmerald)" d=""/>
-                  <path id="home-chart-line-gold" fill="none" stroke="#c59b27" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" d=""/>
-                  <path id="home-chart-line-emerald" fill="none" stroke="#34d399" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" d=""/>
-                  <!-- Guia vertical -->
-                  <line id="home-chart-guide" x1="0" y1="12" x2="0" y2="162" stroke="rgba(197,155,39,0.34)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="3 3"/>
-                  <!-- Camada de captura de hover -->
-                  <rect id="home-chart-hitarea" x="0" y="0" width="640" height="168" fill="transparent" class="cursor-crosshair"/>
-                </svg>
-
-                <!-- Pontos luminosos em HTML (círculos sempre perfeitos, sem distorção de aspect-ratio) -->
-                <div id="home-chart-dot-emerald-el" class="home-chart-dot-emerald-el" style="left:50%;top:50%;"></div>
-                <div id="home-chart-dot-gold-el" class="home-chart-dot-gold-el" style="left:50%;top:40%;"></div>
-
-                <!-- Tooltip Flutuante Glassmorphic -->
-                <div id="home-traffic-tooltip" class="home-chart-tooltip pointer-events-none absolute top-2 left-1/2 rounded-[10px] px-3 py-2 text-[11.5px] z-20 whitespace-nowrap">
-                  <div id="home-tooltip-title" class="font-semibold text-[#f7f8f8] leading-tight text-[12px]">Pico de Atendimento: 14h</div>
-                  <div id="home-tooltip-sub" class="text-[#a1a6b0] font-mono text-[10.5px] mt-0.5 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#c59b27]"></span>
-                    <span>Aguardando tráfego hoje</span>
-                  </div>
-                </div>
+              <div class="my-1.5 flex items-baseline gap-2">
+                <span id="home-card-processos" class="font-mono tabular-nums text-[28px] leading-none font-semibold text-[#f7f8f8] tracking-tight">0</span>
+                <span class="text-[11px] font-mono text-[#62666d]">pastas</span>
               </div>
-
-              <!-- Eixo X nítido em HTML (nunca distorce nem corta) -->
-              <div id="home-chart-xaxis-html" class="flex items-center justify-between pt-2.5 mt-1 border-t border-[#1c1d22] text-[11px] font-mono tabular-nums text-[#6e737d] select-none shrink-0">
-                <span>08h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span>
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-2 border-t border-[#1c1d22]">
+                <span id="home-kpi-processos-sub" class="truncate">Consultas CPF/CNJ ativas</span>
+                <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0">→</span>
               </div>
             </div>
 
-            <!-- Direita (4 cols): 2 Cards Empilhados 50/50 de Status Crítico -->
-            <div class="lg:col-span-4 grid grid-rows-2 gap-4 min-h-0">
-
-              <!-- Card Superior: Fila de Atendimento Humano -->
-              <div class="linear-kpi-card flex flex-col justify-between cursor-pointer group p-5 sm:p-6" onclick="ativarAba('pausados')" title="Abrir fila de atendimento humano">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[15px] font-semibold text-[#e4e7ec] group-hover:text-[#f7f8f8] transition-colors">Fila de Atendimento Humano</span>
-                  <div class="flex items-center gap-2 shrink-0">
-                    <span id="dot-ping-fila-home" class="relative hidden flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                    </span>
-                    <span id="badge-status-fila-home" class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/12 text-emerald-400 border border-emerald-500/25 font-medium font-mono">Fila limpa</span>
-                  </div>
-                </div>
-                <div class="my-2 flex items-baseline justify-between gap-2">
-                  <span id="metric-fila-humana-home" class="font-mono tabular-nums text-[42px] xl:text-[46px] leading-none font-semibold text-[#d4af37] tracking-tight">0</span>
-                  <span id="metric-fila-humana" class="hidden font-mono">0</span>
-                  <span class="text-[11.5px] font-mono text-[#62666d]">triagem ativa</span>
-                </div>
-                <div class="flex items-center justify-between text-[12.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
-                  <span id="home-fila-subtexto" class="truncate">Nenhum cliente aguardando advogado</span>
-                  <span class="text-[#62666d] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0 ml-2">→</span>
+            <!-- KPI 2: Fila de Atendimento Humano -->
+            <div class="linear-kpi-card p-4 flex flex-col justify-between cursor-pointer group min-h-[112px]" onclick="ativarAba('pausados')" title="Abrir fila de atendimento humano">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Fila Humana</span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span id="dot-ping-fila-home" class="relative hidden flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                  <span id="badge-status-fila-home" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/12 text-emerald-400 border border-emerald-500/25 font-medium font-mono">Fila limpa</span>
                 </div>
               </div>
+              <div class="my-1.5 flex items-baseline gap-2">
+                <span id="metric-fila-humana-home" class="font-mono tabular-nums text-[28px] leading-none font-semibold text-[#d4af37] tracking-tight">0</span>
+                <span id="metric-fila-humana" class="hidden font-mono">0</span>
+                <span class="text-[11px] font-mono text-[#62666d]">aguardando</span>
+              </div>
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-2 border-t border-[#1c1d22]">
+                <span id="home-fila-subtexto" class="truncate">Nenhum cliente aguardando advogado</span>
+                <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0 ml-1">→</span>
+              </div>
+            </div>
 
-              <!-- Card Inferior: WhatsApp & Plantão -->
-              <div class="linear-kpi-card flex flex-col justify-between p-5 sm:p-6">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[15px] font-semibold text-[#e4e7ec]">WhatsApp &amp; Plantão</span>
-                  <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="inline-flex items-center gap-1.5 text-[10.5px] font-mono text-[#8a8f98] hover:text-[#f7f8f8] px-2.5 py-0.5 rounded-full bg-[#16171c] border border-[#26282e] transition-colors cursor-pointer" title="Status da Inteligência Artificial">
-                    <span id="home-chip-ia-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    <span id="home-chip-ia-txt">IA Ativa</span>
-                  </button>
-                </div>
+            <!-- KPI 3: Honorários & PIX (Financeiro Real) -->
+            <div class="linear-kpi-card p-4 flex flex-col justify-between cursor-pointer group min-h-[112px]" onclick="ativarAba('financeiro')" title="Abrir módulo financeiro e cobrança PIX">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98] group-hover:text-[#d0d6e0] transition-colors">Honorários a Receber</span>
+                <svg class="w-4 h-4 text-[#555963] group-hover:text-emerald-400 transition-colors shrink-0"><use href="#icon-scales"/></svg>
+              </div>
+              <div class="my-1.5 flex items-baseline gap-2 min-w-0">
+                <span id="home-kpi-financeiro-valor" class="font-mono tabular-nums text-[24px] leading-none font-semibold text-[#f7f8f8] tracking-tight truncate">R$ 0,00</span>
+              </div>
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-2 border-t border-[#1c1d22]">
+                <span id="home-kpi-financeiro-sub" class="truncate font-mono text-[11px]">0 parcelas pendentes</span>
+                <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0">→</span>
+              </div>
+            </div>
 
-                <div class="my-2 flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <span id="home-wa-status-dot" class="relative flex h-2.5 w-2.5 shrink-0">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c59b27] opacity-60"></span>
-                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#c59b27]"></span>
-                    </span>
-                    <span id="home-wa-status-label" class="text-[20px] xl:text-[22px] font-semibold text-[#f7f8f8] tracking-tight truncate">Verificando</span>
-                    <span id="home-wa-latencia" class="text-xs font-mono text-[#62666d] shrink-0"></span>
-                  </div>
-                  <button type="button" onclick="abrirModalQrRapido()" class="btn-tactile shrink-0 px-3 py-1.5 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#2a2c34] hover:border-[#c59b27]/50 text-xs font-medium text-[#d0d6e0] hover:text-[#d8af37] flex items-center gap-1.5 active:scale-[0.97] transition-all cursor-pointer" title="Abrir QR Code do WhatsApp">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h6v6H3V3zm12 0h6v6h-6V3zM3 15h6v6H3v-6zm12 3h2v3h-2v-3zm4-3h2v6h-2v-6zm-4-3h6v2h-6v-2z"/></svg>
-                    <span>QR Code</span>
-                  </button>
-                </div>
-
-                <button type="button" onclick="ativarAba('agenda')" class="w-full text-left text-[12.5px] text-[#8a8f98] hover:text-[#d0d6e0] transition-colors pt-3 border-t border-[#1c1d22] cursor-pointer flex items-center justify-between gap-2" title="Configurar horários de expediente e plantão">
-                  <span id="home-card-horario-detalhe" class="truncate">Expediente: 08h às 18h</span>
-                  <span id="home-card-expediente" class="text-[#d0d6e0] font-medium font-mono text-[11px] shrink-0">Verificando...</span>
+            <!-- KPI 4: WhatsApp & Plantão -->
+            <div class="linear-kpi-card p-4 flex flex-col justify-between min-h-[112px]">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#8a8f98]">WhatsApp &amp; Plantão</span>
+                <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#8a8f98] hover:text-[#f7f8f8] px-2 py-0.5 rounded-full bg-[#16171c] border border-[#26282e] transition-colors cursor-pointer" title="Status da Inteligência Artificial">
+                  <span id="home-chip-ia-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span id="home-chip-ia-txt">IA Ativa</span>
                 </button>
               </div>
-
+              <div class="my-1.5 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span id="home-wa-status-dot" class="relative flex h-2.5 w-2.5 shrink-0">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c59b27] opacity-60"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#c59b27]"></span>
+                  </span>
+                  <span id="home-wa-status-label" class="text-[16px] font-semibold text-[#f7f8f8] tracking-tight truncate">Verificando</span>
+                  <span id="home-wa-latencia" class="text-[10.5px] font-mono text-[#62666d] shrink-0"></span>
+                </div>
+                <button type="button" onclick="abrirModalQrRapido()" class="btn-tactile shrink-0 px-2 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#2a2c34] hover:border-[#c59b27]/50 text-[10.5px] font-medium text-[#d0d6e0] hover:text-[#d8af37] flex items-center gap-1 active:scale-[0.97] transition-all cursor-pointer" title="Abrir QR Code do WhatsApp">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h6v6H3V3zm12 0h6v6h-6V3zM3 15h6v6H3v-6zm12 3h2v3h-2v-3zm4-3h2v6h-2v-6zm-4-3h6v2h-6v-2z"/></svg>
+                  <span>QR</span>
+                </button>
+              </div>
+              <button type="button" onclick="ativarAba('agenda')" class="w-full text-left text-[11px] text-[#8a8f98] hover:text-[#d0d6e0] transition-colors pt-2 border-t border-[#1c1d22] cursor-pointer flex items-center justify-between gap-2" title="Configurar horários de expediente e plantão">
+                <span id="home-card-horario-detalhe" class="truncate">Expediente: 08h às 18h</span>
+                <span id="home-card-expediente" class="text-[#d0d6e0] font-medium font-mono text-[10px] shrink-0">Verificando...</span>
+              </button>
             </div>
+
           </div>
 
-          <!-- 3. OPERATIONAL FEEDS: PROCESSOS RECENTES & MENSAGENS EM TEMPO REAL -->
-          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-0">
-            <!-- Coluna 1: Processos Recentes -->
-            <div class="lg:col-span-6 linear-shell p-5 sm:p-6 flex flex-col min-h-0">
-              <div class="flex items-center justify-between pb-3 mb-1 border-b border-[#1c1d22] shrink-0">
-                <h3 class="text-[16px] font-semibold text-[#f7f8f8] tracking-tight">Processos Recentes</h3>
-                <button type="button" onclick="ativarAba('processos')" class="group/btn text-xs font-medium text-[#8a8f98] hover:text-[#d4af37] flex items-center gap-1 transition-colors cursor-pointer">
-                  <span>Ver todos</span>
-                  <span class="group-hover/btn:translate-x-0.5 transition-transform">→</span>
-                </button>
+          <!-- 3. WORKSPACE PRINCIPAL ASSIMÉTRICO: ESQUERDA 8 COLS (GRÁFICO + PROCESSOS) | DIREITA 4 COLS (FEED AO VIVO) -->
+          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+            <!-- COLUNA ESQUERDA (8 cols): Gráfico de Tráfego + Processos Recentes -->
+            <div class="lg:col-span-8 flex flex-col gap-4 min-w-0">
+
+              <!-- Card 1: Tráfego de Atendimento WhatsApp -->
+              <div class="linear-shell p-5 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c59b27]/35 to-transparent pointer-events-none"></div>
+
+                <!-- Cabeçalho do Gráfico + Métricas Tabulares -->
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 mb-3">
+                  <div class="space-y-1.5">
+                    <h3 class="text-[15px] font-semibold text-[#f7f8f8] tracking-tight">Tráfego de Atendimento WhatsApp</h3>
+                    <div class="flex flex-wrap items-center gap-4 text-[11.5px] text-[#8a8f98]">
+                      <button type="button" id="btn-legend-recebidas" onclick="window.alternarSerieGraficoHome && window.alternarSerieGraficoHome('recebidas')" class="inline-flex items-center gap-1.5 hover:text-[#f7f8f8] transition-colors cursor-pointer">
+                        <span class="w-2 h-2 rounded-full bg-[#c59b27] inline-block shrink-0"></span>
+                        <span>Mensagens Recebidas</span>
+                      </button>
+                      <button type="button" id="btn-legend-ia" onclick="window.alternarSerieGraficoHome && window.alternarSerieGraficoHome('ia')" class="inline-flex items-center gap-1.5 hover:text-[#f7f8f8] transition-colors cursor-pointer">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0"></span>
+                        <span>Respostas Automáticas da IA</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Contadores em Tempo Real -->
+                  <div class="flex items-center gap-3 shrink-0 self-start sm:self-center">
+                    <div class="flex items-baseline gap-1.5">
+                      <span id="metric-mensagens-reais" class="font-mono tabular-nums text-[22px] leading-none font-semibold text-[#d4af37]">0</span>
+                      <span class="text-[11.5px] text-[#8a8f98]">msgs hoje</span>
+                    </div>
+                    <span class="h-3.5 w-px bg-[#26282e]"></span>
+                    <span id="metric-horas-reais" class="font-mono tabular-nums text-[12.5px] font-medium text-[#d0d6e0]">~0.0h economizadas</span>
+                  </div>
+                </div>
+
+                <!-- Área Interativa do Gráfico SVG (Proporção Fixa Elegante) -->
+                <div id="home-traffic-chart-wrap" class="relative w-full h-[176px] select-none">
+                  <svg id="home-traffic-svg" viewBox="0 0 640 168" preserveAspectRatio="none" class="w-full h-full block overflow-visible">
+                    <defs>
+                      <linearGradient id="homeGradGold" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#c59b27" stop-opacity="0.30"/>
+                        <stop offset="72%" stop-color="#805a08" stop-opacity="0.06"/>
+                        <stop offset="100%" stop-color="#c59b27" stop-opacity="0.0"/>
+                      </linearGradient>
+                      <linearGradient id="homeGradEmerald" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#34d399" stop-opacity="0.28"/>
+                        <stop offset="72%" stop-color="#10b981" stop-opacity="0.05"/>
+                        <stop offset="100%" stop-color="#34d399" stop-opacity="0.0"/>
+                      </linearGradient>
+                    </defs>
+                    <g id="home-chart-grid" stroke="#1c1d22" stroke-width="1"></g>
+                    <path id="home-chart-area-gold" fill="url(#homeGradGold)" d=""/>
+                    <path id="home-chart-area-emerald" fill="url(#homeGradEmerald)" d=""/>
+                    <path id="home-chart-line-gold" fill="none" stroke="#c59b27" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" d=""/>
+                    <path id="home-chart-line-emerald" fill="none" stroke="#34d399" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" d=""/>
+                    <line id="home-chart-guide" x1="0" y1="12" x2="0" y2="162" stroke="rgba(197,155,39,0.34)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="3 3"/>
+                    <rect id="home-chart-hitarea" x="0" y="0" width="640" height="168" fill="transparent" class="cursor-crosshair"/>
+                  </svg>
+
+                  <!-- Pontos luminosos em HTML -->
+                  <div id="home-chart-dot-emerald-el" class="home-chart-dot-emerald-el" style="left:50%;top:50%;"></div>
+                  <div id="home-chart-dot-gold-el" class="home-chart-dot-gold-el" style="left:50%;top:40%;"></div>
+
+                  <!-- Tooltip Flutuante Glassmorphic -->
+                  <div id="home-traffic-tooltip" class="home-chart-tooltip pointer-events-none absolute top-2 left-1/2 rounded-[9px] px-2.5 py-1.5 text-[11px] z-20 whitespace-nowrap">
+                    <div id="home-tooltip-title" class="font-semibold text-[#f7f8f8] leading-tight text-[11.5px]">Pico de Atendimento: 14h</div>
+                    <div id="home-tooltip-sub" class="text-[#a1a6b0] font-mono text-[10px] mt-0.5 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#c59b27]"></span>
+                      <span>Aguardando tráfego hoje</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Eixo X nítido em HTML -->
+                <div id="home-chart-xaxis-html" class="flex items-center justify-between pt-2.5 mt-1 border-t border-[#1c1d22] text-[10.5px] font-mono tabular-nums text-[#6e737d] select-none">
+                  <span>08h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span>
+                </div>
               </div>
-              <div id="home-ultimos-processos" class="flex-1 overflow-y-auto overflow-x-hidden"></div>
+
+              <!-- Card 2: Processos Recentes -->
+              <div class="linear-shell p-5 flex flex-col">
+                <div class="flex items-center justify-between pb-3 mb-1 border-b border-[#1c1d22]">
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-[15px] font-semibold text-[#f7f8f8] tracking-tight">Processos Recentes</h3>
+                    <span class="text-[11px] text-[#62666d] hidden sm:inline">· Últimas pastas atualizadas</span>
+                  </div>
+                  <button type="button" onclick="ativarAba('processos')" class="group/btn text-xs font-medium text-[#8a8f98] hover:text-[#d4af37] flex items-center gap-1 transition-colors cursor-pointer">
+                    <span>Ver todos</span>
+                    <span class="group-hover/btn:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </div>
+                <div id="home-ultimos-processos" class="max-h-[250px] overflow-y-auto overflow-x-hidden"></div>
+              </div>
+
             </div>
 
-            <!-- Coluna 2: Mensagens em Tempo Real -->
-            <div class="lg:col-span-6 linear-shell p-5 sm:p-6 flex flex-col min-h-0">
+            <!-- COLUNA DIREITA (4 cols): Mensagens em Tempo Real (acompanha altura da esquerda) -->
+            <div class="lg:col-span-4 linear-shell p-5 flex flex-col justify-between min-h-[380px]">
               <div class="flex items-center justify-between pb-3 mb-1 border-b border-[#1c1d22] shrink-0">
-                <h3 class="text-[16px] font-semibold text-[#f7f8f8] tracking-tight">Mensagens em Tempo Real</h3>
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <h3 class="text-[15px] font-semibold text-[#f7f8f8] tracking-tight">Mensagens em Tempo Real</h3>
+                </div>
                 <button type="button" onclick="ativarAba('terminal')" class="group/btn text-xs font-medium text-[#8a8f98] hover:text-[#d4af37] flex items-center gap-1 transition-colors cursor-pointer">
                   <span>Histórico</span>
                   <span class="group-hover/btn:translate-x-0.5 transition-transform">→</span>
                 </button>
               </div>
+
               <div id="home-ultimos-logs" class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col justify-center">
-                <div class="text-xs text-[#6e737d] text-center py-8 flex flex-col items-center justify-center gap-3">
+                <div class="text-xs text-[#6e737d] text-center py-8 px-2 flex flex-col items-center justify-center gap-3">
                   <div class="w-10 h-10 rounded-xl bg-[#15161a] border border-[#23252a] flex items-center justify-center text-[#6e737d]">
                     <svg class="w-4 h-4"><use href="#icon-message"/></svg>
                   </div>
-                  <div class="space-y-1">
+                  <div class="space-y-1 max-w-[240px]">
                     <p class="text-[13px] font-medium text-[#a1a6b0]">Nenhuma mensagem nesta sessão</p>
-                    <p class="text-[11.5px] text-[#62666d]">As conversas do WhatsApp e do Simulador aparecem aqui ao vivo.</p>
+                    <p class="text-[11.5px] text-[#62666d] leading-relaxed">As conversas do WhatsApp e os testes do Simulador aparecem aqui ao vivo.</p>
                   </div>
                   <button type="button" onclick="ativarAba('simulador')" class="linear-btn-ghost px-3.5 py-1.5 text-xs font-medium text-[#d0d6e0] hover:text-[#d4af37] cursor-pointer mt-0.5">
                     Testar no Simulador →
                   </button>
                 </div>
               </div>
+
+              <!-- Rodapé de Ações Rápidas da Coluna Lateral -->
+              <div class="pt-3 mt-3 border-t border-[#1c1d22] grid grid-cols-2 gap-2 shrink-0">
+                <button type="button" onclick="ativarAba('pausados')" class="linear-btn-ghost py-2 px-2.5 text-[11.5px] font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-user-clock"/></svg>
+                  <span>Fila Humana</span>
+                </button>
+                <button type="button" onclick="ativarAba('simulador')" class="linear-btn-ghost py-2 px-2.5 text-[11.5px] font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-message"/></svg>
+                  <span>Simulador</span>
+                </button>
+              </div>
             </div>
+
           </div>
 
           <!-- 4. GUIA DE SETUP PRESERVADO EM MODO OCULTO (Zero quebra de DOM e scripts) -->
@@ -5360,6 +5405,29 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       if (typeof window.renderizarGraficoTrafegoHome === 'function') {
         window.renderizarGraficoTrafegoHome();
       }
+      // Sincronizar KPI Financeiro na Home com os dados reais de cobrança PIX
+      try {
+        const elFinVal = document.getElementById('home-kpi-financeiro-valor');
+        const elFinSub = document.getElementById('home-kpi-financeiro-sub');
+        const kpiTotalEl = document.getElementById('kpi-total-a-receber');
+        const kpiQtdEl = document.getElementById('kpi-qtd-pendentes');
+        if (elFinVal && kpiTotalEl && kpiTotalEl.innerText.trim()) {
+          elFinVal.innerText = kpiTotalEl.innerText.trim();
+        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.cobrancas)) {
+          let soma = 0, pend = 0;
+          configGlobal.financeiro.cobrancas.forEach(c => {
+            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && !c.arquivado) {
+              soma += Number(c.valor || 0);
+              pend++;
+            }
+          });
+          elFinVal.innerText = soma.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          if (elFinSub) elFinSub.innerText = `${pend} ${pend === 1 ? 'parcela pendente' : 'parcelas pendentes'}`;
+        }
+        if (elFinSub && kpiQtdEl && kpiQtdEl.innerText.trim()) {
+          elFinSub.innerText = kpiQtdEl.innerText.trim();
+        }
+      } catch (e) {}
     };
 
     window.alternarSerieGraficoHome = function(serie) {
@@ -5371,6 +5439,29 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       if (typeof window.renderizarGraficoTrafegoHome === 'function') {
         window.renderizarGraficoTrafegoHome();
       }
+      // Sincronizar KPI Financeiro na Home com os dados reais de cobrança PIX
+      try {
+        const elFinVal = document.getElementById('home-kpi-financeiro-valor');
+        const elFinSub = document.getElementById('home-kpi-financeiro-sub');
+        const kpiTotalEl = document.getElementById('kpi-total-a-receber');
+        const kpiQtdEl = document.getElementById('kpi-qtd-pendentes');
+        if (elFinVal && kpiTotalEl && kpiTotalEl.innerText.trim()) {
+          elFinVal.innerText = kpiTotalEl.innerText.trim();
+        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.cobrancas)) {
+          let soma = 0, pend = 0;
+          configGlobal.financeiro.cobrancas.forEach(c => {
+            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && !c.arquivado) {
+              soma += Number(c.valor || 0);
+              pend++;
+            }
+          });
+          elFinVal.innerText = soma.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          if (elFinSub) elFinSub.innerText = `${pend} ${pend === 1 ? 'parcela pendente' : 'parcelas pendentes'}`;
+        }
+        if (elFinSub && kpiQtdEl && kpiQtdEl.innerText.trim()) {
+          elFinSub.innerText = kpiQtdEl.innerText.trim();
+        }
+      } catch (e) {}
     };
 
     window.renderizarGraficoTrafegoHome = function() {
@@ -5961,6 +6052,29 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       if (typeof window.renderizarGraficoTrafegoHome === 'function') {
         window.renderizarGraficoTrafegoHome();
       }
+      // Sincronizar KPI Financeiro na Home com os dados reais de cobrança PIX
+      try {
+        const elFinVal = document.getElementById('home-kpi-financeiro-valor');
+        const elFinSub = document.getElementById('home-kpi-financeiro-sub');
+        const kpiTotalEl = document.getElementById('kpi-total-a-receber');
+        const kpiQtdEl = document.getElementById('kpi-qtd-pendentes');
+        if (elFinVal && kpiTotalEl && kpiTotalEl.innerText.trim()) {
+          elFinVal.innerText = kpiTotalEl.innerText.trim();
+        } else if (elFinVal && configGlobal && configGlobal.financeiro && Array.isArray(configGlobal.financeiro.cobrancas)) {
+          let soma = 0, pend = 0;
+          configGlobal.financeiro.cobrancas.forEach(c => {
+            if (c && c.status !== 'PAGO' && c.status !== 'QUITADO' && !c.arquivado) {
+              soma += Number(c.valor || 0);
+              pend++;
+            }
+          });
+          elFinVal.innerText = soma.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          if (elFinSub) elFinSub.innerText = `${pend} ${pend === 1 ? 'parcela pendente' : 'parcelas pendentes'}`;
+        }
+        if (elFinSub && kpiQtdEl && kpiQtdEl.innerText.trim()) {
+          elFinSub.innerText = kpiQtdEl.innerText.trim();
+        }
+      } catch (e) {}
     }
 
     window.obterEstiloTag = function(tag) {
@@ -12564,7 +12678,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
                   return d;
                 })();
             homeLogs.prepend(itemHome);
-            while (homeLogs.children.length > 4) homeLogs.removeChild(homeLogs.lastElementChild);
+            while (homeLogs.children.length > 8) homeLogs.removeChild(homeLogs.lastElementChild);
           }
           if (typeof window.registrarEventoTrafegoHome === 'function') {
             const isAutoIA = Boolean(log && (log.tipo === 'bot' || log.tipo === 'ia' || log.direcao === 'saida'));
