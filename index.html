@@ -3126,6 +3126,7 @@
                 </div>
 
                 <textarea id="input-etapa-msg" rows="4" placeholder="Mensagem enviada pelo robô..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
+                <div id="guardrail-aviso-input-etapa-msg" class="hidden mt-2 p-3 rounded-xl border text-[11px] leading-relaxed transition-all duration-200"></div>
               </div>
 
               <div id="tour-options-card" class="exec-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-4">
@@ -3505,6 +3506,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <div>
                   <label class="text-[11px] text-zinc-400 block mb-1">Início da mensagem enviado no horário de almoço:</label>
                   <input type="text" id="agenda-msg-almoco" placeholder="Aviso de almoço..." class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                  <div id="guardrail-aviso-agenda-msg-almoco" class="guardrail-oab-alerta hidden"></div>
                 </div>
               </div>
 
@@ -3516,6 +3518,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   </div>
                   <p class="text-[11px] text-zinc-400 mb-2">Texto colocado no começo da resposta quando o escritório está fechado:</p>
                   <textarea id="agenda-msg-fora" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none leading-relaxed"></textarea>
+                  <div id="guardrail-aviso-agenda-msg-fora" class="guardrail-oab-alerta hidden"></div>
                 </div>
               </div>
             </div>
@@ -6331,6 +6334,110 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
     }
     window.formatarWhatsAppParaHTML = formatarWhatsAppParaHTML;
 
+    /**
+     * Guardrail Ético OAB — Provimento 205/2021 do CFOAB (Art. 3º, I e § 1º)
+     * Detecta padrões de promessa de resultado e mercantilização/captação indevida,
+     * sugerindo termos sóbrios e conformes à ética advocatícia.
+     */
+    function validarConformidadeOabTexto(texto) {
+      const t = String(texto || '').trim();
+      if (!t) return { conforme: true, violacoes: [], avisos: [] };
+
+      const violacoes = [];
+      const REGRAS_OAB = [
+        // 1. Promessa de resultado / êxito garantido
+        {
+          regex: /\b(causa\s+ganha|vit[oó]ria\s+garantida|100%\s+de\s+chance|certeza\s+de\s+ganhar|dinheiro\s+garantido|ganho\s+de\s+causa\s+garantido|resultado\s+garantido)\b/i,
+          termo: 'Promessa de Resultado / Êxito',
+          sugestao: 'Substitua por "análise técnica do caso" ou "atuação diligente na defesa dos seus direitos".',
+          artigo: 'Art. 3º, § 1º do Provimento 205/2021 CFOAB'
+        },
+        // 2. Mercantilização / Captação explícita / Gratuidade apelativa
+        {
+          regex: /\b(consulta\s+gratuita|consulta\s+gr[aá]tis|sem\s+custo\s+inicial|desconto\s+nos\s+honor[aá]rios|pre[cç]o\s+promocional|contrate\s+agora|parcelamos\s+em\s+10x|promo[cç][aã]o|black\s+friday)\b/i,
+          termo: 'Mercantilização / Captação Indevida',
+          sugestao: 'Substitua por "primeiro atendimento informativo" ou "alinhamento sobre honorários advocatícios".',
+          artigo: 'Art. 3º, I do Provimento 205/2021 CFOAB'
+        }
+      ];
+
+      REGRAS_OAB.forEach(regra => {
+        const match = t.match(regra.regex);
+        if (match) {
+          violacoes.push({
+            termoEncontrado: match[0],
+            tipo: regra.termo,
+            sugestao: regra.sugestao,
+            artigo: regra.artigo
+          });
+        }
+      });
+
+      return {
+        conforme: violacoes.length === 0,
+        violacoes,
+        resumo: violacoes.length > 0 ? violacoes[0] : null
+      };
+    }
+    window.validarConformidadeOabTexto = validarConformidadeOabTexto;
+
+    function renderizarAvisoGuardrailOab(containerAviso, resultadoValidacao) {
+      if (!containerAviso) return;
+      if (!resultadoValidacao || resultadoValidacao.conforme) {
+        containerAviso.innerHTML = '';
+        containerAviso.classList.add('hidden');
+        return;
+      }
+      const v = resultadoValidacao.resumo;
+      containerAviso.className = 'mt-2 p-3 rounded-xl border bg-amber-500/10 dark:bg-amber-950/40 border-amber-500/30 text-amber-300 dark:text-amber-200 text-[11px] leading-relaxed flex items-start space-x-2.5 transition-all duration-200';
+      containerAviso.innerHTML = `
+        <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div class="flex-1 space-y-1">
+          <div class="font-bold flex items-center justify-between flex-wrap gap-1">
+            <span>⚖️ Alerta Ético OAB (${v.tipo}): "${v.termoEncontrado}"</span>
+            <span class="text-[10px] font-mono text-amber-400/80 bg-amber-500/15 px-1.5 py-0.5 rounded">${v.artigo}</span>
+          </div>
+          <p class="text-zinc-300 text-[10.5px]">
+            O Provimento 205/2021 veda mercantilização ou promessa de ganho na comunicação digital.
+          </p>
+          <p class="text-amber-300 font-medium text-[10.5px]">
+            💡 <strong>Sugestão ética:</strong> ${v.sugestao}
+          </p>
+        </div>
+      `;
+      containerAviso.classList.remove('hidden');
+    }
+    window.renderizarAvisoGuardrailOab = renderizarAvisoGuardrailOab;
+
+    function conectarGuardrailOabElemento(inputEl, idContainerAviso = null) {
+      if (!inputEl) return;
+      let containerAviso = null;
+      if (idContainerAviso) {
+        containerAviso = document.getElementById(idContainerAviso);
+      }
+      if (!containerAviso) {
+        let proximo = inputEl.nextElementSibling;
+        if (proximo && proximo.classList && proximo.classList.contains('guardrail-oab-alerta')) {
+          containerAviso = proximo;
+        } else {
+          containerAviso = document.createElement('div');
+          containerAviso.className = 'guardrail-oab-alerta hidden';
+          inputEl.parentNode.insertBefore(containerAviso, inputEl.nextSibling);
+        }
+      }
+
+      const verificar = () => {
+        const resultado = validarConformidadeOabTexto(inputEl.value);
+        renderizarAvisoGuardrailOab(containerAviso, resultado);
+      };
+
+      inputEl.addEventListener('input', verificar);
+      verificar();
+    }
+    window.conectarGuardrailOabElemento = conectarGuardrailOabElemento;
+
     function atualizarPreviewEtapaAoVivo() {
       const elPrev = document.getElementById('wa-preview-etapa-real');
       if (!elPrev) return;
@@ -6356,7 +6463,13 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const etapa = obterObjetoEtapaAtual();
       if (!etapa) return;
       const elMsg = document.getElementById('input-etapa-msg');
-      if (elMsg) elMsg.value = etapa.mensagem || '';
+      if (elMsg) {
+        elMsg.value = etapa.mensagem || '';
+        const containerAviso = document.getElementById('guardrail-aviso-input-etapa-msg');
+        if (containerAviso && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(containerAviso, validarConformidadeOabTexto(elMsg.value));
+        }
+      }
       const btnExcluir = document.getElementById('btn-excluir-etapa');
       if (btnExcluir) btnExcluir.classList.toggle('hidden', id === 'raiz');
       renderizarOpcoesDaEtapa(); renderizarMapaVisual();
@@ -6367,6 +6480,10 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const etapa = obterObjetoEtapaAtual();
       if (etapa) {
         etapa.mensagem = e.target.value;
+        const containerAviso = document.getElementById('guardrail-aviso-input-etapa-msg');
+        if (containerAviso && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(containerAviso, validarConformidadeOabTexto(e.target.value));
+        }
         atualizarPreviewEtapaAoVivo();
         agendarRenderMapaVisual();
         marcarAlteracaoPendente();
@@ -6531,6 +6648,15 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
 
           boxResp.appendChild(headerResp);
           boxResp.appendChild(txt);
+
+          const avisoGuardrailOp = document.createElement('div');
+          avisoGuardrailOp.id = `guardrail-aviso-op-${idx}`;
+          avisoGuardrailOp.className = 'guardrail-oab-alerta hidden';
+          boxResp.appendChild(avisoGuardrailOp);
+          if (typeof conectarGuardrailOabElemento === 'function') {
+            conectarGuardrailOabElemento(txt, avisoGuardrailOp);
+          }
+
           x.appendChild(boxResp);
         }
 
@@ -8857,8 +8983,20 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       if (elAtivo && (forcar || document.activeElement !== elAtivo)) elAtivo.checked = Boolean(a.almoco_ativo);
       if (elInicio && (forcar || document.activeElement !== elInicio)) elInicio.value = a.almoco_inicio || '12:00';
       if (elFim && (forcar || document.activeElement !== elFim)) elFim.value = a.almoco_fim || '13:30';
-      if (elMsgAlmoco && (forcar || document.activeElement !== elMsgAlmoco)) elMsgAlmoco.value = a.msg_almoco || '';
-      if (elMsgFora && (forcar || document.activeElement !== elMsgFora)) elMsgFora.value = a.msg_fora_expediente || '';
+      if (elMsgAlmoco && (forcar || document.activeElement !== elMsgAlmoco)) {
+        elMsgAlmoco.value = a.msg_almoco || '';
+        const avAlmoco = document.getElementById('guardrail-aviso-agenda-msg-almoco');
+        if (avAlmoco && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(avAlmoco, validarConformidadeOabTexto(elMsgAlmoco.value));
+        }
+      }
+      if (elMsgFora && (forcar || document.activeElement !== elMsgFora)) {
+        elMsgFora.value = a.msg_fora_expediente || '';
+        const avFora = document.getElementById('guardrail-aviso-agenda-msg-fora');
+        if (avFora && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(avFora, validarConformidadeOabTexto(elMsgFora.value));
+        }
+      }
       if (elPalavrasUrgencia && (forcar || document.activeElement !== elPalavrasUrgencia)) elPalavrasUrgencia.value = a.palavras_urgencia || '';
 
       const checkAutoStart = document.getElementById('check-iniciar-windows');
@@ -9070,10 +9208,18 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
     });
     safeOn('agenda-msg-almoco', 'input', (e) => {
       configGlobal.agenda.msg_almoco = e.target.value;
+      const avAlmoco = document.getElementById('guardrail-aviso-agenda-msg-almoco');
+      if (avAlmoco && typeof validarConformidadeOabTexto === 'function') {
+        renderizarAvisoGuardrailOab(avAlmoco, validarConformidadeOabTexto(e.target.value));
+      }
       marcarAlteracaoPendente();
     });
     safeOn('agenda-msg-fora', 'input', (e) => {
       configGlobal.agenda.msg_fora_expediente = e.target.value;
+      const avFora = document.getElementById('guardrail-aviso-agenda-msg-fora');
+      if (avFora && typeof validarConformidadeOabTexto === 'function') {
+        renderizarAvisoGuardrailOab(avFora, validarConformidadeOabTexto(e.target.value));
+      }
       marcarAlteracaoPendente();
     });
     safeOn('agenda-palavras-urgencia', 'input', (e) => {
@@ -9478,7 +9624,10 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
                 <span class="text-[10px] text-zinc-400">Dica: <kbd class="font-mono text-zinc-300 bg-zinc-950 px-1 rounded border border-zinc-700">Ctrl + Enter</kbd> envia a resposta na hora.</span>
               </div>
               <div class="flex flex-col sm:flex-row sm:items-end gap-2.5">
-                <textarea id="input-resposta-${cardId}" onkeydown="if((event.ctrlKey || event.metaKey) && event.key === 'Enter'){ event.preventDefault(); enviarRespostaAdvogadoFila('${cardId}', '${chave}', false); }" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+                <div class="flex-1 flex flex-col">
+                  <textarea id="input-resposta-${cardId}" onkeydown="if((event.ctrlKey || event.metaKey) && event.key === 'Enter'){ event.preventDefault(); enviarRespostaAdvogadoFila('${cardId}', '${chave}', false); }" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input w-full rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+                  <div id="guardrail-aviso-resposta-${cardId}" class="guardrail-oab-alerta hidden"></div>
+                </div>
                 <div class="flex sm:flex-col gap-2">
                   <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}', true)" title="Envia a mensagem e devolve o cliente ao fluxo automático em 1 só clique" class="px-4 py-2.5 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -9496,6 +9645,12 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
           </div>
         `;
         container.appendChild(div);
+
+        const inputRespEl = document.getElementById(`input-resposta-${cardId}`);
+        const avisoRespEl = document.getElementById(`guardrail-aviso-resposta-${cardId}`);
+        if (inputRespEl && avisoRespEl && typeof conectarGuardrailOabElemento === 'function') {
+          conectarGuardrailOabElemento(inputRespEl, avisoRespEl);
+        }
       });
     }
 
@@ -10636,6 +10791,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         }
         if (input) {
           input.value = sugestao;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
           input.focus();
           input.classList.add('ring-2', 'ring-amber-400');
           setTimeout(() => input.classList.remove('ring-2', 'ring-amber-400'), 900);
@@ -10659,6 +10815,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const input = document.getElementById(`input-resposta-${cardId}`);
       if (input) {
         input.value = texto;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
         input.focus();
         mostrarToast("⚡ Resposta rápida aplicada! Pressione 'Enviar' ou 'Ctrl+Enter'.");
       }
