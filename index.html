@@ -255,15 +255,15 @@
       box-shadow: inset 3px 0 0 #d4af37, 0 4px 16px -8px rgba(0, 0, 0, 0.65) !important;
     }
 
-    /* Home Cockpit v2.2 — Ambient Champagne Glow, Interactive Chart & Hairline Feeds */
+    /* Home Cockpit v2.3 — Ambient Champagne Spotlight Across Top Bar & Hero */
     .home-ambient-glow {
       position: absolute;
-      top: -36px;
-      left: 50%;
+      top: -64px;
+      left: 46%;
       transform: translateX(-50%);
-      width: min(960px, 98%);
-      height: 180px;
-      background: radial-gradient(ellipse 65% 65% at 50% 15%, rgba(197, 155, 39, 0.08) 0%, rgba(154, 116, 24, 0.02) 48%, transparent 72%);
+      width: min(1040px, 95%);
+      height: 290px;
+      background: radial-gradient(ellipse 64% 68% at 50% 18%, rgba(197, 155, 39, 0.17) 0%, rgba(154, 116, 24, 0.06) 46%, transparent 74%);
       pointer-events: none;
       z-index: 0;
     }
@@ -2480,61 +2480,69 @@
         </button>
       </div>
     </aside>
-    <!-- ÁREA DE CONTEÚDO COM TOPO RESPONSIVO & BOTÃO DE CONFIGURAÇÕES NO TOPO DIREITO -->
+    <!-- ÁREA DE CONTEÚDO COM TOPO EXECUTIVO UNIFICADO (SPOTLIGHT CENTRAL + STATUS COMPACTOS) -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-      <!-- Barra Superior Minimalista -->
-      <div class="h-11 px-6 lg:px-8 flex items-center justify-between shrink-0 border-b border-zinc-800/60 bg-zinc-950/40 backdrop-blur-md z-10">
-        <div class="flex items-center space-x-2.5">
-          <span class="w-2 h-2 rounded-full bg-[#c59b27] shadow-[0_0_8px_rgba(197,155,39,0.5)]"></span>
-          <span id="top-bar-page-name" class="font-serif-legal font-bold text-zinc-200 text-sm tracking-wide">Visão Geral</span>
+      <!-- Brilho ambiente Ouro Nobre contínuo entre barra superior e cabeçalho -->
+      <div class="home-ambient-glow" aria-hidden="true"></div>
+
+      <!-- Barra Superior Executiva (3 Zonas: Marca/Aba | Busca Ctrl+K Central | Status + Ícones) -->
+      <div class="relative z-10 h-14 px-5 sm:px-7 flex items-center justify-between gap-4 shrink-0 border-b border-white/[0.04] bg-[#08080a]/35 backdrop-blur-md">
+        <!-- Esquerda: Identidade + Aba Atual -->
+        <div class="flex items-center gap-2.5 min-w-0 shrink-0">
+          <span class="font-serif-legal text-[17px] font-bold text-[#c59b27] leading-none select-none">A</span>
+          <span class="text-[13px] font-medium text-[#e4e7ec] tracking-tight hidden sm:inline">Advocacia Studio Pro</span>
+          <span class="text-[#3e4047] hidden sm:inline">·</span>
+          <span id="top-bar-page-name" class="text-[12.5px] font-medium text-[#8a8f98] truncate">Visão Geral</span>
         </div>
 
-        <div class="flex items-center space-x-2">
-          <!-- Botão Acessibilidade / Letra Confortável para Leitura -->
-          <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-zinc-300 transition cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
+        <!-- Centro: Barra de Busca & Comando Global (Ctrl+K) -->
+        <div class="flex-1 flex justify-center max-w-[440px] mx-auto">
+          <button type="button" id="btn-top-spotlight" onclick="toggleSpotlight(true)" class="w-full h-9 px-3.5 rounded-xl bg-[#111216]/85 hover:bg-[#16181e]/95 border border-[#2a2c34]/90 hover:border-[#c59b27]/40 backdrop-blur-md flex items-center justify-between gap-3 text-left transition-all duration-150 shadow-[0_4px_20px_rgba(0,0,0,0.35)] cursor-pointer group" title="Busca Global e Comandos (Ctrl+K)">
+            <span class="flex items-center gap-2.5 min-w-0">
+              <svg class="w-3.5 h-3.5 text-[#7c828d] group-hover:text-[#c59b27] transition-colors shrink-0"><use href="#icon-search"/></svg>
+              <span class="text-xs text-[#8a8f98] group-hover:text-[#d0d6e0] truncate transition-colors">Buscar processo, CPF ou acionar IA...</span>
+            </span>
+            <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#1c1e25] text-[#a1a6b0] border border-[#2f323c] shrink-0">Ctrl+K</kbd>
+          </button>
+        </div>
+
+        <!-- Direita: Status Disciplinados + Ícones Compactos -->
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Toggle Modo Seguro / Robô Pausado Global -->
+          <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="h-8 flex items-center gap-2 px-3 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-emerald-500/35 text-[11.5px] font-medium transition-all cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
+            <span id="top-modo-seguro-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span id="top-modo-seguro-text" class="text-emerald-400 font-medium text-[11px]">Robô: Ativo</span>
+          </button>
+
+          <!-- Status WhatsApp -->
+          <button type="button" id="btn-top-whatsapp-status" onclick="abrirModalQrRapido()" class="h-8 flex items-center gap-2 px-3 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#c59b27]/45 text-[11.5px] font-medium transition-all cursor-pointer" title="Ver status da conexão WhatsApp">
+            <span id="top-bar-status-dot" class="w-1.5 h-1.5 rounded-full bg-[#c59b27]"></span>
+            <span id="top-bar-status-text" class="text-[#d0d6e0] font-medium text-[11px]">WhatsApp</span>
+          </button>
+
+          <!-- Ícones Compactos de Utilidade -->
+          <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="h-8 w-8 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#3a3d47] text-[11px] font-bold text-[#a1a6b0] hover:text-[#f7f8f8] flex items-center justify-center transition-all cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
             <span>A+</span>
           </button>
 
-          <!-- Botão Discreto de Alternância de Tema (Modo Escuro / Modo Claro Executivo) -->
-          <button type="button" id="btn-toggle-theme" onclick="alternarTemaUI()" class="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300 transition cursor-pointer" title="Alternar entre Modo Escuro e Modo Claro Executivo" aria-label="Alternar tema" aria-pressed="false">
-            <svg id="icon-tema-sol" class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sun"/></svg>
+          <button type="button" id="btn-toggle-theme" onclick="alternarTemaUI()" class="h-8 w-8 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#3a3d47] text-[#a1a6b0] hover:text-[#f7f8f8] flex items-center justify-center transition-all cursor-pointer" title="Alternar entre Modo Escuro e Modo Claro Executivo" aria-label="Alternar tema" aria-pressed="false">
+            <svg id="icon-tema-sol" class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-sun"/></svg>
             <svg id="icon-tema-lua" class="w-3.5 h-3.5 text-sky-400 hidden"><use href="#icon-moon"/></svg>
-            <span id="label-toggle-tema" class="hidden xl:inline">Modo Claro</span>
+            <span id="label-toggle-tema" class="hidden">Modo Claro</span>
           </button>
 
-          <!-- Toggle Modo Seguro / Robô Pausado Global -->
-          <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
-            <span id="top-modo-seguro-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span id="top-modo-seguro-text" class="text-emerald-400 font-semibold text-[11px]">Robô: Ativo</span>
-          </button>
-
-          <button type="button" id="btn-top-whatsapp-status" onclick="abrirModalQrRapido()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/40 text-xs font-medium transition cursor-pointer" title="Ver status da conexão WhatsApp">
-            <span id="top-bar-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span id="top-bar-status-text" class="text-zinc-300 font-semibold text-[11px]">WhatsApp</span>
-          </button>
-
-          <!-- Atalho Spotlight Search (Ctrl+K) -->
-          <button type="button" id="btn-top-spotlight" onclick="toggleSpotlight(true)" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 text-xs font-medium transition cursor-pointer" title="Busca Global e Comandos (Ctrl+K)">
-            <svg class="w-3.5 h-3.5 text-zinc-400"><use href="#icon-search"/></svg>
-            <span class="hidden sm:inline">Buscar</span>
-            <kbd class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">Ctrl+K</kbd>
-          </button>
-
-          <!-- Botão Configurações no Topo Superior Direito -->
-          <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-zinc-300 hover:text-amber-300 text-xs font-medium transition-all shadow-sm active:scale-95 cursor-pointer group" title="Configurações do Sistema">
-            <svg class="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition-colors"><use href="#icon-settings"/></svg>
-            <span>Configurações</span>
+          <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="h-8 w-8 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#c59b27]/45 text-[#a1a6b0] hover:text-[#d4af37] flex items-center justify-center transition-all active:scale-95 cursor-pointer group" title="Configurações do Sistema">
+            <svg class="w-3.5 h-3.5 transition-colors"><use href="#icon-settings"/></svg>
           </button>
         </div>
       </div>
 
       <!-- CONTEÚDO PRINCIPAL COM RESPIRO EQUILIBRADO -->
-      <main id="main-content-area" class="flex-1 px-5 sm:px-7 pt-5 pb-8 overflow-y-auto">
+      <main id="main-content-area" class="relative z-10 flex-1 px-5 sm:px-7 pt-5 pb-8 overflow-y-auto">
       <div class="w-full max-w-[1480px] mx-auto space-y-5">
         
         <!-- ================= ABA 0: VISÃO GERAL (COCKPIT EXECUTIVO v2.3) ================= -->
-        <div id="aba-inicio" class="relative space-y-4 tab-pane-anim">
-          <div class="home-ambient-glow" aria-hidden="true"></div>
+        <div id="aba-inicio" class="relative space-y-5 tab-pane-anim">
 
           <!-- Compatibilidade invisível para hooks legados (isolado para nunca vazar no layout) -->
           <div class="hidden" aria-hidden="true">
@@ -2548,12 +2556,12 @@
           </div>
 
           <!-- 1. OPEN EDITORIAL HERO HEADER -->
-          <div id="tour-home-banner" class="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-3">
-            <div class="space-y-1 min-w-0">
-              <h2 id="home-welcome-title" class="font-serif-legal text-2xl sm:text-[32px] font-bold tracking-tight text-[#f7f8f8] leading-tight truncate">
+          <div id="tour-home-banner" class="relative z-10 pt-2 pb-1 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div class="space-y-1.5 min-w-0">
+              <h2 id="home-welcome-title" class="font-serif-legal text-3xl sm:text-[38px] font-bold tracking-tight text-[#f7f8f8] leading-[1.08] truncate">
                 Bem-vindo, Dr(a)
               </h2>
-              <p class="text-[12.5px] text-[#8a8f98] flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <p class="text-[13px] text-[#8a8f98] flex flex-wrap items-center gap-x-2 gap-y-0.5">
                 <span>Painel do Escritório</span>
                 <span class="text-[#3e4047]">·</span>
                 <span><span id="home-card-processos" class="font-mono tabular-nums font-medium text-[#d0d6e0]">0</span> processos ativos</span>
@@ -2564,17 +2572,17 @@
 
             <!-- 4 Ações Rápidas Disciplinadas (1 Ouro Nobre + 3 Obsidian Ghost) -->
             <div class="flex flex-wrap items-center gap-2 shrink-0">
-              <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2 rounded-[9px] text-xs font-bold champagne-gradient text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition-all duration-150 cursor-pointer">
+              <button type="button" onclick="irParaNovoProcessoDireto()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold champagne-gradient text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition-all duration-150 cursor-pointer">
                 <svg class="w-3.5 h-3.5 stroke-[2.5]"><use href="#icon-plus"/></svg>
                 <span>Novo Processo</span>
               </button>
-              <button type="button" onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium active:scale-[0.98] cursor-pointer" title="Testar respostas do robô no simulador">
+              <button type="button" onclick="ativarAba('simulador')" class="btn-tactile linear-btn-ghost px-3.5 py-2.5 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Testar respostas do robô no simulador">
                 Simulador
               </button>
-              <button type="button" onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium active:scale-[0.98] cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
+              <button type="button" onclick="ativarAba('dossie-clientes')" class="btn-tactile linear-btn-ghost px-3.5 py-2.5 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Dossiê de clientes Art. 319 CPC">
                 Dossiê CPC
               </button>
-              <button type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium active:scale-[0.98] cursor-pointer" title="Calcular prazos processuais em dias úteis (CPC / CLT)">
+              <button type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-2.5 rounded-xl text-xs font-medium active:scale-[0.98] cursor-pointer" title="Calcular prazos processuais em dias úteis (CPC / CLT)">
                 Calculadora de Prazos
               </button>
             </div>
