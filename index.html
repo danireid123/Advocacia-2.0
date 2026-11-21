@@ -33,48 +33,48 @@
     }
 
     :root {
-      --bg-deep: #14161b;
-      --bg-surface: #1c1f26;
-      --bg-elevated: #242832;
-      --bg-surface-3: #2b303c;
+      --bg-deep: #0e0e11;
+      --bg-surface: #141519;
+      --bg-elevated: #1b1c21;
+      --bg-surface-3: #22242a;
       --gold-primary: #d4af37;
       --gold-deep: #a47c1b;
       --gold-soft: #e8c667;
-      --gold-tint: rgba(212, 175, 55, 0.14);
+      --gold-tint: rgba(212, 175, 55, 0.13);
       --gold-champagne: var(--gold-primary);
       --gold-light: var(--gold-soft);
       --text-main: #f7f8f8;
-      --text-muted: #9ca3af;
-      --text-tertiary: #848b98;
-      --card-bg: #1c1f26;
-      --border-color: rgba(255, 255, 255, 0.10);
-      --border-strong: rgba(255, 255, 255, 0.18);
-      --input-bg: #12141a;
-      --inner-box-bg: #151820;
+      --text-muted: #9499a3;
+      --text-tertiary: #7c828d;
+      --card-bg: #141519;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --input-bg: #101114;
+      --inner-box-bg: #101114;
     }
 
     body.theme-dark {
-      --bg-deep: #14161b;
-      --bg-surface: #1c1f26;
-      --bg-elevated: #242832;
-      --bg-surface-3: #2b303c;
+      --bg-deep: #0e0e11;
+      --bg-surface: #141519;
+      --bg-elevated: #1b1c21;
+      --bg-surface-3: #22242a;
       --gold-primary: #d4af37;
       --gold-deep: #a47c1b;
       --gold-soft: #e8c667;
-      --gold-tint: rgba(212, 175, 55, 0.14);
+      --gold-tint: rgba(212, 175, 55, 0.13);
       --gold-champagne: var(--gold-primary);
       --gold-light: var(--gold-soft);
       --text-main: #f7f8f8;
-      --text-muted: #9ca3af;
-      --text-tertiary: #848b98;
-      --card-bg: #1c1f26;
-      --border-color: rgba(255, 255, 255, 0.10);
-      --border-strong: rgba(255, 255, 255, 0.18);
-      --input-bg: #12141a;
-      --inner-box-bg: #151820;
+      --text-muted: #9499a3;
+      --text-tertiary: #7c828d;
+      --card-bg: #141519;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --input-bg: #101114;
+      --inner-box-bg: #101114;
       background-color: var(--bg-deep);
       background-image:
-        radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.08) 0%, transparent 65%);
+        radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.06) 0%, transparent 65%);
       color: var(--text-main);
     }
 
@@ -1734,13 +1734,13 @@
        (Preserva integralmente #main-sidebar e suas 4 cores por grupo)
        ========================================================================= */
 
-    /* 1. Elevação de Superfícies no Modo Escuro (Grafite Chumbo Executivo — menos preto) */
+    /* 1. Elevação Sutil de Superfícies (Obsidian Carvão — sai do preto bruto sem virar cinza) */
     body.theme-dark #main-sidebar {
-      background-color: #111318 !important;
-      border-right-color: rgba(255, 255, 255, 0.08) !important;
+      background-color: #0b0c0e !important;
+      border-right-color: rgba(255, 255, 255, 0.07) !important;
     }
     body.theme-dark #main-content-area {
-      background-color: #14161b !important;
+      background-color: #0e0e11 !important;
     }
     body.theme-dark #main-content-area .exec-card,
     body.theme-dark #main-content-area .linear-shell,
@@ -1750,19 +1750,19 @@
     body.theme-dark #main-content-area .bg-zinc-900\/50,
     body.theme-dark #main-content-area .bg-zinc-900\/60,
     body.theme-dark #main-content-area .bg-zinc-900\/40 {
-      background-color: #1c1f26 !important;
-      border-color: rgba(255, 255, 255, 0.095) !important;
+      background-color: #141519 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
     }
     body.theme-dark #main-content-area .bg-\[\#0b0c0e\],
     body.theme-dark #main-content-area .bg-zinc-950\/60,
     body.theme-dark #main-content-area .bg-zinc-950\/70,
     body.theme-dark #main-content-area .bg-zinc-950\/80 {
-      background-color: #151820 !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
+      background-color: #101114 !important;
+      border-color: rgba(255, 255, 255, 0.07) !important;
     }
     body.theme-dark .border-\[\#1f2025\],
     body.theme-dark .border-\[\#23252a\] {
-      border-color: rgba(255, 255, 255, 0.095) !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
     }
 
     /* 2. Unificação de Dourado para Ouro Nobre (#d4af37 / #e8c667) no conteúdo */
