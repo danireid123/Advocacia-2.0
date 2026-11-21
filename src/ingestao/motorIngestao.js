@@ -57,6 +57,13 @@ const COLUMN_MAPPING_RULES = {
     /autor/i,
     /nome/i
   ],
+  telefone: [
+    /^(tel|telefone|whats|whatsapp|celular|fone|contato|numero.*whats|num.*tel)/i,
+    /whatsapp/i,
+    /celular/i,
+    /telefone/i,
+    /fone/i
+  ],
   resumo: [
     /^(movimenta[cç][aã]o.*cartor[aá]ria|andamento.*recente|resumo|andamento|status|historico|fase|despacho|decis[aã]o)$/i,
     /cartor[aá]ri/i,
@@ -232,6 +239,7 @@ async function parseSpreadsheet(filePathOrBuffer, fileName = 'planilha.xlsx') {
     let numProc = mapa.numeroProcesso ? row[mapa.numeroProcesso] : "";
     let cpf = mapa.cpf ? row[mapa.cpf] : "";
     let nome = mapa.nome ? row[mapa.nome] : "";
+    let telefone = mapa.telefone ? String(row[mapa.telefone] || "").trim() : "";
     let resumo = mapa.resumo ? row[mapa.resumo] : "";
     let data = mapa.data ? row[mapa.data] : "";
 
@@ -252,11 +260,13 @@ async function parseSpreadsheet(filePathOrBuffer, fileName = 'planilha.xlsx') {
 
     const procSanitizado = sanitizarNumeroProcesso(numProc);
     const cpfSanitizado = sanitizarCPF(cpf);
+    const telefoneLimpo = telefone ? telefone.replace(/[^\d+()\s-]/g, '').trim() : "";
 
     processos.push({
       id: `proc_${Date.now()}_${i}`,
       numeroProcesso: procSanitizado,
       cpf: cpfSanitizado,
+      telefone: telefoneLimpo,
       nome: String(nome || "Cliente").trim(),
       resumo: String(resumo || "Processo em acompanhamento.").trim(),
       data: sanitizarData(data),

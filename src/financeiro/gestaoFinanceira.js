@@ -648,14 +648,20 @@ async function processarComprovanteRecebido(clienteTelefoneOuObj, bufferArg, mim
     garantirEstruturaFinanceira(config);
     const telLimpo = apenasNumeros(clienteTelefone);
 
-    const parcelaPendente = config.financeiro.parcelas.find(p => {
-        const status = String(p.status || 'PENDENTE').toUpperCase();
-        if (status === 'PAGO' || status === 'ARQUIVADO') return false;
-        const pTel = p.clienteTelefone || p.telefone || '';
-        return telefonesEquivalentes(pTel, clienteTelefone);
-    });
+    const parcelasPendentesCliente = (config.financeiro.parcelas || [])
+        .filter(p => {
+            const status = String(p.status || 'PENDENTE').toUpperCase();
+            if (status === 'PAGO' || status === 'ARQUIVADO') return false;
+            const pTel = p.clienteTelefone || p.telefone || '';
+            return telefonesEquivalentes(pTel, clienteTelefone);
+        })
+        .sort((a, b) => String(a.dataVencimento || '9999-12-31').localeCompare(String(b.dataVencimento || '9999-12-31')));
 
-    const valorEsperado = parcelaPendente ? Number(parcelaPendente.valor || 0) : 0;
+    const parcelaPendente = parcelasPendentesCliente[0] || null;
+    const encargosEsperados = parcelaPendente ? calcularEncargosParcela(parcelaPendente, config) : null;
+    const valorEsperado = parcelaPendente
+        ? Number((encargosEsperados && encargosEsperados.valorTotalAtualizado) || parcelaPendente.valor || 0)
+        : 0;
     const nomeCliente = clienteNome || (parcelaPendente ? (parcelaPendente.clienteNome || 'Cliente') : 'Cliente');
 
     const chaveAtiva = obterApiKeyAtiva(apiKey, config);
