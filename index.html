@@ -2830,39 +2830,34 @@
 
         <!-- ================= ABA 1: GESTÃO INTEGRADA DE PROCESSOS & DOSSIÊS ================= -->
         <div id="aba-processos" class="hidden space-y-5 tab-pane-anim">
-          <!-- EXECUTIVE SECTION HEADER (LINEAR × COHERE) -->
-          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="cohere-eyebrow text-[#d4af37]">Processos &amp; Clientes</span>
-                <span class="text-[#3e4047]">•</span>
-                <span class="text-[11px] font-mono text-[#62666d]">CPC Art. 319 &amp; IA Forense</span>
-              </div>
-              <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
+          <!-- Cabeçalho Editorial Limpo (mesmo padrão da Aba Inicial) -->
+          <div class="pt-1 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div class="space-y-1 min-w-0">
+              <h2 class="font-serif-legal text-[28px] sm:text-[32px] font-bold tracking-tight text-[#f7f8f8] leading-tight">
                 Gestão Integrada de Processos &amp; Dossiês
               </h2>
             </div>
-              <div class="flex flex-wrap items-center gap-2">
-                <button id="btn-abrir-calc-prazos" type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-semibold flex items-center space-x-1.5 shrink-0 cursor-pointer border border-[#d4af37]/35 hover:border-[#d4af37]/70 text-[#d4af37]" title="Calcular prazos processuais em dias úteis (CPC / CLT) com feriados nacionais e recesso forense">
-                  <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                  <span>Calculadora de Prazos</span>
-                </button>
-                <button type="button" onclick="irParaNovoClienteDireto()" class="btn-tactile px-3.5 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Cadastrar cliente rápido sem exigir número de processo na justiça">
-                  <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-                  <span>+ Novo Cliente</span>
-                </button>
-                <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-medium flex items-center space-x-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
-                  <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
-                  <span>Respostas do Robô →</span>
-                </button>
-              </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button id="btn-abrir-calc-prazos" type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 shrink-0 cursor-pointer hover:border-[#c59b27]/45 hover:text-[#d4af37]" title="Calcular prazos processuais em dias úteis (CPC / CLT) com feriados nacionais e recesso forense">
+                <svg class="w-3.5 h-3.5 text-[#c59b27]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>Calculadora de Prazos</span>
+              </button>
+              <button type="button" onclick="irParaNovoClienteDireto()" class="btn-tactile px-4 py-2 champagne-gradient rounded-xl text-xs font-bold text-[#08080a] active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer" title="Cadastrar cliente rápido sem exigir número de processo na justiça">
+                <svg class="w-3.5 h-3.5 text-[#08080a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                <span>+ Novo Cliente</span>
+              </button>
+              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
+                <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
+                <span>Respostas do Robô →</span>
+              </button>
+            </div>
           </div>
 
-          <!-- SMART IMPORT MULTIFORMATO (COMPACTO HORIZONTAL — SEMPRE VISÍVEL SEM OCUPAR A TELA TODA) -->
+          <!-- SMART IMPORT MULTIFORMATO (COMPACTO HORIZONTAL) -->
           <div class="linear-shell p-4 space-y-3">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-lg bg-[#16171b] border border-[#26282e] flex items-center justify-center text-[#d4af37] shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-[#16171b] border border-[#26282e] flex items-center justify-center text-[#c59b27] shrink-0">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
                 <div>
@@ -2871,15 +2866,15 @@
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
-                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/40 hover:text-rose-300 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer" title="Remove pastas ou cadastros repetidos mantendo os dados mais recentes">
-                  <svg class="w-3.5 h-3.5 text-rose-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  <span>Remover Cadastros Duplicados</span>
+                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/35 hover:text-rose-400 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer" title="Remove pastas ou cadastros repetidos mantendo os dados mais recentes">
+                  <svg class="w-3.5 h-3.5 text-[#8a8f98]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  <span>Remover Duplicados</span>
                 </button>
-                <button type="button" id="btn-baixar-modelo-xlsx" class="linear-btn-ghost px-2.5 py-1.5 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer">
-                  <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <button type="button" id="btn-baixar-modelo-xlsx" class="linear-btn-ghost px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-[#c59b27]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                   <span>Modelo .xlsx</span>
                 </button>
-                <button type="button" id="btn-selecionar-arquivos-proc" class="px-3 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] flex items-center space-x-1.5 transition cursor-pointer">
+                <button type="button" id="btn-selecionar-arquivos-proc" class="px-3 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-[#08080a] active:scale-[0.98] flex items-center gap-1.5 transition cursor-pointer">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                   <span>Selecionar Arquivo(s)</span>
                 </button>
@@ -2889,14 +2884,14 @@
               </div>
             </div>
 
-            <!-- Dropzone Horizontal Compacta (sempre aberta, economiza 50% de altura vertical) -->
-            <div id="dropzone-processos" class="border border-dashed border-[#d4af37]/35 hover:border-[#d4af37]/75 bg-[#0b0c0e] hover:bg-[#d4af37]/[0.03] rounded-xl px-4 py-3 transition-all duration-150 cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-3 group">
+            <!-- Dropzone Horizontal Compacta -->
+            <div id="dropzone-processos" class="border border-dashed border-[#c59b27]/35 hover:border-[#c59b27]/70 bg-[#0b0c0e] hover:bg-[#c59b27]/[0.03] rounded-xl px-4 py-3 transition-all duration-150 cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-3 group">
               <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-[#141518] border border-[#23252a] group-hover:border-[#d4af37]/40 flex items-center justify-center text-[#8a8f98] group-hover:text-[#d4af37] transition-colors shrink-0">
+                <div class="w-9 h-9 rounded-lg bg-[#141518] border border-[#23252a] group-hover:border-[#c59b27]/40 flex items-center justify-center text-[#8a8f98] group-hover:text-[#c59b27] transition-colors shrink-0">
                   <svg class="w-4 h-4 dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
                 <div class="text-xs text-[#8a8f98] text-center sm:text-left">
-                  <span class="font-semibold text-[#f3dc8a]">Arraste e solte arquivos aqui</span> ou clique para importar em lote
+                  <span class="font-semibold text-[#d4af37]">Arraste e solte arquivos aqui</span> ou clique para importar em lote
                 </div>
               </div>
               <div class="flex items-center justify-center flex-wrap gap-1.5">
@@ -2932,7 +2927,7 @@
               </div>
               <div class="flex items-center justify-between px-1 mb-2.5 text-[10.5px] text-[#62666d]">
                 <span class="font-medium uppercase tracking-wider text-[10px]">Ordenar</span>
-                <select id="ordem-processos-select" class="exec-input px-2.5 py-1 rounded-lg text-[10.5px] text-[#f3dc8a] font-medium bg-[#0b0c0e] border border-[#23252a]">
+                <select id="ordem-processos-select" class="exec-input px-2.5 py-1 rounded-lg text-[10.5px] text-[#d4af37] font-medium bg-[#0b0c0e] border border-[#23252a]">
                   <option value="recente" selected>Atualização Recente</option>
                   <option value="alfabetica">Ordem Alfabética (A-Z)</option>
                   <option value="alfabetica_desc">Ordem Alfabética (Z-A)</option>
@@ -2949,9 +2944,9 @@
             <div id="box-form-processo" class="col-span-12 lg:col-span-7 linear-shell p-5 sm:p-6 flex flex-col justify-between min-h-[540px] max-h-[calc(100vh-180px)] overflow-y-auto">
               <div class="space-y-4">
                 <!-- Cabeçalho do Cliente -->
-                <div class="flex flex-wrap items-center justify-between border-b border-[#1f2025] pb-4 gap-3">
+                <div class="flex flex-wrap items-center justify-between border-b border-[#1c1d22] pb-4 gap-3">
                   <div class="flex items-center space-x-3">
-                    <div id="avatar-ficha-proc" class="w-10 h-10 rounded-xl bg-[#18191e] border border-[#d4af37]/35 flex items-center justify-center text-[#f3dc8a] font-bold text-xs">
+                    <div id="avatar-ficha-proc" class="w-10 h-10 rounded-xl bg-[#18191e] border border-[#c59b27]/35 flex items-center justify-center text-[#d4af37] font-bold text-xs">
                       NP
                     </div>
                     <div>
@@ -2961,36 +2956,36 @@
                   </div>
 
                   <div class="flex flex-wrap items-center gap-1.5">
-                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-3 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Copiar qualificação civil Art. 319 CPC">
-                      <svg class="w-3.5 h-3.5 text-zinc-950"><use href="#icon-clipboard"/></svg>
+                    <button type="button" id="btn-copiar-cpc" data-ipc="copiar-qualificacao-cpc" onclick="copiarQualificacaoCPCDoCliente()" class="px-3 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-[#08080a] active:scale-[0.98] transition flex items-center gap-1.5 cursor-pointer" title="Copiar qualificação civil Art. 319 CPC">
+                      <svg class="w-3.5 h-3.5 text-[#08080a]"><use href="#icon-clipboard"/></svg>
                       <span>Copiar CPC</span>
                     </button>
-                    <button type="button" id="btn-ver-dossie-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[11px] font-medium cursor-pointer" title="Ver Dossiê Civil do Cliente">
-                      <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-file-text"/></svg>
+                    <button type="button" id="btn-ver-dossie-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[11px] font-medium items-center gap-1.5 cursor-pointer" title="Ver Dossiê Civil do Cliente">
+                      <svg class="w-3.5 h-3.5 text-[#8a8f98] shrink-0"><use href="#icon-file-text"/></svg>
                       <span>Ver Dossiê</span>
                     </button>
-                    <button type="button" id="btn-solicitar-docs-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[#f3dc8a] text-[11px] font-medium cursor-pointer" title="Solicitar Documentos pelo WhatsApp">
-                      <svg class="w-3.5 h-3.5 text-[#d4af37]"><use href="#icon-clipboard"/></svg>
+                    <button type="button" id="btn-solicitar-docs-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[#d4af37] text-[11px] font-medium items-center gap-1.5 cursor-pointer" title="Solicitar Documentos pelo WhatsApp">
+                      <svg class="w-3.5 h-3.5 text-[#c59b27] shrink-0"><use href="#icon-clipboard"/></svg>
                       <span>Solicitar Docs</span>
                     </button>
-                    <button type="button" id="btn-anexar-peca-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[11px] font-medium cursor-pointer" title="Anexar peças processuais em PDF ou DOCX">
-                      <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-paperclip"/></svg>
+                    <button type="button" id="btn-anexar-peca-proc" class="hidden linear-btn-ghost px-3 py-1.5 text-[11px] font-medium items-center gap-1.5 cursor-pointer" title="Anexar peças processuais em PDF ou DOCX">
+                      <svg class="w-3.5 h-3.5 text-[#8a8f98] shrink-0"><use href="#icon-paperclip"/></svg>
                       <span>Anexar Peça</span>
                     </button>
-                    <button type="button" id="btn-resetar-visto-ficha" class="hidden linear-btn-ghost px-3 py-1.5 text-sky-300 text-[11px] font-medium cursor-pointer" title="Permite que o cliente consulte novamente no WhatsApp">
-                      <svg class="w-3.5 h-3.5"><use href="#icon-refresh"/></svg>
+                    <button type="button" id="btn-resetar-visto-ficha" class="hidden linear-btn-ghost px-3 py-1.5 text-[#a1a6b0] hover:text-[#f7f8f8] text-[11px] font-medium items-center gap-1.5 cursor-pointer" title="Permite que o cliente consulte novamente no WhatsApp">
+                      <svg class="w-3.5 h-3.5 shrink-0"><use href="#icon-refresh"/></svg>
                       <span>Liberar Reenvio</span>
                     </button>
-                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/25 rounded-[9px] active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
-                      <svg class="w-4 h-4"><use href="#icon-trash"/></svg>
+                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-[#141518] hover:bg-rose-500/10 text-[#8a8f98] hover:text-rose-400 border border-[#26282e] hover:border-rose-500/35 rounded-[9px] active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
+                      <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
                     </button>
                   </div>
                 </div>
 
                 <!-- SUB-ABAS DO MASTER-DETAIL: PROCESSO VS DOSSIÊ CIVIL -->
-                <div class="flex items-center space-x-1 p-1 bg-[#0b0c0e] rounded-xl border border-[#1f2025]">
-                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#1a1b20] text-[#f3dc8a] border border-[#d4af37]/35 flex items-center justify-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5"><use href="#icon-folder"/></svg>
+                <div class="flex items-center gap-1 p-1 bg-[#0b0c0e] rounded-xl border border-[#1f2025]">
+                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-folder"/></svg>
                     <span>Ficha do Processo &amp; Andamento</span>
                   </button>
                   <button type="button" id="subtab-detalhe-dossie" onclick="alternarDetalheProcAba('dossie')" class="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent flex items-center justify-center gap-1.5 cursor-pointer">
@@ -3004,14 +2999,14 @@
                 <div id="detalhe-pane-processo" class="editorial-paper-pane space-y-4">
                   <input type="hidden" id="proc-id-edit" value="">
 
-                  <!-- SELETOR AMIGÁVEL DE TIPO DE PASTA (JUDICIAL VS EXTRAJUDICIAL/CONSULTORIA) -->
-                  <div class="flex items-center space-x-2 p-1.5 rounded-xl bg-[#0e0f12] border border-[#1f2025] text-xs">
-                    <span class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider px-2">Tipo de Pasta:</span>
-                    <button type="button" id="btn-tipo-pasta-judicial" onclick="setTipoPastaFormulario('JUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">
-                      ⚖️ Processo Judicial (CNJ)
+                  <!-- SELETOR DE TIPO DE PASTA (JUDICIAL VS EXTRAJUDICIAL/CONSULTORIA) -->
+                  <div class="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[#0c0d10] border border-[#1f2025] text-xs">
+                    <span class="text-[10px] text-[#6e737d] font-semibold uppercase tracking-wider px-2">Tipo de Pasta</span>
+                    <button type="button" id="btn-tipo-pasta-judicial" onclick="setTipoPastaFormulario('JUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer">
+                      Processo Judicial (CNJ)
                     </button>
-                    <button type="button" id="btn-tipo-pasta-extra" onclick="setTipoPastaFormulario('EXTRAJUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer">
-                      🏠 Extrajudicial / Consultoria / Imobiliário
+                    <button type="button" id="btn-tipo-pasta-extra" onclick="setTipoPastaFormulario('EXTRAJUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#26282e] cursor-pointer">
+                      Extrajudicial / Consultoria / Imobiliário
                     </button>
                   </div>
 
