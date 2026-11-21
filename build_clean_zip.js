@@ -14,8 +14,10 @@ const path = require('path');
 const archiver = require('archiver');
 
 const PROJECT_ROOT = path.resolve(__dirname);
-const ARTIFACT_DEST = 'C:\\Users\\Daniel\\.gemini\\antigravity\\brain\\05dacc8a-1a18-4a2b-9c17-a3142a4b0e27\\advocacia-2.0-completo.zip';
-const SCRATCH_DEST = 'C:\\Users\\Daniel\\.gemini\\antigravity\\scratch\\advocacia-2.0-completo.zip';
+const CURRENT_CONV_ID = '6f7fae18-d755-4a1f-b564-b2da46d5c73a';
+const ARTIFACT_DEST = `C:\\Users\\Daniel\\.gemini\\antigravity\\brain\\${CURRENT_CONV_ID}\\Advocacia-Studio-Pro-v2.0-Completo.zip`;
+const SCRATCH_DEST = 'C:\\Users\\Daniel\\.gemini\\antigravity\\scratch\\Advocacia-Studio-Pro-v2.0-Completo.zip';
+const PROJECT_DEST = path.join(PROJECT_ROOT, 'Advocacia-Studio-Pro-v2.0-Completo.zip');
 
 // Lista de padrões a ignorar estritamente
 const IGNORE_PATTERNS = [
@@ -193,6 +195,10 @@ async function main() {
   const res2 = await criarZipParaDestino(ARTIFACT_DEST);
   console.log(`📦 Gerado em artifacts: ${(res2.totalBytes / 1024 / 1024).toFixed(2)} MB`);
   await validarZip(ARTIFACT_DEST);
+
+  const res3 = await criarZipParaDestino(PROJECT_DEST);
+  console.log(`📦 Gerado na raiz do projeto: ${(res3.totalBytes / 1024 / 1024).toFixed(2)} MB`);
+  await validarZip(PROJECT_DEST);
 
   console.log('\n🎉 EMPACOTAMENTO CONCLUÍDO COM 100% DE SUCESSO!');
 }

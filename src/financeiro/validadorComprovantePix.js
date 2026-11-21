@@ -14,11 +14,9 @@ const { obterApiKeyAtiva } = require('../ia/tradutorJuridico');
 // Constantes Obrigatórias
 const TIMEOUT_MULTIMODAL_PIX = 20000; // 20 segundos
 const MODELOS_GEMINI_PIX = [
-  'gemini-3.5-flash-lite',
-  'gemini-3.5-flash',
-  'gemini-flash-lite-latest',
   'gemini-2.0-flash',
-  'gemini-1.5-flash'
+  'gemini-2.0-flash-lite',
+  'gemini-flash-lite-latest'
 ];
 
 const BANCOS_POPULARES_BRASIL = [

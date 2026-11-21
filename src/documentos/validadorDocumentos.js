@@ -14,11 +14,9 @@ const { obterApiKeyAtiva } = require('../ia/tradutorJuridico');
 // Constantes fundamentais
 const TIMEOUT_MULTIMODAL_AUDIO = 20000; // 20s rígido via AbortController
 const MODELOS_GEMINI_PADRAO = [
-  'gemini-3.5-flash-lite',
-  'gemini-3.5-flash',
-  'gemini-flash-lite-latest',
   'gemini-2.0-flash',
-  'gemini-1.5-flash'
+  'gemini-2.0-flash-lite',
+  'gemini-flash-lite-latest'
 ];
 
 const DEFEITOS_VALIDOS = ['BORRAO', 'REFLEXO', 'CORTE', 'ESCURO'];
@@ -31,7 +29,17 @@ const TIPOS_DOCUMENTO = {
   COMPROVANTE_RESIDENCIA: 'COMPROVANTE_RESIDENCIA',
   CTPS: 'CTPS',
   CERTIDAO: 'CERTIDAO',
+  CERTIDAO_CIVIL: 'CERTIDAO_CIVIL',
+  COMPROVANTE_RENDA: 'COMPROVANTE_RENDA',
   CONTRATO: 'CONTRATO',
+  PROVA_CONTRATO_OU_DANO: 'PROVA_CONTRATO_OU_DANO',
+  PROTOCOLO_OU_BO: 'PROTOCOLO_OU_BO',
+  MATRICULA_IMOVEL: 'MATRICULA_IMOVEL',
+  COMPROVANTE_POSSE_OU_CONTRATO: 'COMPROVANTE_POSSE_OU_CONTRATO',
+  LAUDO_MEDICO: 'LAUDO_MEDICO',
+  CNIS: 'CNIS',
+  DOC_RURAL: 'DOC_RURAL',
+  BO_OU_NOTA_CULPA: 'BO_OU_NOTA_CULPA',
   OUTRO: 'OUTRO'
 };
 
@@ -43,7 +51,17 @@ const MAPA_ROTULOS_TIPO = {
   COMPROVANTE_RESIDENCIA: 'Comprovante de Residência',
   CTPS: 'Carteira de Trabalho (CTPS)',
   CERTIDAO: 'Certidão Civil',
+  CERTIDAO_CIVIL: 'Certidão Civil (Casamento/Nascimento/Óbito)',
+  COMPROVANTE_RENDA: 'Comprovante de Renda / Gastos',
   CONTRATO: 'Contrato / Instrumento Jurídico',
+  PROVA_CONTRATO_OU_DANO: 'Contrato, Fatura ou Prova de Dano',
+  PROTOCOLO_OU_BO: 'Protocolo de Atendimento ou B.O.',
+  MATRICULA_IMOVEL: 'Matrícula do Imóvel / IPTU',
+  COMPROVANTE_POSSE_OU_CONTRATO: 'Comprovante de Posse ou Contrato Imobiliário',
+  LAUDO_MEDICO: 'Laudo / Exame Médico',
+  CNIS: 'Extrato Previdenciário (CNIS)',
+  DOC_RURAL: 'Documentação Rural (DAP/CAF/Terra)',
+  BO_OU_NOTA_CULPA: 'Boletim de Ocorrência / Nota de Culpa',
   OUTRO: 'Documento Digitalizado'
 };
 
@@ -241,8 +259,16 @@ function executarHeuristicaLocal(rawBuffer, mimeType, itensEsperados = [], motiv
     tipo = TIPOS_DOCUMENTO.COMPROVANTE_RESIDENCIA;
   } else if (bufferLower.includes('ctps') || bufferLower.includes('trabalho')) {
     tipo = TIPOS_DOCUMENTO.CTPS;
-  } else if (bufferLower.includes('certidao')) {
-    tipo = TIPOS_DOCUMENTO.CERTIDAO;
+  } else if (bufferLower.includes('certidao') || bufferLower.includes('casamento') || bufferLower.includes('nascimento')) {
+    tipo = TIPOS_DOCUMENTO.CERTIDAO_CIVIL || TIPOS_DOCUMENTO.CERTIDAO;
+  } else if (bufferLower.includes('matricula') || bufferLower.includes('iptu') || bufferLower.includes('escritura')) {
+    tipo = TIPOS_DOCUMENTO.MATRICULA_IMOVEL;
+  } else if (bufferLower.includes('renda') || bufferLower.includes('holerite') || bufferLower.includes('contracheque')) {
+    tipo = TIPOS_DOCUMENTO.COMPROVANTE_RENDA;
+  } else if (bufferLower.includes('protocolo') || bufferLower.includes('procon') || bufferLower.includes('boletim')) {
+    tipo = TIPOS_DOCUMENTO.PROTOCOLO_OU_BO;
+  } else if (bufferLower.includes('posse')) {
+    tipo = TIPOS_DOCUMENTO.COMPROVANTE_POSSE_OU_CONTRATO;
   } else if (bufferLower.includes('contrato')) {
     tipo = TIPOS_DOCUMENTO.CONTRATO;
   } else if (Array.isArray(itensEsperados) && itensEsperados.length > 0) {
@@ -250,6 +276,12 @@ function executarHeuristicaLocal(rawBuffer, mimeType, itensEsperados = [], motiv
     if (primeiro.includes('RESIDENCIA')) tipo = TIPOS_DOCUMENTO.COMPROVANTE_RESIDENCIA;
     else if (primeiro.includes('RG')) tipo = TIPOS_DOCUMENTO.RG_COMPLETO;
     else if (primeiro.includes('CTPS')) tipo = TIPOS_DOCUMENTO.CTPS;
+    else if (primeiro.includes('CERTIDAO')) tipo = TIPOS_DOCUMENTO.CERTIDAO_CIVIL;
+    else if (primeiro.includes('MATRICULA')) tipo = TIPOS_DOCUMENTO.MATRICULA_IMOVEL;
+    else if (primeiro.includes('RENDA')) tipo = TIPOS_DOCUMENTO.COMPROVANTE_RENDA;
+    else if (primeiro.includes('PROTOCOLO') || primeiro.includes('BO')) tipo = TIPOS_DOCUMENTO.PROTOCOLO_OU_BO;
+    else if (primeiro.includes('POSSE')) tipo = TIPOS_DOCUMENTO.COMPROVANTE_POSSE_OU_CONTRATO;
+    else if (primeiro.includes('CONTRATO') || primeiro.includes('DANO')) tipo = TIPOS_DOCUMENTO.PROVA_CONTRATO_OU_DANO;
   }
 
   const ehIlegivel = defeitosDetectados.length > 0;
@@ -511,5 +543,6 @@ module.exports = {
   TIMEOUT_MULTIMODAL_AUDIO,
   MODELOS_GEMINI_PADRAO,
   DEFEITOS_VALIDOS,
-  TIPOS_DOCUMENTO
+  TIPOS_DOCUMENTO,
+  MAPA_ROTULOS_TIPO
 };

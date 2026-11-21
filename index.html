@@ -3,29 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>Advocacia Studio Pro • v2.0 (Executive Suite)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    if (typeof tailwind !== 'undefined') {
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'gold-primary': '#d4af37',
-              'gold-soft': '#f3dc8a',
-              amber: {
-                400: '#f3dc8a',
-                500: '#d4af37',
-                600: '#b89228'
-              }
-            }
-          }
-        }
-      };
-    }
+    (function () {
+      try {
+        var t = localStorage.getItem('adv_bot_theme');
+        document.documentElement.classList.add(t === 'light' ? 'theme-light' : 'theme-dark');
+      } catch (e) {
+        document.documentElement.classList.add('theme-dark');
+      }
+    })();
   </script>
+  <link rel="stylesheet" href="./assets/tailwind.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
+    body.modo-leitura-conforto {
+      font-size: 15px !important;
+    }
+    body.modo-leitura-conforto .text-xs,
+    body.modo-leitura-conforto .text-\[11px\],
+    body.modo-leitura-conforto .text-\[10px\] {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+    }
+    body.modo-leitura-conforto .exec-input,
+    body.modo-leitura-conforto textarea,
+    body.modo-leitura-conforto input {
+      font-size: 14px !important;
+    }
+
     :root {
       --bg-deep: #08080a;
       --bg-surface: #0f1012;
@@ -1081,7 +1087,526 @@
       animation: tabSlideFromLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1) both !important;
     }
 
-    /* Light Theme Adaptations */
+    /* Light Theme Adaptations — Modo Claro Executivo (Papel/Marfim #F8FAFC + Azul-Marinho #1E3A8A, Contraste AAA) */
+    html.theme-light,
+    html.theme-light body {
+      --bg-deep: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #F1F5F9;
+      --bg-surface-3: #E2E8F0;
+      --gold-primary: #1E3A8A;
+      --gold-soft: #1E40AF;
+      --gold-champagne: #1E3A8A;
+      --gold-light: #1E40AF;
+      --text-main: #0F172A;
+      --text-muted: #334155;
+      --text-tertiary: #475569;
+      --card-bg: #FFFFFF;
+      --border-color: #CBD5E1;
+      --border-strong: #94A3B8;
+      --input-bg: #FFFFFF;
+      --inner-box-bg: #F1F5F9;
+      color-scheme: light;
+    }
+
+    html.theme-light body {
+      background-color: #F8FAFC !important;
+      background-image: radial-gradient(ellipse 80% 45% at 50% -10%, rgba(30, 58, 138, 0.055) 0%, transparent 65%) !important;
+      color: #0F172A !important;
+    }
+
+    html.theme-light :focus-visible,
+    html.theme-light button:focus-visible,
+    html.theme-light input:focus-visible,
+    html.theme-light textarea:focus-visible,
+    html.theme-light select:focus-visible,
+    html.theme-light [tabindex]:focus-visible {
+      outline: 2px solid #1E3A8A !important;
+      outline-offset: 2px !important;
+    }
+
+    html.theme-light ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.35);
+    }
+    html.theme-light ::-webkit-scrollbar-thumb:hover {
+      background: rgba(30, 58, 138, 0.65);
+    }
+
+    /* Superfícies & Cards Executivos no Modo Claro */
+    html.theme-light #main-content-area {
+      background-color: #F8FAFC !important;
+    }
+    html.theme-light .exec-card,
+    html.theme-light .linear-shell,
+    html.theme-light .linear-kpi-card,
+    html.theme-light .ai-console-panel {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.09) !important;
+      color: #0F172A;
+    }
+    html.theme-light .linear-kpi-card:hover {
+      background: #FFFFFF !important;
+      border-color: #1E3A8A !important;
+      box-shadow: 0 10px 24px -10px rgba(30, 58, 138, 0.16) !important;
+    }
+    html.theme-light .linear-step-cell,
+    html.theme-light .linear-proc-row,
+    html.theme-light .ai-suggestion-row {
+      background: #F8FAFC !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A;
+    }
+    html.theme-light .linear-step-cell:hover,
+    html.theme-light .linear-proc-row:hover,
+    html.theme-light .ai-suggestion-row:hover {
+      background: #F1F5F9 !important;
+      border-color: #94A3B8 !important;
+    }
+    html.theme-light .linear-proc-row.proc-list-item-active,
+    html.theme-light .proc-list-item-active {
+      background: #EFF6FF !important;
+      border-color: #1E3A8A !important;
+      box-shadow: inset 3px 0 0 #1E3A8A, 0 4px 14px -6px rgba(30, 58, 138, 0.18) !important;
+    }
+    html.theme-light .cohere-eyebrow {
+      color: #334155 !important;
+    }
+    html.theme-light .ai-console-body {
+      color: #1E293B !important;
+    }
+    html.theme-light .linear-btn-ghost,
+    html.theme-light .linear-telemetry-chip {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      color: #1E293B !important;
+    }
+    html.theme-light .linear-btn-ghost:hover,
+    html.theme-light .linear-telemetry-chip:hover {
+      background: #F1F5F9 !important;
+      border-color: #1E3A8A !important;
+      color: #1E3A8A !important;
+    }
+    html.theme-light .btn-ai-enhance {
+      background: rgba(30, 58, 138, 0.08) !important;
+      color: #1E3A8A !important;
+      border-color: rgba(30, 58, 138, 0.35) !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+    }
+    html.theme-light .btn-ai-enhance:hover {
+      background: rgba(30, 58, 138, 0.14) !important;
+      border-color: #1E3A8A !important;
+      color: #172554 !important;
+    }
+    html.theme-light .champagne-gradient {
+      background-color: #1E3A8A !important;
+      background-image: linear-gradient(135deg, #1E3A8A 0%, #172554 100%) !important;
+      color: #FFFFFF !important;
+    }
+    html.theme-light .champagne-gradient *,
+    html.theme-light .champagne-gradient.text-zinc-950,
+    html.theme-light .champagne-gradient .text-zinc-950 {
+      color: #FFFFFF !important;
+    }
+
+    /* Segmented Controls & Inputs no Modo Claro */
+    html.theme-light .segmented-pill-container {
+      background: #E2E8F0 !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+    }
+    html.theme-light .segmented-pill-glider {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1) !important;
+    }
+    html.theme-light .segmented-pill-tab {
+      color: #334155 !important;
+    }
+    html.theme-light .segmented-pill-tab:hover {
+      color: #0F172A !important;
+    }
+    html.theme-light .segmented-pill-tab.active {
+      color: #1E3A8A !important;
+    }
+    html.theme-light .exec-input {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A !important;
+      color-scheme: light !important;
+    }
+    html.theme-light .exec-input::placeholder {
+      color: #475569 !important;
+    }
+    html.theme-light .exec-input:hover {
+      border-color: #64748B !important;
+      background-color: #FFFFFF !important;
+    }
+    html.theme-light .exec-input:focus {
+      border-color: #1E3A8A !important;
+      background-color: #FFFFFF !important;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.18) !important;
+    }
+    html.theme-light .exec-input:disabled,
+    html.theme-light .exec-input:read-only {
+      background-color: #F1F5F9 !important;
+      color: #334155 !important;
+    }
+    html.theme-light select.exec-input {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231E3A8A' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+    }
+    html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
+    html.theme-light input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: none !important;
+      opacity: 0.75;
+    }
+    html.theme-light .toggle-slider {
+      background-color: #CBD5E1;
+      border-color: #94A3B8;
+    }
+    html.theme-light input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+      border-color: #1E3A8A;
+    }
+    html.theme-light input:checked + .toggle-slider:before {
+      background-color: #FFFFFF;
+    }
+
+    /* Overrides Limpos de Classes Utilitárias Dark (sem reescrever o HTML e sem sobrescrever estados :hover) */
+    html.theme-light [class^="bg-zinc-950"],
+    html.theme-light [class*=" bg-zinc-950"],
+    html.theme-light [class^="bg-[#0a"],
+    html.theme-light [class*=" bg-[#0a"],
+    html.theme-light [class^="bg-[#0b"],
+    html.theme-light [class*=" bg-[#0b"],
+    html.theme-light [class^="bg-[#0c"],
+    html.theme-light [class*=" bg-[#0c"],
+    html.theme-light [class^="bg-[#0e"],
+    html.theme-light [class*=" bg-[#0e"] {
+      background-color: #F8FAFC !important;
+    }
+    html.theme-light [class^="bg-zinc-900"],
+    html.theme-light [class*=" bg-zinc-900"],
+    html.theme-light [class^="bg-[#12"],
+    html.theme-light [class*=" bg-[#12"],
+    html.theme-light [class^="bg-[#14"],
+    html.theme-light [class*=" bg-[#14"],
+    html.theme-light [class^="bg-[#16"],
+    html.theme-light [class*=" bg-[#16"] {
+      background-color: #FFFFFF !important;
+    }
+    html.theme-light [class^="bg-zinc-800"],
+    html.theme-light [class*=" bg-zinc-800"],
+    html.theme-light [class^="bg-[#18"],
+    html.theme-light [class*=" bg-[#18"],
+    html.theme-light [class^="bg-[#1a"],
+    html.theme-light [class*=" bg-[#1a"],
+    html.theme-light [class^="bg-[#20"],
+    html.theme-light [class*=" bg-[#20"] {
+      background-color: #F1F5F9 !important;
+    }
+    html.theme-light [class^="bg-zinc-700"],
+    html.theme-light [class*=" bg-zinc-700"] {
+      background-color: #E2E8F0 !important;
+    }
+    /* Estados :hover limpos para superfícies claras */
+    html.theme-light [class*="hover:bg-zinc-900"]:hover,
+    html.theme-light [class*="hover:bg-zinc-800"]:hover,
+    html.theme-light [class*="hover:bg-[#16"]:hover {
+      background-color: #E2E8F0 !important;
+    }
+    html.theme-light [class*="hover:bg-zinc-700"]:hover {
+      background-color: #CBD5E1 !important;
+    }
+    html.theme-light .fixed.inset-0[class*=" bg-zinc-950"],
+    html.theme-light .fixed.inset-0[class^="bg-zinc-950"] {
+      background-color: rgba(15, 23, 42, 0.55) !important;
+    }
+    html.theme-light #splash-screen {
+      background-color: #F8FAFC !important;
+    }
+    html.theme-light [class^="border-zinc-800"],
+    html.theme-light [class*=" border-zinc-800"],
+    html.theme-light [class^="border-[#1"],
+    html.theme-light [class*=" border-[#1"],
+    html.theme-light [class^="border-[#2"],
+    html.theme-light [class*=" border-[#2"] {
+      border-color: #CBD5E1 !important;
+    }
+    html.theme-light [class^="border-zinc-700"],
+    html.theme-light [class*=" border-zinc-700"] {
+      border-color: #94A3B8 !important;
+    }
+
+    /* Tipografia AAA sobre Papel/Marfim #F8FAFC e Branco #FFFFFF (razão >= 7:1) */
+    html.theme-light .text-white,
+    html.theme-light .text-zinc-100,
+    html.theme-light .text-zinc-200,
+    html.theme-light [class^="text-[#f7f8f8]"],
+    html.theme-light [class*=" text-[#f7f8f8]"],
+    html.theme-light [class^="text-[#d0d6e0]"],
+    html.theme-light [class*=" text-[#d0d6e0]"] {
+      color: #0F172A !important;
+    }
+    html.theme-light .text-zinc-300,
+    html.theme-light [class^="text-[#b0b5c0]"],
+    html.theme-light [class*=" text-[#b0b5c0]"] {
+      color: #1E293B !important;
+    }
+    html.theme-light .text-zinc-400,
+    html.theme-light .text-zinc-500,
+    html.theme-light [class^="text-[#8a8f98]"],
+    html.theme-light [class*=" text-[#8a8f98]"],
+    html.theme-light [class^="text-[#62666d]"],
+    html.theme-light [class*=" text-[#62666d]"],
+    html.theme-light [class^="text-[#3e4047]"],
+    html.theme-light [class*=" text-[#3e4047]"] {
+      color: #334155 !important;
+    }
+    html.theme-light [class^="text-amber-"],
+    html.theme-light [class*=" text-amber-"],
+    html.theme-light [class^="text-[#d4af37]"],
+    html.theme-light [class*=" text-[#d4af37]"],
+    html.theme-light [class^="text-[#f3dc8a]"],
+    html.theme-light [class*=" text-[#f3dc8a]"],
+    html.theme-light [class^="text-[#f3e5ab]"],
+    html.theme-light [class*=" text-[#f3e5ab]"] {
+      color: #1E3A8A !important;
+    }
+    html.theme-light [class^="text-emerald-"],
+    html.theme-light [class*=" text-emerald-"] {
+      color: #065F46 !important;
+    }
+    html.theme-light [class^="text-sky-"],
+    html.theme-light [class*=" text-sky-"] {
+      color: #075985 !important;
+    }
+    html.theme-light [class^="text-rose-"],
+    html.theme-light [class*=" text-rose-"],
+    html.theme-light [class^="text-red-"],
+    html.theme-light [class*=" text-red-"] {
+      color: #9F1239 !important;
+    }
+    html.theme-light [class^="text-purple-"],
+    html.theme-light [class*=" text-purple-"],
+    html.theme-light [class^="text-indigo-"],
+    html.theme-light [class*=" text-indigo-"] {
+      color: #4C1D95 !important;
+    }
+    /* Hover de texto claro não deve sumir sobre fundo claro */
+    html.theme-light [class*="hover:text-white"]:hover,
+    html.theme-light [class*="hover:text-[#f7f8f8]"]:hover,
+    html.theme-light [class*="hover:text-zinc-200"]:hover {
+      color: #0F172A !important;
+    }
+    html.theme-light [class*="hover:text-amber-"]:hover,
+    html.theme-light [class*="hover:text-[#f3dc8a]"]:hover {
+      color: #1E3A8A !important;
+    }
+    html.theme-light [class^="bg-amber-500/"],
+    html.theme-light [class*=" bg-amber-500/"],
+    html.theme-light [class^="bg-amber-950/"],
+    html.theme-light [class*=" bg-amber-950/"],
+    html.theme-light [class^="bg-[#d4af37]/"],
+    html.theme-light [class*=" bg-[#d4af37]/"] {
+      background-color: rgba(30, 58, 138, 0.08) !important;
+    }
+    html.theme-light [class^="border-amber-500/"],
+    html.theme-light [class*=" border-amber-500/"],
+    html.theme-light [class^="border-[#d4af37]"],
+    html.theme-light [class*=" border-[#d4af37]"] {
+      border-color: rgba(30, 58, 138, 0.30) !important;
+    }
+    html.theme-light [class^="bg-emerald-500/"],
+    html.theme-light [class*=" bg-emerald-500/"],
+    html.theme-light [class^="bg-emerald-950/"],
+    html.theme-light [class*=" bg-emerald-950/"] {
+      background-color: rgba(6, 95, 70, 0.08) !important;
+    }
+    html.theme-light [class^="border-emerald-500/"],
+    html.theme-light [class*=" border-emerald-500/"] {
+      border-color: rgba(6, 95, 70, 0.28) !important;
+    }
+    html.theme-light [class^="bg-sky-500/"],
+    html.theme-light [class*=" bg-sky-500/"] {
+      background-color: rgba(7, 89, 133, 0.08) !important;
+    }
+    html.theme-light [class^="border-sky-500/"],
+    html.theme-light [class*=" border-sky-500/"] {
+      border-color: rgba(7, 89, 133, 0.28) !important;
+    }
+    html.theme-light [class^="bg-purple-500/"],
+    html.theme-light [class*=" bg-purple-500/"] {
+      background-color: rgba(76, 29, 149, 0.08) !important;
+    }
+    html.theme-light [class^="border-purple-500/"],
+    html.theme-light [class*=" border-purple-500/"] {
+      border-color: rgba(76, 29, 149, 0.28) !important;
+    }
+    html.theme-light [class^="bg-rose-500/"],
+    html.theme-light [class*=" bg-rose-500/"],
+    html.theme-light [class^="bg-rose-950/"],
+    html.theme-light [class*=" bg-rose-950/"],
+    html.theme-light [class^="bg-red-950/"],
+    html.theme-light [class*=" bg-red-950/"] {
+      background-color: rgba(159, 18, 57, 0.08) !important;
+    }
+    html.theme-light [class*="hover:bg-rose-900"]:hover,
+    html.theme-light [class*="hover:bg-rose-950"]:hover {
+      background-color: rgba(159, 18, 57, 0.15) !important;
+    }
+    html.theme-light [class^="border-rose-500/"],
+    html.theme-light [class*=" border-rose-500/"],
+    html.theme-light [class^="border-rose-800"],
+    html.theme-light [class*=" border-rose-800"],
+    html.theme-light [class^="border-rose-900"],
+    html.theme-light [class*=" border-rose-900"] {
+      border-color: rgba(159, 18, 57, 0.30) !important;
+    }
+    /* Preservar texto branco em botões/elementos de fundo sólido escuro e prévia WhatsApp */
+    html.theme-light [class^="bg-emerald-600"],
+    html.theme-light [class*=" bg-emerald-600"] {
+      background-color: #065F46 !important;
+    }
+    html.theme-light [class*="bg-emerald-600"].text-white,
+    html.theme-light [class*="bg-emerald-700"].text-white,
+    html.theme-light [class*="bg-rose-600"].text-white,
+    html.theme-light [class*="bg-rose-700"].text-white,
+    html.theme-light [class*="bg-red-600"].text-white,
+    html.theme-light [class*="bg-sky-600"].text-white,
+    html.theme-light [class*="bg-blue-600"].text-white,
+    html.theme-light [class*="bg-indigo-600"].text-white,
+    html.theme-light [class*="bg-purple-600"].text-white,
+    html.theme-light [class*="bg-amber-600"].text-white,
+    html.theme-light [class*="bg-emerald-600"] .text-white,
+    html.theme-light [class*="bg-rose-600"] .text-white,
+    html.theme-light [class*="bg-sky-600"] .text-white,
+    html.theme-light [class*="bg-blue-600"] .text-white,
+    html.theme-light [class*="bg-indigo-600"] .text-white {
+      color: #FFFFFF !important;
+    }
+    /* Prévia realista do WhatsApp (.wa-wallpaper-dark / .wa-bubble-out / bg-[#005c4b]) mantém tipografia clara */
+    html.theme-light .wa-wallpaper-dark {
+      background-color: #0b141a !important;
+      color: #E2E8F0 !important;
+    }
+    html.theme-light .wa-wallpaper-dark .text-zinc-200,
+    html.theme-light .wa-wallpaper-dark .text-zinc-300,
+    html.theme-light .wa-wallpaper-dark .text-white {
+      color: #F8FAFC !important;
+    }
+    html.theme-light .wa-wallpaper-dark .text-zinc-400 {
+      color: #CBD5E1 !important;
+    }
+    html.theme-light .wa-wallpaper-dark [class*="text-emerald-"] {
+      color: #6EE7B7 !important;
+    }
+    html.theme-light .wa-bubble-out,
+    html.theme-light .wa-bubble-out *,
+    html.theme-light [class*="bg-[#005c4b]"],
+    html.theme-light [class*="bg-[#005c4b]"] * {
+      color: #FFFFFF !important;
+    }
+    html.theme-light .wa-bubble-out [class*="text-sky-"],
+    html.theme-light [class*="bg-[#005c4b]"] [class*="text-sky-"] {
+      color: #7DD3FC !important;
+    }
+
+    /* Sidebar, Tooltips, Popovers & Badges no Modo Claro Executivo */
+    html.theme-light #main-sidebar {
+      background-color: #FFFFFF !important;
+      border-right: 1px solid #CBD5E1 !important;
+    }
+    html.theme-light body.sidebar-expanded .sidebar-category-group {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+    }
+    html.theme-light .sidebar-group-header {
+      color: #1E3A8A !important;
+    }
+    html.theme-light .sidebar-divider {
+      border-top-color: #E2E8F0 !important;
+    }
+    html.theme-light .sidebar-rail-btn {
+      color: #334155 !important;
+    }
+    html.theme-light .sidebar-rail-btn .sidebar-btn-icon {
+      color: #475569 !important;
+      filter: none !important;
+    }
+    html.theme-light .sidebar-rail-btn:hover {
+      background: rgba(30, 58, 138, 0.07) !important;
+      border-color: rgba(30, 58, 138, 0.25) !important;
+    }
+    html.theme-light .sidebar-rail-btn:hover .sidebar-btn-icon,
+    html.theme-light .sidebar-rail-btn:hover .sidebar-btn-label {
+      color: #1E3A8A !important;
+      filter: none !important;
+    }
+    html.theme-light .sidebar-rail-btn.active,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active {
+      background: rgba(30, 58, 138, 0.11) !important;
+      border-color: rgba(30, 58, 138, 0.42) !important;
+      color: #1E3A8A !important;
+      box-shadow: 0 2px 10px -2px rgba(30, 58, 138, 0.16) !important;
+    }
+    html.theme-light .sidebar-rail-btn.active .sidebar-btn-icon,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon,
+    html.theme-light .sidebar-rail-btn.active .sidebar-btn-label,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-label {
+      color: #1E3A8A !important;
+      font-weight: 600;
+      filter: none !important;
+    }
+    html.theme-light .sidebar-rail-btn.active::before,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active::before {
+      background: #1E3A8A !important;
+      box-shadow: none !important;
+    }
+    html.theme-light body:not(.sidebar-expanded) .sidebar-rail-btn::after {
+      background: #1E3A8A !important;
+      color: #FFFFFF !important;
+      border-color: #172554 !important;
+      box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.28) !important;
+    }
+    html.theme-light body:not(.sidebar-expanded) .sidebar-btn-badge.badge-active {
+      background: #1E3A8A !important;
+      color: #FFFFFF !important;
+      border-color: #FFFFFF !important;
+    }
+    html.theme-light #toast-msg {
+      background-color: #1E3A8A !important;
+      border-color: #172554 !important;
+      color: #FFFFFF !important;
+    }
+    html.theme-light #toast-msg * {
+      color: #FFFFFF !important;
+    }
+    html.theme-light #tour-qr-card {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.18) !important;
+    }
+    html.theme-light .urgency-badge-critica {
+      background: rgba(159, 18, 57, 0.10) !important;
+      color: #9F1239 !important;
+      border-color: rgba(159, 18, 57, 0.35) !important;
+    }
+    html.theme-light .urgency-badge-alta {
+      background: rgba(146, 64, 14, 0.10) !important;
+      color: #92400E !important;
+      border-color: rgba(146, 64, 14, 0.35) !important;
+    }
+    html.theme-light .urgency-badge-media {
+      background: rgba(30, 58, 138, 0.10) !important;
+      color: #1E3A8A !important;
+      border-color: rgba(30, 58, 138, 0.32) !important;
+    }
+    html.theme-light .urgency-badge-baixa {
+      background: #F1F5F9 !important;
+      color: #334155 !important;
+      border-color: #CBD5E1 !important;
+    }
 
     /* Ajustes da Sidebar Brand & Search */
     body:not(.sidebar-expanded) .sidebar-top-brand {
@@ -1739,51 +2264,27 @@
       <!-- Navegação Principal com Módulos Centralizados -->
       <nav id="sidebar-nav" class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegação Principal">
         <div class="sidebar-nav-container my-auto space-y-1 w-full">
-        <!-- GRUPO 1: OPERAÇÃO (3 MÓDULOS) -->
+        <!-- SEÇÃO 1: ATENDIMENTO & FILA (5 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-operacao">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-500/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Operação</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Atendimento & Fila</span>
           </div>
-          
+
           <div class="space-y-0.5">
-            <!-- Visão Geral -->
+            <!-- Início / WhatsApp -->
             <button type="button" id="nav-btn-inicio" data-desc="Painel do escritório e indicadores principais" class="sidebar-rail-btn active" title="Visão Geral">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-home"/></svg></div>
               <span class="sidebar-btn-label">Visão Geral</span>
             </button>
 
-            <!-- Clientes & Processos (Master-Detail Centralizado) -->
-            <button type="button" id="nav-btn-processos" data-desc="Gestão unificada de clientes, processos judiciais e dossiê civil (Art. 319 CPC)" class="sidebar-rail-btn" title="Clientes & Processos">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
-              <span class="sidebar-btn-label">Clientes & Processos</span>
-              <span id="badge-processos" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
-            </button>
-
-            <!-- Fila do Advogado -->
+            <!-- Fila Humana -->
             <button type="button" id="nav-btn-pausados" data-desc="Fila de atendimento de clientes no WhatsApp" class="sidebar-rail-btn" title="Fila do Advogado">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
               <span class="sidebar-btn-label">Fila do Advogado</span>
               <span id="badge-pausados" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
             </button>
 
-            <!-- Histórico de Mensagens -->
-            <button type="button" id="nav-btn-terminal" data-desc="Histórico e registros de mensagens enviadas" class="sidebar-rail-btn" title="Histórico de Mensagens">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
-              <span class="sidebar-btn-label">Histórico Mensagens</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="sidebar-divider"></div>
-
-        <!-- GRUPO 2: AUTOMAÇÃO WHATSAPP -->
-        <div class="sidebar-category-group sidebar-group-automacao">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Automação</span>
-          </div>
-
-          <div class="space-y-0.5">
-            <!-- Menu Automático -->
+            <!-- Fluxo / Menu Automático -->
             <button type="button" id="nav-btn-fluxo" data-desc="Fluxos e opções de resposta automática" class="sidebar-rail-btn" title="Menu Automático">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
               <span class="sidebar-btn-label">Menu Automático</span>
@@ -1798,29 +2299,56 @@
               <span id="badge-simulador" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Testes</span>
             </button>
 
-            <!-- Horários & Almoço -->
-            <button type="button" id="nav-btn-agenda" data-desc="Horários de funcionamento do escritório" class="sidebar-rail-btn" title="Horários & Almoço">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
-              <span class="sidebar-btn-label">Horários & Almoço</span>
-            </button>
-
-            <!-- Alias mantido para compatibilidade e integridade de seletores DOM -->
-            <button type="button" id="nav-btn-dossie-clientes" class="hidden" title="Dossiê de Clientes">
-              <span id="badge-dossies" class="hidden">0</span>
+            <!-- Ignorados / Contatos Bloqueados & VIPs -->
+            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Bloqueados & VIP">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
+              <span class="sidebar-btn-label">Contatos Bloqueados</span>
+              <span id="badge-ignorados" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
             </button>
           </div>
         </div>
 
         <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 3: FINANCEIRO & COBRANÇA -->
+        <!-- SEÇÃO 2: DOSSIÊS & PROCESSOS (3 MÓDULOS) -->
+        <div class="sidebar-category-group sidebar-group-automacao">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Dossiês & Processos</span>
+          </div>
+
+          <div class="space-y-0.5">
+            <!-- Processos -->
+            <button type="button" id="nav-btn-processos" data-desc="Gestão unificada de clientes, processos judiciais e dossiê civil (Art. 319 CPC)" class="sidebar-rail-btn" title="Clientes & Processos">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
+              <span class="sidebar-btn-label">Clientes & Processos</span>
+              <span id="badge-processos" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">0</span>
+            </button>
+
+            <!-- Pauta / Agenda -->
+            <button type="button" id="nav-btn-agenda" data-desc="Pauta de compromissos, audiências e horários do escritório" class="sidebar-rail-btn" title="Agenda & Horários">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
+              <span class="sidebar-btn-label">Agenda & Horários</span>
+            </button>
+
+            <!-- Dossiês Art. 319 CPC -->
+            <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil completa e dossiês de clientes (Art. 319 CPC)" class="sidebar-rail-btn" title="Dossiês Art. 319 CPC">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-file-text"/></svg></div>
+              <span class="sidebar-btn-label">Dossiês Art. 319 CPC</span>
+              <span id="badge-dossies" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- SEÇÃO 3: FINANCEIRO (COBRANÇA PIX, EXTRATO E COMPROVANTES) -->
         <div class="sidebar-category-group sidebar-group-financeiro sidebar-group-controladoria">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-500/80">
             <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>Financeiro</span>
           </div>
 
           <div class="space-y-0.5">
-            <!-- Financeiro & PIX -->
+            <!-- Financeiro & PIX (Cobrança PIX, Extrato e Comprovantes) -->
             <button type="button" id="nav-btn-financeiro" data-desc="Honorários, cobranças e conciliação PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m0-2c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
               <span class="sidebar-btn-label">Financeiro & PIX</span>
@@ -1831,22 +2359,21 @@
 
         <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 4: SISTEMA & SEGURANÇA -->
+        <!-- SEÇÃO 4: CONFIGURAÇÕES (3 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-sistema">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-purple-400/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Sistema</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Configurações</span>
           </div>
 
           <div class="space-y-0.5">
-            <!-- Contatos Bloqueados & VIPs -->
-            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Bloqueados & VIP">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
-              <span class="sidebar-btn-label">Contatos Bloqueados</span>
-              <span id="badge-ignorados" class="sidebar-btn-badge bg-purple-500/10 text-purple-300 border border-purple-500/20">0</span>
+            <!-- Diagnóstico do Sistema (id nav-btn-terminal preservado) -->
+            <button type="button" id="nav-btn-terminal" data-desc="Histórico e registros de mensagens enviadas" class="sidebar-rail-btn" title="Diagnóstico do Sistema">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
+              <span class="sidebar-btn-label">Diagnóstico do Sistema</span>
             </button>
 
-            <!-- Cópia de Segurança (.JSON) -->
-            <button type="button" id="nav-btn-backup" data-desc="Exportar e restaurar cópias de segurança locais (.JSON)" class="sidebar-rail-btn" title="Cópia de Segurança (.JSON)">
+            <!-- Cópia de Segurança / Backup -->
+            <button type="button" id="nav-btn-backup" data-desc="Exportar e restaurar cópias de segurança do escritório no computador" class="sidebar-rail-btn" title="Cópia de Segurança do Escritório">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
               <span class="sidebar-btn-label">Cópia de Segurança</span>
             </button>
@@ -1879,6 +2406,24 @@
         </div>
 
         <div class="flex items-center space-x-2">
+          <!-- Botão Acessibilidade / Letra Confortável para Leitura -->
+          <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-zinc-300 transition cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
+            <span>A+</span>
+          </button>
+
+          <!-- Botão Discreto de Alternância de Tema (Modo Escuro / Modo Claro Executivo) -->
+          <button type="button" id="btn-toggle-theme" onclick="alternarTemaUI()" class="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300 transition cursor-pointer" title="Alternar entre Modo Escuro e Modo Claro Executivo" aria-label="Alternar tema" aria-pressed="false">
+            <svg id="icon-tema-sol" class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sun"/></svg>
+            <svg id="icon-tema-lua" class="w-3.5 h-3.5 text-sky-400 hidden"><use href="#icon-moon"/></svg>
+            <span id="label-toggle-tema" class="hidden xl:inline">Modo Claro</span>
+          </button>
+
+          <!-- Toggle Modo Seguro / Robô Pausado Global -->
+          <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
+            <span id="top-modo-seguro-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="top-modo-seguro-text" class="text-emerald-400 font-semibold text-[11px]">Robô: Ativo</span>
+          </button>
+
           <button type="button" id="btn-top-whatsapp-status" onclick="abrirModalQrRapido()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-500/40 text-xs font-medium transition cursor-pointer" title="Ver status da conexão WhatsApp">
             <span id="top-bar-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
             <span id="top-bar-status-text" class="text-zinc-300 font-semibold text-[11px]">WhatsApp</span>
@@ -2182,12 +2727,20 @@
                 Gestão Integrada de Processos &amp; Dossiês
               </h2>
             </div>
-            <div class="flex items-center gap-2">
-              <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium flex items-center space-x-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
-                <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
-                <span>Respostas do Robô →</span>
-              </button>
-            </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="btn-abrir-calc-prazos" type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-semibold flex items-center space-x-1.5 shrink-0 cursor-pointer border border-[#d4af37]/35 hover:border-[#d4af37]/70 text-[#d4af37]" title="Calcular prazos processuais em dias úteis (CPC / CLT) com feriados nacionais e recesso forense">
+                  <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>Calculadora de Prazos</span>
+                </button>
+                <button type="button" onclick="irParaNovoClienteDireto()" class="btn-tactile px-3.5 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Cadastrar cliente rápido sem exigir número de processo na justiça">
+                  <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                  <span>+ Novo Cliente</span>
+                </button>
+                <button id="btn-toggle-msg-processos" type="button" onclick="ativarAba('fluxo'); if (typeof alternarSubAbaFluxo === 'function') alternarSubAbaFluxo('mensagens');" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-medium flex items-center space-x-1.5 shrink-0 cursor-pointer" title="Ir para configuração das mensagens automáticas">
+                  <svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>
+                  <span>Respostas do Robô →</span>
+                </button>
+              </div>
           </div>
 
           <!-- SMART IMPORT MULTIFORMATO (COMPACTO HORIZONTAL — SEMPRE VISÍVEL SEM OCUPAR A TELA TODA) -->
@@ -2203,9 +2756,9 @@
                 </div>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
-                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/40 hover:text-rose-300 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer" title="Organiza processos duplicados mantendo os registros mais atualizados">
+                <button type="button" id="btn-higienizar-base" class="linear-btn-ghost px-2.5 py-1.5 hover:border-rose-500/40 hover:text-rose-300 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer" title="Remove pastas ou cadastros repetidos mantendo os dados mais recentes">
                   <svg class="w-3.5 h-3.5 text-rose-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  <span>Unificar Duplicados</span>
+                  <span>Remover Cadastros Duplicados</span>
                 </button>
                 <button type="button" id="btn-baixar-modelo-xlsx" class="linear-btn-ghost px-2.5 py-1.5 text-[11px] font-medium flex items-center space-x-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -2336,32 +2889,43 @@
                 <div id="detalhe-pane-processo" class="editorial-paper-pane space-y-4">
                   <input type="hidden" id="proc-id-edit" value="">
 
+                  <!-- SELETOR AMIGÁVEL DE TIPO DE PASTA (JUDICIAL VS EXTRAJUDICIAL/CONSULTORIA) -->
+                  <div class="flex items-center space-x-2 p-1.5 rounded-xl bg-[#0e0f12] border border-[#1f2025] text-xs">
+                    <span class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider px-2">Tipo de Pasta:</span>
+                    <button type="button" id="btn-tipo-pasta-judicial" onclick="setTipoPastaFormulario('JUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">
+                      ⚖️ Processo Judicial (CNJ)
+                    </button>
+                    <button type="button" id="btn-tipo-pasta-extra" onclick="setTipoPastaFormulario('EXTRAJUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer">
+                      🏠 Extrajudicial / Consultoria / Imobiliário
+                    </button>
+                  </div>
+
                   <div class="grid grid-cols-12 gap-3 p-4 rounded-xl bg-[#121316] border border-[#1f2025]">
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="cohere-eyebrow text-[10px] block mb-1.5">CPF do Cliente *</label>
-                      <input type="text" id="proc-cpf" inputmode="numeric" placeholder="000.000.000-00" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                      <label id="label-proc-nome" class="cohere-eyebrow text-[10px] block mb-1.5 font-bold text-zinc-200">Nome do Cliente *</label>
+                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-lg px-3 py-2 text-xs">
                     </div>
                     <div class="col-span-12 sm:col-span-4">
-                      <label class="cohere-eyebrow text-[10px] block mb-1.5">Nº do Processo (CNJ) *</label>
+                      <label id="label-proc-cpf" class="cohere-eyebrow text-[10px] block mb-1.5">CPF ou Telefone WhatsApp</label>
+                      <input type="text" id="proc-cpf" placeholder="(11) 99999-9999 ou CPF" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div class="col-span-12 sm:col-span-4">
+                      <label id="label-proc-numero" class="cohere-eyebrow text-[10px] block mb-1.5">Nº do Processo ou Referência</label>
                       <div class="flex items-center gap-1.5">
-                        <input type="text" id="proc-numero" placeholder="0000000-00.2026.8.00.0000" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
-                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar número do processo (CNJ)" class="linear-btn-ghost px-2.5 py-2 text-[#d4af37] shrink-0 cursor-pointer">
+                        <input type="text" id="proc-numero" placeholder="CNJ ou ex: Locação Apt 42 / Usucapião" class="exec-input w-full rounded-lg px-3 py-2 text-xs font-mono">
+                        <button type="button" id="btn-copiar-cnj-ficha" onclick="window.copiarNumeroCnjFicha()" title="Copiar identificador da pasta" class="linear-btn-ghost px-2.5 py-2 text-[#d4af37] shrink-0 cursor-pointer">
                           <svg class="w-3.5 h-3.5"><use href="#icon-clipboard"/></svg>
                         </button>
                       </div>
-                    </div>
-                    <div class="col-span-12 sm:col-span-4">
-                      <label class="cohere-eyebrow text-[10px] block mb-1.5">Nome do Cliente</label>
-                      <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-lg px-3 py-2 text-xs">
                     </div>
                   </div>
 
                   <div class="space-y-2">
                     <div class="flex items-center justify-between">
                       <label class="cohere-eyebrow text-[10.5px] text-[#d0d6e0]">Resumo do Andamento (Enviado pelo Robô WhatsApp)</label>
-                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-emerald-400 font-medium">
-                        <input type="checkbox" id="proc-tem-atualizacao" checked class="accent-[#d4af37] rounded cursor-pointer">
-                        <span>Notificar cliente</span>
+                      <label class="flex items-center space-x-1.5 cursor-pointer text-[11px] text-zinc-400 hover:text-emerald-400 font-medium transition" title="Marque somente se desejar disparar notificação ativa ao salvar">
+                        <input type="checkbox" id="proc-tem-atualizacao" class="accent-[#d4af37] rounded cursor-pointer">
+                        <span>Avisar cliente no WhatsApp</span>
                       </label>
                     </div>
                     <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-[13px] resize-none leading-relaxed"></textarea>
@@ -2385,6 +2949,9 @@
                         <h4 id="dossie-cliente-titulo" class="text-xs font-bold text-white mt-0.5">Selecione um cliente ao lado</h4>
                       </div>
                       <div class="flex items-center space-x-2">
+                        <button type="button" id="btn-gerar-kit-inicial-dossie" onclick="window.abrirModalKitInicial && window.abrirModalKitInicial()" class="hidden px-3.5 py-1.5 rounded-xl champagne-gradient font-bold text-[11px] shadow-md hover:brightness-110 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Gerar Procuração, Contrato de Honorários e Hipossuficiência (.docx) em 1 clique">
+                          <span>✨ Gerar Kit Inicial do Cliente</span>
+                        </button>
                         <button type="button" id="btn-solicitar-docs-dossie-topo" onclick="window.solicitarDocsClienteDossieAtual && window.solicitarDocsClienteDossieAtual()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Solicitar documentos no WhatsApp deste cliente">
                           <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
                           <span>Solicitar Docs</span>
@@ -2395,7 +2962,7 @@
                     <div class="grid grid-cols-12 gap-3 text-xs">
                       <div class="col-span-12 sm:col-span-6">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Nome Completo</label>
-                        <input type="text" id="dossie-nome" placeholder="Extraído via OCR do RG/CNH" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                        <input type="text" id="dossie-nome" placeholder="Preenchido via leitura de documento ou digite aqui" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
                       </div>
                       <div class="col-span-12 sm:col-span-3">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">CPF</label>
@@ -2423,7 +2990,7 @@
                       </div>
                       <div class="col-span-12 sm:col-span-4">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Filiação (Mãe / Pai)</label>
-                        <input type="text" id="dossie-filiacao" placeholder="Filiação extraída do RG" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                        <input type="text" id="dossie-filiacao" placeholder="Nome da mãe / pai ou filiação" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
                       </div>
                       <div class="col-span-12 sm:col-span-8">
                         <label class="text-[10px] text-zinc-400 font-semibold block mb-1">Endereço Completo com CEP</label>
@@ -2471,6 +3038,145 @@
               </div>
             </div>
           </div>
+
+          <!-- MODAL: CALCULADORA NATIVA DE PRAZOS PROCESSUAIS (CPC / CLT) -->
+          <div id="modal-calculadora-prazos" class="fixed inset-0 z-[120] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onclick="if(event.target === this) fecharModalCalculadoraPrazos()">
+            <div class="exec-card w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-zinc-800/90 bg-zinc-950/95 shadow-2xl p-6 space-y-5 relative">
+              <div class="flex items-start justify-between gap-4 border-b border-zinc-800/80 pb-4">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="cohere-eyebrow text-[#d4af37]">Cálculo Determinístico Local</span>
+                    <span class="text-zinc-600">•</span>
+                    <span class="text-[11px] font-mono text-zinc-400">Art. 220 &amp; 224 CPC • Art. 775 &amp; 775-A CLT</span>
+                  </div>
+                  <h3 class="font-serif-legal text-xl font-bold text-zinc-100 flex items-center gap-2">
+                    <span>⚖️ Calculadora de Prazos Processuais (CPC / CLT)</span>
+                  </h3>
+                </div>
+                <button type="button" onclick="fecharModalCalculadoraPrazos()" class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 border border-zinc-800 transition cursor-pointer" title="Fechar calculadora">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <!-- Atalhos Rápidos de 1 Clique -->
+              <div class="space-y-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block">Atalhos Jurídicos Rápidos (1 clique):</span>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="aplicarAtalhoPrazo('Contestação', 15, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Contestação (15d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Apelação', 15, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Apelação (15d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Recurso Inominado (JEC)', 10, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Rec. Inominado JEC (10d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Recurso Ordinário (CLT)', 8, 'CLT')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl border border-amber-500/30 text-amber-300 cursor-pointer">Recurso Ordinário CLT (8d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Embargos de Declaração', 5, null)" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Embargos de Declaração (5d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Réplica / Impugnação', 15, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Réplica (15d)</button>
+                </div>
+              </div>
+
+              <!-- Formulário de Parâmetros -->
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-rito" class="text-[11px] font-semibold text-zinc-400 block">Rito Processual</label>
+                  <select id="calc-prazo-rito" onchange="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                    <option value="CPC">CPC — Cível / Previdenciário / Família</option>
+                    <option value="CLT">CLT — Trabalhista</option>
+                  </select>
+                </div>
+
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-evento" class="text-[11px] font-semibold text-zinc-400 block">Evento da Data Informada</label>
+                  <select id="calc-prazo-evento" onchange="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                    <option value="disponibilizacao">Disponibilização no DJEN (Publ. +1 útil, Início +1 útil)</option>
+                    <option value="publicacao">Publicação / Intimação (Início no 1º dia útil seguinte)</option>
+                  </select>
+                </div>
+
+                <div class="sm:col-span-4 space-y-1">
+                  <label for="calc-prazo-data" class="text-[11px] font-semibold text-zinc-400 block">Data da Disponibilização / Publicação</label>
+                  <input type="date" id="calc-prazo-data" onchange="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
+                </div>
+
+                <div class="sm:col-span-3 space-y-1">
+                  <label for="calc-prazo-dias" class="text-[11px] font-semibold text-zinc-400 block">Prazo (Dias Úteis)</label>
+                  <input type="number" id="calc-prazo-dias" min="1" max="1000" value="15" oninput="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold">
+                </div>
+
+                <div class="sm:col-span-5 space-y-1">
+                  <label for="calc-prazo-feriados-locais" class="text-[11px] font-semibold text-zinc-400 block">Feriados Locais / Suspensões (opcional)</label>
+                  <input type="text" id="calc-prazo-feriados-locais" oninput="calcularPrazoProcessualUI()" placeholder="Ex: 25/01/2026, 09/07/2026" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                </div>
+
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-titulo" class="text-[11px] font-semibold text-zinc-400 block">Título da Peça / Compromisso (para a Pauta)</label>
+                  <input type="text" id="calc-prazo-titulo" placeholder="Ex: Contestação (15d CPC)" value="Contestação" class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                </div>
+
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-vinculo" class="text-[11px] font-semibold text-zinc-400 block">Vincular ao Processo / Cliente</label>
+                  <input type="text" id="calc-prazo-vinculo" placeholder="Ex: João Silva — Proc. 0001234-56.2026..." class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                </div>
+              </div>
+
+              <!-- Ações de Cálculo -->
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <span class="text-[11px] text-zinc-400">Inclui feriados nacionais (incl. 20/11), Páscoa/Carnaval/Corpus Christi e Recesso Forense (20/12 a 20/01).</span>
+                <button type="button" id="btn-executar-calc-prazo" onclick="calcularPrazoProcessualUI()" class="btn-tactile px-4 py-2 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl shadow cursor-pointer flex items-center gap-1.5">
+                  <span>Calcular Prazo</span>
+                </button>
+              </div>
+
+              <!-- Erro de validação -->
+              <div id="calc-prazo-erro" class="hidden p-3 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 text-xs font-medium"></div>
+
+              <!-- Resultado do Cálculo -->
+              <div id="calc-prazo-resultado" class="hidden space-y-4 pt-3 border-t border-zinc-800/80">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div class="p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 space-y-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 block">Data da Publicação</span>
+                    <span id="calc-res-publicacao" class="text-sm font-mono font-bold text-zinc-100 block">--/--/----</span>
+                    <span id="calc-res-disp-nota" class="text-[10px] text-zinc-500 block"></span>
+                  </div>
+
+                  <div class="p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 space-y-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 block">Início da Contagem (Dia 1)</span>
+                    <span id="calc-res-inicio" class="text-sm font-mono font-bold text-emerald-400 block">--/--/----</span>
+                    <span id="calc-res-rito-badge" class="text-[10px] text-zinc-400 block"></span>
+                  </div>
+
+                  <div class="p-3.5 rounded-2xl border border-[#d4af37]/50 bg-[#d4af37]/10 space-y-1">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-[#d4af37] block">⚡ Data Fatal (Vencimento)</span>
+                    <span id="calc-res-fatal" class="text-lg font-mono font-extrabold text-[#d4af37] block">--/--/----</span>
+                    <span id="calc-res-dia-semana" class="text-[11px] font-semibold text-zinc-300 block"></span>
+                  </div>
+                </div>
+
+                <!-- Alerta de Recesso Forense (quando aplicável) -->
+                <div id="calc-res-recesso-banner" class="hidden p-3 rounded-xl border border-amber-500/35 bg-amber-500/10 text-amber-300 text-xs flex items-center gap-2">
+                  <span>🎄</span>
+                  <span><strong>Suspensão Automática Aplicada:</strong> Este prazo atravessou o Recesso Forense (20/12 a 20/01 — Art. 220 CPC / Art. 775-A CLT).</span>
+                </div>
+
+                <!-- Detalhamento dos Dias Pulados -->
+                <div class="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-2.5">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-zinc-200">Detalhamento dos Dias Não Úteis Pulados</span>
+                    <span id="calc-res-resumo-pulados" class="text-[11px] font-mono text-zinc-400"></span>
+                  </div>
+                  <div id="calc-res-lista-pulados" class="max-h-40 overflow-y-auto space-y-1 pr-1 text-[11px] text-zinc-300"></div>
+                </div>
+
+                <!-- Botão Salvar na Pauta -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-zinc-800/80">
+                  <span id="calc-res-fundamento" class="text-[11px] text-zinc-400 font-mono"></span>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="fecharModalCalculadoraPrazos()" class="linear-btn-ghost px-4 py-2 text-xs font-semibold rounded-xl cursor-pointer">Fechar</button>
+                    <button type="button" id="btn-salvar-prazo-pauta" onclick="salvarPrazoCalculadoNaPautaUI()" class="btn-tactile px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span>Salvar na Pauta</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- ================= ABA 2: MENU AUTOMÁTICO (2 SUB-ABAS LIMPAS) ================= -->
@@ -2484,7 +3190,7 @@
                   Atendimento WhatsApp
                 </span>
                 <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                  Auto-Save Contínuo
+                  Salvamento Automático
                 </span>
               </div>
               <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
@@ -2563,6 +3269,7 @@
                 </div>
 
                 <textarea id="input-etapa-msg" rows="4" placeholder="Mensagem enviada pelo robô..." class="exec-input w-full rounded-xl p-3.5 text-xs resize-none leading-relaxed"></textarea>
+                <div id="guardrail-aviso-input-etapa-msg" class="hidden mt-2 p-3 rounded-xl border text-[11px] leading-relaxed transition-all duration-200"></div>
               </div>
 
               <div id="tour-options-card" class="exec-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-4">
@@ -2817,7 +3524,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         </div>
 
-        <!-- ================= ABA 3: HORÁRIOS & ALMOÇO ================= -->
+        <!-- ================= ABA 3: HORÁRIOS & COMPROMISSOS ================= -->
         <div id="aba-agenda" class="hidden space-y-5 tab-pane-anim">
           <div id="tour-agenda-card" class="exec-card relative overflow-hidden p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-6 shadow-xl">
             <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"></div>
@@ -2826,24 +3533,91 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <div class="flex items-center flex-wrap gap-2">
                   <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Disponibilidade & Turnos
+                    Turnos & Prazos
                   </span>
                   <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                    Avisos Transparentes
+                    Plantão & Agenda Jurídica
                   </span>
                 </div>
                 <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
                   <svg class="w-5 h-5 text-amber-400"><use href="#icon-calendar"/></svg>
-                  Horários de Atendimento & Intervalo de Almoço
+                  Agenda, Audiências & Horários de Atendimento
                 </h2>
-                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Defina a grade semanal de funcionamento e horário de almoço. Fora do expediente, o robô inclui aviso gentil e segue adiantando o atendimento.</p>
+                <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Gerencie compromissos com clientes, audiências judiciais e controle os horários de funcionamento do robô no WhatsApp.</p>
               </div>
-              <button id="btn-salvar-agenda" class="btn-tactile flex items-center space-x-2 px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer shrink-0">
-                <svg class="w-4 h-4"><use href="#icon-save"/></svg>
-                <span>Salvar Horários</span>
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <!-- Toggle Modo Plantão 24h em 1 Clique -->
+                <button type="button" id="btn-toggle-plantao-24h" onclick="togglePlantao24hUI()" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-zinc-900 text-zinc-300 border border-zinc-700 hover:border-amber-500/40" title="Ativa atendimento 24h sem interrupção de almoço ou fechamento">
+                  <span id="dot-plantao-24h" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                  <span id="label-plantao-24h">Modo Plantão 24h: Desligado</span>
+                </button>
+                <button id="btn-salvar-agenda" class="btn-tactile flex items-center space-x-2 px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer">
+                  <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+                  <span>Salvar Horários</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- SUB-ABAS DA AGENDA: COMPROMISSOS VS HORÁRIOS DO BOT -->
+            <div class="p-1 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex gap-1 text-xs">
+              <button type="button" id="subtab-agenda-compromissos" onclick="alternarSubAbaAgenda('compromissos')" class="flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
+                <span>1. Compromissos &amp; Audiências</span>
+                <span id="badge-total-compromissos" class="px-1.5 py-0.2 rounded-md bg-zinc-900 text-amber-300 font-mono text-[10px]">0</span>
+              </button>
+              <button type="button" id="subtab-agenda-horarios" onclick="alternarSubAbaAgenda('horarios')" class="flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4"><use href="#icon-coffee"/></svg>
+                <span>2. Horários do Robô &amp; Almoço</span>
               </button>
             </div>
 
+            <!-- PAINEL SUB-ABA 1: COMPROMISSOS & AUDIÊNCIAS -->
+            <div id="painel-agenda-compromissos" class="space-y-4">
+              <!-- Formulário Rápido de Novo Compromisso -->
+              <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-zinc-200 block flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-plus"/></svg>
+                    Agendar Nova Audiência ou Reunião
+                  </span>
+                  <span class="text-[10px] text-zinc-400">Notificação rápida na pauta do escritório</span>
+                </div>
+                <div class="grid grid-cols-12 gap-3 text-xs">
+                  <div class="col-span-12 sm:col-span-4">
+                    <label class="text-[10.5px] text-zinc-400 block mb-1">Título / Assunto *</label>
+                    <input type="text" id="comp-titulo" placeholder="Ex: Audiência de Instrução / Consulta Inicial" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                  </div>
+                  <div class="col-span-12 sm:col-span-3">
+                    <label class="text-[10.5px] text-zinc-400 block mb-1">Cliente / Envolvido</label>
+                    <input type="text" id="comp-cliente" placeholder="Nome do cliente ou processo" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                  </div>
+                  <div class="col-span-12 sm:col-span-3">
+                    <label class="text-[10.5px] text-zinc-400 block mb-1">Data &amp; Horário *</label>
+                    <input type="datetime-local" id="comp-data" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+                  </div>
+                  <div class="col-span-12 sm:col-span-2 flex items-end">
+                    <button type="button" onclick="adicionarCompromissoAgendaUI()" class="w-full py-2.5 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl shadow transition cursor-pointer flex items-center justify-center space-x-1.5">
+                      <span>Agendar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Compromissos Agendados -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between px-1">
+                  <span class="text-xs font-bold text-zinc-300">Pauta de Compromissos do Escritório</span>
+                </div>
+                <div id="lista-compromissos-agenda" class="space-y-2">
+                  <div class="p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
+                    Nenhum compromisso agendado. Adicione uma audiência ou reunião acima para acompanhar na pauta.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PAINEL SUB-ABA 2: HORÁRIOS DO ROBÔ & ALMOÇO (CONFIGURAÇÃO EXISTENTE) -->
+            <div id="painel-agenda-horarios" class="hidden space-y-4">
             <div class="grid grid-cols-12 gap-4">
               <div class="col-span-12 lg:col-span-7 p-5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 space-y-3.5">
                 <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
@@ -2875,6 +3649,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <div>
                   <label class="text-[11px] text-zinc-400 block mb-1">Início da mensagem enviado no horário de almoço:</label>
                   <input type="text" id="agenda-msg-almoco" placeholder="Aviso de almoço..." class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                  <div id="guardrail-aviso-agenda-msg-almoco" class="guardrail-oab-alerta hidden"></div>
                 </div>
               </div>
 
@@ -2886,6 +3661,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   </div>
                   <p class="text-[11px] text-zinc-400 mb-2">Texto colocado no começo da resposta quando o escritório está fechado:</p>
                   <textarea id="agenda-msg-fora" rows="4" class="exec-input w-full rounded-xl p-3 text-xs resize-none leading-relaxed"></textarea>
+                  <div id="guardrail-aviso-agenda-msg-fora" class="guardrail-oab-alerta hidden"></div>
                 </div>
               </div>
             </div>
@@ -2908,6 +3684,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Expediente por Dia da Semana:</span>
               <div id="grade-dias-semana" class="space-y-2.5"></div>
             </div>
+            </div>
           </div>
         </div>
 
@@ -2928,6 +3705,21 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">Clientes aguardando atendimento humano ou que enviaram áudios/relatos. A IA classifica a urgência e sugere respostas éticas em 1 clique.</p>
               </div>
             </div>
+
+            <!-- BARRA DE CONTROLE: BUSCA E FILTROS RÁPIDOS NA FILA -->
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80">
+              <div class="relative flex-1">
+                <input type="text" id="busca-fila-advogado" oninput="filtrarFilaAdvogadoUI()" placeholder="Buscar cliente por nome, telefone ou relato..." class="exec-input w-full rounded-xl pl-9 pr-4 py-2 text-xs bg-zinc-900 border border-zinc-700/80 text-zinc-100 placeholder-zinc-500">
+                <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+              <div class="flex items-center space-x-1.5 overflow-x-auto text-xs shrink-0">
+                <button type="button" onclick="setFiltroUrgenciaFila('TODOS')" id="filtro-fila-todos" class="px-3 py-1.5 rounded-lg font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">Todos</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('CRITICA')" id="filtro-fila-critica" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-rose-300 border border-zinc-800 hover:border-rose-500/40 cursor-pointer">🚨 Crítica</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('ALTA')" id="filtro-fila-alta" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-amber-300 border border-zinc-800 hover:border-amber-500/40 cursor-pointer">⚠️ Alta</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('AUDIO')" id="filtro-fila-audio" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-indigo-300 border border-zinc-800 hover:border-indigo-500/40 cursor-pointer">🎙️ Com Áudio</button>
+              </div>
+            </div>
+
             <div id="lista-pausados" class="space-y-2.5"></div>
           </div>
         </div>
@@ -3125,7 +3917,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
               <button id="btn-exportar-dados" class="w-full py-3.5 champagne-gradient font-bold text-xs rounded-xl shadow-lg active:scale-[0.98] transition cursor-pointer flex items-center justify-center space-x-2">
                 <svg class="w-4 h-4"><use href="#icon-download"/></svg>
-                <span>Baixar Backup Completo (.JSON)</span>
+                <span>Salvar Cópia do Escritório no Computador</span>
               </button>
             </div>
 
@@ -3158,7 +3950,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <input type="file" id="input-importar-arquivo" accept=".json" class="hidden">
                 <button id="btn-importar-dados" class="w-full py-3.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 text-zinc-100 font-bold text-xs rounded-xl active:scale-[0.98] transition cursor-pointer flex items-center justify-center space-x-2 shadow-md">
                   <svg class="w-4 h-4"><use href="#icon-upload"/></svg>
-                  <span>Escolher Arquivo de Backup (.JSON)</span>
+                  <span>Escolher Arquivo de Backup do Escritório</span>
                 </button>
               </div>
             </div>
@@ -3253,7 +4045,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <div class="grid grid-cols-12 gap-3.5 items-end">
                 <div class="col-span-12 sm:col-span-5">
                   <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Número do WhatsApp / Telefone *</label>
-                  <input type="text" id="input-ignorado-numero" placeholder="Ex: (11) 98765-4321 ou 5511987654321" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
+                  <input type="text" id="input-ignorado-numero" placeholder="Ex: (11) 98765-4321 (aceita com ou sem 55)" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
                 </div>
                 <div class="col-span-12 sm:col-span-5">
                   <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Identificação / Motivo (Opcional)</label>
@@ -3488,9 +4280,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 </h2>
               </div>
               <div>
-                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer">
+                <button type="button" id="btn-exportar-extrato-financeiro" onclick="exportarExtratoFinanceiroUI()" class="btn-tactile px-3.5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-amber-500/40 text-zinc-100 rounded-[10px] text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Exportar Extrato (CSV)</span>
+                </button>
+              </div>
+              <div>
+                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer" title="Envia lembrete cordial via WhatsApp apenas para clientes com parcelas vencidas ou do dia">
                   <svg class="w-4 h-4 text-zinc-950 inline"><use href="#icon-flow"/></svg>
-                  <span>Disparar Cobranças da Régua</span>
+                  <span>Enviar Lembretes de Pagamento</span>
                 </button>
               </div>
             </div>
@@ -3681,7 +4479,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     </div>
                     <div class="col-span-12 sm:col-span-6">
                       <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">WhatsApp *</label>
-                      <input type="text" id="fin-novo-tel" placeholder="5511999999999" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                      <input type="text" id="fin-novo-tel" placeholder="(11) 99999-9999 (aceita com ou sem 55)" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
                     </div>
                     <div class="col-span-12 sm:col-span-4">
                       <label class="text-[11px] font-bold text-emerald-400 tracking-wide block mb-1">Valor de cada Parcela (R$)</label>
@@ -3821,6 +4619,50 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                   </label>
                 </div>
 
+                <!-- Seletor de Persona e Tom de Voz da IA -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-xs font-bold text-zinc-200 block">Tom de Voz da IA Jurídica</span>
+                      <span class="text-[11px] text-zinc-400">Personalize a linguagem das respostas e sugestões</span>
+                    </div>
+                    <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Provimento 205 OAB</span>
+                  </div>
+                  <select id="select-tom-ia" onchange="salvarTomIAUI(this.value)" class="exec-input w-full rounded-xl p-2.5 text-xs bg-zinc-900 border border-zinc-700 text-zinc-100">
+                    <option value="acolhedor">👨‍👩‍👧 Acolhedor & Empático (Família / Sucessões / Cível)</option>
+                    <option value="executivo">⚡ Direto & Executivo (Direito Digital / Startups / Empresarial)</option>
+                    <option value="tradicional">⚖️ Clássico & Formal (Trabalhista / Contencioso Cível)</option>
+                    <option value="plantao">🚨 Plantão 24h & Emergência (Criminal / Flagrante)</option>
+                  </select>
+                  <label class="flex items-center space-x-2 cursor-pointer text-[11px] text-zinc-300 pt-1">
+                    <input type="checkbox" id="check-ia-sem-emojis" onchange="salvarOpcaoSemEmojisUI(this.checked)" class="accent-[#d4af37] rounded cursor-pointer">
+                    <span>Sobriedade Estrita: Não utilizar emojis nas respostas geradas pela IA</span>
+                  </label>
+                </div>
+
+                <!-- Configuração Visual da Chave Gemini API -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-xs font-bold text-zinc-200 block">Chave de Inteligência Artificial (Google Gemini)</span>
+                      <span id="status-chave-ia" class="text-[11px] text-zinc-400">Verificando status da chave...</span>
+                    </div>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] font-semibold text-amber-400 hover:underline flex items-center gap-1">
+                      <span>Obter Chave Grátis</span>
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                  </div>
+                  <div class="flex gap-2">
+                    <input type="password" id="input-chave-gemini" placeholder="Cole sua chave AIzaSy... ou deixe vazia para manter a atual" class="exec-input flex-1 rounded-xl p-2.5 text-xs font-mono bg-zinc-900 border border-zinc-700 text-zinc-100">
+                    <button type="button" onclick="salvarChaveGeminiUI()" class="px-4 py-2 champagne-gradient font-bold text-xs rounded-xl transition shadow cursor-pointer">
+                      Salvar Chave
+                    </button>
+                  </div>
+                  <p class="text-[10.5px] text-zinc-500 leading-relaxed">
+                    💡 A chave é armazenada de forma segura e criptografada no computador do seu escritório. Se preferir não usar chave própria, o sistema continuará operando com respostas locais do modelo inteligente de contingência.
+                  </p>
+                </div>
+
                 <!-- Atalhos de Teclado -->
                 <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2">
                   <span class="text-xs font-bold text-zinc-200 block">Atalhos de Produtividade</span>
@@ -3856,7 +4698,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                     <span class="text-xs font-bold text-zinc-200 block">Sessão Corporativa Ativa</span>
                     <span class="text-[11px] text-emerald-400 flex items-center gap-1.5 mt-0.5">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      Autenticação Local Válida (Token Seguro de 30 Dias)
+                      Acesso Ativo no Computador (Sessão Segura de 30 Dias)
                     </span>
                   </div>
                   <button id="btn-logout" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-900/50 text-rose-300 text-xs font-semibold transition active:scale-95 cursor-pointer" title="Encerrar sessão de 30 dias e trocar conta">
@@ -3868,7 +4710,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <div class="p-3.5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 flex items-center justify-between">
                   <div>
                     <span class="text-xs font-bold text-zinc-200 block">Backup e Exportação de Dados</span>
-                    <span class="text-[11px] text-zinc-400">Salve seus processos, financeiro e clientes em JSON</span>
+                    <span class="text-[11px] text-zinc-400">Guarde uma cópia segura dos seus processos, financeiro e clientes</span>
                   </div>
                   <button type="button" onclick="ativarAba('backup')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white text-xs font-semibold transition active:scale-95 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-sky-400"><use href="#icon-database"/></svg>
@@ -3915,6 +4757,96 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
             </div>
 
+            <!-- CARD 5: PAINEL OFICIAL DE CONFORMIDADE LGPD & OAB (Art. 7º/11 LGPD • Provimento 205/2021 CFOAB) -->
+            <div id="painel-conformidade-lgpd-oab" class="col-span-1 lg:col-span-2 exec-card p-6 rounded-3xl border border-zinc-800/80 bg-zinc-900/60 backdrop-blur-xl space-y-5">
+              <!-- Topo do Painel -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/80 pb-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+                    <svg class="w-5 h-5"><use href="#icon-shield"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-sm font-bold text-zinc-100">Painel Oficial de Conformidade LGPD &amp; OAB</h3>
+                      <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold border border-emerald-500/25">Auditado 2026</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-400 mt-0.5">Diretrizes legais de privacidade, custódia local de dados e inteligência artificial ética</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1.5 self-start sm:self-center">
+                  <span class="text-[10px] font-mono text-zinc-400 bg-zinc-950/80 px-2.5 py-1 rounded-lg border border-zinc-800">
+                    Lei 13.709/2018 • Provimento 205/2021 CFOAB
+                  </span>
+                </div>
+              </div>
+
+              <!-- 4 Pilares de Conformidade Técnica e Jurídica -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <!-- Pilar 1: Armazenamento Local -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2">
+                  <div class="flex items-center space-x-2 text-amber-400 font-bold">
+                    <svg class="w-4 h-4"><use href="#icon-database"/></svg>
+                    <span>1. Armazenamento Local Soberano</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-300 leading-relaxed">
+                    Dossiês, processos judiciais, fichas de clientes e arquivos digitalizados (<code class="text-amber-400 font-mono text-[10.5px]">documentos_clientes/</code>) ficam gravados <strong>exclusivamente no computador do escritório</strong>. O escritório mantém a custódia soberana de sua base documental sem persistência em servidores de terceiros ou nuvens públicas abertas.
+                  </p>
+                </div>
+
+                <!-- Pilar 2: Tráfego Criptografado de IA -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2">
+                  <div class="flex items-center space-x-2 text-sky-400 font-bold">
+                    <svg class="w-4 h-4"><use href="#icon-sparkles"/></svg>
+                    <span>2. Tráfego de IA Criptografado (HTTPS/TLS)</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-300 leading-relaxed">
+                    A leitura visual e qualificação de documentos utiliza conexões criptografadas de ponta a ponta <strong>(HTTPS / TLS 1.3)</strong> diretamente com o provedor de inteligência artificial configurado pela chave do próprio escritório. A transmissão é efetuada estritamente sob demanda para fins de análise pericial e OCR, sem retenção pública.
+                  </p>
+                </div>
+
+                <!-- Pilar 3: Enquadramento LGPD (Art. 7º e 11) -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2">
+                  <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                    <svg class="w-4 h-4"><use href="#icon-file-text"/></svg>
+                    <span>3. Enquadramento Legal LGPD (Arts. 7º e 11)</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-300 leading-relaxed">
+                    O tratamento de dados pessoais no sistema é respaldado pelo <strong>Art. 7º, incisos V e VI da LGPD</strong> (execução de contrato a pedido do titular e exercício regular de direitos em processo judicial). Para documentos sensíveis (como laudos médicos, atestados ou boletins de ocorrência), o fundamento legal é o <strong>Art. 11, inciso II, alínea "d" da LGPD</strong> (dados sensíveis indispensáveis ao exercício de direitos judiciais).
+                  </p>
+                </div>
+
+                <!-- Pilar 4: Ética OAB (Provimento 205/2021) -->
+                <div class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-2">
+                  <div class="flex items-center space-x-2 text-purple-400 font-bold">
+                    <svg class="w-4 h-4"><use href="#icon-scales"/></svg>
+                    <span>4. Conformidade Ética OAB (Provimento 205/2021)</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-300 leading-relaxed">
+                    Em conformidade estrita com o <strong>Anexo Único e Art. 3º do Provimento 205/2021 do CFOAB</strong>, os recursos tecnológicos realizam triagem inicial meramente informativa e organização documental, <em>sem jamais substituir a atuação ou o juízo técnico exclusivo do advogado</em>. São expressamente vedadas promessas de resultado, captação mercantilista ou garantias de êxito no atendimento.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Caixa com Texto Pronto & Botão Copiar para WhatsApp -->
+              <div class="p-4 rounded-2xl bg-zinc-950/80 border border-amber-500/30 space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Aviso de Privacidade e Triagem para o Cliente (WhatsApp)</span>
+                    <span class="text-[10px] text-zinc-400">Texto pronto e padronizado para envio na mensagem inicial de acolhimento ou contrato</span>
+                  </div>
+                  <button type="button" id="btn-copiar-aviso-privacidade" onclick="window.copiarAvisoPrivacidadeLGPDUi && window.copiarAvisoPrivacidadeLGPDUi()" class="px-3.5 py-1.5 rounded-xl champagne-gradient font-bold text-xs text-zinc-950 shadow-md hover:brightness-110 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5 text-zinc-950"><use href="#icon-clipboard"/></svg>
+                    <span>Copiar Aviso de Privacidade</span>
+                  </button>
+                </div>
+
+                <div class="relative">
+                  <textarea id="texto-aviso-privacidade-lgpd" readonly rows="4" class="exec-input w-full rounded-xl p-3 text-[11.5px] leading-relaxed resize-none font-sans text-zinc-300 bg-zinc-900/90 border border-zinc-800 select-all cursor-text" placeholder="Aviso de Privacidade...">🔒 *Aviso de Privacidade e Atendimento Informativo (LGPD &amp; OAB)*:
+Este canal utiliza assistente digital para triagem inicial e recepção de documentos, com base nos Arts. 7º, V e VI e 11, II, "d" da LGPD (Lei 13.709/18). Os dados e arquivos enviados são tratados sob estrito sigilo profissional e destinam-se unicamente à instrução jurídica do seu caso. O atendimento automatizado é de caráter meramente informativo e a condução processual é realizada com acompanhamento exclusivo da equipe jurídica responsável (Provimento 205/2021 do CFOAB).</textarea>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -3940,9 +4872,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <label class="text-[11px] text-amber-400 font-bold block mb-1">Selecione o Preset de Documentos da Área Jurídica</label>
                 <select id="onboarding-modal-preset" onchange="window.atualizarMensagemModalOnboarding && window.atualizarMensagemModalOnboarding()" class="exec-input w-full rounded-xl px-3 py-2.5 text-xs font-semibold">
                   <option value="Trabalhista">Trabalhista (RG/CNH, CTPS, TRCT, Holerites, FGTS e Endereço)</option>
-                  <option value="Previdenciario">Previdenciário / INSS (RG/CNH, CNIS, Laudos Médicos, CTPS e Endereço)</option>
-                  <option value="Civel">Cível / Consumidor (RG/CNH, Comprovante de Endereço, Contrato/Provas)</option>
-                  <option value="Familia">Direito de Família (RG/CNH, Certidão Casamento/Nascimento, Endereço e Renda)</option>
+                  <option value="Previdenciario">Previdenciário / INSS Urbano (RG/CNH, CNIS, Laudos Médicos e Endereço)</option>
+                  <option value="PrevidenciarioRural">Previdenciário / INSS Rural (RG/CNH, DAP/CAF, Bloco de Produtor, Terra)</option>
+                  <option value="CriminalCustodia">Criminal — Flagrante &amp; Custódia (B.O., Nota de Culpa, Residência, Vínculo)</option>
+                  <option value="Familia">Direito de Família &amp; Sucessões (RG/CNH, Residência, Certidão Civil, Renda)</option>
+                  <option value="Civel">Direito Cível &amp; Consumidor (RG/CNH, Residência, Contrato/Dano, Protocolo/B.O.)</option>
+                  <option value="Imobiliario">Direito Imobiliário &amp; Usucapião (RG/CNH, Residência, Matrícula/IPTU, Posse/Contrato)</option>
                   <option value="Geral">Geral / Kit Básico (RG ou CNH, CPF, Comprovante de Residência e Extratos)</option>
                 </select>
               </div>
@@ -3968,6 +4903,83 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <button type="button" onclick="fecharModalSolicitarDocumentos()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300">Cancelar</button>
               <button type="button" id="btn-confirmar-onboarding" onclick="confirmarDisparoOnboarding()" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-zinc-950 shadow-lg cursor-pointer">
                 <svg class="w-4 h-4 inline mr-1.5"><use href="#icon-flow"/></svg>Disparar Checklist no WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL KIT INICIAL DO CLIENTE EM 1 CLIQUE (DOSSIÊ CONSOLIDADO) -->
+        <div id="modal-kit-inicial" class="hidden fixed inset-0 z-50 bg-zinc-950/85 backdrop-blur-md items-center justify-center p-4">
+          <div class="exec-card max-w-xl w-full p-6 rounded-3xl border border-amber-500/30 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Fechamento em 1 Clique (Dossiê Consolidado)</span>
+                <h3 class="font-serif-legal text-base font-bold text-white flex items-center gap-2">
+                  <span>✨ Gerar Kit Inicial do Cliente (.docx)</span>
+                </h3>
+              </div>
+              <button type="button" onclick="fecharModalKitInicial()" class="text-zinc-400 hover:text-white p-1.5 text-sm font-bold rounded-lg hover:bg-zinc-800/60 active:scale-95 transition-all cursor-pointer">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="text-[11px] text-zinc-400 font-semibold block mb-1">Cliente (Qualificação Art. 319 CPC)</label>
+                <input type="text" id="kit-inicial-cliente-nome" readonly class="exec-input w-full rounded-xl px-3 py-2 text-xs font-bold text-amber-300">
+                <input type="hidden" id="kit-inicial-cliente-id">
+              </div>
+
+              <div>
+                <label class="text-[11px] text-zinc-400 font-semibold block mb-1">Objeto da Ação / Demanda (Contrato de Honorários)</label>
+                <input type="text" id="kit-inicial-objeto" placeholder="Ex: Ação Trabalhista / Revisão de Benefício INSS / Ação Indenizatória" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">Valor Total (R$)</label>
+                  <input type="number" step="0.01" min="0" id="kit-inicial-valor-total" placeholder="Ex: 3000.00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">Entrada PIX (R$)</label>
+                  <input type="number" step="0.01" min="0" id="kit-inicial-valor-entrada" placeholder="Ex: 1000.00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">Parcelas</label>
+                  <input type="number" min="1" max="60" id="kit-inicial-parcelas" value="1" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">% Êxito</label>
+                  <input type="number" step="0.5" min="0" max="50" id="kit-inicial-percentual-exito" placeholder="Ex: 30" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+              </div>
+
+              <label class="flex items-center space-x-2 p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 cursor-pointer hover:border-amber-500/30 transition">
+                <input type="checkbox" id="kit-inicial-incluir-hipo" checked class="accent-[#d4af37] rounded cursor-pointer">
+                <span class="text-xs font-semibold text-zinc-200">Incluir Declaração de Hipossuficiência Econômica (Art. 98 CPC)</span>
+              </label>
+
+              <!-- Área de Feedback e Ações Pós-Geração -->
+              <div id="kit-inicial-resultado" class="hidden p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/35 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-bold text-emerald-300">✅ Kit Inicial gerado em disco (.docx)!</span>
+                  <span id="kit-inicial-pasta-path" class="text-[10px] font-mono text-zinc-400 truncate max-w-[260px]"></span>
+                </div>
+                <ul id="kit-inicial-lista-arquivos" class="space-y-1 text-[11px] text-zinc-200 font-mono"></ul>
+                <div class="flex flex-wrap items-center gap-2 pt-1.5 border-t border-emerald-500/20">
+                  <button type="button" id="btn-kit-abrir-pasta" onclick="window.abrirPastaKitInicialAtual && window.abrirPastaKitInicialAtual()" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-[11px] font-semibold transition cursor-pointer">
+                    📂 Abrir Pasta
+                  </button>
+                  <button type="button" id="btn-kit-enviar-whatsapp" onclick="window.enviarKitInicialWhatsappAtual && window.enviarKitInicialWhatsappAtual()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition cursor-pointer">
+                    📲 Enviar no WhatsApp (Gov.br + PIX)
+                  </button>
+                </div>
+                <div id="kit-inicial-whatsapp-feedback" class="hidden text-[11px] text-zinc-300 bg-zinc-950/70 p-2.5 rounded-xl border border-zinc-800/80 whitespace-pre-wrap max-h-36 overflow-y-auto"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-zinc-800/80">
+              <button type="button" onclick="fecharModalKitInicial()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 cursor-pointer">Fechar</button>
+              <button type="button" id="btn-executar-kit-inicial" onclick="window.executarGeracaoKitInicial && window.executarGeracaoKitInicial()" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-zinc-950 shadow-lg cursor-pointer">
+                ✨ Gerar Kit Inicial (.docx)
               </button>
             </div>
           </div>
@@ -4154,11 +5166,41 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (!Array.isArray(configGlobal.processos.lista)) configGlobal.processos.lista = [];
     }
 
-    function aplicarTema() {
-      document.body.classList.remove('theme-light');
-      document.body.classList.add('theme-dark');
-      localStorage.setItem('adv_bot_theme', 'dark');
+    function atualizarBotaoTemaUI(modo) {
+      const btn = document.getElementById('btn-toggle-theme');
+      const iconSol = document.getElementById('icon-tema-sol');
+      const iconLua = document.getElementById('icon-tema-lua');
+      const label = document.getElementById('label-toggle-tema');
+      const isLight = (modo === 'light');
+      if (iconSol) iconSol.classList.toggle('hidden', isLight);
+      if (iconLua) iconLua.classList.toggle('hidden', !isLight);
+      if (label) label.textContent = isLight ? 'Modo Escuro' : 'Modo Claro';
+      if (btn) {
+        btn.title = isLight ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro Executivo';
+        btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      }
     }
+
+    function aplicarTema(tema) {
+      const modo = (tema === 'light') ? 'light' : 'dark';
+      const html = document.documentElement;
+      const body = document.body;
+      html.classList.toggle('theme-light', modo === 'light');
+      html.classList.toggle('theme-dark', modo === 'dark');
+      if (body) {
+        body.classList.toggle('theme-light', modo === 'light');
+        body.classList.toggle('theme-dark', modo === 'dark');
+      }
+      try { localStorage.setItem('adv_bot_theme', modo); } catch (e) {}
+      atualizarBotaoTemaUI(modo);
+    }
+    window.aplicarTema = aplicarTema;
+
+    function alternarTemaUI() {
+      const isLight = document.documentElement.classList.contains('theme-light');
+      aplicarTema(isLight ? 'dark' : 'light');
+    }
+    window.alternarTemaUI = alternarTemaUI;
 
     const formatDrawer = document.getElementById('format-drawer');
     const btnToggleFormat = document.getElementById('btn-toggle-format');
@@ -4589,6 +5631,40 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     window.irParaNovoProcessoDireto = function() {
       ativarAba('processos');
       limparFormularioProcesso();
+      setTipoPastaFormulario('JUDICIAL');
+    };
+
+    let tipoPastaFormularioAtual = 'JUDICIAL';
+
+    window.irParaNovoClienteDireto = function() {
+      ativarAba('processos');
+      limparFormularioProcesso();
+      setTipoPastaFormulario('EXTRAJUDICIAL');
+      const inputNome = document.getElementById('proc-nome');
+      if (inputNome) inputNome.focus();
+    };
+
+    window.setTipoPastaFormulario = function(tipo) {
+      tipoPastaFormularioAtual = tipo;
+      const btnJud = document.getElementById('btn-tipo-pasta-judicial');
+      const btnExt = document.getElementById('btn-tipo-pasta-extra');
+      const lblCpf = document.getElementById('label-proc-cpf');
+      const lblNum = document.getElementById('label-proc-numero');
+      const inNum = document.getElementById('proc-numero');
+
+      if (tipo === 'EXTRAJUDICIAL') {
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+        if (lblCpf) lblCpf.innerText = "WhatsApp ou CPF";
+        if (lblNum) lblNum.innerText = "Identificador / Assunto";
+        if (inNum) inNum.placeholder = "Ex: Contrato Locação / Compra e Venda / Assessoria";
+      } else {
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+        if (lblCpf) lblCpf.innerText = "CPF do Cliente *";
+        if (lblNum) lblNum.innerText = "Nº do Processo (CNJ) *";
+        if (inNum) inNum.placeholder = "0000000-00.2026.8.00.0000";
+      }
     };
 
     // Quick-Start: Injetar 3 Processos Realistas e Histórico de WhatsApp
@@ -4788,7 +5864,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       { id: 'fluxo', titulo: 'Menu Automático do Robô', desc: 'Editar opções e fluxos de atendimento', icone: 'icon-flow', acao: () => { ativarAba('fluxo'); } },
       { id: 'dossie', titulo: 'Dossiê de Clientes (Art. 319 CPC)', desc: 'Ficha cadastral e documentos de qualificação civil', icone: 'icon-users', acao: () => { ativarAba('dossie-clientes'); } },
       { id: 'financeiro', titulo: 'Financeiro & Cobrança PIX', desc: 'Honorários, régua semanal e conciliação', icone: 'icon-scales', acao: () => { ativarAba('financeiro'); } },
-      { id: 'backup', titulo: 'Fazer Cópia de Segurança (.JSON)', desc: 'Exportar todos os dados locais em arquivo seguro', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
+      { id: 'backup', titulo: 'Salvar Cópia do Escritório', desc: 'Salvar cópia completa dos processos e dados no computador', icone: 'icon-database', acao: () => { ativarAba('backup'); } },
       { id: 'configuracoes', titulo: 'Configurações do Sistema', desc: 'Gerenciar WhatsApp, preferências e sessão', icone: 'icon-settings', acao: () => { ativarAba('configuracoes'); } }
     ];
 
@@ -4866,15 +5942,48 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       resultsBox.innerHTML = html;
     }
 
+    let spotlightIndexSelecionado = -1;
+
+    function atualizarDestaqueSpotlight(itens) {
+      itens.forEach((el, idx) => {
+        if (idx === spotlightIndexSelecionado) {
+          el.classList.add('bg-zinc-800', 'border-amber-500/40');
+          el.classList.remove('hover:bg-zinc-800');
+          el.scrollIntoView({ block: 'nearest' });
+        } else {
+          el.classList.remove('bg-zinc-800', 'border-amber-500/40');
+        }
+      });
+    }
+
     const inputSpotlightEl = document.getElementById('spotlight-input');
     if (inputSpotlightEl) {
       inputSpotlightEl.addEventListener('input', (e) => {
+        spotlightIndexSelecionado = -1;
         renderizarSpotlightItens(e.target.value);
       });
       inputSpotlightEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const primeiroItem = document.querySelector('.spotlight-item');
-          if (primeiroItem) primeiroItem.click();
+        const itens = document.querySelectorAll('.spotlight-item');
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (itens.length > 0) {
+            spotlightIndexSelecionado = (spotlightIndexSelecionado + 1) % itens.length;
+            atualizarDestaqueSpotlight(itens);
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (itens.length > 0) {
+            spotlightIndexSelecionado = (spotlightIndexSelecionado - 1 + itens.length) % itens.length;
+            atualizarDestaqueSpotlight(itens);
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (itens.length > 0) {
+            const itemEscolhido = (spotlightIndexSelecionado >= 0 && spotlightIndexSelecionado < itens.length)
+              ? itens[spotlightIndexSelecionado]
+              : itens[0];
+            if (itemEscolhido) itemEscolhido.click();
+          }
         } else if (e.key === 'Escape') {
           toggleSpotlight(false);
         }
@@ -5368,6 +6477,110 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     }
     window.formatarWhatsAppParaHTML = formatarWhatsAppParaHTML;
 
+    /**
+     * Guardrail Ético OAB — Provimento 205/2021 do CFOAB (Art. 3º, I e § 1º)
+     * Detecta padrões de promessa de resultado e mercantilização/captação indevida,
+     * sugerindo termos sóbrios e conformes à ética advocatícia.
+     */
+    function validarConformidadeOabTexto(texto) {
+      const t = String(texto || '').trim();
+      if (!t) return { conforme: true, violacoes: [], avisos: [] };
+
+      const violacoes = [];
+      const REGRAS_OAB = [
+        // 1. Promessa de resultado / êxito garantido
+        {
+          regex: /\b(causa\s+ganha|vit[oó]ria\s+garantida|100%\s+de\s+chance|certeza\s+de\s+ganhar|dinheiro\s+garantido|ganho\s+de\s+causa\s+garantido|resultado\s+garantido)\b/i,
+          termo: 'Promessa de Resultado / Êxito',
+          sugestao: 'Substitua por "análise técnica do caso" ou "atuação diligente na defesa dos seus direitos".',
+          artigo: 'Art. 3º, § 1º do Provimento 205/2021 CFOAB'
+        },
+        // 2. Mercantilização / Captação explícita / Gratuidade apelativa
+        {
+          regex: /\b(consulta\s+gratuita|consulta\s+gr[aá]tis|sem\s+custo\s+inicial|desconto\s+nos\s+honor[aá]rios|pre[cç]o\s+promocional|contrate\s+agora|parcelamos\s+em\s+10x|promo[cç][aã]o|black\s+friday)\b/i,
+          termo: 'Mercantilização / Captação Indevida',
+          sugestao: 'Substitua por "primeiro atendimento informativo" ou "alinhamento sobre honorários advocatícios".',
+          artigo: 'Art. 3º, I do Provimento 205/2021 CFOAB'
+        }
+      ];
+
+      REGRAS_OAB.forEach(regra => {
+        const match = t.match(regra.regex);
+        if (match) {
+          violacoes.push({
+            termoEncontrado: match[0],
+            tipo: regra.termo,
+            sugestao: regra.sugestao,
+            artigo: regra.artigo
+          });
+        }
+      });
+
+      return {
+        conforme: violacoes.length === 0,
+        violacoes,
+        resumo: violacoes.length > 0 ? violacoes[0] : null
+      };
+    }
+    window.validarConformidadeOabTexto = validarConformidadeOabTexto;
+
+    function renderizarAvisoGuardrailOab(containerAviso, resultadoValidacao) {
+      if (!containerAviso) return;
+      if (!resultadoValidacao || resultadoValidacao.conforme) {
+        containerAviso.innerHTML = '';
+        containerAviso.classList.add('hidden');
+        return;
+      }
+      const v = resultadoValidacao.resumo;
+      containerAviso.className = 'mt-2 p-3 rounded-xl border bg-amber-500/10 dark:bg-amber-950/40 border-amber-500/30 text-amber-300 dark:text-amber-200 text-[11px] leading-relaxed flex items-start space-x-2.5 transition-all duration-200';
+      containerAviso.innerHTML = `
+        <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div class="flex-1 space-y-1">
+          <div class="font-bold flex items-center justify-between flex-wrap gap-1">
+            <span>⚖️ Alerta Ético OAB (${v.tipo}): "${v.termoEncontrado}"</span>
+            <span class="text-[10px] font-mono text-amber-400/80 bg-amber-500/15 px-1.5 py-0.5 rounded">${v.artigo}</span>
+          </div>
+          <p class="text-zinc-300 text-[10.5px]">
+            O Provimento 205/2021 veda mercantilização ou promessa de ganho na comunicação digital.
+          </p>
+          <p class="text-amber-300 font-medium text-[10.5px]">
+            💡 <strong>Sugestão ética:</strong> ${v.sugestao}
+          </p>
+        </div>
+      `;
+      containerAviso.classList.remove('hidden');
+    }
+    window.renderizarAvisoGuardrailOab = renderizarAvisoGuardrailOab;
+
+    function conectarGuardrailOabElemento(inputEl, idContainerAviso = null) {
+      if (!inputEl) return;
+      let containerAviso = null;
+      if (idContainerAviso) {
+        containerAviso = document.getElementById(idContainerAviso);
+      }
+      if (!containerAviso) {
+        let proximo = inputEl.nextElementSibling;
+        if (proximo && proximo.classList && proximo.classList.contains('guardrail-oab-alerta')) {
+          containerAviso = proximo;
+        } else {
+          containerAviso = document.createElement('div');
+          containerAviso.className = 'guardrail-oab-alerta hidden';
+          inputEl.parentNode.insertBefore(containerAviso, inputEl.nextSibling);
+        }
+      }
+
+      const verificar = () => {
+        const resultado = validarConformidadeOabTexto(inputEl.value);
+        renderizarAvisoGuardrailOab(containerAviso, resultado);
+      };
+
+      inputEl.addEventListener('input', verificar);
+      verificar();
+    }
+    window.conectarGuardrailOabElemento = conectarGuardrailOabElemento;
+
     function atualizarPreviewEtapaAoVivo() {
       const elPrev = document.getElementById('wa-preview-etapa-real');
       if (!elPrev) return;
@@ -5393,7 +6606,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const etapa = obterObjetoEtapaAtual();
       if (!etapa) return;
       const elMsg = document.getElementById('input-etapa-msg');
-      if (elMsg) elMsg.value = etapa.mensagem || '';
+      if (elMsg) {
+        elMsg.value = etapa.mensagem || '';
+        const containerAviso = document.getElementById('guardrail-aviso-input-etapa-msg');
+        if (containerAviso && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(containerAviso, validarConformidadeOabTexto(elMsg.value));
+        }
+      }
       const btnExcluir = document.getElementById('btn-excluir-etapa');
       if (btnExcluir) btnExcluir.classList.toggle('hidden', id === 'raiz');
       renderizarOpcoesDaEtapa(); renderizarMapaVisual();
@@ -5404,6 +6623,10 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const etapa = obterObjetoEtapaAtual();
       if (etapa) {
         etapa.mensagem = e.target.value;
+        const containerAviso = document.getElementById('guardrail-aviso-input-etapa-msg');
+        if (containerAviso && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(containerAviso, validarConformidadeOabTexto(e.target.value));
+        }
         atualizarPreviewEtapaAoVivo();
         agendarRenderMapaVisual();
         marcarAlteracaoPendente();
@@ -5568,6 +6791,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
           boxResp.appendChild(headerResp);
           boxResp.appendChild(txt);
+
+          const avisoGuardrailOp = document.createElement('div');
+          avisoGuardrailOp.id = `guardrail-aviso-op-${idx}`;
+          avisoGuardrailOp.className = 'guardrail-oab-alerta hidden';
+          boxResp.appendChild(avisoGuardrailOp);
+          if (typeof conectarGuardrailOabElemento === 'function') {
+            conectarGuardrailOabElemento(txt, avisoGuardrailOp);
+          }
+
           x.appendChild(boxResp);
         }
 
@@ -6221,6 +7453,27 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (!nome) return;
       const id = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "_");
       configGlobal.fluxo.etapas[id] = { titulo: `Submenu: ${nome}`, mensagem: `*${nome}*\n\nComo podemos lhe orientar?`, opcoes: [{ gatilho: "0", rotulo: "Voltar ao Início", tipo: "submenu", destino: "raiz", resposta: "" }] };
+
+      // VINCULAÇÃO INTELIGENTE AUTOMÁTICA NO MENU PRINCIPAL (Evita o problema do submenu órfão do Dr. Marcelo)
+      if (configGlobal.fluxo.raiz && Array.isArray(configGlobal.fluxo.raiz.opcoes)) {
+        const jaExiste = configGlobal.fluxo.raiz.opcoes.some(op => op.destino === id || op.rotulo.toLowerCase().includes(nome.toLowerCase()));
+        if (!jaExiste) {
+          // Calcula o próximo número de gatilho
+          const gatilhosNumericos = configGlobal.fluxo.raiz.opcoes
+            .map(o => parseInt(o.gatilho, 10))
+            .filter(n => !isNaN(n) && n > 0);
+          const proxGatilho = String((gatilhosNumericos.length > 0 ? Math.max(...gatilhosNumericos) : 0) + 1);
+
+          configGlobal.fluxo.raiz.opcoes.push({
+            gatilho: proxGatilho,
+            rotulo: nome,
+            tipo: "submenu",
+            destino: id,
+            resposta: ""
+          });
+        }
+      }
+
       if (modalSub) { modalSub.classList.add('hidden'); modalSub.classList.remove('flex'); }
       etapaSelecionada = id;
       popularSeletorDeEtapas();
@@ -6230,7 +7483,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
       marcarAlteracaoPendente();
       if (typeof mostrarToast === 'function') {
-        mostrarToast(`Submenu "${nome}" criado! Para exibi-lo aos clientes, aponte uma opção "Abrir Submenu" no Menu Principal.`);
+        mostrarToast(`✓ Submenu "${nome}" criado e vinculado automaticamente ao Menu Principal!`);
       }
     });
 
@@ -6484,6 +7737,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         if (galeria) {
           galeria.innerHTML = '<div class="col-span-2 p-5 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado ainda no dossiê civil. Clique em "📄 Solicitar Documentos" para receber pelo WhatsApp!</div>';
         }
+        const btnKitDossie = document.getElementById('btn-gerar-kit-inicial-dossie');
+        if (btnKitDossie) btnKitDossie.classList.add('hidden');
       }
 
       const badgeDocs = document.getElementById('badge-detalhe-dossie-docs');
@@ -6968,9 +8223,17 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const digitosCpf = cpf.replace(/\D/g, '');
       const digitosNum = numero.replace(/\D/g, '');
 
-      if (digitosCpf.length < 5 && digitosNum.length < 5) {
-        alert("Preencha ao menos o CPF ou o Número do Processo (mínimo de 5 números)!");
-        return;
+      // Flexibilização inteligente: Se for cliente/caso extrajudicial, basta ter o Nome e CPF ou WhatsApp (ou ref)
+      if (tipoPastaFormularioAtual === 'EXTRAJUDICIAL') {
+        if (!nome || nome === 'Cliente') {
+          mostrarToast("⚠️ Por favor, informe o Nome do Cliente!");
+          return;
+        }
+      } else {
+        if (digitosCpf.length < 5 && digitosNum.length < 5 && !nome) {
+          mostrarToast("⚠️ Preencha ao menos o CPF, Número do Processo ou Nome do Cliente!");
+          return;
+        }
       }
 
       // Paridade total v2.0 com backend unificado
@@ -7863,8 +9126,20 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (elAtivo && (forcar || document.activeElement !== elAtivo)) elAtivo.checked = Boolean(a.almoco_ativo);
       if (elInicio && (forcar || document.activeElement !== elInicio)) elInicio.value = a.almoco_inicio || '12:00';
       if (elFim && (forcar || document.activeElement !== elFim)) elFim.value = a.almoco_fim || '13:30';
-      if (elMsgAlmoco && (forcar || document.activeElement !== elMsgAlmoco)) elMsgAlmoco.value = a.msg_almoco || '';
-      if (elMsgFora && (forcar || document.activeElement !== elMsgFora)) elMsgFora.value = a.msg_fora_expediente || '';
+      if (elMsgAlmoco && (forcar || document.activeElement !== elMsgAlmoco)) {
+        elMsgAlmoco.value = a.msg_almoco || '';
+        const avAlmoco = document.getElementById('guardrail-aviso-agenda-msg-almoco');
+        if (avAlmoco && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(avAlmoco, validarConformidadeOabTexto(elMsgAlmoco.value));
+        }
+      }
+      if (elMsgFora && (forcar || document.activeElement !== elMsgFora)) {
+        elMsgFora.value = a.msg_fora_expediente || '';
+        const avFora = document.getElementById('guardrail-aviso-agenda-msg-fora');
+        if (avFora && typeof validarConformidadeOabTexto === 'function') {
+          renderizarAvisoGuardrailOab(avFora, validarConformidadeOabTexto(elMsgFora.value));
+        }
+      }
       if (elPalavrasUrgencia && (forcar || document.activeElement !== elPalavrasUrgencia)) elPalavrasUrgencia.value = a.palavras_urgencia || '';
 
       const checkAutoStart = document.getElementById('check-iniciar-windows');
@@ -7873,9 +9148,362 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     }
 
+    // Controle de Sub-Abas da Agenda: Compromissos vs Horários
+    window.alternarSubAbaAgenda = function(subAba) {
+      const pComp = document.getElementById('painel-agenda-compromissos');
+      const pHor = document.getElementById('painel-agenda-horarios');
+      const tComp = document.getElementById('subtab-agenda-compromissos');
+      const tHor = document.getElementById('subtab-agenda-horarios');
+
+      if (subAba === 'compromissos') {
+        if (pComp) pComp.classList.remove('hidden');
+        if (pHor) pHor.classList.add('hidden');
+        if (tComp) tComp.className = "flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer";
+        if (tHor) tHor.className = "flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+        renderizarCompromissosAgendaUI();
+      } else {
+        if (pComp) pComp.classList.add('hidden');
+        if (pHor) pHor.classList.remove('hidden');
+        if (tComp) tComp.className = "flex-1 py-2 px-3 rounded-xl font-semibold transition text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+        if (tHor) tHor.className = "flex-1 py-2 px-3 rounded-xl font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 flex items-center justify-center gap-2 cursor-pointer";
+      }
+    };
+
+    // Toggle 1-Clique: Modo Plantão 24h Global
+    window.togglePlantao24hUI = function() {
+      garantirEstruturaAgenda();
+      configGlobal.agenda.plantao24hGlobal = !Boolean(configGlobal.agenda.plantao24hGlobal);
+      marcarAlteracaoPendente();
+      atualizarEstadoVisualPlantao24h();
+      renderizarAgendaSemanal();
+      mostrarToast(configGlobal.agenda.plantao24hGlobal 
+        ? "🚨 Modo Plantão 24h ATIVADO: Atendimento ininterrupto. Avisos de fechamento e intervalo de almoço foram suprimidos!" 
+        : "Horários normais de expediente e pausas restaurados.");
+    };
+
+    function atualizarEstadoVisualPlantao24h() {
+      const btn = document.getElementById('btn-toggle-plantao-24h');
+      const dot = document.getElementById('dot-plantao-24h');
+      const lbl = document.getElementById('label-plantao-24h');
+      const isAtivo = Boolean(configGlobal?.agenda?.plantao24hGlobal);
+
+      if (btn && dot && lbl) {
+        if (isAtivo) {
+          btn.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm";
+          dot.className = "w-2 h-2 rounded-full bg-rose-400 animate-pulse";
+          lbl.innerText = "Modo Plantão 24h: Ligado (Sem Pausas)";
+        } else {
+          btn.className = "px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer bg-zinc-900 text-zinc-300 border border-zinc-700 hover:border-amber-500/40";
+          dot.className = "w-2 h-2 rounded-full bg-zinc-500";
+          lbl.innerText = "Modo Plantão 24h: Desligado";
+        }
+      }
+    }
+
+    // Gestão de Compromissos & Audiências na Pauta
+    window.adicionarCompromissoAgendaUI = function() {
+      const tit = (document.getElementById('comp-titulo')?.value || '').trim();
+      const cli = (document.getElementById('comp-cliente')?.value || '').trim();
+      const dt = document.getElementById('comp-data')?.value || '';
+
+      if (!tit || !dt) {
+        mostrarToast("⚠️ Informe ao menos o Título e a Data/Horário do compromisso!");
+        return;
+      }
+
+      if (!configGlobal.agenda) configGlobal.agenda = {};
+      if (!Array.isArray(configGlobal.agenda.compromissos)) {
+        configGlobal.agenda.compromissos = [];
+      }
+
+      configGlobal.agenda.compromissos.push({
+        id: `comp_${Date.now()}`,
+        titulo: tit,
+        cliente: cli,
+        dataHora: dt,
+        criadoEm: new Date().toISOString()
+      });
+
+      marcarAlteracaoPendente();
+      document.getElementById('comp-titulo').value = '';
+      document.getElementById('comp-cliente').value = '';
+      document.getElementById('comp-data').value = '';
+      renderizarCompromissosAgendaUI();
+      mostrarToast("📅 Compromisso agendado na pauta com sucesso!");
+    };
+
+    window.removerCompromissoAgendaUI = function(idComp) {
+      if (!configGlobal.agenda?.compromissos) return;
+      configGlobal.agenda.compromissos = configGlobal.agenda.compromissos.filter(c => c.id !== idComp);
+      marcarAlteracaoPendente();
+      renderizarCompromissosAgendaUI();
+      mostrarToast("Compromisso removido da pauta.");
+    };
+
+    // ================= CALCULADORA NATIVA DE PRAZOS PROCESSUAIS (CPC / CLT) =================
+    window.__ultimoCalculoPrazo = null;
+
+    window.abrirModalCalculadoraPrazos = function() {
+      const modal = document.getElementById('modal-calculadora-prazos');
+      if (!modal) return;
+
+      // Pré-preencher data com hoje (local) se ainda estiver vazia
+      const elData = document.getElementById('calc-prazo-data');
+      if (elData && !elData.value) {
+        const hoje = new Date();
+        const yyyy = hoje.getFullYear();
+        const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoje.getDate()).padStart(2, '0');
+        elData.value = `${yyyy}-${mm}-${dd}`;
+      }
+
+      // Auto-vincular ao processo selecionado atualmente na aba Processos (se houver)
+      const elVinculo = document.getElementById('calc-prazo-vinculo');
+      if (elVinculo) {
+        const lista = (configGlobal && configGlobal.processos && Array.isArray(configGlobal.processos.lista))
+          ? configGlobal.processos.lista
+          : [];
+        const procAtual = (typeof idProcessoSelecionado !== 'undefined' && idProcessoSelecionado)
+          ? lista.find(p => p.id === idProcessoSelecionado)
+          : null;
+        if (procAtual) {
+          const nome = (procAtual.nome || '').trim();
+          const num = (procAtual.numero || '').trim();
+          elVinculo.value = num ? `${nome} — Proc. ${num}` : nome;
+        }
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      calcularPrazoProcessualUI();
+    };
+
+    window.fecharModalCalculadoraPrazos = function() {
+      const modal = document.getElementById('modal-calculadora-prazos');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    window.aplicarAtalhoPrazo = function(rotulo, dias, ritoOpcional) {
+      const elDias = document.getElementById('calc-prazo-dias');
+      const elRito = document.getElementById('calc-prazo-rito');
+      const elTitulo = document.getElementById('calc-prazo-titulo');
+      if (elDias) elDias.value = String(dias);
+      if (elRito && ritoOpcional) elRito.value = ritoOpcional;
+      if (elTitulo && rotulo) elTitulo.value = rotulo;
+      calcularPrazoProcessualUI();
+    };
+
+    window.calcularPrazoProcessualUI = async function() {
+      const elData = document.getElementById('calc-prazo-data');
+      const elRito = document.getElementById('calc-prazo-rito');
+      const elEvento = document.getElementById('calc-prazo-evento');
+      const elDias = document.getElementById('calc-prazo-dias');
+      const elFeriados = document.getElementById('calc-prazo-feriados-locais');
+      const elErro = document.getElementById('calc-prazo-erro');
+      const elRes = document.getElementById('calc-prazo-resultado');
+
+      if (!elData || !elDias) return;
+
+      const dataDisponibilizacao = (elData.value || '').trim();
+      const rito = elRito ? elRito.value : 'CPC';
+      const eventoInicial = elEvento ? elEvento.value : 'disponibilizacao';
+      const dias = parseInt(elDias.value, 10);
+      const feriadosLocais = (elFeriados?.value || '')
+        .split(/[,;\n]+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (!dataDisponibilizacao || !dias || dias <= 0) {
+        if (elRes) elRes.classList.add('hidden');
+        if (elErro) {
+          elErro.textContent = 'Informe uma data válida e a quantidade de dias úteis (maior que 0).';
+          elErro.classList.remove('hidden');
+        }
+        window.__ultimoCalculoPrazo = null;
+        return;
+      }
+
+      try {
+        const api = window.api || window.electronAPI;
+        let resultado = null;
+        if (api && typeof api.calcularPrazoProcessual === 'function') {
+          resultado = await api.calcularPrazoProcessual({
+            dataDisponibilizacao,
+            rito,
+            dias,
+            eventoInicial,
+            feriadosLocais
+          });
+        } else {
+          throw new Error('Bridge IPC processos-calcular-prazo indisponível neste ambiente.');
+        }
+
+        if (!resultado || !resultado.sucesso) {
+          throw new Error((resultado && resultado.erro) || 'Falha ao calcular prazo processual.');
+        }
+
+        window.__ultimoCalculoPrazo = resultado;
+        if (elErro) elErro.classList.add('hidden');
+        if (elRes) elRes.classList.remove('hidden');
+
+        const elPub = document.getElementById('calc-res-publicacao');
+        const elDispNota = document.getElementById('calc-res-disp-nota');
+        const elInicio = document.getElementById('calc-res-inicio');
+        const elRitoBadge = document.getElementById('calc-res-rito-badge');
+        const elFatal = document.getElementById('calc-res-fatal');
+        const elDiaSem = document.getElementById('calc-res-dia-semana');
+        const elRecesso = document.getElementById('calc-res-recesso-banner');
+        const elResumoPulados = document.getElementById('calc-res-resumo-pulados');
+        const elListaPulados = document.getElementById('calc-res-lista-pulados');
+        const elFundamento = document.getElementById('calc-res-fundamento');
+
+        if (elPub) elPub.textContent = resultado.dataPublicacao || '--/--/----';
+        if (elDispNota) {
+          elDispNota.textContent = resultado.dataDisponibilizacao
+            ? `Disponibilizado em ${resultado.dataDisponibilizacao} (DJEN)`
+            : 'Publicação / Intimação direta';
+        }
+        if (elInicio) elInicio.textContent = resultado.dataInicioContagem || '--/--/----';
+        if (elRitoBadge) elRitoBadge.textContent = `${resultado.diasUteisSolicitados} dias úteis (${resultado.rito})`;
+        if (elFatal) elFatal.textContent = resultado.dataFinal || '--/--/----';
+        if (elDiaSem) elDiaSem.textContent = `${resultado.diaSemanaFinal || ''} • ${resultado.totalDiasCorridos || 0} dias corridos`;
+        if (elFundamento) elFundamento.textContent = resultado.fundamentoLegal || '';
+
+        if (elRecesso) {
+          elRecesso.classList.toggle('hidden', !resultado.houveRecessoForense);
+        }
+
+        const r = resultado.resumoDiasPulados || {};
+        if (elResumoPulados) {
+          const partes = [];
+          if (r.finsDeSemana) partes.push(`${r.finsDeSemana} fim(ns) de semana`);
+          if (r.feriadosNacionais) partes.push(`${r.feriadosNacionais} feriado(s) nac.`);
+          if (r.recessoForense) partes.push(`${r.recessoForense} dia(s) recesso`);
+          if (r.feriadosLocais) partes.push(`${r.feriadosLocais} local(is)`);
+          elResumoPulados.textContent = partes.length ? partes.join(' • ') : 'Nenhum dia pulado';
+        }
+
+        if (elListaPulados) {
+          const pulados = Array.isArray(resultado.diasPulados) ? resultado.diasPulados : [];
+          if (!pulados.length) {
+            elListaPulados.innerHTML = '<div class="text-zinc-500 italic">Nenhum fim de semana, feriado ou recesso no período.</div>';
+          } else {
+            elListaPulados.innerHTML = pulados.map(dp => {
+              const corTag = dp.categoria === 'recessoForense'
+                ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
+                : (dp.categoria === 'feriadosNacionais' || dp.categoria === 'feriadosLocais')
+                  ? 'text-rose-300 bg-rose-500/15 border-rose-500/30'
+                  : 'text-zinc-400 bg-zinc-800/70 border-zinc-700/60';
+              return `
+                <div class="flex items-center justify-between gap-2 py-1 px-2 rounded-lg bg-zinc-950/50 border border-zinc-800/60">
+                  <span class="font-mono font-semibold text-zinc-200">${escaparHtmlTexto(dp.data)} <span class="text-zinc-500 font-sans">(${escaparHtmlTexto(dp.diaSemana)})</span></span>
+                  <span class="px-2 py-0.5 rounded-md border text-[10px] font-medium ${corTag}">${escaparHtmlTexto(dp.motivo)}</span>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        window.__ultimoCalculoPrazo = null;
+        if (elRes) elRes.classList.add('hidden');
+        if (elErro) {
+          elErro.textContent = `⚠️ ${err.message || 'Erro ao calcular prazo.'}`;
+          elErro.classList.remove('hidden');
+        }
+      }
+    };
+
+    window.salvarPrazoCalculadoNaPautaUI = async function() {
+      const res = window.__ultimoCalculoPrazo;
+      if (!res || !res.dataFinalISO) {
+        mostrarToast("⚠️ Calcule um prazo válido antes de salvar na pauta.");
+        return;
+      }
+
+      const tituloBase = (document.getElementById('calc-prazo-titulo')?.value || '').trim() || 'Prazo Processual';
+      const vinculo = (document.getElementById('calc-prazo-vinculo')?.value || '').trim();
+      const tituloFinal = `⚖️ Prazo Fatal: ${tituloBase} (${res.diasUteisSolicitados}d ${res.rito})`;
+      const dataHora = `${res.dataFinalISO}T18:00`;
+
+      if (!configGlobal.agenda) configGlobal.agenda = {};
+      if (!Array.isArray(configGlobal.agenda.compromissos)) {
+        configGlobal.agenda.compromissos = [];
+      }
+
+      configGlobal.agenda.compromissos.push({
+        id: `prazo_${Date.now()}`,
+        titulo: tituloFinal,
+        cliente: vinculo,
+        dataHora,
+        tipo: 'prazo_processual',
+        rito: res.rito,
+        dataPublicacao: res.dataPublicacao,
+        dataInicioContagem: res.dataInicioContagem,
+        dataFatal: res.dataFinal,
+        criadoEm: new Date().toISOString()
+      });
+
+      marcarAlteracaoPendente();
+      renderizarCompromissosAgendaUI();
+      if (typeof salvarConfiguracaoCompleta === 'function') {
+        try {
+          await salvarConfiguracaoCompleta(true);
+        } catch (_e) {}
+      }
+      mostrarToast(`📅 Prazo fatal (${res.dataFinal}) salvo na Pauta de Audiências & Compromissos!`);
+      fecharModalCalculadoraPrazos();
+    };
+
+    function renderizarCompromissosAgendaUI() {
+      const container = document.getElementById('lista-compromissos-agenda');
+      const badge = document.getElementById('badge-total-compromissos');
+      const lista = (configGlobal.agenda && Array.isArray(configGlobal.agenda.compromissos)) 
+        ? configGlobal.agenda.compromissos 
+        : [];
+
+      if (badge) badge.innerText = String(lista.length);
+      if (!container) return;
+
+      if (!lista.length) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-2xl bg-zinc-950/40">
+            Nenhum compromisso agendado. Adicione uma audiência ou reunião acima para acompanhar na pauta.
+          </div>
+        `;
+        return;
+      }
+
+      // Ordenar por data cronológica
+      const ordenados = [...lista].sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+      container.innerHTML = ordenados.map(c => {
+        const dtFormatada = new Date(c.dataHora).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        const ehPassado = new Date(c.dataHora) < new Date();
+        return `
+          <div class="flex items-center justify-between p-3.5 rounded-xl border border-zinc-800/80 bg-zinc-900/60 hover:border-amber-500/30 transition text-xs">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg ${ehPassado ? 'bg-zinc-800 text-zinc-500' : 'bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30'} flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4"><use href="#icon-calendar"/></svg>
+              </div>
+              <div>
+                <span class="font-bold text-zinc-100 block text-xs">${escaparHtmlTexto(c.titulo)}</span>
+                <span class="text-[11px] text-zinc-400">${c.cliente ? `Cliente: <strong>${escaparHtmlTexto(c.cliente)}</strong> • ` : ''}<span class="font-mono text-amber-300">${dtFormatada}</span></span>
+              </div>
+            </div>
+            <button type="button" onclick="removerCompromissoAgendaUI('${c.id}')" class="p-2 rounded-lg bg-zinc-950 hover:bg-rose-950/50 text-zinc-500 hover:text-rose-400 border border-zinc-800 transition cursor-pointer" title="Remover da pauta">
+              <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderizarAgendaSemanal() {
       garantirEstruturaAgenda();
       carregarConfiguracaoAgendaNosCampos();
+      atualizarEstadoVisualPlantao24h();
+      renderizarCompromissosAgendaUI();
       const container = document.getElementById('grade-dias-semana');
       if (!container) return;
       container.innerHTML = '';
@@ -7939,10 +9567,18 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     });
     safeOn('agenda-msg-almoco', 'input', (e) => {
       configGlobal.agenda.msg_almoco = e.target.value;
+      const avAlmoco = document.getElementById('guardrail-aviso-agenda-msg-almoco');
+      if (avAlmoco && typeof validarConformidadeOabTexto === 'function') {
+        renderizarAvisoGuardrailOab(avAlmoco, validarConformidadeOabTexto(e.target.value));
+      }
       marcarAlteracaoPendente();
     });
     safeOn('agenda-msg-fora', 'input', (e) => {
       configGlobal.agenda.msg_fora_expediente = e.target.value;
+      const avFora = document.getElementById('guardrail-aviso-agenda-msg-fora');
+      if (avFora && typeof validarConformidadeOabTexto === 'function') {
+        renderizarAvisoGuardrailOab(avFora, validarConformidadeOabTexto(e.target.value));
+      }
       marcarAlteracaoPendente();
     });
     safeOn('agenda-palavras-urgencia', 'input', (e) => {
@@ -8247,6 +9883,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         const div = document.createElement('div');
         div.className = classeCard;
         div.id = `card-pausado-${cardId}`;
+        div.setAttribute('data-urgencia', nivelUrgencia);
         div.innerHTML = `
           <!-- Linha Principal -->
           <div class="flex items-start justify-between">
@@ -8326,23 +9963,40 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </div>
             </div>
 
+            <!-- Respostas Rápidas (Chips / Canned Responses de 1 Clique) -->
+            <div class="space-y-1.5 pt-1">
+              <span class="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider block">Respostas Rápidas (1 Clique):</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Olá! Confirmo o agendamento da sua consulta jurídica. Em breve nossa equipe entrará em contato com os detalhes do atendimento.')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Confirmar Consulta</button>
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Olá! Para prosseguirmos com a distribuição do seu caso, solicitamos o envio das guias de custas e comprovante de recolhimento.')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Solicitar Guia / Custas</button>
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Notícia importante: sua petição foi devidamente protocolada e já temos o comprovante nos autos. Seguiremos acompanhando o andamento.')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Petição Protocolada</button>
+                <button type="button" onclick="aplicarCannedResponse('${cardId}', 'Olá! Poderia nos atender em uma rápida ligação agora para alinharmos os detalhes urgentes do seu caso?')" class="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-500/40 text-[11px] text-zinc-200 transition cursor-pointer">⚡ Pedir para Ligar</button>
+              </div>
+            </div>
+
             <!-- Caixa de Resposta e Envio pelo Advogado -->
             <div class="pt-2 border-t border-zinc-800/80 space-y-2">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <button type="button" id="btn-sugerir-ia-${cardId}" onclick="sugerirRespostaIAFila('${cardId}', '${chave}')" class="btn-tactile btn-ai-enhance inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs cursor-pointer">
                   <span>✨ Sugerir Resposta com IA</span>
                 </button>
-                <span class="text-[10px] text-zinc-400">O cliente permanece pausado após o envio até você clicar em <strong class="text-amber-300">Liberar para o Robô</strong>.</span>
+                <span class="text-[10px] text-zinc-400">Dica: <kbd class="font-mono text-zinc-300 bg-zinc-950 px-1 rounded border border-zinc-700">Ctrl + Enter</kbd> envia a resposta na hora.</span>
               </div>
               <div class="flex flex-col sm:flex-row sm:items-end gap-2.5">
-                <textarea id="input-resposta-${cardId}" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input flex-1 rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+                <div class="flex-1 flex flex-col">
+                  <textarea id="input-resposta-${cardId}" onkeydown="if((event.ctrlKey || event.metaKey) && event.key === 'Enter'){ event.preventDefault(); enviarRespostaAdvogadoFila('${cardId}', '${chave}', false); }" rows="3" placeholder="Escreva ou selecione uma resposta rápida para o cliente..." class="exec-input w-full rounded-xl px-4 py-2.5 text-xs resize-y min-h-[72px]"></textarea>
+                  <div id="guardrail-aviso-resposta-${cardId}" class="guardrail-oab-alerta hidden"></div>
+                </div>
                 <div class="flex sm:flex-col gap-2">
-                  <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
-                    <span>Enviar Resposta</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                  <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}', true)" title="Envia a mensagem e devolve o cliente ao fluxo automático em 1 só clique" class="px-4 py-2.5 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Enviar e Liberar</span>
                   </button>
-                  <button type="button" onclick="reativarCliente('${chave}')" class="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/40 text-amber-300 font-semibold text-xs rounded-xl transition whitespace-nowrap cursor-pointer">
-                    Liberar para o Robô
+                  <button type="button" onclick="enviarRespostaAdvogadoFila('${cardId}', '${chave}', false)" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl transition shadow flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                    <span>Enviar Resposta</span>
+                  </button>
+                  <button type="button" onclick="reativarCliente('${chave}')" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-amber-500/40 text-amber-300 font-semibold text-[11px] rounded-xl transition whitespace-nowrap cursor-pointer">
+                    Liberar p/ Robô
                   </button>
                 </div>
               </div>
@@ -8350,6 +10004,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         `;
         container.appendChild(div);
+
+        const inputRespEl = document.getElementById(`input-resposta-${cardId}`);
+        const avisoRespEl = document.getElementById(`guardrail-aviso-resposta-${cardId}`);
+        if (inputRespEl && avisoRespEl && typeof conectarGuardrailOabElemento === 'function') {
+          conectarGuardrailOabElemento(inputRespEl, avisoRespEl);
+        }
       });
     }
 
@@ -8459,13 +10119,25 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           rotulo: '🏛️ Direito Previdenciário (INSS)',
           documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Laudos, Exames e Receitas Médicas recentes*\n4. 📄 *Extrato Previdenciário (CNIS do Meu INSS)*'
         },
-        Civel: {
-          rotulo: '📋 Direito Cível / Consumidor',
-          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Contrato, Nota Fiscal ou Comprovante do Negócio / Dano*'
+        PrevidenciarioRural: {
+          rotulo: '🌾 Aposentadoria Rural / Segurado Especial',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência rural / domicílio*\n3. 📄 *Documentos da Terra (DAP/CAF, Bloco de Produtor, ITR ou INCRA)*\n4. 📄 *Autodeclaração Rural assinada ou Certidão de Casamento/Nascimento*'
+        },
+        CriminalCustodia: {
+          rotulo: '🚨 Criminal — Flagrante & Custódia',
+          documentos: '1. 📄 *RG ou CNH do preso/investigado (foto legível)*\n2. 📄 *Comprovante de Residência fixa recente*\n3. 📄 *Boletim de Ocorrência (B.O.) ou Nota de Culpa / Auto de Prisão*\n4. 📄 *Carteira de Trabalho (CTPS) ou Declaração de Emprego*'
         },
         Familia: {
           rotulo: '👨‍👩‍👧 Direito de Família & Sucessões',
-          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Certidão de Casamento ou Nascimento dos envolvidos*'
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Certidão de Casamento ou Nascimento dos filhos/envolvidos*\n4. 📄 *Comprovante de Renda ou Gastos (holerite, extrato ou IR)*'
+        },
+        Civel: {
+          rotulo: '📋 Direito Cível & Consumidor',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Contrato, Fatura ou Prints da negociação / dano sofrido*\n4. 📄 *Protocolo de atendimento, reclamação no PROCON ou B.O.*'
+        },
+        Imobiliario: {
+          rotulo: '🏠 Direito Imobiliário & Usucapião',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Matrícula atualizada do imóvel ou carnê do IPTU*\n4. 📄 *Contrato de compra e venda / locação ou comprovantes de posse*'
         },
         Geral: {
           rotulo: '📁 Kit Geral de Qualificação Civil',
@@ -8657,15 +10329,19 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           const id = dossie.clienteId || dossie.clienteTelefone;
           const ativo = window.dossieClienteSelecionadoId === id;
           const qtdDocs = Array.isArray(dossie.documentos) ? dossie.documentos.length : 0;
+          const isConsolidado = String(dossie.status || '').toUpperCase() === 'CONSOLIDADO';
           const isParcial = dossie.status === 'DOCS_PARCIAIS' || (Array.isArray(dossie.documentosPendentes) && dossie.documentosPendentes.length > 0);
           const badgeStatusHtml = isParcial
             ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/25">⏳ Parcial (${qtdDocs} docs)</span>`
-            : `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>`;
+            : `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${isConsolidado ? '✅ Consolidado • ' : ''}${qtdDocs} docs</span>`;
           const lembreteInfoHtml = isParcial
             ? `<span class="text-[9.5px] text-amber-400/90 block mt-0.5 font-medium flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Lembrete 48h programado</span>`
             : '';
           const btnLembreteHtml = isParcial
             ? `<button type="button" onclick="event.stopPropagation(); window.dispararLembreteParcialManual && window.dispararLembreteParcialManual('${escaparHtmlTexto(id)}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer mr-1.5" title="Enviar lembrete amigável de 48h agora">⏰ Lembrete 48h</button>`
+            : '';
+          const btnKitInicialHtml = isConsolidado
+            ? `<button type="button" onclick="event.stopPropagation(); window.abrirModalKitInicial && window.abrirModalKitInicial('${escaparHtmlTexto(id)}')" class="px-2.5 py-0.5 rounded champagne-gradient text-[10px] font-extrabold text-zinc-950 shadow-sm hover:brightness-110 transition cursor-pointer mr-1.5" title="Gerar Procuração, Contrato e Hipossuficiência em 1 clique">✨ Gerar Kit Inicial do Cliente</button>`
             : '';
 
           const card = document.createElement('div');
@@ -8678,7 +10354,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
             <span class="text-[10px] font-mono text-[#d4af37] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
             ${lembreteInfoHtml}
-            <div class="mt-2 pt-2 border-t border-zinc-800/80 flex items-center justify-end">
+            <div class="mt-2 pt-2 border-t border-zinc-800/80 flex flex-wrap items-center justify-end gap-1">
+              ${btnKitInicialHtml}
               ${btnLembreteHtml}
               <button type="button" onclick="event.stopPropagation(); window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos('${escaparHtmlTexto(id)}', '${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-[#f3e5ab] border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer" title="Solicitar novos documentos pelo WhatsApp">
                 📄 Solicitar Docs
@@ -8811,6 +10488,204 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           galeria.innerHTML = '<div class="col-span-2 p-6 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado neste dossiê ainda.</div>';
         } else {
           galeria.innerHTML = docs.map((doc, idx) => window.renderizarCardDocumentoVisual(doc, idx)).join('');
+        }
+      }
+
+      const btnKitTopo = document.getElementById('btn-gerar-kit-inicial-dossie');
+      if (btnKitTopo) {
+        const isConsolidado = String(dossie.status || '').toUpperCase() === 'CONSOLIDADO';
+        btnKitTopo.classList.toggle('hidden', !isConsolidado);
+      }
+    };
+
+    window.kitInicialUltimoResultado = null;
+
+    window.abrirModalKitInicial = function(clienteIdArg) {
+      const clienteId = clienteIdArg || window.dossieClienteSelecionadoId;
+      if (!clienteId) {
+        mostrarToast('Selecione um cliente com dossiê consolidado primeiro.');
+        return;
+      }
+      const dossie = (window.dossiesCache && window.dossiesCache[clienteId])
+        || (configGlobal && configGlobal.dossiesClientes && configGlobal.dossiesClientes[clienteId])
+        || null;
+
+      if (!dossie || String(dossie.status || '').toUpperCase() !== 'CONSOLIDADO') {
+        mostrarToast('O Kit Inicial fica disponível quando o dossiê atinge o status CONSOLIDADO.');
+        return;
+      }
+
+      const modal = document.getElementById('modal-kit-inicial');
+      const elNome = document.getElementById('kit-inicial-cliente-nome');
+      const elId = document.getElementById('kit-inicial-cliente-id');
+      const elRes = document.getElementById('kit-inicial-resultado');
+      const elWaFeed = document.getElementById('kit-inicial-whatsapp-feedback');
+
+      if (elId) elId.value = clienteId;
+      if (elNome) {
+        const nomeEx = dossie.civil?.nomeCompleto || dossie.clienteNome || 'Cliente';
+        const cpfEx = dossie.civil?.cpf || dossie.cpf || 'CPF não informado';
+        elNome.value = `${nomeEx} — CPF: ${cpfEx}`;
+      }
+      if (elWaFeed) {
+        elWaFeed.classList.add('hidden');
+        elWaFeed.innerText = '';
+      }
+
+      if (dossie.kitInicial && Array.isArray(dossie.kitInicial.arquivos) && dossie.kitInicial.arquivos.length > 0) {
+        window.kitInicialUltimoResultado = dossie.kitInicial;
+        window.renderizarResultadoKitInicialUI(dossie.kitInicial);
+      } else if (elRes) {
+        window.kitInicialUltimoResultado = null;
+        elRes.classList.add('hidden');
+      }
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    };
+
+    window.fecharModalKitInicial = function() {
+      const modal = document.getElementById('modal-kit-inicial');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    window.renderizarResultadoKitInicialUI = function(res) {
+      const box = document.getElementById('kit-inicial-resultado');
+      const elPasta = document.getElementById('kit-inicial-pasta-path');
+      const ul = document.getElementById('kit-inicial-lista-arquivos');
+      if (!box || !res) return;
+
+      if (elPasta) elPasta.innerText = res.pastaKit || '';
+      if (ul) {
+        ul.innerHTML = (res.arquivos || []).map(a => {
+          const kb = a.tamanhoBytes ? ` (${Math.max(1, Math.round(a.tamanhoBytes / 1024))} KB)` : '';
+          return `<li>📄 ${escaparHtmlTexto(a.nome)}${kb}</li>`;
+        }).join('');
+      }
+      box.classList.remove('hidden');
+    };
+
+    window.executarGeracaoKitInicial = async function() {
+      const clienteId = document.getElementById('kit-inicial-cliente-id')?.value || window.dossieClienteSelecionadoId;
+      if (!clienteId) return;
+
+      const btn = document.getElementById('btn-executar-kit-inicial');
+      const txtOrig = btn ? btn.innerText : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Gerando arquivos .docx...';
+      }
+
+      try {
+        const qualificacaoAtual = (window.dossieClienteSelecionadoId === clienteId) ? {
+          nomeCompleto: document.getElementById('dossie-nome')?.value || '',
+          cpf: document.getElementById('dossie-cpf')?.value || '',
+          rg: document.getElementById('dossie-rg')?.value || '',
+          nacionalidade: document.getElementById('dossie-nacionalidade')?.value || 'brasileiro(a)',
+          estadoCivil: document.getElementById('dossie-estado-civil')?.value || '',
+          profissao: document.getElementById('dossie-profissao')?.value || '',
+          email: document.getElementById('dossie-email')?.value || '',
+          endereco: document.getElementById('dossie-endereco')?.value || ''
+        } : null;
+
+        const payload = {
+          clienteId,
+          qualificacao: qualificacaoAtual && qualificacaoAtual.nomeCompleto ? qualificacaoAtual : null,
+          contrato: {
+            objeto: document.getElementById('kit-inicial-objeto')?.value || '',
+            valorTotal: document.getElementById('kit-inicial-valor-total')?.value || 0,
+            valorEntrada: document.getElementById('kit-inicial-valor-entrada')?.value || 0,
+            numeroParcelas: document.getElementById('kit-inicial-parcelas')?.value || 1,
+            percentualExito: document.getElementById('kit-inicial-percentual-exito')?.value || 0
+          },
+          incluirHipossuficiencia: Boolean(document.getElementById('kit-inicial-incluir-hipo')?.checked)
+        };
+
+        if (window.api && typeof window.api.gerarKitInicial === 'function') {
+          const res = await window.api.gerarKitInicial(payload);
+          if (res && res.sucesso) {
+            window.kitInicialUltimoResultado = res;
+            if (window.dossiesCache && window.dossiesCache[clienteId]) {
+              window.dossiesCache[clienteId].kitInicial = res;
+            }
+            window.renderizarResultadoKitInicialUI(res);
+            mostrarToast(`✅ Kit Inicial gerado com ${res.arquivos.length} documento(s) .docx!`);
+          } else {
+            mostrarToast('❌ ' + (res?.erro || 'Não foi possível gerar o Kit Inicial.'));
+          }
+        } else {
+          mostrarToast('⚠️ Geração de arquivos locais requer o aplicativo Electron.');
+        }
+      } catch (err) {
+        mostrarToast('❌ Erro ao gerar Kit Inicial: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = txtOrig || '✨ Gerar Kit Inicial (.docx)';
+        }
+      }
+    };
+
+    window.abrirPastaKitInicialAtual = async function() {
+      const pasta = window.kitInicialUltimoResultado && window.kitInicialUltimoResultado.pastaKit;
+      if (!pasta) {
+        mostrarToast('Gere o Kit Inicial primeiro.');
+        return;
+      }
+      if (window.api && typeof window.api.abrirArquivoDocumento === 'function') {
+        const res = await window.api.abrirArquivoDocumento(pasta);
+        if (res && !res.sucesso) {
+          mostrarToast('❌ ' + (res.erro || 'Pasta não encontrada.'));
+        }
+      }
+    };
+
+    window.enviarKitInicialWhatsappAtual = async function() {
+      const clienteId = document.getElementById('kit-inicial-cliente-id')?.value || window.dossieClienteSelecionadoId;
+      const resKit = window.kitInicialUltimoResultado;
+      if (!clienteId || !resKit || !Array.isArray(resKit.arquivos) || resKit.arquivos.length === 0) {
+        mostrarToast('Gere os arquivos .docx antes de enviar pelo WhatsApp.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-kit-enviar-whatsapp');
+      const elWaFeed = document.getElementById('kit-inicial-whatsapp-feedback');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Enviando kit...';
+      }
+
+      try {
+        const valorEntrada = document.getElementById('kit-inicial-valor-entrada')?.value || 0;
+        if (window.api && typeof window.api.enviarKitInicialWhatsapp === 'function') {
+          const res = await window.api.enviarKitInicialWhatsapp({
+            clienteId,
+            arquivos: resKit.arquivos,
+            valorEntrada
+          });
+          if (res && res.sucesso) {
+            if (elWaFeed) {
+              elWaFeed.classList.remove('hidden');
+              elWaFeed.innerText = res.modo === 'whatsapp'
+                ? `✅ Kit Inicial (${res.arquivosEnviados} documento(s) .docx) + instruções Gov.br enviados no WhatsApp!\n\n${res.mensagem}`
+                : `ℹ️ ${res.aviso}\n\nPrévia da mensagem:\n${res.mensagem}`;
+            }
+            mostrarToast(res.modo === 'whatsapp' ? '📲 Kit Inicial enviado pelo WhatsApp!' : '📲 Prévia Gov.br + PIX gerada (WhatsApp desconectado).');
+          } else {
+            mostrarToast('❌ ' + (res?.erro || 'Erro ao enviar Kit pelo WhatsApp.'));
+          }
+        }
+      } catch (err) {
+        mostrarToast('❌ Erro ao enviar pelo WhatsApp: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '📲 Enviar no WhatsApp (Gov.br + PIX)';
         }
       }
     };
@@ -9275,6 +11150,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         }
         if (input) {
           input.value = sugestao;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
           input.focus();
           input.classList.add('ring-2', 'ring-amber-400');
           setTimeout(() => input.classList.remove('ring-2', 'ring-amber-400'), 900);
@@ -9294,12 +11170,22 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       }
     };
 
-    window.enviarRespostaAdvogadoFila = async (cardId, chave) => {
+    window.aplicarCannedResponse = function(cardId, texto) {
+      const input = document.getElementById(`input-resposta-${cardId}`);
+      if (input) {
+        input.value = texto;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+        mostrarToast("⚡ Resposta rápida aplicada! Pressione 'Enviar' ou 'Ctrl+Enter'.");
+      }
+    };
+
+    window.enviarRespostaAdvogadoFila = async (cardId, chave, despausarAutomatico = false) => {
       const input = document.getElementById(`input-resposta-${cardId}`);
       const texto = input ? input.value.trim() : '';
 
       if (!texto) {
-        alert("Por favor, digite ou selecione uma sugestão de resposta rápida antes de enviar.");
+        mostrarToast("⚠️ Por favor, digite ou selecione uma resposta antes de enviar.");
         return;
       }
 
@@ -9307,7 +11193,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       if (api && api.responderClientePausado) {
         try {
-          await api.responderClientePausado({ chave, textoResposta: texto, despausar: false });
+          await api.responderClientePausado({ chave, textoResposta: texto, despausar: Boolean(despausarAutomatico) });
         } catch (e) {
           console.error("Erro no responderClientePausado:", e);
         }
@@ -9319,7 +11205,171 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         input.value = '';
       }
 
-      mostrarToast("✅ Resposta enviada! O cliente continua pausado — clique em 'Liberar para o Robô' quando concluir.");
+      if (despausarAutomatico) {
+        mostrarToast("🚀 Resposta enviada e cliente liberado para o robô com sucesso!");
+        if (api && api.obterPausados) {
+          try {
+            const atualizados = await api.obterPausados();
+            renderizarPausados(atualizados);
+          } catch (_) {}
+        }
+      } else {
+        mostrarToast("✅ Resposta enviada! O cliente permanece em atendimento.");
+      }
+    };
+
+    // Gestão de Filtros e Busca da Fila do Advogado
+    let filtroUrgenciaFilaAtual = 'TODOS';
+
+    window.setFiltroUrgenciaFila = function(filtro) {
+      filtroUrgenciaFilaAtual = filtro;
+      const ids = ['filtro-fila-todos', 'filtro-fila-critica', 'filtro-fila-alta', 'filtro-fila-audio'];
+      ids.forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.className = "px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+      });
+      const btnAtivo = document.getElementById(`filtro-fila-${filtro.toLowerCase()}`);
+      if (btnAtivo) {
+        btnAtivo.className = "px-3 py-1.5 rounded-lg font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+      }
+      filtrarFilaAdvogadoUI();
+    };
+
+    window.filtrarFilaAdvogadoUI = function() {
+      const termo = (document.getElementById('busca-fila-advogado')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('#lista-pausados > div');
+      cards.forEach(card => {
+        const textoCard = card.innerText.toLowerCase();
+        const urgencia = card.getAttribute('data-urgencia') || 'MEDIA';
+        const temAudio = card.querySelector('.audio-player-wrapper') !== null || textoCard.includes('[mensagem de voz]');
+        
+        let passaFiltro = true;
+        if (filtroUrgenciaFilaAtual === 'CRITICA' && urgencia !== 'CRITICA') passaFiltro = false;
+        if (filtroUrgenciaFilaAtual === 'ALTA' && urgencia !== 'ALTA' && urgencia !== 'CRITICA') passaFiltro = false;
+        if (filtroUrgenciaFilaAtual === 'AUDIO' && !temAudio) passaFiltro = false;
+
+        let passaBusca = true;
+        if (termo && !textoCard.includes(termo)) passaBusca = false;
+
+        if (passaFiltro && passaBusca) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    };
+
+    // Acessibilidade: Modo Letra Maior / Leitura Confortável
+    window.toggleFonteConfortoUI = function() {
+      const body = document.body;
+      const ativo = body.classList.toggle('modo-leitura-conforto');
+      localStorage.setItem('adv_bot_leitura_conforto', ativo ? 'true' : 'false');
+      const btn = document.getElementById('btn-top-fonte-conforto');
+      if (btn) {
+        btn.className = ativo 
+          ? "px-2.5 py-1.5 rounded-xl bg-[#d4af37]/20 border border-[#d4af37]/50 text-[11px] font-bold text-[#d4af37] transition cursor-pointer shadow-sm"
+          : "px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-zinc-300 transition cursor-pointer";
+      }
+      mostrarToast(ativo ? "🔍 Modo de Leitura Confortável Ativado (Letras Maiores)" : "Tamanho de texto padrão restaurado.");
+    };
+
+    // Toggle do Modo Seguro / Robô Pausado Globalmente
+    window.toggleModoSeguroGlobalUI = async function() {
+      configGlobal.roboPausadoGlobal = !Boolean(configGlobal.roboPausadoGlobal);
+      configGlobal.modoSeguroAtivo = configGlobal.roboPausadoGlobal;
+      atualizarIndicadorModoSeguroUI();
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig(configGlobal);
+      }
+      mostrarToast(configGlobal.roboPausadoGlobal 
+        ? "🛡️ Modo Seguro ATIVADO: O robô está pausado globalmente. Todas as mensagens aguardam na Fila." 
+        : "⚡ Modo Seguro DESATIVADO: Robô liberado para respostas automáticas.");
+    };
+
+    function atualizarIndicadorModoSeguroUI() {
+      const dot = document.getElementById('top-modo-seguro-dot');
+      const txt = document.getElementById('top-modo-seguro-text');
+      const btn = document.getElementById('btn-top-modo-seguro');
+      const estaPausado = Boolean(configGlobal.roboPausadoGlobal || configGlobal.modoSeguroAtivo);
+
+      if (dot && txt && btn) {
+        if (estaPausado) {
+          dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+          txt.className = "text-amber-400 font-bold text-[11px]";
+          txt.innerText = "Modo Seguro: Pausado";
+          btn.className = "flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-xs font-semibold transition cursor-pointer";
+        } else {
+          dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+          txt.className = "text-emerald-400 font-semibold text-[11px]";
+          txt.innerText = "Robô: Ativo";
+          btn.className = "flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-xs font-semibold transition cursor-pointer";
+        }
+      }
+    }
+
+    // Configuração Visual de Tom de IA e Chave Gemini API
+    window.salvarTomIAUI = async function(novoTom) {
+      if (!configGlobal.ia) configGlobal.ia = {};
+      configGlobal.ia.tomVoz = novoTom;
+      configGlobal.tomCorporativo = novoTom === 'executivo';
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig(configGlobal);
+      }
+      mostrarToast(`🎭 Tom de voz da IA atualizado para: ${novoTom}`);
+    };
+
+    window.salvarOpcaoSemEmojisUI = async function(semEmojis) {
+      if (!configGlobal.ia) configGlobal.ia = {};
+      configGlobal.ia.semEmojis = semEmojis;
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig(configGlobal);
+      }
+      mostrarToast(semEmojis ? "🏛️ Sobriedade Ativada: Sem emojis nas respostas da IA." : "✨ Emojis permitidos nas respostas.");
+    };
+
+    window.salvarChaveGeminiUI = async function() {
+      const input = document.getElementById('input-chave-gemini');
+      const chaveDigitada = input ? input.value.trim() : '';
+      if (!chaveDigitada) {
+        mostrarToast("⚠️ Nenhuma nova chave digitada.");
+        return;
+      }
+      if (!chaveDigitada.startsWith('AIza')) {
+        alert("Aviso: Chaves do Google Gemini costumam iniciar com 'AIza...'. Verifique se copiou a chave correta.");
+      }
+      if (window.api && window.api.salvarConfig) {
+        await window.api.salvarConfig({
+          ...configGlobal,
+          nova_gemini_api_key: chaveDigitada
+        });
+        if (input) input.value = '';
+        const st = document.getElementById('status-chave-ia');
+        if (st) st.innerHTML = '<span class="text-emerald-400 font-bold">✓ Chave personalizada configurada e ativa</span>';
+        mostrarToast("🔑 Chave Google Gemini atualizada e ativa no sistema!");
+      }
+    };
+
+    // Exportação em 1 Clique de Extrato Financeiro (CSV)
+    window.exportarExtratoFinanceiroUI = function() {
+      const fin = configGlobal.financeiro || {};
+      const parcelas = fin.parcelas || [];
+      if (!parcelas.length) {
+        mostrarToast("⚠️ Nenhuma parcela de honorários registrada para exportar.");
+        return;
+      }
+
+      let csv = "ID;Cliente;Telefone;Contrato;Vencimento;Valor (R$);Status;Data Pagamento;Valor Pago (R$);Multa (R$);Juros (R$);Transacao\n";
+      parcelas.forEach(p => {
+        csv += `"${p.id || ''}";"${p.clienteNome || ''}";"${p.clienteTelefone || p.telefone || ''}";"${p.contratoId || ''}";"${p.vencimento || ''}";"${(p.valor || 0).toFixed(2)}";"${p.status || 'PENDENTE'}";"${p.dataPagamento || ''}";"${(p.valorPago || 0).toFixed(2)}";"${(p.valorMulta || 0).toFixed(2)}";"${(p.valorJuros || 0).toFixed(2)}";"${p.idTransacao || ''}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Extrato_Financeiro_Advocacia_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      mostrarToast("📊 Extrato financeiro exportado em CSV com sucesso!");
     };
 
     window.reativarCliente = async (num) => {
@@ -9338,11 +11388,30 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
     async function salvarConfiguracaoCompleta(silencioso = false) {
       garantirEstruturaAgenda();
       garantirEstruturaProcessos();
+      atualizarIndicadorModoSeguroUI();
+
+      // Inicializa seletores de IA visual
+      const selTom = document.getElementById('select-tom-ia');
+      if (selTom && configGlobal.ia && configGlobal.ia.tomVoz) {
+        selTom.value = configGlobal.ia.tomVoz;
+      }
+      const chkEmojis = document.getElementById('check-ia-sem-emojis');
+      if (chkEmojis && configGlobal.ia && typeof configGlobal.ia.semEmojis === 'boolean') {
+        chkEmojis.checked = configGlobal.ia.semEmojis;
+      }
+      const stChave = document.getElementById('status-chave-ia');
+      if (stChave) {
+        if (configGlobal.temApiKeyConfigurada) {
+          stChave.innerHTML = `<span class="text-emerald-400 font-bold">✓ Chave Ativa: ${configGlobal.geminiApiKeyMascarada || 'Configurada'}</span>`;
+        } else {
+          stChave.innerHTML = `<span class="text-amber-400 font-medium">Usando contingência local (adicione sua chave Gemini para máxima precisão)</span>`;
+        }
+      }
       localStorage.setItem('adv_bot_config_backup', JSON.stringify(configGlobal));
       if (window.api && window.api.salvarConfig) await window.api.salvarConfig(configGlobal);
       const badgeAutosave = document.getElementById('badge-autosave');
       if (badgeAutosave) {
-        badgeAutosave.innerText = "✓ Auto-Save Ativo";
+        badgeAutosave.innerText = "✓ Salvamento Automático Ativo";
         badgeAutosave.className = "text-[10px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 font-mono";
       }
       const btnSalvar = document.getElementById('btn-salvar-fluxo');
@@ -9708,6 +11777,25 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
       garantirEstruturaAgenda();
       garantirEstruturaProcessos();
+      atualizarIndicadorModoSeguroUI();
+
+      // Inicializa seletores de IA visual
+      const selTom = document.getElementById('select-tom-ia');
+      if (selTom && configGlobal.ia && configGlobal.ia.tomVoz) {
+        selTom.value = configGlobal.ia.tomVoz;
+      }
+      const chkEmojis = document.getElementById('check-ia-sem-emojis');
+      if (chkEmojis && configGlobal.ia && typeof configGlobal.ia.semEmojis === 'boolean') {
+        chkEmojis.checked = configGlobal.ia.semEmojis;
+      }
+      const stChave = document.getElementById('status-chave-ia');
+      if (stChave) {
+        if (configGlobal.temApiKeyConfigurada) {
+          stChave.innerHTML = `<span class="text-emerald-400 font-bold">✓ Chave Ativa: ${configGlobal.geminiApiKeyMascarada || 'Configurada'}</span>`;
+        } else {
+          stChave.innerHTML = `<span class="text-amber-400 font-medium">Usando contingência local (adicione sua chave Gemini para máxima precisão)</span>`;
+        }
+      }
       popularSeletorDeEtapas();
       carregarEtapaNoEditor('raiz');
       const elBoasVindasInit = document.getElementById('input-msg-boasvindas');
@@ -11493,6 +13581,30 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       const chipTxt = document.getElementById('home-chip-ia-txt');
       if (chipDot) chipDot.className = iaAtiva ? 'w-1.5 h-1.5 rounded-full bg-emerald-400' : 'w-1.5 h-1.5 rounded-full bg-zinc-400';
       if (chipTxt) chipTxt.innerText = iaAtiva ? 'IA: Ativa' : 'IA: Contingência Local';
+    };
+
+    window.copiarAvisoPrivacidadeLGPDUi = function() {
+      const el = document.getElementById('texto-aviso-privacidade-lgpd');
+      const texto = el ? el.value : '';
+      if (!texto) return;
+
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(texto).then(() => {
+          if (typeof mostrarToast === 'function') {
+            mostrarToast('📋 Aviso de Privacidade (LGPD & OAB) copiado para a área de transferência!');
+          }
+        }).catch(() => {
+          if (typeof copiarTextoFallbackLocal === 'function') copiarTextoFallbackLocal(texto);
+          if (typeof mostrarToast === 'function') {
+            mostrarToast('📋 Aviso de Privacidade (LGPD & OAB) copiado!');
+          }
+        });
+      } else {
+        if (typeof copiarTextoFallbackLocal === 'function') copiarTextoFallbackLocal(texto);
+        if (typeof mostrarToast === 'function') {
+          mostrarToast('📋 Aviso de Privacidade (LGPD & OAB) copiado!');
+        }
+      }
     };
 </script>
 <!-- MODAL RÁPIDO DE QR CODE WHATSAPP -->
