@@ -16,8 +16,7 @@ const TIMEOUT_MULTIMODAL_AUDIO = 20000; // 20s rígido via AbortController
 const MODELOS_GEMINI_PADRAO = [
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
-  'gemini-flash-lite-latest',
-  'gemini-1.5-flash'
+  'gemini-flash-lite-latest'
 ];
 
 const DEFEITOS_VALIDOS = ['BORRAO', 'REFLEXO', 'CORTE', 'ESCURO'];

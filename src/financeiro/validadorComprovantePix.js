@@ -16,8 +16,7 @@ const TIMEOUT_MULTIMODAL_PIX = 20000; // 20 segundos
 const MODELOS_GEMINI_PIX = [
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
-  'gemini-flash-lite-latest',
-  'gemini-1.5-flash'
+  'gemini-flash-lite-latest'
 ];
 
 const BANCOS_POPULARES_BRASIL = [

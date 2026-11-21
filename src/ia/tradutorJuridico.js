@@ -4,7 +4,7 @@ const path = require('path');
 
 const TIMEOUT_PADRAO_TEXTO = 3500;       // 3.5s para textos rápidos
 const TIMEOUT_MULTIMODAL_AUDIO = 20000;  // 20s para transcrição + copilot + cronologia de áudio
-const MODELOS_GEMINI_PADRAO = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-flash-lite-latest', 'gemini-1.5-flash'];
+const MODELOS_GEMINI_PADRAO = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-flash-lite-latest'];
 
 // Auto-carrega .env da raiz do projeto caso ainda não tenha sido carregado
 try {
