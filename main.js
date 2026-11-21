@@ -1,5 +1,7 @@
-const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu } = require('electron');
+const electronModulo = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu, safeStorage } = electronModulo;
 const path = require('path');
+const crypto = require('crypto');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const fs = require('fs');
@@ -252,6 +254,162 @@ function migrarTemplatesAntigosProcessos(cfg) {
     return migrarConfigV1ParaV2(cfg);
 }
 
+const CHAVE_FALLBACK_NODE = crypto.scryptSync('advocacia-studio-pro-v2-safestorage-fallback', 'adv-salt-v2', 32);
+
+function obterSafeStorageAtivo() {
+    const storage = safeStorage || (electronModulo && electronModulo.safeStorage);
+    if (storage && typeof storage.isEncryptionAvailable === 'function' && storage.isEncryptionAvailable()) {
+        return storage;
+    }
+    return null;
+}
+
+function cifrarChaveApi(chavePlana) {
+    if (!chavePlana || typeof chavePlana !== 'string') return '';
+    const limpa = chavePlana.trim();
+    if (!limpa) return '';
+    try {
+        const storage = obterSafeStorageAtivo();
+        if (storage && typeof storage.encryptString === 'function') {
+            const buf = storage.encryptString(limpa);
+            return Buffer.isBuffer(buf) ? buf.toString('base64') : Buffer.from(String(buf)).toString('base64');
+        }
+    } catch (err) {
+        console.warn('[SafeStorage] Aviso ao cifrar via Electron safeStorage, usando fallback AES:', err.message);
+    }
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', CHAVE_FALLBACK_NODE, iv);
+    const enc = Buffer.concat([cipher.update(limpa, 'utf8'), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    return Buffer.concat([Buffer.from('ADV2AES:'), iv, tag, enc]).toString('base64');
+}
+
+function decifrarChaveApi(valorCifrado) {
+    if (!valorCifrado || typeof valorCifrado !== 'string') return '';
+    const limpo = valorCifrado.trim();
+    if (!limpo) return '';
+    try {
+        const rawBuf = Buffer.from(limpo, 'base64');
+        if (rawBuf.length > 36 && rawBuf.subarray(0, 8).toString('utf8') === 'ADV2AES:') {
+            const iv = rawBuf.subarray(8, 20);
+            const tag = rawBuf.subarray(20, 36);
+            const enc = rawBuf.subarray(36);
+            const decipher = crypto.createDecipheriv('aes-256-gcm', CHAVE_FALLBACK_NODE, iv);
+            decipher.setAuthTag(tag);
+            return Buffer.concat([decipher.update(enc), decipher.final()]).toString('utf8');
+        }
+        const storage = obterSafeStorageAtivo();
+        if (storage && typeof storage.decryptString === 'function') {
+            return storage.decryptString(rawBuf);
+        }
+    } catch (err) {
+        console.warn('[SafeStorage] Falha ao decifrar chave API:', err.message);
+    }
+    return '';
+}
+
+function extrairChaveApiPlana(cfg) {
+    if (!cfg || typeof cfg !== 'object') return '';
+    const candidata = cfg.gemini_api_key
+        || cfg.geminiApiKey
+        || (cfg.ia && (cfg.ia.apiKey || cfg.ia.gemini_api_key || cfg.ia.chave))
+        || (cfg.processos && cfg.processos.gemini_api_key)
+        || '';
+    return typeof candidata === 'string' ? candidata.trim() : '';
+}
+
+function removerCamposChavePlana(alvo) {
+    if (!alvo || typeof alvo !== 'object') return;
+    delete alvo.gemini_api_key;
+    delete alvo.geminiApiKey;
+    delete alvo.nova_gemini_api_key;
+    delete alvo.remover_gemini_api_key;
+    if (alvo.ia && typeof alvo.ia === 'object') {
+        delete alvo.ia.apiKey;
+        delete alvo.ia.gemini_api_key;
+        delete alvo.ia.chave;
+    }
+    if (alvo.processos && typeof alvo.processos === 'object') {
+        delete alvo.processos.gemini_api_key;
+    }
+}
+
+function prepararConfigParaDisco(cfg) {
+    if (!cfg || typeof cfg !== 'object') return {};
+    const copiaDisco = JSON.parse(JSON.stringify(cfg));
+    const chavePlana = extrairChaveApiPlana(cfg);
+
+    if (chavePlana) {
+        cfg.gemini_api_key = chavePlana;
+        const cifrada = cifrarChaveApi(chavePlana);
+        if (cifrada) {
+            copiaDisco.gemini_api_key_cifrada = cifrada;
+            cfg.gemini_api_key_cifrada = cifrada;
+        }
+    } else if (typeof cfg.gemini_api_key_cifrada === 'string' && cfg.gemini_api_key_cifrada.trim()) {
+        copiaDisco.gemini_api_key_cifrada = cfg.gemini_api_key_cifrada.trim();
+        const decifrada = decifrarChaveApi(copiaDisco.gemini_api_key_cifrada);
+        if (decifrada) {
+            cfg.gemini_api_key = decifrada;
+        }
+    } else {
+        delete copiaDisco.gemini_api_key_cifrada;
+    }
+
+    removerCamposChavePlana(copiaDisco);
+
+    delete cfg.geminiApiKey;
+    delete cfg.nova_gemini_api_key;
+    delete cfg.remover_gemini_api_key;
+    if (cfg.ia && typeof cfg.ia === 'object') {
+        delete cfg.ia.apiKey;
+        delete cfg.ia.gemini_api_key;
+        delete cfg.ia.chave;
+    }
+    if (cfg.processos && typeof cfg.processos === 'object') {
+        delete cfg.processos.gemini_api_key;
+    }
+
+    return copiaDisco;
+}
+
+function hidratarChaveApiAoCarregar(lidoBruto, cfgMigrada) {
+    if (!cfgMigrada || typeof cfgMigrada !== 'object') return { precisaMigrarDisco: false };
+    const origem = (lidoBruto && typeof lidoBruto === 'object') ? lidoBruto : cfgMigrada;
+    const chavePlanaNoDisco = extrairChaveApiPlana(origem) || extrairChaveApiPlana(cfgMigrada);
+    const chaveCifradaNoDisco = (typeof origem.gemini_api_key_cifrada === 'string' && origem.gemini_api_key_cifrada.trim())
+        ? origem.gemini_api_key_cifrada.trim()
+        : ((typeof cfgMigrada.gemini_api_key_cifrada === 'string' && cfgMigrada.gemini_api_key_cifrada.trim()) ? cfgMigrada.gemini_api_key_cifrada.trim() : '');
+
+    let chaveResolvida = '';
+    if (chaveCifradaNoDisco) {
+        chaveResolvida = decifrarChaveApi(chaveCifradaNoDisco);
+    }
+    if (!chaveResolvida && chavePlanaNoDisco) {
+        chaveResolvida = chavePlanaNoDisco;
+    }
+
+    removerCamposChavePlana(cfgMigrada);
+
+    if (chaveResolvida) {
+        cfgMigrada.gemini_api_key = chaveResolvida;
+        cfgMigrada.gemini_api_key_cifrada = chaveCifradaNoDisco || cifrarChaveApi(chaveResolvida);
+    }
+
+    const tinhaTextoPlanoNoArquivo = Boolean(
+        lidoBruto && typeof lidoBruto === 'object' && (
+            lidoBruto.gemini_api_key !== undefined ||
+            lidoBruto.geminiApiKey !== undefined ||
+            (lidoBruto.ia && (lidoBruto.ia.apiKey !== undefined || lidoBruto.ia.gemini_api_key !== undefined || lidoBruto.ia.chave !== undefined)) ||
+            (lidoBruto.processos && lidoBruto.processos.gemini_api_key !== undefined)
+        )
+    );
+
+    return {
+        precisaMigrarDisco: tinhaTextoPlanoNoArquivo && Boolean(chaveResolvida)
+    };
+}
+
 function carregarConfig(forcarDisco = false) {
     if (configEmMemoria && !forcarDisco) return configEmMemoria;
     try {
@@ -260,6 +418,7 @@ function carregarConfig(forcarDisco = false) {
             if (fs.existsSync(CONFIG_BACKUP_PATH)) {
                 const recuperado = JSON.parse(fs.readFileSync(CONFIG_BACKUP_PATH, 'utf-8'));
                 configEmMemoria = migrarConfigV1ParaV2(recuperado, contatosIgnoradosExternos);
+                hidratarChaveApiAoCarregar(recuperado, configEmMemoria);
                 salvarConfigDisco(configEmMemoria, true);
                 return configEmMemoria;
             }
@@ -270,14 +429,23 @@ function carregarConfig(forcarDisco = false) {
         }
         const lido = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
         configEmMemoria = migrarConfigV1ParaV2(lido, contatosIgnoradosExternos);
+        const { precisaMigrarDisco } = hidratarChaveApiAoCarregar(lido, configEmMemoria);
         if (configEmMemoria.pausadosPersistidos) {
             contatosPausados = { ...configEmMemoria.pausadosPersistidos, ...contatosPausados };
+        }
+        if (precisaMigrarDisco) {
+            salvarConfigDisco(configEmMemoria, true);
         }
         return configEmMemoria;
     } catch (e) {
         try {
             if (fs.existsSync(CONFIG_BACKUP_PATH)) {
-                configEmMemoria = migrarConfigV1ParaV2(JSON.parse(fs.readFileSync(CONFIG_BACKUP_PATH, 'utf-8')), carregarContatosIgnorados());
+                const recuperado = JSON.parse(fs.readFileSync(CONFIG_BACKUP_PATH, 'utf-8'));
+                configEmMemoria = migrarConfigV1ParaV2(recuperado, carregarContatosIgnorados());
+                const { precisaMigrarDisco } = hidratarChaveApiAoCarregar(recuperado, configEmMemoria);
+                if (precisaMigrarDisco) {
+                    salvarConfigDisco(configEmMemoria, true);
+                }
                 return configEmMemoria;
             }
         } catch (err2) {}
@@ -295,9 +463,11 @@ function carregarConfig(forcarDisco = false) {
 function salvarConfigDisco(cfg, imediato = false) {
     configEmMemoria = cfg;
     configEmMemoria.pausadosPersistidos = contatosPausados;
+    prepararConfigParaDisco(configEmMemoria);
     const gravar = () => {
         try {
-            const payload = JSON.stringify(configEmMemoria, null, 2);
+            const copiaDisco = prepararConfigParaDisco(configEmMemoria);
+            const payload = JSON.stringify(copiaDisco, null, 2);
             escreverArquivoAtomico(CONFIG_PATH, payload);
             escreverArquivoAtomico(CONFIG_BACKUP_PATH, payload);
         } catch (e) {
@@ -1919,25 +2089,22 @@ function sanitizarConfigParaRenderer(cfg) {
     if (!cfg || typeof cfg !== 'object') return cfg;
     const copia = JSON.parse(JSON.stringify(cfg));
     // Mascara apiKey deixando visível apenas os últimos 4 dígitos para visualização segura no frontend
-    const chaveReal = copia.gemini_api_key || copia.geminiApiKey || (copia.ia && (copia.ia.apiKey || copia.ia.gemini_api_key)) || '';
+    const chaveReal = extrairChaveApiPlana(copia)
+        || (typeof copia.gemini_api_key_cifrada === 'string' && copia.gemini_api_key_cifrada.trim()
+            ? decifrarChaveApi(copia.gemini_api_key_cifrada)
+            : '');
     if (chaveReal && typeof chaveReal === 'string' && chaveReal.trim()) {
         const limpa = chaveReal.trim();
         copia.geminiApiKeyMascarada = limpa.length > 8 ? `••••••••••••${limpa.slice(-4)}` : '••••••••';
         copia.temApiKeyConfigurada = true;
+    } else if (typeof copia.geminiApiKeyMascarada === 'string' && copia.geminiApiKeyMascarada.trim()) {
+        copia.temApiKeyConfigurada = Boolean(copia.temApiKeyConfigurada !== false);
     } else {
         copia.geminiApiKeyMascarada = '';
         copia.temApiKeyConfigurada = false;
     }
-    delete copia.gemini_api_key;
-    delete copia.geminiApiKey;
-    if (copia.ia && typeof copia.ia === 'object') {
-        delete copia.ia.apiKey;
-        delete copia.ia.gemini_api_key;
-        delete copia.ia.chave;
-    }
-    if (copia.processos && typeof copia.processos === 'object') {
-        delete copia.processos.gemini_api_key;
-    }
+    removerCamposChavePlana(copia);
+    delete copia.gemini_api_key_cifrada;
     return copia;
 }
 
@@ -1981,6 +2148,9 @@ ipcMain.handle('salvar-config', (e, nc) => {
             process.env.GEMINI_API_KEY = chaveNova;
         } else if (nc.remover_gemini_api_key) {
             delete nc.gemini_api_key;
+            delete nc.gemini_api_key_cifrada;
+            delete nc.geminiApiKeyMascarada;
+            delete nc.temApiKeyConfigurada;
             delete process.env.GEMINI_API_KEY;
         }
         delete nc.nova_gemini_api_key;
@@ -1999,7 +2169,10 @@ ipcMain.handle('restaurar-backup-completo', (e, backupCfg) => {
         }
         const atualEmMemoria = carregarConfig();
         const restaurado = JSON.parse(JSON.stringify(backupCfg));
-        if (restaurado.gemini_api_key === undefined && atualEmMemoria && atualEmMemoria.gemini_api_key !== undefined) {
+
+        hidratarChaveApiAoCarregar(backupCfg, restaurado);
+
+        if (!restaurado.gemini_api_key && atualEmMemoria && atualEmMemoria.gemini_api_key) {
             restaurado.gemini_api_key = atualEmMemoria.gemini_api_key;
         }
         if (!restaurado.processos) restaurado.processos = { lista: [] };
@@ -2008,10 +2181,11 @@ ipcMain.handle('restaurar-backup-completo', (e, backupCfg) => {
         if (!restaurado.onboardingSessoes) restaurado.onboardingSessoes = {};
 
         salvarConfigDisco(restaurado, true);
+        const configSanitizada = sanitizarConfigParaRenderer(restaurado);
         if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('bot-processos-sync', sanitizarConfigParaRenderer(restaurado));
+            mainWindow.webContents.send('bot-processos-sync', configSanitizada);
         }
-        return { sucesso: true, config: sanitizarConfigParaRenderer(restaurado) };
+        return { sucesso: true, config: configSanitizada };
     } catch (err) {
         console.error('[IPC restaurar-backup-completo] Erro:', err);
         return { sucesso: false, erro: err.message };
@@ -3777,7 +3951,14 @@ module.exports = {
     buscarProcessoPorNumero,
     processarMensagemEntrada,
     executarSimulacaoMensagem,
-    resetarConversaSimulador
+    resetarConversaSimulador,
+    cifrarChaveApi,
+    decifrarChaveApi,
+    prepararConfigParaDisco,
+    hidratarChaveApiAoCarregar,
+    carregarConfig,
+    salvarConfigDisco,
+    sanitizarConfigParaRenderer
 };
 
 
