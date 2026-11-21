@@ -3227,6 +3227,17 @@ ipcMain.handle('processos-higienizar-base', async () => {
     }
 });
 
+// CALCULADORA NATIVA DE PRAZOS PROCESSUAIS (CPC / CLT)
+ipcMain.handle('processos-calcular-prazo', async (event, params) => {
+    try {
+        const { calcularPrazoProcessual } = require('./src/processos/calculadoraPrazos');
+        const resultado = calcularPrazoProcessual(params || {});
+        return { sucesso: true, ...resultado };
+    } catch (err) {
+        return { sucesso: false, erro: err.message };
+    }
+});
+
 // CATALOGAR PEÇA PROCESSUAL COM IA
 ipcMain.handle('ia-catalogar-peca', async (event, { texto, nomeArquivo }) => {
     try {

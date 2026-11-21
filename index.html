@@ -2728,6 +2728,10 @@
               </h2>
             </div>
               <div class="flex flex-wrap items-center gap-2">
+                <button id="btn-abrir-calc-prazos" type="button" onclick="abrirModalCalculadoraPrazos()" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-semibold flex items-center space-x-1.5 shrink-0 cursor-pointer border border-[#d4af37]/35 hover:border-[#d4af37]/70 text-[#d4af37]" title="Calcular prazos processuais em dias úteis (CPC / CLT) com feriados nacionais e recesso forense">
+                  <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>Calculadora de Prazos</span>
+                </button>
                 <button type="button" onclick="irParaNovoClienteDireto()" class="btn-tactile px-3.5 py-1.5 champagne-gradient rounded-[9px] text-[11px] font-bold text-zinc-950 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Cadastrar cliente rápido sem exigir número de processo na justiça">
                   <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                   <span>+ Novo Cliente</span>
@@ -3031,6 +3035,145 @@
                   </div>
                 </div>
 
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL: CALCULADORA NATIVA DE PRAZOS PROCESSUAIS (CPC / CLT) -->
+          <div id="modal-calculadora-prazos" class="fixed inset-0 z-[120] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onclick="if(event.target === this) fecharModalCalculadoraPrazos()">
+            <div class="exec-card w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-zinc-800/90 bg-zinc-950/95 shadow-2xl p-6 space-y-5 relative">
+              <div class="flex items-start justify-between gap-4 border-b border-zinc-800/80 pb-4">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="cohere-eyebrow text-[#d4af37]">Cálculo Determinístico Local</span>
+                    <span class="text-zinc-600">•</span>
+                    <span class="text-[11px] font-mono text-zinc-400">Art. 220 &amp; 224 CPC • Art. 775 &amp; 775-A CLT</span>
+                  </div>
+                  <h3 class="font-serif-legal text-xl font-bold text-zinc-100 flex items-center gap-2">
+                    <span>⚖️ Calculadora de Prazos Processuais (CPC / CLT)</span>
+                  </h3>
+                </div>
+                <button type="button" onclick="fecharModalCalculadoraPrazos()" class="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 border border-zinc-800 transition cursor-pointer" title="Fechar calculadora">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              <!-- Atalhos Rápidos de 1 Clique -->
+              <div class="space-y-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 block">Atalhos Jurídicos Rápidos (1 clique):</span>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="aplicarAtalhoPrazo('Contestação', 15, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Contestação (15d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Apelação', 15, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Apelação (15d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Recurso Inominado (JEC)', 10, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Rec. Inominado JEC (10d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Recurso Ordinário (CLT)', 8, 'CLT')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl border border-amber-500/30 text-amber-300 cursor-pointer">Recurso Ordinário CLT (8d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Embargos de Declaração', 5, null)" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Embargos de Declaração (5d)</button>
+                  <button type="button" onclick="aplicarAtalhoPrazo('Réplica / Impugnação', 15, 'CPC')" class="btn-tactile linear-btn-ghost px-3 py-1.5 text-[11px] font-semibold rounded-xl cursor-pointer">Réplica (15d)</button>
+                </div>
+              </div>
+
+              <!-- Formulário de Parâmetros -->
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-rito" class="text-[11px] font-semibold text-zinc-400 block">Rito Processual</label>
+                  <select id="calc-prazo-rito" onchange="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                    <option value="CPC">CPC — Cível / Previdenciário / Família</option>
+                    <option value="CLT">CLT — Trabalhista</option>
+                  </select>
+                </div>
+
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-evento" class="text-[11px] font-semibold text-zinc-400 block">Evento da Data Informada</label>
+                  <select id="calc-prazo-evento" onchange="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                    <option value="disponibilizacao">Disponibilização no DJEN (Publ. +1 útil, Início +1 útil)</option>
+                    <option value="publicacao">Publicação / Intimação (Início no 1º dia útil seguinte)</option>
+                  </select>
+                </div>
+
+                <div class="sm:col-span-4 space-y-1">
+                  <label for="calc-prazo-data" class="text-[11px] font-semibold text-zinc-400 block">Data da Disponibilização / Publicação</label>
+                  <input type="date" id="calc-prazo-data" onchange="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
+                </div>
+
+                <div class="sm:col-span-3 space-y-1">
+                  <label for="calc-prazo-dias" class="text-[11px] font-semibold text-zinc-400 block">Prazo (Dias Úteis)</label>
+                  <input type="number" id="calc-prazo-dias" min="1" max="1000" value="15" oninput="calcularPrazoProcessualUI()" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold">
+                </div>
+
+                <div class="sm:col-span-5 space-y-1">
+                  <label for="calc-prazo-feriados-locais" class="text-[11px] font-semibold text-zinc-400 block">Feriados Locais / Suspensões (opcional)</label>
+                  <input type="text" id="calc-prazo-feriados-locais" oninput="calcularPrazoProcessualUI()" placeholder="Ex: 25/01/2026, 09/07/2026" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+                </div>
+
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-titulo" class="text-[11px] font-semibold text-zinc-400 block">Título da Peça / Compromisso (para a Pauta)</label>
+                  <input type="text" id="calc-prazo-titulo" placeholder="Ex: Contestação (15d CPC)" value="Contestação" class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                </div>
+
+                <div class="sm:col-span-6 space-y-1">
+                  <label for="calc-prazo-vinculo" class="text-[11px] font-semibold text-zinc-400 block">Vincular ao Processo / Cliente</label>
+                  <input type="text" id="calc-prazo-vinculo" placeholder="Ex: João Silva — Proc. 0001234-56.2026..." class="exec-input w-full rounded-xl px-3.5 py-2 text-xs">
+                </div>
+              </div>
+
+              <!-- Ações de Cálculo -->
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <span class="text-[11px] text-zinc-400">Inclui feriados nacionais (incl. 20/11), Páscoa/Carnaval/Corpus Christi e Recesso Forense (20/12 a 20/01).</span>
+                <button type="button" id="btn-executar-calc-prazo" onclick="calcularPrazoProcessualUI()" class="btn-tactile px-4 py-2 champagne-gradient text-zinc-950 font-bold text-xs rounded-xl shadow cursor-pointer flex items-center gap-1.5">
+                  <span>Calcular Prazo</span>
+                </button>
+              </div>
+
+              <!-- Erro de validação -->
+              <div id="calc-prazo-erro" class="hidden p-3 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 text-xs font-medium"></div>
+
+              <!-- Resultado do Cálculo -->
+              <div id="calc-prazo-resultado" class="hidden space-y-4 pt-3 border-t border-zinc-800/80">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div class="p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 space-y-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 block">Data da Publicação</span>
+                    <span id="calc-res-publicacao" class="text-sm font-mono font-bold text-zinc-100 block">--/--/----</span>
+                    <span id="calc-res-disp-nota" class="text-[10px] text-zinc-500 block"></span>
+                  </div>
+
+                  <div class="p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 space-y-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 block">Início da Contagem (Dia 1)</span>
+                    <span id="calc-res-inicio" class="text-sm font-mono font-bold text-emerald-400 block">--/--/----</span>
+                    <span id="calc-res-rito-badge" class="text-[10px] text-zinc-400 block"></span>
+                  </div>
+
+                  <div class="p-3.5 rounded-2xl border border-[#d4af37]/50 bg-[#d4af37]/10 space-y-1">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-[#d4af37] block">⚡ Data Fatal (Vencimento)</span>
+                    <span id="calc-res-fatal" class="text-lg font-mono font-extrabold text-[#d4af37] block">--/--/----</span>
+                    <span id="calc-res-dia-semana" class="text-[11px] font-semibold text-zinc-300 block"></span>
+                  </div>
+                </div>
+
+                <!-- Alerta de Recesso Forense (quando aplicável) -->
+                <div id="calc-res-recesso-banner" class="hidden p-3 rounded-xl border border-amber-500/35 bg-amber-500/10 text-amber-300 text-xs flex items-center gap-2">
+                  <span>🎄</span>
+                  <span><strong>Suspensão Automática Aplicada:</strong> Este prazo atravessou o Recesso Forense (20/12 a 20/01 — Art. 220 CPC / Art. 775-A CLT).</span>
+                </div>
+
+                <!-- Detalhamento dos Dias Pulados -->
+                <div class="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-2.5">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-zinc-200">Detalhamento dos Dias Não Úteis Pulados</span>
+                    <span id="calc-res-resumo-pulados" class="text-[11px] font-mono text-zinc-400"></span>
+                  </div>
+                  <div id="calc-res-lista-pulados" class="max-h-40 overflow-y-auto space-y-1 pr-1 text-[11px] text-zinc-300"></div>
+                </div>
+
+                <!-- Botão Salvar na Pauta -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-zinc-800/80">
+                  <span id="calc-res-fundamento" class="text-[11px] text-zinc-400 font-mono"></span>
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="fecharModalCalculadoraPrazos()" class="linear-btn-ghost px-4 py-2 text-xs font-semibold rounded-xl cursor-pointer">Fechar</button>
+                    <button type="button" id="btn-salvar-prazo-pauta" onclick="salvarPrazoCalculadoNaPautaUI()" class="btn-tactile px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span>Salvar na Pauta</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -9095,6 +9238,222 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       marcarAlteracaoPendente();
       renderizarCompromissosAgendaUI();
       mostrarToast("Compromisso removido da pauta.");
+    };
+
+    // ================= CALCULADORA NATIVA DE PRAZOS PROCESSUAIS (CPC / CLT) =================
+    window.__ultimoCalculoPrazo = null;
+
+    window.abrirModalCalculadoraPrazos = function() {
+      const modal = document.getElementById('modal-calculadora-prazos');
+      if (!modal) return;
+
+      // Pré-preencher data com hoje (local) se ainda estiver vazia
+      const elData = document.getElementById('calc-prazo-data');
+      if (elData && !elData.value) {
+        const hoje = new Date();
+        const yyyy = hoje.getFullYear();
+        const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoje.getDate()).padStart(2, '0');
+        elData.value = `${yyyy}-${mm}-${dd}`;
+      }
+
+      // Auto-vincular ao processo selecionado atualmente na aba Processos (se houver)
+      const elVinculo = document.getElementById('calc-prazo-vinculo');
+      if (elVinculo) {
+        const lista = (configGlobal && configGlobal.processos && Array.isArray(configGlobal.processos.lista))
+          ? configGlobal.processos.lista
+          : [];
+        const procAtual = (typeof idProcessoSelecionado !== 'undefined' && idProcessoSelecionado)
+          ? lista.find(p => p.id === idProcessoSelecionado)
+          : null;
+        if (procAtual) {
+          const nome = (procAtual.nome || '').trim();
+          const num = (procAtual.numero || '').trim();
+          elVinculo.value = num ? `${nome} — Proc. ${num}` : nome;
+        }
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      calcularPrazoProcessualUI();
+    };
+
+    window.fecharModalCalculadoraPrazos = function() {
+      const modal = document.getElementById('modal-calculadora-prazos');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    window.aplicarAtalhoPrazo = function(rotulo, dias, ritoOpcional) {
+      const elDias = document.getElementById('calc-prazo-dias');
+      const elRito = document.getElementById('calc-prazo-rito');
+      const elTitulo = document.getElementById('calc-prazo-titulo');
+      if (elDias) elDias.value = String(dias);
+      if (elRito && ritoOpcional) elRito.value = ritoOpcional;
+      if (elTitulo && rotulo) elTitulo.value = rotulo;
+      calcularPrazoProcessualUI();
+    };
+
+    window.calcularPrazoProcessualUI = async function() {
+      const elData = document.getElementById('calc-prazo-data');
+      const elRito = document.getElementById('calc-prazo-rito');
+      const elEvento = document.getElementById('calc-prazo-evento');
+      const elDias = document.getElementById('calc-prazo-dias');
+      const elFeriados = document.getElementById('calc-prazo-feriados-locais');
+      const elErro = document.getElementById('calc-prazo-erro');
+      const elRes = document.getElementById('calc-prazo-resultado');
+
+      if (!elData || !elDias) return;
+
+      const dataDisponibilizacao = (elData.value || '').trim();
+      const rito = elRito ? elRito.value : 'CPC';
+      const eventoInicial = elEvento ? elEvento.value : 'disponibilizacao';
+      const dias = parseInt(elDias.value, 10);
+      const feriadosLocais = (elFeriados?.value || '')
+        .split(/[,;\n]+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (!dataDisponibilizacao || !dias || dias <= 0) {
+        if (elRes) elRes.classList.add('hidden');
+        if (elErro) {
+          elErro.textContent = 'Informe uma data válida e a quantidade de dias úteis (maior que 0).';
+          elErro.classList.remove('hidden');
+        }
+        window.__ultimoCalculoPrazo = null;
+        return;
+      }
+
+      try {
+        const api = window.api || window.electronAPI;
+        let resultado = null;
+        if (api && typeof api.calcularPrazoProcessual === 'function') {
+          resultado = await api.calcularPrazoProcessual({
+            dataDisponibilizacao,
+            rito,
+            dias,
+            eventoInicial,
+            feriadosLocais
+          });
+        } else {
+          throw new Error('Bridge IPC processos-calcular-prazo indisponível neste ambiente.');
+        }
+
+        if (!resultado || !resultado.sucesso) {
+          throw new Error((resultado && resultado.erro) || 'Falha ao calcular prazo processual.');
+        }
+
+        window.__ultimoCalculoPrazo = resultado;
+        if (elErro) elErro.classList.add('hidden');
+        if (elRes) elRes.classList.remove('hidden');
+
+        const elPub = document.getElementById('calc-res-publicacao');
+        const elDispNota = document.getElementById('calc-res-disp-nota');
+        const elInicio = document.getElementById('calc-res-inicio');
+        const elRitoBadge = document.getElementById('calc-res-rito-badge');
+        const elFatal = document.getElementById('calc-res-fatal');
+        const elDiaSem = document.getElementById('calc-res-dia-semana');
+        const elRecesso = document.getElementById('calc-res-recesso-banner');
+        const elResumoPulados = document.getElementById('calc-res-resumo-pulados');
+        const elListaPulados = document.getElementById('calc-res-lista-pulados');
+        const elFundamento = document.getElementById('calc-res-fundamento');
+
+        if (elPub) elPub.textContent = resultado.dataPublicacao || '--/--/----';
+        if (elDispNota) {
+          elDispNota.textContent = resultado.dataDisponibilizacao
+            ? `Disponibilizado em ${resultado.dataDisponibilizacao} (DJEN)`
+            : 'Publicação / Intimação direta';
+        }
+        if (elInicio) elInicio.textContent = resultado.dataInicioContagem || '--/--/----';
+        if (elRitoBadge) elRitoBadge.textContent = `${resultado.diasUteisSolicitados} dias úteis (${resultado.rito})`;
+        if (elFatal) elFatal.textContent = resultado.dataFinal || '--/--/----';
+        if (elDiaSem) elDiaSem.textContent = `${resultado.diaSemanaFinal || ''} • ${resultado.totalDiasCorridos || 0} dias corridos`;
+        if (elFundamento) elFundamento.textContent = resultado.fundamentoLegal || '';
+
+        if (elRecesso) {
+          elRecesso.classList.toggle('hidden', !resultado.houveRecessoForense);
+        }
+
+        const r = resultado.resumoDiasPulados || {};
+        if (elResumoPulados) {
+          const partes = [];
+          if (r.finsDeSemana) partes.push(`${r.finsDeSemana} fim(ns) de semana`);
+          if (r.feriadosNacionais) partes.push(`${r.feriadosNacionais} feriado(s) nac.`);
+          if (r.recessoForense) partes.push(`${r.recessoForense} dia(s) recesso`);
+          if (r.feriadosLocais) partes.push(`${r.feriadosLocais} local(is)`);
+          elResumoPulados.textContent = partes.length ? partes.join(' • ') : 'Nenhum dia pulado';
+        }
+
+        if (elListaPulados) {
+          const pulados = Array.isArray(resultado.diasPulados) ? resultado.diasPulados : [];
+          if (!pulados.length) {
+            elListaPulados.innerHTML = '<div class="text-zinc-500 italic">Nenhum fim de semana, feriado ou recesso no período.</div>';
+          } else {
+            elListaPulados.innerHTML = pulados.map(dp => {
+              const corTag = dp.categoria === 'recessoForense'
+                ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
+                : (dp.categoria === 'feriadosNacionais' || dp.categoria === 'feriadosLocais')
+                  ? 'text-rose-300 bg-rose-500/15 border-rose-500/30'
+                  : 'text-zinc-400 bg-zinc-800/70 border-zinc-700/60';
+              return `
+                <div class="flex items-center justify-between gap-2 py-1 px-2 rounded-lg bg-zinc-950/50 border border-zinc-800/60">
+                  <span class="font-mono font-semibold text-zinc-200">${escaparHtmlTexto(dp.data)} <span class="text-zinc-500 font-sans">(${escaparHtmlTexto(dp.diaSemana)})</span></span>
+                  <span class="px-2 py-0.5 rounded-md border text-[10px] font-medium ${corTag}">${escaparHtmlTexto(dp.motivo)}</span>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        window.__ultimoCalculoPrazo = null;
+        if (elRes) elRes.classList.add('hidden');
+        if (elErro) {
+          elErro.textContent = `⚠️ ${err.message || 'Erro ao calcular prazo.'}`;
+          elErro.classList.remove('hidden');
+        }
+      }
+    };
+
+    window.salvarPrazoCalculadoNaPautaUI = async function() {
+      const res = window.__ultimoCalculoPrazo;
+      if (!res || !res.dataFinalISO) {
+        mostrarToast("⚠️ Calcule um prazo válido antes de salvar na pauta.");
+        return;
+      }
+
+      const tituloBase = (document.getElementById('calc-prazo-titulo')?.value || '').trim() || 'Prazo Processual';
+      const vinculo = (document.getElementById('calc-prazo-vinculo')?.value || '').trim();
+      const tituloFinal = `⚖️ Prazo Fatal: ${tituloBase} (${res.diasUteisSolicitados}d ${res.rito})`;
+      const dataHora = `${res.dataFinalISO}T18:00`;
+
+      if (!configGlobal.agenda) configGlobal.agenda = {};
+      if (!Array.isArray(configGlobal.agenda.compromissos)) {
+        configGlobal.agenda.compromissos = [];
+      }
+
+      configGlobal.agenda.compromissos.push({
+        id: `prazo_${Date.now()}`,
+        titulo: tituloFinal,
+        cliente: vinculo,
+        dataHora,
+        tipo: 'prazo_processual',
+        rito: res.rito,
+        dataPublicacao: res.dataPublicacao,
+        dataInicioContagem: res.dataInicioContagem,
+        dataFatal: res.dataFinal,
+        criadoEm: new Date().toISOString()
+      });
+
+      marcarAlteracaoPendente();
+      renderizarCompromissosAgendaUI();
+      if (typeof salvarConfiguracaoCompleta === 'function') {
+        try {
+          await salvarConfiguracaoCompleta(true);
+        } catch (_e) {}
+      }
+      mostrarToast(`📅 Prazo fatal (${res.dataFinal}) salvo na Pauta de Audiências & Compromissos!`);
+      fecharModalCalculadoraPrazos();
     };
 
     function renderizarCompromissosAgendaUI() {

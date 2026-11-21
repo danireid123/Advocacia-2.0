@@ -63,6 +63,7 @@ const apiBridge = {
     anexarPecasProcesso: (dados) => ipcRenderer.invoke('processo-anexar-pecas', dados),
     anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
     higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
+    calcularPrazoProcessual: (params) => ipcRenderer.invoke('processos-calcular-prazo', params),
 
     
     // Abertura e Visualização Segura de Documentos Físicos
