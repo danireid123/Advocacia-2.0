@@ -24,7 +24,6 @@
       "icon.png",
       "icon.ico",
       "package.json",
-      ".env",
       "assets/**/*",
       "assets/tailwind.min.css",
       "src/**/*",
