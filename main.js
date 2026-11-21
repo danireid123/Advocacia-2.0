@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, nativeImage, dialog, Notification, Menu } = require('electron');
 const path = require('path');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const fs = require('fs');
 const https = require('https');
@@ -3654,6 +3654,119 @@ ipcMain.handle('onboarding-verificar-lembretes-parciais', async (event, payload 
         return { sucesso: true, ...rel };
     } catch (err) {
         console.error('[IPC onboarding-verificar-lembretes-parciais] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('onboarding-gerar-kit-inicial', async (event, payload = {}) => {
+    try {
+        const { gerarKitInicial } = require('./src/onboarding/geradorKitInicial');
+        const cfg = carregarConfig();
+        const rawId = payload.clienteId || payload.clienteTelefone || payload.telefone || '';
+        const chaveNum = apenasNumeros(rawId);
+        const dossiesMapa = cfg.dossiesClientes || {};
+        const dossie = payload.dossie || dossiesMapa[rawId] || dossiesMapa[chaveNum] || {
+            clienteId: chaveNum || rawId,
+            clienteTelefone: chaveNum || rawId,
+            clienteNome: payload.qualificacao?.nomeCompleto || 'Cliente',
+            civil: payload.qualificacao || {}
+        };
+
+        const statusUpper = String(dossie.status || '').toUpperCase();
+        if (statusUpper && statusUpper !== 'CONSOLIDADO' && !payload.forcar) {
+            return {
+                sucesso: false,
+                erro: `Dossiê precisa estar com status CONSOLIDADO para gerar o Kit Inicial (status atual: ${statusUpper}).`
+            };
+        }
+
+        const escritorio = {
+            nomeEscritorio: cfg.nomeEscritorio || cfg.configuracaoCobranca?.beneficiario || 'Escritório de Advocacia',
+            nomeAdvogado: cfg.nomeAdvogado || cfg.advogadoResponsavel || cfg.nomeEscritorio || 'Advogado(a) Responsável',
+            oab: cfg.oab || cfg.numeroOab || 'OAB/UF [Registro]',
+            cnpj: cfg.cnpj || cfg.configuracaoCobranca?.cnpj || '',
+            enderecoEscritorio: cfg.enderecoEscritorio || '',
+            cidade: cfg.configuracaoCobranca?.cidade || cfg.cidadeEscritorio || 'Brasília/DF',
+            ...(payload.escritorio || {})
+        };
+
+        const res = await gerarKitInicial({
+            dossie,
+            qualificacao: payload.qualificacao || null,
+            escritorio,
+            contrato: payload.contrato || {},
+            incluirHipossuficiencia: payload.incluirHipossuficiencia !== false
+        });
+
+        if (dossiesMapa[rawId] || dossiesMapa[chaveNum]) {
+            const targetKey = dossiesMapa[rawId] ? rawId : chaveNum;
+            cfg.dossiesClientes[targetKey].kitInicial = {
+                geradoEm: new Date().toISOString(),
+                pastaKit: res.pastaKit,
+                pastaCpf: res.pastaCpf,
+                arquivos: res.arquivos
+            };
+            salvarConfigDisco(cfg);
+            if (mainWindow && typeof mainWindow.isDestroyed === 'function' && !mainWindow.isDestroyed()) {
+                mainWindow.webContents.send('bot-processos-sync', cfg);
+            }
+        }
+
+        return res;
+    } catch (err) {
+        console.error('[IPC onboarding-gerar-kit-inicial] Erro:', err);
+        return { sucesso: false, erro: err.message };
+    }
+});
+
+ipcMain.handle('onboarding-enviar-kit-whatsapp', async (event, payload = {}) => {
+    try {
+        const { montarMensagemKitWhatsapp } = require('./src/onboarding/geradorKitInicial');
+        const cfg = carregarConfig();
+        const rawId = payload.clienteTelefone || payload.clienteId || payload.telefone || '';
+        const chaveNum = apenasNumeros(rawId);
+        const dossiesMapa = cfg.dossiesClientes || {};
+        const dossie = dossiesMapa[rawId] || dossiesMapa[chaveNum] || {};
+
+        const arquivos = Array.isArray(payload.arquivos) && payload.arquivos.length > 0
+            ? payload.arquivos
+            : (dossie.kitInicial?.arquivos || []);
+
+        const nomeCliente = payload.clienteNome || dossie.clienteNome || dossie.civil?.nomeCompleto || 'Cliente';
+        const beneficiario = cfg.configuracaoCobranca?.beneficiario || cfg.nomeEscritorio || 'Escritório de Advocacia';
+        const mensagem = montarMensagemKitWhatsapp({
+            clienteNome: nomeCliente,
+            beneficiario,
+            arquivos,
+            valorEntrada: payload.valorEntrada || 0,
+            txid: payload.txid || `KIT${chaveNum.slice(-8) || 'INICIAL'}`,
+            config: cfg
+        });
+
+        const digitos = apenasNumeros(dossie.clienteTelefone || rawId);
+        if (client && (statusAtualBot === 'ready' || statusAtualBot === 'CONECTADO') && digitos && !payload.simulacao) {
+            const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
+            await client.sendMessage(chatId, mensagem);
+            let arquivosEnviados = 0;
+            for (const arq of arquivos) {
+                if (arq && arq.caminho && fs.existsSync(arq.caminho)) {
+                    const media = MessageMedia.fromFilePath(arq.caminho);
+                    await client.sendMessage(chatId, media, { sendMediaAsDocument: true });
+                    arquivosEnviados++;
+                }
+            }
+            return { sucesso: true, modo: 'whatsapp', arquivosEnviados, mensagem };
+        }
+
+        return {
+            sucesso: true,
+            modo: 'simulacao',
+            aviso: 'WhatsApp não conectado no momento — mensagem completa preparada com instruções Gov.br e PIX.',
+            mensagem,
+            arquivos
+        };
+    } catch (err) {
+        console.error('[IPC onboarding-enviar-kit-whatsapp] Erro:', err);
         return { sucesso: false, erro: err.message };
     }
 });

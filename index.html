@@ -2945,6 +2945,9 @@
                         <h4 id="dossie-cliente-titulo" class="text-xs font-bold text-white mt-0.5">Selecione um cliente ao lado</h4>
                       </div>
                       <div class="flex items-center space-x-2">
+                        <button type="button" id="btn-gerar-kit-inicial-dossie" onclick="window.abrirModalKitInicial && window.abrirModalKitInicial()" class="hidden px-3.5 py-1.5 rounded-xl champagne-gradient font-bold text-[11px] shadow-md hover:brightness-110 active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Gerar Procuração, Contrato de Honorários e Hipossuficiência (.docx) em 1 clique">
+                          <span>✨ Gerar Kit Inicial do Cliente</span>
+                        </button>
                         <button type="button" id="btn-solicitar-docs-dossie-topo" onclick="window.solicitarDocsClienteDossieAtual && window.solicitarDocsClienteDossieAtual()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Solicitar documentos no WhatsApp deste cliente">
                           <svg class="w-3.5 h-3.5 text-amber-400"><use href="#icon-clipboard"/></svg>
                           <span>Solicitar Docs</span>
@@ -4663,6 +4666,83 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <button type="button" onclick="fecharModalSolicitarDocumentos()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300">Cancelar</button>
               <button type="button" id="btn-confirmar-onboarding" onclick="confirmarDisparoOnboarding()" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-zinc-950 shadow-lg cursor-pointer">
                 <svg class="w-4 h-4 inline mr-1.5"><use href="#icon-flow"/></svg>Disparar Checklist no WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL KIT INICIAL DO CLIENTE EM 1 CLIQUE (DOSSIÊ CONSOLIDADO) -->
+        <div id="modal-kit-inicial" class="hidden fixed inset-0 z-50 bg-zinc-950/85 backdrop-blur-md items-center justify-center p-4">
+          <div class="exec-card max-w-xl w-full p-6 rounded-3xl border border-amber-500/30 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Fechamento em 1 Clique (Dossiê Consolidado)</span>
+                <h3 class="font-serif-legal text-base font-bold text-white flex items-center gap-2">
+                  <span>✨ Gerar Kit Inicial do Cliente (.docx)</span>
+                </h3>
+              </div>
+              <button type="button" onclick="fecharModalKitInicial()" class="text-zinc-400 hover:text-white p-1.5 text-sm font-bold rounded-lg hover:bg-zinc-800/60 active:scale-95 transition-all cursor-pointer">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="text-[11px] text-zinc-400 font-semibold block mb-1">Cliente (Qualificação Art. 319 CPC)</label>
+                <input type="text" id="kit-inicial-cliente-nome" readonly class="exec-input w-full rounded-xl px-3 py-2 text-xs font-bold text-amber-300">
+                <input type="hidden" id="kit-inicial-cliente-id">
+              </div>
+
+              <div>
+                <label class="text-[11px] text-zinc-400 font-semibold block mb-1">Objeto da Ação / Demanda (Contrato de Honorários)</label>
+                <input type="text" id="kit-inicial-objeto" placeholder="Ex: Ação Trabalhista / Revisão de Benefício INSS / Ação Indenizatória" class="exec-input w-full rounded-xl px-3 py-2 text-xs">
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">Valor Total (R$)</label>
+                  <input type="number" step="0.01" min="0" id="kit-inicial-valor-total" placeholder="Ex: 3000.00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">Entrada PIX (R$)</label>
+                  <input type="number" step="0.01" min="0" id="kit-inicial-valor-entrada" placeholder="Ex: 1000.00" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">Parcelas</label>
+                  <input type="number" min="1" max="60" id="kit-inicial-parcelas" value="1" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                  <label class="text-[10.5px] text-zinc-400 font-semibold block mb-1">% Êxito</label>
+                  <input type="number" step="0.5" min="0" max="50" id="kit-inicial-percentual-exito" placeholder="Ex: 30" class="exec-input w-full rounded-xl px-3 py-2 text-xs font-mono">
+                </div>
+              </div>
+
+              <label class="flex items-center space-x-2 p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 cursor-pointer hover:border-amber-500/30 transition">
+                <input type="checkbox" id="kit-inicial-incluir-hipo" checked class="accent-[#d4af37] rounded cursor-pointer">
+                <span class="text-xs font-semibold text-zinc-200">Incluir Declaração de Hipossuficiência Econômica (Art. 98 CPC)</span>
+              </label>
+
+              <!-- Área de Feedback e Ações Pós-Geração -->
+              <div id="kit-inicial-resultado" class="hidden p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/35 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-bold text-emerald-300">✅ Kit Inicial gerado em disco (.docx)!</span>
+                  <span id="kit-inicial-pasta-path" class="text-[10px] font-mono text-zinc-400 truncate max-w-[260px]"></span>
+                </div>
+                <ul id="kit-inicial-lista-arquivos" class="space-y-1 text-[11px] text-zinc-200 font-mono"></ul>
+                <div class="flex flex-wrap items-center gap-2 pt-1.5 border-t border-emerald-500/20">
+                  <button type="button" id="btn-kit-abrir-pasta" onclick="window.abrirPastaKitInicialAtual && window.abrirPastaKitInicialAtual()" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 text-[11px] font-semibold transition cursor-pointer">
+                    📂 Abrir Pasta
+                  </button>
+                  <button type="button" id="btn-kit-enviar-whatsapp" onclick="window.enviarKitInicialWhatsappAtual && window.enviarKitInicialWhatsappAtual()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition cursor-pointer">
+                    📲 Enviar no WhatsApp (Gov.br + PIX)
+                  </button>
+                </div>
+                <div id="kit-inicial-whatsapp-feedback" class="hidden text-[11px] text-zinc-300 bg-zinc-950/70 p-2.5 rounded-xl border border-zinc-800/80 whitespace-pre-wrap max-h-36 overflow-y-auto"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-zinc-800/80">
+              <button type="button" onclick="fecharModalKitInicial()" class="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 cursor-pointer">Fechar</button>
+              <button type="button" id="btn-executar-kit-inicial" onclick="window.executarGeracaoKitInicial && window.executarGeracaoKitInicial()" class="px-5 py-2 champagne-gradient rounded-xl text-xs font-extrabold text-zinc-950 shadow-lg cursor-pointer">
+                ✨ Gerar Kit Inicial (.docx)
               </button>
             </div>
           </div>
@@ -7297,6 +7377,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         if (galeria) {
           galeria.innerHTML = '<div class="col-span-2 p-5 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado ainda no dossiê civil. Clique em "📄 Solicitar Documentos" para receber pelo WhatsApp!</div>';
         }
+        const btnKitDossie = document.getElementById('btn-gerar-kit-inicial-dossie');
+        if (btnKitDossie) btnKitDossie.classList.add('hidden');
       }
 
       const badgeDocs = document.getElementById('badge-detalhe-dossie-docs');
@@ -9630,15 +9712,19 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           const id = dossie.clienteId || dossie.clienteTelefone;
           const ativo = window.dossieClienteSelecionadoId === id;
           const qtdDocs = Array.isArray(dossie.documentos) ? dossie.documentos.length : 0;
+          const isConsolidado = String(dossie.status || '').toUpperCase() === 'CONSOLIDADO';
           const isParcial = dossie.status === 'DOCS_PARCIAIS' || (Array.isArray(dossie.documentosPendentes) && dossie.documentosPendentes.length > 0);
           const badgeStatusHtml = isParcial
             ? `<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 font-bold border border-amber-500/25">⏳ Parcial (${qtdDocs} docs)</span>`
-            : `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${qtdDocs} docs</span>`;
+            : `<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-bold">${isConsolidado ? '✅ Consolidado • ' : ''}${qtdDocs} docs</span>`;
           const lembreteInfoHtml = isParcial
             ? `<span class="text-[9.5px] text-amber-400/90 block mt-0.5 font-medium flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Lembrete 48h programado</span>`
             : '';
           const btnLembreteHtml = isParcial
             ? `<button type="button" onclick="event.stopPropagation(); window.dispararLembreteParcialManual && window.dispararLembreteParcialManual('${escaparHtmlTexto(id)}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer mr-1.5" title="Enviar lembrete amigável de 48h agora">⏰ Lembrete 48h</button>`
+            : '';
+          const btnKitInicialHtml = isConsolidado
+            ? `<button type="button" onclick="event.stopPropagation(); window.abrirModalKitInicial && window.abrirModalKitInicial('${escaparHtmlTexto(id)}')" class="px-2.5 py-0.5 rounded champagne-gradient text-[10px] font-extrabold text-zinc-950 shadow-sm hover:brightness-110 transition cursor-pointer mr-1.5" title="Gerar Procuração, Contrato e Hipossuficiência em 1 clique">✨ Gerar Kit Inicial do Cliente</button>`
             : '';
 
           const card = document.createElement('div');
@@ -9651,7 +9737,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
             <span class="text-[10px] font-mono text-[#d4af37] block mt-1">CPF: ${escaparHtmlTexto((dossie.civil && dossie.civil.cpf) || '-')} • Tel: +${escaparHtmlTexto(id)}</span>
             ${lembreteInfoHtml}
-            <div class="mt-2 pt-2 border-t border-zinc-800/80 flex items-center justify-end">
+            <div class="mt-2 pt-2 border-t border-zinc-800/80 flex flex-wrap items-center justify-end gap-1">
+              ${btnKitInicialHtml}
               ${btnLembreteHtml}
               <button type="button" onclick="event.stopPropagation(); window.abrirModalSolicitarDocumentos && window.abrirModalSolicitarDocumentos('${escaparHtmlTexto(id)}', '${escaparHtmlTexto(dossie.clienteNome || 'Cliente')}')" class="px-2 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 text-[#f3e5ab] border border-amber-500/30 text-[10px] font-semibold transition cursor-pointer" title="Solicitar novos documentos pelo WhatsApp">
                 📄 Solicitar Docs
@@ -9784,6 +9871,204 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           galeria.innerHTML = '<div class="col-span-2 p-6 text-center text-xs text-zinc-500 border border-zinc-800/80 rounded-xl">Nenhum documento arquivado neste dossiê ainda.</div>';
         } else {
           galeria.innerHTML = docs.map((doc, idx) => window.renderizarCardDocumentoVisual(doc, idx)).join('');
+        }
+      }
+
+      const btnKitTopo = document.getElementById('btn-gerar-kit-inicial-dossie');
+      if (btnKitTopo) {
+        const isConsolidado = String(dossie.status || '').toUpperCase() === 'CONSOLIDADO';
+        btnKitTopo.classList.toggle('hidden', !isConsolidado);
+      }
+    };
+
+    window.kitInicialUltimoResultado = null;
+
+    window.abrirModalKitInicial = function(clienteIdArg) {
+      const clienteId = clienteIdArg || window.dossieClienteSelecionadoId;
+      if (!clienteId) {
+        mostrarToast('Selecione um cliente com dossiê consolidado primeiro.');
+        return;
+      }
+      const dossie = (window.dossiesCache && window.dossiesCache[clienteId])
+        || (configGlobal && configGlobal.dossiesClientes && configGlobal.dossiesClientes[clienteId])
+        || null;
+
+      if (!dossie || String(dossie.status || '').toUpperCase() !== 'CONSOLIDADO') {
+        mostrarToast('O Kit Inicial fica disponível quando o dossiê atinge o status CONSOLIDADO.');
+        return;
+      }
+
+      const modal = document.getElementById('modal-kit-inicial');
+      const elNome = document.getElementById('kit-inicial-cliente-nome');
+      const elId = document.getElementById('kit-inicial-cliente-id');
+      const elRes = document.getElementById('kit-inicial-resultado');
+      const elWaFeed = document.getElementById('kit-inicial-whatsapp-feedback');
+
+      if (elId) elId.value = clienteId;
+      if (elNome) {
+        const nomeEx = dossie.civil?.nomeCompleto || dossie.clienteNome || 'Cliente';
+        const cpfEx = dossie.civil?.cpf || dossie.cpf || 'CPF não informado';
+        elNome.value = `${nomeEx} — CPF: ${cpfEx}`;
+      }
+      if (elWaFeed) {
+        elWaFeed.classList.add('hidden');
+        elWaFeed.innerText = '';
+      }
+
+      if (dossie.kitInicial && Array.isArray(dossie.kitInicial.arquivos) && dossie.kitInicial.arquivos.length > 0) {
+        window.kitInicialUltimoResultado = dossie.kitInicial;
+        window.renderizarResultadoKitInicialUI(dossie.kitInicial);
+      } else if (elRes) {
+        window.kitInicialUltimoResultado = null;
+        elRes.classList.add('hidden');
+      }
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    };
+
+    window.fecharModalKitInicial = function() {
+      const modal = document.getElementById('modal-kit-inicial');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    window.renderizarResultadoKitInicialUI = function(res) {
+      const box = document.getElementById('kit-inicial-resultado');
+      const elPasta = document.getElementById('kit-inicial-pasta-path');
+      const ul = document.getElementById('kit-inicial-lista-arquivos');
+      if (!box || !res) return;
+
+      if (elPasta) elPasta.innerText = res.pastaKit || '';
+      if (ul) {
+        ul.innerHTML = (res.arquivos || []).map(a => {
+          const kb = a.tamanhoBytes ? ` (${Math.max(1, Math.round(a.tamanhoBytes / 1024))} KB)` : '';
+          return `<li>📄 ${escaparHtmlTexto(a.nome)}${kb}</li>`;
+        }).join('');
+      }
+      box.classList.remove('hidden');
+    };
+
+    window.executarGeracaoKitInicial = async function() {
+      const clienteId = document.getElementById('kit-inicial-cliente-id')?.value || window.dossieClienteSelecionadoId;
+      if (!clienteId) return;
+
+      const btn = document.getElementById('btn-executar-kit-inicial');
+      const txtOrig = btn ? btn.innerText : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Gerando arquivos .docx...';
+      }
+
+      try {
+        const qualificacaoAtual = (window.dossieClienteSelecionadoId === clienteId) ? {
+          nomeCompleto: document.getElementById('dossie-nome')?.value || '',
+          cpf: document.getElementById('dossie-cpf')?.value || '',
+          rg: document.getElementById('dossie-rg')?.value || '',
+          nacionalidade: document.getElementById('dossie-nacionalidade')?.value || 'brasileiro(a)',
+          estadoCivil: document.getElementById('dossie-estado-civil')?.value || '',
+          profissao: document.getElementById('dossie-profissao')?.value || '',
+          email: document.getElementById('dossie-email')?.value || '',
+          endereco: document.getElementById('dossie-endereco')?.value || ''
+        } : null;
+
+        const payload = {
+          clienteId,
+          qualificacao: qualificacaoAtual && qualificacaoAtual.nomeCompleto ? qualificacaoAtual : null,
+          contrato: {
+            objeto: document.getElementById('kit-inicial-objeto')?.value || '',
+            valorTotal: document.getElementById('kit-inicial-valor-total')?.value || 0,
+            valorEntrada: document.getElementById('kit-inicial-valor-entrada')?.value || 0,
+            numeroParcelas: document.getElementById('kit-inicial-parcelas')?.value || 1,
+            percentualExito: document.getElementById('kit-inicial-percentual-exito')?.value || 0
+          },
+          incluirHipossuficiencia: Boolean(document.getElementById('kit-inicial-incluir-hipo')?.checked)
+        };
+
+        if (window.api && typeof window.api.gerarKitInicial === 'function') {
+          const res = await window.api.gerarKitInicial(payload);
+          if (res && res.sucesso) {
+            window.kitInicialUltimoResultado = res;
+            if (window.dossiesCache && window.dossiesCache[clienteId]) {
+              window.dossiesCache[clienteId].kitInicial = res;
+            }
+            window.renderizarResultadoKitInicialUI(res);
+            mostrarToast(`✅ Kit Inicial gerado com ${res.arquivos.length} documento(s) .docx!`);
+          } else {
+            mostrarToast('❌ ' + (res?.erro || 'Não foi possível gerar o Kit Inicial.'));
+          }
+        } else {
+          mostrarToast('⚠️ Geração de arquivos locais requer o aplicativo Electron.');
+        }
+      } catch (err) {
+        mostrarToast('❌ Erro ao gerar Kit Inicial: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = txtOrig || '✨ Gerar Kit Inicial (.docx)';
+        }
+      }
+    };
+
+    window.abrirPastaKitInicialAtual = async function() {
+      const pasta = window.kitInicialUltimoResultado && window.kitInicialUltimoResultado.pastaKit;
+      if (!pasta) {
+        mostrarToast('Gere o Kit Inicial primeiro.');
+        return;
+      }
+      if (window.api && typeof window.api.abrirArquivoDocumento === 'function') {
+        const res = await window.api.abrirArquivoDocumento(pasta);
+        if (res && !res.sucesso) {
+          mostrarToast('❌ ' + (res.erro || 'Pasta não encontrada.'));
+        }
+      }
+    };
+
+    window.enviarKitInicialWhatsappAtual = async function() {
+      const clienteId = document.getElementById('kit-inicial-cliente-id')?.value || window.dossieClienteSelecionadoId;
+      const resKit = window.kitInicialUltimoResultado;
+      if (!clienteId || !resKit || !Array.isArray(resKit.arquivos) || resKit.arquivos.length === 0) {
+        mostrarToast('Gere os arquivos .docx antes de enviar pelo WhatsApp.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-kit-enviar-whatsapp');
+      const elWaFeed = document.getElementById('kit-inicial-whatsapp-feedback');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Enviando kit...';
+      }
+
+      try {
+        const valorEntrada = document.getElementById('kit-inicial-valor-entrada')?.value || 0;
+        if (window.api && typeof window.api.enviarKitInicialWhatsapp === 'function') {
+          const res = await window.api.enviarKitInicialWhatsapp({
+            clienteId,
+            arquivos: resKit.arquivos,
+            valorEntrada
+          });
+          if (res && res.sucesso) {
+            if (elWaFeed) {
+              elWaFeed.classList.remove('hidden');
+              elWaFeed.innerText = res.modo === 'whatsapp'
+                ? `✅ Kit Inicial (${res.arquivosEnviados} documento(s) .docx) + instruções Gov.br enviados no WhatsApp!\n\n${res.mensagem}`
+                : `ℹ️ ${res.aviso}\n\nPrévia da mensagem:\n${res.mensagem}`;
+            }
+            mostrarToast(res.modo === 'whatsapp' ? '📲 Kit Inicial enviado pelo WhatsApp!' : '📲 Prévia Gov.br + PIX gerada (WhatsApp desconectado).');
+          } else {
+            mostrarToast('❌ ' + (res?.erro || 'Erro ao enviar Kit pelo WhatsApp.'));
+          }
+        }
+      } catch (err) {
+        mostrarToast('❌ Erro ao enviar pelo WhatsApp: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = '📲 Enviar no WhatsApp (Gov.br + PIX)';
         }
       }
     };
