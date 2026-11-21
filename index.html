@@ -6096,14 +6096,14 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const inNum = document.getElementById('proc-numero');
 
       if (tipo === 'EXTRAJUDICIAL') {
-        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
-        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#26282e] cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer";
         if (lblCpf) lblCpf.innerText = "WhatsApp ou CPF";
         if (lblNum) lblNum.innerText = "Identificador / Assunto";
         if (inNum) inNum.placeholder = "Ex: Contrato Locação / Compra e Venda / Assessoria";
       } else {
-        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer";
-        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-zinc-700 cursor-pointer";
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#26282e] cursor-pointer";
         if (lblCpf) lblCpf.innerText = "CPF do Cliente *";
         if (lblNum) lblNum.innerText = "Nº do Processo (CNJ) *";
         if (inNum) inNum.placeholder = "0000000-00.2026.8.00.0000";
@@ -8046,15 +8046,15 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const subtituloEl = document.getElementById('subtitulo-status-ficha');
       if (subtituloEl) subtituloEl.innerText = 'Preencha o CPF ou Número do Processo e escreva o resumo';
       const btnResetEl = document.getElementById('btn-resetar-visto-ficha');
-      if (btnResetEl) btnResetEl.classList.add('hidden');
+      if (btnResetEl) { btnResetEl.classList.add('hidden'); btnResetEl.classList.remove('inline-flex'); }
       const btnExcluirEl = document.getElementById('btn-excluir-proc-ficha');
-      if (btnExcluirEl) btnExcluirEl.classList.add('hidden');
+      if (btnExcluirEl) { btnExcluirEl.classList.add('hidden'); btnExcluirEl.classList.remove('inline-flex'); }
       const btnAnexar = document.getElementById('btn-anexar-peca-proc');
       const btnDossie = document.getElementById('btn-ver-dossie-proc');
       const btnSolicitarDocs = document.getElementById('btn-solicitar-docs-proc');
-      if (btnAnexar) btnAnexar.classList.add('hidden');
-      if (btnDossie) btnDossie.classList.add('hidden');
-      if (btnSolicitarDocs) btnSolicitarDocs.classList.add('hidden');
+      if (btnAnexar) { btnAnexar.classList.add('hidden'); btnAnexar.classList.remove('inline-flex'); }
+      if (btnDossie) { btnDossie.classList.add('hidden'); btnDossie.classList.remove('inline-flex'); }
+      if (btnSolicitarDocs) { btnSolicitarDocs.classList.add('hidden'); btnSolicitarDocs.classList.remove('inline-flex'); }
       if (typeof alternarDetalheProcAba === 'function') alternarDetalheProcAba('processo');
       renderizarModuloProcessos();
       if (elCpf) elCpf.focus();
@@ -8125,14 +8125,23 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
           : `● Novo resumo pronto para consulta • Salvo em ${p.dataAtualizacaoTexto || '-'}`;
       }
 
-      document.getElementById('btn-resetar-visto-ficha').classList.toggle('hidden', qtdVistos === 0);
-      document.getElementById('btn-excluir-proc-ficha').classList.remove('hidden');
+      const btnResetVisto = document.getElementById('btn-resetar-visto-ficha');
+      if (btnResetVisto) {
+        btnResetVisto.classList.toggle('hidden', qtdVistos === 0);
+        btnResetVisto.classList.toggle('inline-flex', qtdVistos > 0);
+      }
+      const btnExcluirFicha = document.getElementById('btn-excluir-proc-ficha');
+      if (btnExcluirFicha) {
+        btnExcluirFicha.classList.remove('hidden');
+        btnExcluirFicha.classList.add('inline-flex');
+      }
 
       const btnAnexar = document.getElementById('btn-anexar-peca-proc');
       const btnDossie = document.getElementById('btn-ver-dossie-proc');
       const btnSolicitarDocs = document.getElementById('btn-solicitar-docs-proc');
-      if (btnAnexar) btnAnexar.classList.remove('hidden');
-      if (btnDossie) btnDossie.classList.remove('hidden');
+      if (btnAnexar) { btnAnexar.classList.remove('hidden'); btnAnexar.classList.add('inline-flex'); }
+      if (btnDossie) { btnDossie.classList.remove('hidden'); btnDossie.classList.add('inline-flex'); }
+      if (btnSolicitarDocs) { btnSolicitarDocs.classList.remove('hidden'); btnSolicitarDocs.classList.add('inline-flex'); }
             // Sincronização automática com o Dossiê do Cliente (Art. 319 CPC)
       const cpfDig = (p.cpf || '').replace(/\D/g, '');
       const numDig = (p.numero || p.numeroProcesso || '').replace(/\D/g, '');
@@ -9144,27 +9153,22 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const btnProc = document.getElementById('subtab-detalhe-proc');
       const btnDossie = document.getElementById('subtab-detalhe-dossie');
 
+      const activeSubTab = "flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
+      const inactiveSubTab = "flex-1 py-2 px-3 rounded-lg text-xs font-medium transition text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent flex items-center justify-center gap-1.5 cursor-pointer";
+
       if (aba === 'dossie') {
         if (painelProc) painelProc.classList.add('hidden');
         if (painelDossie) painelDossie.classList.remove('hidden');
-        if (btnProc) {
-          btnProc.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 border border-transparent flex items-center justify-center gap-1.5 cursor-pointer";
-        }
-        if (btnDossie) {
-          btnDossie.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
-        }
+        if (btnProc) btnProc.className = inactiveSubTab;
+        if (btnDossie) btnDossie.className = activeSubTab;
         if (typeof window.carregarERenderizarDossies === 'function') {
           window.carregarERenderizarDossies();
         }
       } else {
         if (painelProc) painelProc.classList.remove('hidden');
         if (painelDossie) painelDossie.classList.add('hidden');
-        if (btnProc) {
-          btnProc.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
-        }
-        if (btnDossie) {
-          btnDossie.className = "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-zinc-200 border border-transparent flex items-center justify-center gap-1.5 cursor-pointer";
-        }
+        if (btnProc) btnProc.className = activeSubTab;
+        if (btnDossie) btnDossie.className = inactiveSubTab;
       }
     };
 
