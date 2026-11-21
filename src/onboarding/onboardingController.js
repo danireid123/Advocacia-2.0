@@ -59,23 +59,35 @@ const PRESETS_ONBOARDING = {
     },
     Civel: {
         id: 'Civel',
-        rotulo: '📋 Direito Cível / Consumidor',
-        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CONTRATO_COMPROVANTE'],
+        rotulo: '📋 Direito Cível & Consumidor',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'PROVA_CONTRATO_OU_DANO', 'PROTOCOLO_OU_BO'],
         descricoes: [
             'RG ou CNH (frente e verso nítidos)',
             'Comprovante de Residência atualizado',
-            'Contrato, Nota Fiscal ou Comprovante do Negócio / Dano'
+            'Contrato, Fatura ou Prints da negociação / dano sofrido',
+            'Protocolo de atendimento, reclamação no PROCON ou B.O.'
         ]
     },
     Familia: {
         id: 'Familia',
         rotulo: '👨‍👩‍👧 Direito de Família & Sucessões',
-        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CERTIDAO', 'COMPROVANTE_RENDA'],
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CERTIDAO_CIVIL', 'COMPROVANTE_RENDA'],
         descricoes: [
             'RG ou CNH (frente e verso nítidos)',
             'Comprovante de Residência atualizado',
-            'Certidão de Casamento ou Nascimento dos envolvidos',
-            'Comprovante de Renda atualizado (holerite, extrato ou IR)'
+            'Certidão de Casamento ou Nascimento dos filhos/envolvidos',
+            'Comprovante de Renda ou Gastos (holerite, extrato ou IR)'
+        ]
+    },
+    Imobiliario: {
+        id: 'Imobiliario',
+        rotulo: '🏠 Direito Imobiliário & Usucapião',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'MATRICULA_IMOVEL', 'COMPROVANTE_POSSE_OU_CONTRATO'],
+        descricoes: [
+            'RG ou CNH (frente e verso nítidos)',
+            'Comprovante de Residência atualizado',
+            'Matrícula atualizada do imóvel ou carnê do IPTU',
+            'Contrato de compra e venda / locação ou comprovantes de posse'
         ]
     },
     Geral: {
@@ -100,8 +112,9 @@ function normalizarPresetKey(presetTipo) {
     if (p.includes('crim') || p.includes('flagr') || p.includes('preso') || p.includes('custod')) return 'CriminalCustodia';
     if (p.includes('trab')) return 'Trabalhista';
     if (p.includes('prev') || p.includes('inss')) return 'Previdenciario';
+    if (p.includes('imob') || p.includes('usucap') || p.includes('imovel') || p.includes('matricula') || p.includes('locac')) return 'Imobiliario';
     if (p.includes('civ') || p.includes('consum')) return 'Civel';
-    if (p.includes('fam') || p.includes('divor')) return 'Familia';
+    if (p.includes('fam') || p.includes('divor') || p.includes('sucess') || p.includes('invent') || p.includes('heranc')) return 'Familia';
     return 'Geral';
 }
 
@@ -126,7 +139,16 @@ function documentoSatisfazItem(tipoDetectado, itemPendente) {
     const p = String(itemPendente || '').toUpperCase();
     if (!t || !p) return false;
     if (t === p) return true;
-    if (p === 'RG_OU_CNH' && (t.includes('RG') || t.includes('CNH'))) return true;
+    if (p === 'RG_OU_CNH' && (t.includes('RG') || t.includes('CNH') || t.includes('IDENTIDADE'))) return true;
+    if (p === 'COMPROVANTE_RESIDENCIA') {
+        return t === 'COMPROVANTE_RESIDENCIA' || t.includes('RESIDENCIA') || t.includes('ENDERECO') || t.includes('LUZ') || t.includes('AGUA') || t.includes('ENEL') || t.includes('SABESP');
+    }
+    if (p === 'CERTIDAO_CIVIL' && (t.includes('CERTIDAO') || t.includes('CASAMENTO') || t.includes('NASCIMENTO') || t.includes('OBITO'))) return true;
+    if (p === 'COMPROVANTE_RENDA' && (t.includes('RENDA') || t.includes('HOLERITE') || t.includes('EXTRATO') || t.includes('IR') || t.includes('IMPOSTO') || t.includes('PAGAMENTO') || t.includes('CONTRACHEQUE') || t.includes('SALARIO'))) return true;
+    if (p === 'PROVA_CONTRATO_OU_DANO' && (t.includes('CONTRATO') || t.includes('DANO') || t.includes('NOTA') || t.includes('FATURA') || t.includes('PRINT') || t.includes('RECIBO') || t.includes('COMPROVANTE'))) return true;
+    if (p === 'PROTOCOLO_OU_BO' && (t.includes('PROTOCOLO') || t.includes('BO') || t.includes('BOLETIM') || t.includes('PROCON') || t.includes('SAC') || t.includes('RECLAMACAO') || t.includes('OCORRENCIA'))) return true;
+    if (p === 'MATRICULA_IMOVEL' && (t.includes('MATRICULA') || t.includes('IMOVEL') || t.includes('IPTU') || t.includes('ESCRITURA') || t.includes('REGISTRO') || t.includes('CERTIDAO'))) return true;
+    if (p === 'COMPROVANTE_POSSE_OU_CONTRATO' && (t.includes('POSSE') || t.includes('CONTRATO') || t.includes('LOCACAO') || t.includes('RECIBO') || t.includes('ENERGIA') || t.includes('AGUA') || t.includes('COMPROVANTE'))) return true;
     if (p.includes('COMPROVANTE') && t.includes('COMPROVANTE')) return true;
     if (p.includes('CTPS') && (t.includes('CTPS') || t.includes('CARTEIRA'))) return true;
     if (p.includes('CERTIDAO') && t.includes('CERTIDAO')) return true;

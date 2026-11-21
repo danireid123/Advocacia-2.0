@@ -4729,8 +4729,9 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
                   <option value="Previdenciario">Previdenciário / INSS Urbano (RG/CNH, CNIS, Laudos Médicos e Endereço)</option>
                   <option value="PrevidenciarioRural">Previdenciário / INSS Rural (RG/CNH, DAP/CAF, Bloco de Produtor, Terra)</option>
                   <option value="CriminalCustodia">Criminal — Flagrante &amp; Custódia (B.O., Nota de Culpa, Residência, Vínculo)</option>
-                  <option value="Civel">Cível / Consumidor (RG/CNH, Comprovante de Endereço, Contrato/Provas)</option>
-                  <option value="Familia">Direito de Família (RG/CNH, Certidão Casamento/Nascimento, Endereço e Renda)</option>
+                  <option value="Familia">Direito de Família &amp; Sucessões (RG/CNH, Residência, Certidão Civil, Renda)</option>
+                  <option value="Civel">Direito Cível &amp; Consumidor (RG/CNH, Residência, Contrato/Dano, Protocolo/B.O.)</option>
+                  <option value="Imobiliario">Direito Imobiliário &amp; Usucapião (RG/CNH, Residência, Matrícula/IPTU, Posse/Contrato)</option>
                   <option value="Geral">Geral / Kit Básico (RG ou CNH, CPF, Comprovante de Residência e Extratos)</option>
                 </select>
               </div>
@@ -9604,13 +9605,25 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
           rotulo: '🏛️ Direito Previdenciário (INSS)',
           documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Laudos, Exames e Receitas Médicas recentes*\n4. 📄 *Extrato Previdenciário (CNIS do Meu INSS)*'
         },
-        Civel: {
-          rotulo: '📋 Direito Cível / Consumidor',
-          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Contrato, Nota Fiscal ou Comprovante do Negócio / Dano*'
+        PrevidenciarioRural: {
+          rotulo: '🌾 Aposentadoria Rural / Segurado Especial',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência rural / domicílio*\n3. 📄 *Documentos da Terra (DAP/CAF, Bloco de Produtor, ITR ou INCRA)*\n4. 📄 *Autodeclaração Rural assinada ou Certidão de Casamento/Nascimento*'
+        },
+        CriminalCustodia: {
+          rotulo: '🚨 Criminal — Flagrante & Custódia',
+          documentos: '1. 📄 *RG ou CNH do preso/investigado (foto legível)*\n2. 📄 *Comprovante de Residência fixa recente*\n3. 📄 *Boletim de Ocorrência (B.O.) ou Nota de Culpa / Auto de Prisão*\n4. 📄 *Carteira de Trabalho (CTPS) ou Declaração de Emprego*'
         },
         Familia: {
           rotulo: '👨‍👩‍👧 Direito de Família & Sucessões',
-          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Certidão de Casamento ou Nascimento dos envolvidos*'
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Certidão de Casamento ou Nascimento dos filhos/envolvidos*\n4. 📄 *Comprovante de Renda ou Gastos (holerite, extrato ou IR)*'
+        },
+        Civel: {
+          rotulo: '📋 Direito Cível & Consumidor',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Contrato, Fatura ou Prints da negociação / dano sofrido*\n4. 📄 *Protocolo de atendimento, reclamação no PROCON ou B.O.*'
+        },
+        Imobiliario: {
+          rotulo: '🏠 Direito Imobiliário & Usucapião',
+          documentos: '1. 📄 *RG ou CNH (frente e verso nítidos)*\n2. 📄 *Comprovante de Residência atualizado*\n3. 📄 *Matrícula atualizada do imóvel ou carnê do IPTU*\n4. 📄 *Contrato de compra e venda / locação ou comprovantes de posse*'
         },
         Geral: {
           rotulo: '📁 Kit Geral de Qualificação Civil',
