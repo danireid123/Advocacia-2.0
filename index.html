@@ -4105,83 +4105,72 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </details>
         </div>
 
-        <!-- ================= ABA 7: CONTATOS IGNORADOS ================= -->
-        <div id="aba-ignorados" class="hidden space-y-6 tab-pane-anim">
-          <!-- EXECUTIVE SECURITY HEADER -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 inline-flex items-center gap-1.5 shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                  Restrição Absoluta
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono">
-                  Exceções VIP & Contatos Ignorados
-                </span>
-              </div>
-              <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                <svg class="w-6 h-6 text-rose-400"><use href="#icon-shield"/></svg>
-                Contatos Ignorados & Escudo de Bloqueio
+        <!-- ================= ABA 7: CONTATOS IGNORADOS (HIGIENIZADO & PADRONIZADO) ================= -->
+        <div id="aba-ignorados" class="hidden space-y-5 tab-pane-anim">
+          <!-- Cabeçalho Editorial Limpo (mesmo padrão da Aba Inicial) -->
+          <div class="pt-1 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div class="space-y-1 min-w-0">
+              <h2 class="font-serif-legal text-[28px] sm:text-[32px] font-bold tracking-tight text-[#f7f8f8] leading-tight">
+                Contatos Ignorados &amp; Escudo de Bloqueio
               </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+              <p class="text-[13px] text-[#8a8f98] max-w-2xl leading-relaxed">
                 Números protegidos com bloqueio total: nunca receberão disparos automáticos, mensagens de triagem do robô ou lembretes PIX.
               </p>
             </div>
-            <div class="flex items-center space-x-2.5 bg-zinc-900/80 border border-zinc-800 px-4 py-2.5 rounded-xl text-xs shadow-sm">
-              <span class="text-zinc-400 font-medium">Total Bloqueados:</span>
-              <span id="contagem-ignorados-topo" class="font-bold text-rose-400 font-mono text-base">0</span>
+            <div class="flex items-center gap-2.5 bg-[#121317] border border-[#23252a] px-4 py-2.5 rounded-xl text-xs shrink-0">
+              <span class="text-[#8a8f98] font-medium">Total Bloqueados</span>
+              <span class="h-3.5 w-px bg-[#26282e]"></span>
+              <span id="contagem-ignorados-topo" class="font-semibold text-[#d4af37] font-mono tabular-nums text-[15px] leading-none">0</span>
             </div>
           </div>
 
-          <!-- CADASTRO DE CONTATO BLOQUEADO -->
-          <div class="exec-card p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl space-y-6 shadow-xl">
-            <div class="p-5 rounded-2xl bg-zinc-950/70 border border-zinc-800/80 space-y-4 shadow-inner">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Cadastrar Novo Contato para Bloquear</span>
-                <!-- Chips Rápidos de Categoria -->
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="text-[10px] text-zinc-500 font-medium mr-1">Preencher motivo:</span>
-                  <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Sócio / Advogado'" class="btn-tactile px-2.5 py-1 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-[10px] font-medium text-zinc-300 transition flex items-center gap-1 cursor-pointer"><svg class="w-3 h-3 text-amber-400"><use href="#icon-scales"/></svg>Sócio</button>
-                  <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Vara Judicial / Juiz'" class="btn-tactile px-2.5 py-1 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-[10px] font-medium text-zinc-300 transition flex items-center gap-1 cursor-pointer"><svg class="w-3 h-3 text-sky-400"><use href="#icon-folder"/></svg>Juiz / Vara</button>
-                  <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Familiar'" class="btn-tactile px-2.5 py-1 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-[10px] font-medium text-zinc-300 transition flex items-center gap-1 cursor-pointer"><svg class="w-3 h-3 text-emerald-400"><use href="#icon-users"/></svg>Família</button>
-                  <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Fornecedor'" class="btn-tactile px-2.5 py-1 rounded-lg bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 text-[10px] font-medium text-zinc-300 transition flex items-center gap-1 cursor-pointer"><svg class="w-3 h-3 text-purple-400"><use href="#icon-file-text"/></svg>Fornecedor</button>
-                </div>
+          <!-- Card 1: Cadastro de Contato Bloqueado -->
+          <div class="linear-shell p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#1c1d22]">
+              <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight">Cadastrar Novo Contato para Bloquear</h3>
+              <!-- Chips Rápidos de Categoria (Uniformes Obsidian) -->
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] text-[#6e737d] mr-1">Preencher motivo:</span>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Sócio / Advogado'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#c59b27]"><use href="#icon-scales"/></svg>Sócio</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Vara Judicial / Juiz'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-folder"/></svg>Juiz / Vara</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Familiar'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-users"/></svg>Família</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Fornecedor'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-file-text"/></svg>Fornecedor</button>
               </div>
-
-              <div class="grid grid-cols-12 gap-3.5 items-end">
-                <div class="col-span-12 sm:col-span-5">
-                  <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Número do WhatsApp / Telefone *</label>
-                  <input type="text" id="input-ignorado-numero" placeholder="Ex: (11) 98765-4321 (aceita com ou sem 55)" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
-                </div>
-                <div class="col-span-12 sm:col-span-5">
-                  <label class="text-[11px] font-bold text-zinc-200 tracking-wide block mb-1">Identificação / Motivo (Opcional)</label>
-                  <input type="text" id="input-ignorado-nome" placeholder="Ex: Advogado Parceiro, Vara do Trabalho, Juiz..." class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
-                </div>
-                <div class="col-span-12 sm:col-span-2">
-                  <button type="button" id="btn-add-ignorado" class="w-full py-2.5 champagne-gradient font-bold text-xs rounded-xl shadow-md active:scale-[0.98] transition flex items-center justify-center space-x-1.5 cursor-pointer">
-                    <svg class="w-4 h-4"><use href="#icon-plus"/></svg>
-                    <span>Bloquear</span>
-                  </button>
-                </div>
-              </div>
-              <p class="text-[11px] text-zinc-500">Aceita números com DDD, traços, parênteses ou apenas os dígitos. O sistema formata automaticamente.</p>
             </div>
 
-            <!-- Lista de números ignorados em tempo real -->
-            <div class="space-y-3 pt-1">
-              <div class="flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400">Lista de Contatos e Números Bloqueados</h3>
-                <span class="text-[11px] text-zinc-400">Remova a qualquer momento com 1 clique para desbloquear</span>
+            <div class="grid grid-cols-12 gap-4 items-end">
+              <div class="col-span-12 sm:col-span-5">
+                <label class="text-[11.5px] font-medium text-[#d0d6e0] block mb-1.5">Número do WhatsApp / Telefone *</label>
+                <input type="text" id="input-ignorado-numero" placeholder="Ex: (11) 98765-4321 (aceita com ou sem 55)" class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs font-mono">
               </div>
-              <div id="lista-ignorados" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
-                <div class="exec-card p-10 rounded-2xl text-center space-y-3 border border-zinc-800/80 bg-zinc-950/40">
-                  <div class="w-12 h-12 mx-auto rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-zinc-300">Nenhum contato na lista de bloqueio</h4>
-                    <p class="text-[11px] text-zinc-500 mt-1 max-w-sm mx-auto">Todos os contatos que enviarem mensagens receberão atendimento e triagem normais.</p>
-                  </div>
+              <div class="col-span-12 sm:col-span-5">
+                <label class="text-[11.5px] font-medium text-[#d0d6e0] block mb-1.5">Identificação / Motivo (Opcional)</label>
+                <input type="text" id="input-ignorado-nome" placeholder="Ex: Advogado Parceiro, Vara do Trabalho, Juiz..." class="exec-input w-full rounded-xl px-3.5 py-2.5 text-xs">
+              </div>
+              <div class="col-span-12 sm:col-span-2">
+                <button type="button" id="btn-add-ignorado" class="btn-tactile w-full py-2.5 champagne-gradient text-[#08080a] font-bold text-xs rounded-xl active:scale-[0.98] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 stroke-[2.5]"><use href="#icon-plus"/></svg>
+                  <span>Bloquear</span>
+                </button>
+              </div>
+            </div>
+            <p class="text-[11px] text-[#6e737d]">Aceita números com DDD, traços, parênteses ou apenas os dígitos. O sistema formata automaticamente.</p>
+          </div>
+
+          <!-- Card 2: Lista de Contatos e Números Bloqueados -->
+          <div class="linear-shell p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-[#1c1d22]">
+              <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight">Lista de Contatos e Números Bloqueados</h3>
+              <span class="text-[11.5px] text-[#6e737d]">Remova a qualquer momento com 1 clique para desbloquear</span>
+            </div>
+            <div id="lista-ignorados" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
+              <div class="py-10 text-center space-y-2.5">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-[#15161a] border border-[#23252a] flex items-center justify-center text-[#6e737d]">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                  <h4 class="text-[13px] font-medium text-[#a1a6b0]">Nenhum contato na lista de bloqueio</h4>
+                  <p class="text-[11.5px] text-[#62666d] mt-0.5 max-w-sm mx-auto">Todos os contatos que enviarem mensagens receberão atendimento e triagem normais.</p>
                 </div>
               </div>
             </div>
