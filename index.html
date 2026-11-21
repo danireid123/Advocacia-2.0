@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Advocacia Studio Pro • v2.0 (Executive Suite)</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('adv_bot_theme');
+        document.documentElement.classList.add(t === 'light' ? 'theme-light' : 'theme-dark');
+      } catch (e) {
+        document.documentElement.classList.add('theme-dark');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="./assets/tailwind.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -1077,7 +1087,526 @@
       animation: tabSlideFromLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1) both !important;
     }
 
-    /* Light Theme Adaptations */
+    /* Light Theme Adaptations — Modo Claro Executivo (Papel/Marfim #F8FAFC + Azul-Marinho #1E3A8A, Contraste AAA) */
+    html.theme-light,
+    html.theme-light body {
+      --bg-deep: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #F1F5F9;
+      --bg-surface-3: #E2E8F0;
+      --gold-primary: #1E3A8A;
+      --gold-soft: #1E40AF;
+      --gold-champagne: #1E3A8A;
+      --gold-light: #1E40AF;
+      --text-main: #0F172A;
+      --text-muted: #334155;
+      --text-tertiary: #475569;
+      --card-bg: #FFFFFF;
+      --border-color: #CBD5E1;
+      --border-strong: #94A3B8;
+      --input-bg: #FFFFFF;
+      --inner-box-bg: #F1F5F9;
+      color-scheme: light;
+    }
+
+    html.theme-light body {
+      background-color: #F8FAFC !important;
+      background-image: radial-gradient(ellipse 80% 45% at 50% -10%, rgba(30, 58, 138, 0.055) 0%, transparent 65%) !important;
+      color: #0F172A !important;
+    }
+
+    html.theme-light :focus-visible,
+    html.theme-light button:focus-visible,
+    html.theme-light input:focus-visible,
+    html.theme-light textarea:focus-visible,
+    html.theme-light select:focus-visible,
+    html.theme-light [tabindex]:focus-visible {
+      outline: 2px solid #1E3A8A !important;
+      outline-offset: 2px !important;
+    }
+
+    html.theme-light ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.35);
+    }
+    html.theme-light ::-webkit-scrollbar-thumb:hover {
+      background: rgba(30, 58, 138, 0.65);
+    }
+
+    /* Superfícies & Cards Executivos no Modo Claro */
+    html.theme-light #main-content-area {
+      background-color: #F8FAFC !important;
+    }
+    html.theme-light .exec-card,
+    html.theme-light .linear-shell,
+    html.theme-light .linear-kpi-card,
+    html.theme-light .ai-console-panel {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.09) !important;
+      color: #0F172A;
+    }
+    html.theme-light .linear-kpi-card:hover {
+      background: #FFFFFF !important;
+      border-color: #1E3A8A !important;
+      box-shadow: 0 10px 24px -10px rgba(30, 58, 138, 0.16) !important;
+    }
+    html.theme-light .linear-step-cell,
+    html.theme-light .linear-proc-row,
+    html.theme-light .ai-suggestion-row {
+      background: #F8FAFC !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A;
+    }
+    html.theme-light .linear-step-cell:hover,
+    html.theme-light .linear-proc-row:hover,
+    html.theme-light .ai-suggestion-row:hover {
+      background: #F1F5F9 !important;
+      border-color: #94A3B8 !important;
+    }
+    html.theme-light .linear-proc-row.proc-list-item-active,
+    html.theme-light .proc-list-item-active {
+      background: #EFF6FF !important;
+      border-color: #1E3A8A !important;
+      box-shadow: inset 3px 0 0 #1E3A8A, 0 4px 14px -6px rgba(30, 58, 138, 0.18) !important;
+    }
+    html.theme-light .cohere-eyebrow {
+      color: #334155 !important;
+    }
+    html.theme-light .ai-console-body {
+      color: #1E293B !important;
+    }
+    html.theme-light .linear-btn-ghost,
+    html.theme-light .linear-telemetry-chip {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      color: #1E293B !important;
+    }
+    html.theme-light .linear-btn-ghost:hover,
+    html.theme-light .linear-telemetry-chip:hover {
+      background: #F1F5F9 !important;
+      border-color: #1E3A8A !important;
+      color: #1E3A8A !important;
+    }
+    html.theme-light .btn-ai-enhance {
+      background: rgba(30, 58, 138, 0.08) !important;
+      color: #1E3A8A !important;
+      border-color: rgba(30, 58, 138, 0.35) !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+    }
+    html.theme-light .btn-ai-enhance:hover {
+      background: rgba(30, 58, 138, 0.14) !important;
+      border-color: #1E3A8A !important;
+      color: #172554 !important;
+    }
+    html.theme-light .champagne-gradient {
+      background-color: #1E3A8A !important;
+      background-image: linear-gradient(135deg, #1E3A8A 0%, #172554 100%) !important;
+      color: #FFFFFF !important;
+    }
+    html.theme-light .champagne-gradient *,
+    html.theme-light .champagne-gradient.text-zinc-950,
+    html.theme-light .champagne-gradient .text-zinc-950 {
+      color: #FFFFFF !important;
+    }
+
+    /* Segmented Controls & Inputs no Modo Claro */
+    html.theme-light .segmented-pill-container {
+      background: #E2E8F0 !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+    }
+    html.theme-light .segmented-pill-glider {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1) !important;
+    }
+    html.theme-light .segmented-pill-tab {
+      color: #334155 !important;
+    }
+    html.theme-light .segmented-pill-tab:hover {
+      color: #0F172A !important;
+    }
+    html.theme-light .segmented-pill-tab.active {
+      color: #1E3A8A !important;
+    }
+    html.theme-light .exec-input {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      color: #0F172A !important;
+      color-scheme: light !important;
+    }
+    html.theme-light .exec-input::placeholder {
+      color: #475569 !important;
+    }
+    html.theme-light .exec-input:hover {
+      border-color: #64748B !important;
+      background-color: #FFFFFF !important;
+    }
+    html.theme-light .exec-input:focus {
+      border-color: #1E3A8A !important;
+      background-color: #FFFFFF !important;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.18) !important;
+    }
+    html.theme-light .exec-input:disabled,
+    html.theme-light .exec-input:read-only {
+      background-color: #F1F5F9 !important;
+      color: #334155 !important;
+    }
+    html.theme-light select.exec-input {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231E3A8A' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+    }
+    html.theme-light input[type="date"]::-webkit-calendar-picker-indicator,
+    html.theme-light input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: none !important;
+      opacity: 0.75;
+    }
+    html.theme-light .toggle-slider {
+      background-color: #CBD5E1;
+      border-color: #94A3B8;
+    }
+    html.theme-light input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+      border-color: #1E3A8A;
+    }
+    html.theme-light input:checked + .toggle-slider:before {
+      background-color: #FFFFFF;
+    }
+
+    /* Overrides Limpos de Classes Utilitárias Dark (sem reescrever o HTML e sem sobrescrever estados :hover) */
+    html.theme-light [class^="bg-zinc-950"],
+    html.theme-light [class*=" bg-zinc-950"],
+    html.theme-light [class^="bg-[#0a"],
+    html.theme-light [class*=" bg-[#0a"],
+    html.theme-light [class^="bg-[#0b"],
+    html.theme-light [class*=" bg-[#0b"],
+    html.theme-light [class^="bg-[#0c"],
+    html.theme-light [class*=" bg-[#0c"],
+    html.theme-light [class^="bg-[#0e"],
+    html.theme-light [class*=" bg-[#0e"] {
+      background-color: #F8FAFC !important;
+    }
+    html.theme-light [class^="bg-zinc-900"],
+    html.theme-light [class*=" bg-zinc-900"],
+    html.theme-light [class^="bg-[#12"],
+    html.theme-light [class*=" bg-[#12"],
+    html.theme-light [class^="bg-[#14"],
+    html.theme-light [class*=" bg-[#14"],
+    html.theme-light [class^="bg-[#16"],
+    html.theme-light [class*=" bg-[#16"] {
+      background-color: #FFFFFF !important;
+    }
+    html.theme-light [class^="bg-zinc-800"],
+    html.theme-light [class*=" bg-zinc-800"],
+    html.theme-light [class^="bg-[#18"],
+    html.theme-light [class*=" bg-[#18"],
+    html.theme-light [class^="bg-[#1a"],
+    html.theme-light [class*=" bg-[#1a"],
+    html.theme-light [class^="bg-[#20"],
+    html.theme-light [class*=" bg-[#20"] {
+      background-color: #F1F5F9 !important;
+    }
+    html.theme-light [class^="bg-zinc-700"],
+    html.theme-light [class*=" bg-zinc-700"] {
+      background-color: #E2E8F0 !important;
+    }
+    /* Estados :hover limpos para superfícies claras */
+    html.theme-light [class*="hover:bg-zinc-900"]:hover,
+    html.theme-light [class*="hover:bg-zinc-800"]:hover,
+    html.theme-light [class*="hover:bg-[#16"]:hover {
+      background-color: #E2E8F0 !important;
+    }
+    html.theme-light [class*="hover:bg-zinc-700"]:hover {
+      background-color: #CBD5E1 !important;
+    }
+    html.theme-light .fixed.inset-0[class*=" bg-zinc-950"],
+    html.theme-light .fixed.inset-0[class^="bg-zinc-950"] {
+      background-color: rgba(15, 23, 42, 0.55) !important;
+    }
+    html.theme-light #splash-screen {
+      background-color: #F8FAFC !important;
+    }
+    html.theme-light [class^="border-zinc-800"],
+    html.theme-light [class*=" border-zinc-800"],
+    html.theme-light [class^="border-[#1"],
+    html.theme-light [class*=" border-[#1"],
+    html.theme-light [class^="border-[#2"],
+    html.theme-light [class*=" border-[#2"] {
+      border-color: #CBD5E1 !important;
+    }
+    html.theme-light [class^="border-zinc-700"],
+    html.theme-light [class*=" border-zinc-700"] {
+      border-color: #94A3B8 !important;
+    }
+
+    /* Tipografia AAA sobre Papel/Marfim #F8FAFC e Branco #FFFFFF (razão >= 7:1) */
+    html.theme-light .text-white,
+    html.theme-light .text-zinc-100,
+    html.theme-light .text-zinc-200,
+    html.theme-light [class^="text-[#f7f8f8]"],
+    html.theme-light [class*=" text-[#f7f8f8]"],
+    html.theme-light [class^="text-[#d0d6e0]"],
+    html.theme-light [class*=" text-[#d0d6e0]"] {
+      color: #0F172A !important;
+    }
+    html.theme-light .text-zinc-300,
+    html.theme-light [class^="text-[#b0b5c0]"],
+    html.theme-light [class*=" text-[#b0b5c0]"] {
+      color: #1E293B !important;
+    }
+    html.theme-light .text-zinc-400,
+    html.theme-light .text-zinc-500,
+    html.theme-light [class^="text-[#8a8f98]"],
+    html.theme-light [class*=" text-[#8a8f98]"],
+    html.theme-light [class^="text-[#62666d]"],
+    html.theme-light [class*=" text-[#62666d]"],
+    html.theme-light [class^="text-[#3e4047]"],
+    html.theme-light [class*=" text-[#3e4047]"] {
+      color: #334155 !important;
+    }
+    html.theme-light [class^="text-amber-"],
+    html.theme-light [class*=" text-amber-"],
+    html.theme-light [class^="text-[#d4af37]"],
+    html.theme-light [class*=" text-[#d4af37]"],
+    html.theme-light [class^="text-[#f3dc8a]"],
+    html.theme-light [class*=" text-[#f3dc8a]"],
+    html.theme-light [class^="text-[#f3e5ab]"],
+    html.theme-light [class*=" text-[#f3e5ab]"] {
+      color: #1E3A8A !important;
+    }
+    html.theme-light [class^="text-emerald-"],
+    html.theme-light [class*=" text-emerald-"] {
+      color: #065F46 !important;
+    }
+    html.theme-light [class^="text-sky-"],
+    html.theme-light [class*=" text-sky-"] {
+      color: #075985 !important;
+    }
+    html.theme-light [class^="text-rose-"],
+    html.theme-light [class*=" text-rose-"],
+    html.theme-light [class^="text-red-"],
+    html.theme-light [class*=" text-red-"] {
+      color: #9F1239 !important;
+    }
+    html.theme-light [class^="text-purple-"],
+    html.theme-light [class*=" text-purple-"],
+    html.theme-light [class^="text-indigo-"],
+    html.theme-light [class*=" text-indigo-"] {
+      color: #4C1D95 !important;
+    }
+    /* Hover de texto claro não deve sumir sobre fundo claro */
+    html.theme-light [class*="hover:text-white"]:hover,
+    html.theme-light [class*="hover:text-[#f7f8f8]"]:hover,
+    html.theme-light [class*="hover:text-zinc-200"]:hover {
+      color: #0F172A !important;
+    }
+    html.theme-light [class*="hover:text-amber-"]:hover,
+    html.theme-light [class*="hover:text-[#f3dc8a]"]:hover {
+      color: #1E3A8A !important;
+    }
+    html.theme-light [class^="bg-amber-500/"],
+    html.theme-light [class*=" bg-amber-500/"],
+    html.theme-light [class^="bg-amber-950/"],
+    html.theme-light [class*=" bg-amber-950/"],
+    html.theme-light [class^="bg-[#d4af37]/"],
+    html.theme-light [class*=" bg-[#d4af37]/"] {
+      background-color: rgba(30, 58, 138, 0.08) !important;
+    }
+    html.theme-light [class^="border-amber-500/"],
+    html.theme-light [class*=" border-amber-500/"],
+    html.theme-light [class^="border-[#d4af37]"],
+    html.theme-light [class*=" border-[#d4af37]"] {
+      border-color: rgba(30, 58, 138, 0.30) !important;
+    }
+    html.theme-light [class^="bg-emerald-500/"],
+    html.theme-light [class*=" bg-emerald-500/"],
+    html.theme-light [class^="bg-emerald-950/"],
+    html.theme-light [class*=" bg-emerald-950/"] {
+      background-color: rgba(6, 95, 70, 0.08) !important;
+    }
+    html.theme-light [class^="border-emerald-500/"],
+    html.theme-light [class*=" border-emerald-500/"] {
+      border-color: rgba(6, 95, 70, 0.28) !important;
+    }
+    html.theme-light [class^="bg-sky-500/"],
+    html.theme-light [class*=" bg-sky-500/"] {
+      background-color: rgba(7, 89, 133, 0.08) !important;
+    }
+    html.theme-light [class^="border-sky-500/"],
+    html.theme-light [class*=" border-sky-500/"] {
+      border-color: rgba(7, 89, 133, 0.28) !important;
+    }
+    html.theme-light [class^="bg-purple-500/"],
+    html.theme-light [class*=" bg-purple-500/"] {
+      background-color: rgba(76, 29, 149, 0.08) !important;
+    }
+    html.theme-light [class^="border-purple-500/"],
+    html.theme-light [class*=" border-purple-500/"] {
+      border-color: rgba(76, 29, 149, 0.28) !important;
+    }
+    html.theme-light [class^="bg-rose-500/"],
+    html.theme-light [class*=" bg-rose-500/"],
+    html.theme-light [class^="bg-rose-950/"],
+    html.theme-light [class*=" bg-rose-950/"],
+    html.theme-light [class^="bg-red-950/"],
+    html.theme-light [class*=" bg-red-950/"] {
+      background-color: rgba(159, 18, 57, 0.08) !important;
+    }
+    html.theme-light [class*="hover:bg-rose-900"]:hover,
+    html.theme-light [class*="hover:bg-rose-950"]:hover {
+      background-color: rgba(159, 18, 57, 0.15) !important;
+    }
+    html.theme-light [class^="border-rose-500/"],
+    html.theme-light [class*=" border-rose-500/"],
+    html.theme-light [class^="border-rose-800"],
+    html.theme-light [class*=" border-rose-800"],
+    html.theme-light [class^="border-rose-900"],
+    html.theme-light [class*=" border-rose-900"] {
+      border-color: rgba(159, 18, 57, 0.30) !important;
+    }
+    /* Preservar texto branco em botões/elementos de fundo sólido escuro e prévia WhatsApp */
+    html.theme-light [class^="bg-emerald-600"],
+    html.theme-light [class*=" bg-emerald-600"] {
+      background-color: #065F46 !important;
+    }
+    html.theme-light [class*="bg-emerald-600"].text-white,
+    html.theme-light [class*="bg-emerald-700"].text-white,
+    html.theme-light [class*="bg-rose-600"].text-white,
+    html.theme-light [class*="bg-rose-700"].text-white,
+    html.theme-light [class*="bg-red-600"].text-white,
+    html.theme-light [class*="bg-sky-600"].text-white,
+    html.theme-light [class*="bg-blue-600"].text-white,
+    html.theme-light [class*="bg-indigo-600"].text-white,
+    html.theme-light [class*="bg-purple-600"].text-white,
+    html.theme-light [class*="bg-amber-600"].text-white,
+    html.theme-light [class*="bg-emerald-600"] .text-white,
+    html.theme-light [class*="bg-rose-600"] .text-white,
+    html.theme-light [class*="bg-sky-600"] .text-white,
+    html.theme-light [class*="bg-blue-600"] .text-white,
+    html.theme-light [class*="bg-indigo-600"] .text-white {
+      color: #FFFFFF !important;
+    }
+    /* Prévia realista do WhatsApp (.wa-wallpaper-dark / .wa-bubble-out / bg-[#005c4b]) mantém tipografia clara */
+    html.theme-light .wa-wallpaper-dark {
+      background-color: #0b141a !important;
+      color: #E2E8F0 !important;
+    }
+    html.theme-light .wa-wallpaper-dark .text-zinc-200,
+    html.theme-light .wa-wallpaper-dark .text-zinc-300,
+    html.theme-light .wa-wallpaper-dark .text-white {
+      color: #F8FAFC !important;
+    }
+    html.theme-light .wa-wallpaper-dark .text-zinc-400 {
+      color: #CBD5E1 !important;
+    }
+    html.theme-light .wa-wallpaper-dark [class*="text-emerald-"] {
+      color: #6EE7B7 !important;
+    }
+    html.theme-light .wa-bubble-out,
+    html.theme-light .wa-bubble-out *,
+    html.theme-light [class*="bg-[#005c4b]"],
+    html.theme-light [class*="bg-[#005c4b]"] * {
+      color: #FFFFFF !important;
+    }
+    html.theme-light .wa-bubble-out [class*="text-sky-"],
+    html.theme-light [class*="bg-[#005c4b]"] [class*="text-sky-"] {
+      color: #7DD3FC !important;
+    }
+
+    /* Sidebar, Tooltips, Popovers & Badges no Modo Claro Executivo */
+    html.theme-light #main-sidebar {
+      background-color: #FFFFFF !important;
+      border-right: 1px solid #CBD5E1 !important;
+    }
+    html.theme-light body.sidebar-expanded .sidebar-category-group {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+    }
+    html.theme-light .sidebar-group-header {
+      color: #1E3A8A !important;
+    }
+    html.theme-light .sidebar-divider {
+      border-top-color: #E2E8F0 !important;
+    }
+    html.theme-light .sidebar-rail-btn {
+      color: #334155 !important;
+    }
+    html.theme-light .sidebar-rail-btn .sidebar-btn-icon {
+      color: #475569 !important;
+      filter: none !important;
+    }
+    html.theme-light .sidebar-rail-btn:hover {
+      background: rgba(30, 58, 138, 0.07) !important;
+      border-color: rgba(30, 58, 138, 0.25) !important;
+    }
+    html.theme-light .sidebar-rail-btn:hover .sidebar-btn-icon,
+    html.theme-light .sidebar-rail-btn:hover .sidebar-btn-label {
+      color: #1E3A8A !important;
+      filter: none !important;
+    }
+    html.theme-light .sidebar-rail-btn.active,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active {
+      background: rgba(30, 58, 138, 0.11) !important;
+      border-color: rgba(30, 58, 138, 0.42) !important;
+      color: #1E3A8A !important;
+      box-shadow: 0 2px 10px -2px rgba(30, 58, 138, 0.16) !important;
+    }
+    html.theme-light .sidebar-rail-btn.active .sidebar-btn-icon,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-icon,
+    html.theme-light .sidebar-rail-btn.active .sidebar-btn-label,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active .sidebar-btn-label {
+      color: #1E3A8A !important;
+      font-weight: 600;
+      filter: none !important;
+    }
+    html.theme-light .sidebar-rail-btn.active::before,
+    html.theme-light .sidebar-rail-btn.sidebar-tab-active::before {
+      background: #1E3A8A !important;
+      box-shadow: none !important;
+    }
+    html.theme-light body:not(.sidebar-expanded) .sidebar-rail-btn::after {
+      background: #1E3A8A !important;
+      color: #FFFFFF !important;
+      border-color: #172554 !important;
+      box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.28) !important;
+    }
+    html.theme-light body:not(.sidebar-expanded) .sidebar-btn-badge.badge-active {
+      background: #1E3A8A !important;
+      color: #FFFFFF !important;
+      border-color: #FFFFFF !important;
+    }
+    html.theme-light #toast-msg {
+      background-color: #1E3A8A !important;
+      border-color: #172554 !important;
+      color: #FFFFFF !important;
+    }
+    html.theme-light #toast-msg * {
+      color: #FFFFFF !important;
+    }
+    html.theme-light #tour-qr-card {
+      background: #FFFFFF !important;
+      border-color: #CBD5E1 !important;
+      box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.18) !important;
+    }
+    html.theme-light .urgency-badge-critica {
+      background: rgba(159, 18, 57, 0.10) !important;
+      color: #9F1239 !important;
+      border-color: rgba(159, 18, 57, 0.35) !important;
+    }
+    html.theme-light .urgency-badge-alta {
+      background: rgba(146, 64, 14, 0.10) !important;
+      color: #92400E !important;
+      border-color: rgba(146, 64, 14, 0.35) !important;
+    }
+    html.theme-light .urgency-badge-media {
+      background: rgba(30, 58, 138, 0.10) !important;
+      color: #1E3A8A !important;
+      border-color: rgba(30, 58, 138, 0.32) !important;
+    }
+    html.theme-light .urgency-badge-baixa {
+      background: #F1F5F9 !important;
+      color: #334155 !important;
+      border-color: #CBD5E1 !important;
+    }
 
     /* Ajustes da Sidebar Brand & Search */
     body:not(.sidebar-expanded) .sidebar-top-brand {
@@ -1735,51 +2264,27 @@
       <!-- Navegação Principal com Módulos Centralizados -->
       <nav id="sidebar-nav" class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden py-3 px-2" aria-label="Navegação Principal">
         <div class="sidebar-nav-container my-auto space-y-1 w-full">
-        <!-- GRUPO 1: OPERAÇÃO (3 MÓDULOS) -->
+        <!-- SEÇÃO 1: ATENDIMENTO & FILA (5 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-operacao">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-500/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Operação</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Atendimento & Fila</span>
           </div>
-          
+
           <div class="space-y-0.5">
-            <!-- Visão Geral -->
+            <!-- Início / WhatsApp -->
             <button type="button" id="nav-btn-inicio" data-desc="Painel do escritório e indicadores principais" class="sidebar-rail-btn active" title="Visão Geral">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-home"/></svg></div>
               <span class="sidebar-btn-label">Visão Geral</span>
             </button>
 
-            <!-- Clientes & Processos (Master-Detail Centralizado) -->
-            <button type="button" id="nav-btn-processos" data-desc="Gestão unificada de clientes, processos judiciais e dossiê civil (Art. 319 CPC)" class="sidebar-rail-btn" title="Clientes & Processos">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
-              <span class="sidebar-btn-label">Clientes & Processos</span>
-              <span id="badge-processos" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
-            </button>
-
-            <!-- Fila do Advogado -->
+            <!-- Fila Humana -->
             <button type="button" id="nav-btn-pausados" data-desc="Fila de atendimento de clientes no WhatsApp" class="sidebar-rail-btn" title="Fila do Advogado">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-clock"/></svg></div>
               <span class="sidebar-btn-label">Fila do Advogado</span>
               <span id="badge-pausados" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
             </button>
 
-            <!-- Histórico de Mensagens -->
-            <button type="button" id="nav-btn-terminal" data-desc="Histórico e registros de mensagens enviadas" class="sidebar-rail-btn" title="Histórico de Mensagens">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
-              <span class="sidebar-btn-label">Histórico Mensagens</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="sidebar-divider"></div>
-
-        <!-- GRUPO 2: AUTOMAÇÃO WHATSAPP -->
-        <div class="sidebar-category-group sidebar-group-automacao">
-          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Automação</span>
-          </div>
-
-          <div class="space-y-0.5">
-            <!-- Menu Automático -->
+            <!-- Fluxo / Menu Automático -->
             <button type="button" id="nav-btn-fluxo" data-desc="Fluxos e opções de resposta automática" class="sidebar-rail-btn" title="Menu Automático">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-flow"/></svg></div>
               <span class="sidebar-btn-label">Menu Automático</span>
@@ -1794,29 +2299,56 @@
               <span id="badge-simulador" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Testes</span>
             </button>
 
-            <!-- Agenda & Horários -->
-            <button type="button" id="nav-btn-agenda" data-desc="Pauta de compromissos, audiências e horários do escritório" class="sidebar-rail-btn" title="Agenda & Horários">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
-              <span class="sidebar-btn-label">Agenda & Horários</span>
-            </button>
-
-            <!-- Alias mantido para compatibilidade e integridade de seletores DOM -->
-            <button type="button" id="nav-btn-dossie-clientes" class="hidden" title="Dossiê de Clientes">
-              <span id="badge-dossies" class="hidden">0</span>
+            <!-- Ignorados / Contatos Bloqueados & VIPs -->
+            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Bloqueados & VIP">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
+              <span class="sidebar-btn-label">Contatos Bloqueados</span>
+              <span id="badge-ignorados" class="sidebar-btn-badge bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
             </button>
           </div>
         </div>
 
         <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 3: FINANCEIRO & COBRANÇA -->
+        <!-- SEÇÃO 2: DOSSIÊS & PROCESSOS (3 MÓDULOS) -->
+        <div class="sidebar-category-group sidebar-group-automacao">
+          <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500/80">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Dossiês & Processos</span>
+          </div>
+
+          <div class="space-y-0.5">
+            <!-- Processos -->
+            <button type="button" id="nav-btn-processos" data-desc="Gestão unificada de clientes, processos judiciais e dossiê civil (Art. 319 CPC)" class="sidebar-rail-btn" title="Clientes & Processos">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-folder"/></svg></div>
+              <span class="sidebar-btn-label">Clientes & Processos</span>
+              <span id="badge-processos" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">0</span>
+            </button>
+
+            <!-- Pauta / Agenda -->
+            <button type="button" id="nav-btn-agenda" data-desc="Pauta de compromissos, audiências e horários do escritório" class="sidebar-rail-btn" title="Agenda & Horários">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-calendar"/></svg></div>
+              <span class="sidebar-btn-label">Agenda & Horários</span>
+            </button>
+
+            <!-- Dossiês Art. 319 CPC -->
+            <button type="button" id="nav-btn-dossie-clientes" data-desc="Qualificação civil completa e dossiês de clientes (Art. 319 CPC)" class="sidebar-rail-btn" title="Dossiês Art. 319 CPC">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-file-text"/></svg></div>
+              <span class="sidebar-btn-label">Dossiês Art. 319 CPC</span>
+              <span id="badge-dossies" class="sidebar-btn-badge bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- SEÇÃO 3: FINANCEIRO (COBRANÇA PIX, EXTRATO E COMPROVANTES) -->
         <div class="sidebar-category-group sidebar-group-financeiro sidebar-group-controladoria">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-500/80">
             <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>Financeiro</span>
           </div>
 
           <div class="space-y-0.5">
-            <!-- Financeiro & PIX -->
+            <!-- Financeiro & PIX (Cobrança PIX, Extrato e Comprovantes) -->
             <button type="button" id="nav-btn-financeiro" data-desc="Honorários, cobranças e conciliação PIX" class="sidebar-rail-btn" title="Financeiro & PIX">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m0-2c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
               <span class="sidebar-btn-label">Financeiro & PIX</span>
@@ -1827,21 +2359,20 @@
 
         <div class="sidebar-divider"></div>
 
-        <!-- GRUPO 4: SISTEMA & SEGURANÇA -->
+        <!-- SEÇÃO 4: CONFIGURAÇÕES (3 MÓDULOS) -->
         <div class="sidebar-category-group sidebar-group-sistema">
           <div class="sidebar-group-header items-center justify-between px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-purple-400/80">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Sistema</span>
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>Configurações</span>
           </div>
 
           <div class="space-y-0.5">
-            <!-- Contatos Bloqueados & VIPs -->
-            <button type="button" id="nav-btn-ignorados" data-desc="Contatos que não recebem respostas automáticas nem cobranças" class="sidebar-rail-btn" title="Contatos Bloqueados & VIP">
-              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-user-x"/></svg></div>
-              <span class="sidebar-btn-label">Contatos Bloqueados</span>
-              <span id="badge-ignorados" class="sidebar-btn-badge bg-purple-500/10 text-purple-300 border border-purple-500/20">0</span>
+            <!-- Diagnóstico do Sistema (id nav-btn-terminal preservado) -->
+            <button type="button" id="nav-btn-terminal" data-desc="Histórico e registros de mensagens enviadas" class="sidebar-rail-btn" title="Diagnóstico do Sistema">
+              <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-activity"/></svg></div>
+              <span class="sidebar-btn-label">Diagnóstico do Sistema</span>
             </button>
 
-            <!-- Cópia de Segurança do Escritório -->
+            <!-- Cópia de Segurança / Backup -->
             <button type="button" id="nav-btn-backup" data-desc="Exportar e restaurar cópias de segurança do escritório no computador" class="sidebar-rail-btn" title="Cópia de Segurança do Escritório">
               <div class="sidebar-btn-icon"><svg class="w-4 h-4"><use href="#icon-database"/></svg></div>
               <span class="sidebar-btn-label">Cópia de Segurança</span>
@@ -1878,6 +2409,13 @@
           <!-- Botão Acessibilidade / Letra Confortável para Leitura -->
           <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-bold text-zinc-300 transition cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
             <span>A+</span>
+          </button>
+
+          <!-- Botão Discreto de Alternância de Tema (Modo Escuro / Modo Claro Executivo) -->
+          <button type="button" id="btn-toggle-theme" onclick="alternarTemaUI()" class="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-semibold text-zinc-300 transition cursor-pointer" title="Alternar entre Modo Escuro e Modo Claro Executivo" aria-label="Alternar tema" aria-pressed="false">
+            <svg id="icon-tema-sol" class="w-3.5 h-3.5 text-amber-400"><use href="#icon-sun"/></svg>
+            <svg id="icon-tema-lua" class="w-3.5 h-3.5 text-sky-400 hidden"><use href="#icon-moon"/></svg>
+            <span id="label-toggle-tema" class="hidden xl:inline">Modo Claro</span>
           </button>
 
           <!-- Toggle Modo Seguro / Robô Pausado Global -->
@@ -4311,11 +4849,41 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
       if (!Array.isArray(configGlobal.processos.lista)) configGlobal.processos.lista = [];
     }
 
-    function aplicarTema() {
-      document.body.classList.remove('theme-light');
-      document.body.classList.add('theme-dark');
-      localStorage.setItem('adv_bot_theme', 'dark');
+    function atualizarBotaoTemaUI(modo) {
+      const btn = document.getElementById('btn-toggle-theme');
+      const iconSol = document.getElementById('icon-tema-sol');
+      const iconLua = document.getElementById('icon-tema-lua');
+      const label = document.getElementById('label-toggle-tema');
+      const isLight = (modo === 'light');
+      if (iconSol) iconSol.classList.toggle('hidden', isLight);
+      if (iconLua) iconLua.classList.toggle('hidden', !isLight);
+      if (label) label.textContent = isLight ? 'Modo Escuro' : 'Modo Claro';
+      if (btn) {
+        btn.title = isLight ? 'Alternar para Modo Escuro' : 'Alternar para Modo Claro Executivo';
+        btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      }
     }
+
+    function aplicarTema(tema) {
+      const modo = (tema === 'light') ? 'light' : 'dark';
+      const html = document.documentElement;
+      const body = document.body;
+      html.classList.toggle('theme-light', modo === 'light');
+      html.classList.toggle('theme-dark', modo === 'dark');
+      if (body) {
+        body.classList.toggle('theme-light', modo === 'light');
+        body.classList.toggle('theme-dark', modo === 'dark');
+      }
+      try { localStorage.setItem('adv_bot_theme', modo); } catch (e) {}
+      atualizarBotaoTemaUI(modo);
+    }
+    window.aplicarTema = aplicarTema;
+
+    function alternarTemaUI() {
+      const isLight = document.documentElement.classList.contains('theme-light');
+      aplicarTema(isLight ? 'dark' : 'light');
+    }
+    window.alternarTemaUI = alternarTemaUI;
 
     const formatDrawer = document.getElementById('format-drawer');
     const btnToggleFormat = document.getElementById('btn-toggle-format');
