@@ -63,6 +63,7 @@ const apiBridge = {
     anexarPecasProcesso: (dados) => ipcRenderer.invoke('processo-anexar-pecas', dados),
     anexarPecasCaminhos: (dados) => ipcRenderer.invoke('processo-anexar-pecas-caminhos', dados),
     higienizarBaseProcessos: () => ipcRenderer.invoke('processos-higienizar-base'),
+    calcularPrazoProcessual: (params) => ipcRenderer.invoke('processos-calcular-prazo', params),
 
     
     // Abertura e Visualização Segura de Documentos Físicos
@@ -82,6 +83,8 @@ const apiBridge = {
     processarMidiaOnboarding: (dados) => ipcRenderer.invoke('onboarding-processar-midia', dados),
     consolidarDossieCliente: (telefone) => ipcRenderer.invoke('onboarding-consolidar-dossie', telefone),
     verificarLembretesDossieParcial: (dados) => ipcRenderer.invoke('onboarding-verificar-lembretes-parciais', dados),
+    gerarKitInicial: (dados) => ipcRenderer.invoke('onboarding-gerar-kit-inicial', dados),
+    enviarKitInicialWhatsapp: (dados) => ipcRenderer.invoke('onboarding-enviar-kit-whatsapp', dados),
 
     // Listeners Específicos Legados
     aoReceberQR: (callback) => ipcRenderer.on('bot-qr', (_e, qr) => callback(qr)),

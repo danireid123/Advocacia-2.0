@@ -1188,12 +1188,13 @@ function iniciarMonitorMemoria() {
 function iniciarAgendadorLembretesParciais() {
     setInterval(async () => {
         try {
-            if (!client || (statusConexao !== 'ready' && statusConexao !== 'CONECTADO')) return;
+            const isConectado = statusConexao === 'ready' || statusConexao === 'CONECTADO' || statusConexao === 'CONNECTED';
+            if (!client || !isConectado) return;
             const cfg = carregarConfig();
             const { verificarLembretesDossieParcial } = require('./src/onboarding/onboardingController');
             const enviarMsgFn = async (telefone, mensagem) => {
                 const digitos = apenasNumeros(telefone);
-                if (client && (statusConexao === 'ready' || statusConexao === 'CONECTADO') && digitos) {
+                if (client && (statusConexao === 'ready' || statusConexao === 'CONECTADO' || statusConexao === 'CONNECTED') && digitos) {
                     const chatId = digitos.includes('@') ? digitos : `${digitos}@c.us`;
                     await client.sendMessage(chatId, mensagem);
                     return true;

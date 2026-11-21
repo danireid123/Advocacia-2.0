@@ -35,25 +35,59 @@ const PRESETS_ONBOARDING = {
             'Extrato Previdenciário (CNIS do Meu INSS)'
         ]
     },
+    PrevidenciarioRural: {
+        id: 'PrevidenciarioRural',
+        rotulo: '🌾 Aposentadoria Rural / Segurado Especial',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'DOC_RURAL', 'AUTODECLARACAO_RURAL'],
+        descricoes: [
+            'RG ou CNH (frente e verso nítidos)',
+            'Comprovante de Residência rural / domicílio',
+            'Documentos da Terra (DAP/CAF, Bloco de Produtor, ITR ou INCRA)',
+            'Autodeclaração Rural assinada ou Certidão de Casamento/Nascimento'
+        ]
+    },
+    CriminalCustodia: {
+        id: 'CriminalCustodia',
+        rotulo: '🚨 Criminal — Flagrante & Custódia',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'BO_OU_NOTA_CULPA', 'VINCULO_EMPREGO'],
+        descricoes: [
+            'RG ou CNH do preso/investigado (foto legível)',
+            'Comprovante de Residência fixa recente',
+            'Boletim de Ocorrência (B.O.) ou Nota de Culpa / Auto de Prisão',
+            'Carteira de Trabalho (CTPS) ou Declaração de Emprego (comprovar vínculo)'
+        ]
+    },
     Civel: {
         id: 'Civel',
-        rotulo: '📋 Direito Cível / Consumidor',
-        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CONTRATO_COMPROVANTE'],
+        rotulo: '📋 Direito Cível & Consumidor',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'PROVA_CONTRATO_OU_DANO', 'PROTOCOLO_OU_BO'],
         descricoes: [
             'RG ou CNH (frente e verso nítidos)',
             'Comprovante de Residência atualizado',
-            'Contrato, Nota Fiscal ou Comprovante do Negócio / Dano'
+            'Contrato, Fatura ou Prints da negociação / dano sofrido',
+            'Protocolo de atendimento, reclamação no PROCON ou B.O.'
         ]
     },
     Familia: {
         id: 'Familia',
         rotulo: '👨‍👩‍👧 Direito de Família & Sucessões',
-        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CERTIDAO', 'COMPROVANTE_RENDA'],
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'CERTIDAO_CIVIL', 'COMPROVANTE_RENDA'],
         descricoes: [
             'RG ou CNH (frente e verso nítidos)',
             'Comprovante de Residência atualizado',
-            'Certidão de Casamento ou Nascimento dos envolvidos',
-            'Comprovante de Renda atualizado (holerite, extrato ou IR)'
+            'Certidão de Casamento ou Nascimento dos filhos/envolvidos',
+            'Comprovante de Renda ou Gastos (holerite, extrato ou IR)'
+        ]
+    },
+    Imobiliario: {
+        id: 'Imobiliario',
+        rotulo: '🏠 Direito Imobiliário & Usucapião',
+        documentos: ['RG_OU_CNH', 'COMPROVANTE_RESIDENCIA', 'MATRICULA_IMOVEL', 'COMPROVANTE_POSSE_OU_CONTRATO'],
+        descricoes: [
+            'RG ou CNH (frente e verso nítidos)',
+            'Comprovante de Residência atualizado',
+            'Matrícula atualizada do imóvel ou carnê do IPTU',
+            'Contrato de compra e venda / locação ou comprovantes de posse'
         ]
     },
     Geral: {
@@ -74,10 +108,13 @@ function normalizarPresetKey(presetTipo) {
         .toLowerCase()
         .trim();
 
+    if (p.includes('rur') || p.includes('roca') || p.includes('campo')) return 'PrevidenciarioRural';
+    if (p.includes('crim') || p.includes('flagr') || p.includes('preso') || p.includes('custod')) return 'CriminalCustodia';
     if (p.includes('trab')) return 'Trabalhista';
     if (p.includes('prev') || p.includes('inss')) return 'Previdenciario';
+    if (p.includes('imob') || p.includes('usucap') || p.includes('imovel') || p.includes('matricula') || p.includes('locac')) return 'Imobiliario';
     if (p.includes('civ') || p.includes('consum')) return 'Civel';
-    if (p.includes('fam') || p.includes('divor')) return 'Familia';
+    if (p.includes('fam') || p.includes('divor') || p.includes('sucess') || p.includes('invent') || p.includes('heranc')) return 'Familia';
     return 'Geral';
 }
 
@@ -102,11 +139,29 @@ function documentoSatisfazItem(tipoDetectado, itemPendente) {
     const p = String(itemPendente || '').toUpperCase();
     if (!t || !p) return false;
     if (t === p) return true;
-    if (p === 'RG_OU_CNH' && (t.includes('RG') || t.includes('CNH'))) return true;
+    if (p === 'RG_OU_CNH' && (t.includes('RG') || t.includes('CNH') || t.includes('IDENTIDADE'))) return true;
+    if (p === 'COMPROVANTE_RESIDENCIA') {
+        return t === 'COMPROVANTE_RESIDENCIA' || t.includes('RESIDENCIA') || t.includes('ENDERECO') || t.includes('LUZ') || t.includes('AGUA') || t.includes('ENEL') || t.includes('SABESP');
+    }
+    if (p === 'CERTIDAO_CIVIL' && (t.includes('CERTIDAO') || t.includes('CASAMENTO') || t.includes('NASCIMENTO') || t.includes('OBITO'))) return true;
+    if (p === 'COMPROVANTE_RENDA' && (t.includes('RENDA') || t.includes('HOLERITE') || t.includes('EXTRATO') || t.includes('IR') || t.includes('IMPOSTO') || t.includes('PAGAMENTO') || t.includes('CONTRACHEQUE') || t.includes('SALARIO'))) return true;
+    if (p === 'PROVA_CONTRATO_OU_DANO' && (t.includes('CONTRATO') || t.includes('DANO') || t.includes('NOTA') || t.includes('FATURA') || t.includes('PRINT') || t.includes('RECIBO') || t.includes('COMPROVANTE'))) return true;
+    if (p === 'PROTOCOLO_OU_BO' && (t.includes('PROTOCOLO') || t.includes('BO') || t.includes('BOLETIM') || t.includes('PROCON') || t.includes('SAC') || t.includes('RECLAMACAO') || t.includes('OCORRENCIA'))) return true;
+    if (p === 'MATRICULA_IMOVEL' && (t.includes('MATRICULA') || t.includes('IMOVEL') || t.includes('IPTU') || t.includes('ESCRITURA') || t.includes('REGISTRO') || t.includes('CERTIDAO'))) return true;
+    if (p === 'COMPROVANTE_POSSE_OU_CONTRATO' && (t.includes('POSSE') || t.includes('CONTRATO') || t.includes('LOCACAO') || t.includes('RECIBO') || t.includes('ENERGIA') || t.includes('AGUA') || t.includes('COMPROVANTE'))) return true;
     if (p.includes('COMPROVANTE') && t.includes('COMPROVANTE')) return true;
     if (p.includes('CTPS') && (t.includes('CTPS') || t.includes('CARTEIRA'))) return true;
     if (p.includes('CERTIDAO') && t.includes('CERTIDAO')) return true;
     if (p.includes('CONTRATO') && (t.includes('CONTRATO') || t.includes('COMPROVANTE'))) return true;
+    if (p.includes('LAUDO') && (t.includes('LAUDO') || t.includes('MEDICO') || t.includes('EXAME'))) return true;
+    if (p.includes('CNIS') && (t.includes('CNIS') || t.includes('INSS') || t.includes('EXTRATO'))) return true;
+    if (p.includes('RURAL') || p.includes('DOC_RURAL')) {
+        if (t.includes('RURAL') || t.includes('TERRA') || t.includes('ITR') || t.includes('INCRA') || t.includes('DAP') || t.includes('CAF') || t.includes('PRODUTOR')) return true;
+    }
+    if (p.includes('BO_OU_NOTA_CULPA') || p.includes('CULPA') || p.includes('FLAGR')) {
+        if (t.includes('BO') || t.includes('BOLETIM') || t.includes('OCORRENCIA') || t.includes('CULPA') || t.includes('FLAGR') || t.includes('PRISAO')) return true;
+    }
+    if (p.includes('VINCULO_EMPREGO') && (t.includes('CTPS') || t.includes('CARTEIRA') || t.includes('EMPREGO') || t.includes('VINCULO') || t.includes('HOLERITE'))) return true;
     return false;
 }
 
@@ -336,7 +391,12 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
     });
 
     if (!removeuAoMenosUm && sessao.documentosPendentes.length > 0) {
-        sessao.documentosPendentes.shift();
+        // Se o documento é OUTRO ou não reconhecido, NÃO faz shift cego!
+        // Apenas dá baixa se for expressamente identificado como compatível
+        if (laudo.tipoDocumento && laudo.tipoDocumento !== 'OUTRO') {
+            sessao.documentosPendentes.shift();
+            removeuAoMenosUm = true;
+        }
     }
     sessao.itensPendentes = [...sessao.documentosPendentes];
     sessao.atualizadoEm = new Date().toISOString();
@@ -357,7 +417,21 @@ async function processarMidiaOnboarding(clienteTelefoneOuPayload, bufferArg, mim
         }
         sessao.ultimoDocRecebidoEm = new Date().toISOString();
         dossieConsolidado = consolidarDossie(chaveTel, config);
-        msgFeedback = `${laudo.mensagemFeedbackWhatsApp}\n\n📋 *Ainda faltam (${sessao.documentosPendentes.length}):* ${sessao.documentosPendentes.join(', ')}.`;
+        const pendentesAmigaveis = sessao.documentosPendentes.map(item => {
+            const rotulos = {
+                'RG_OU_CNH': 'RG ou CNH',
+                'COMPROVANTE_RESIDENCIA': 'Comprovante de Residência',
+                'CTPS': 'Carteira de Trabalho',
+                'TERMO_RESCISAO': 'Termo de Rescisão / Holerites',
+                'LAUDO_MEDICO': 'Laudos / Exames Médicos',
+                'CNIS': 'Extrato CNIS (Meu INSS)',
+                'CERTIDAO': 'Certidão de Nascimento/Casamento',
+                'COMPROVANTE_RENDA': 'Comprovante de Renda',
+                'CONTRATO_COMPROVANTE': 'Contrato ou Comprovante'
+            };
+            return rotulos[item] || item.replace(/_/g, ' ');
+        }).join(', ');
+        msgFeedback = `${laudo.mensagemFeedbackWhatsApp}\n\n📋 *Ainda faltam (${sessao.documentosPendentes.length}):* ${pendentesAmigaveis}.`;
     }
 
     return {
@@ -702,6 +776,8 @@ async function verificarLembretesDossieParcial(config = {}, options = {}) {
 
 module.exports = {
     PRESETS_ONBOARDING,
+    normalizarPresetKey,
+    documentoSatisfazItem,
     iniciarSessaoOnboarding,
     obterSessaoAtiva,
     processarMidiaOnboarding,

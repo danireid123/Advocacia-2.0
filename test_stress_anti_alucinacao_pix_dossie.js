@@ -987,7 +987,7 @@ async function executarSuiteEstresseCompleta() {
         // Disparo utilizando o novo modelo aprimorado
         const sessao = onboardingController.iniciarSessaoOnboarding('5511944443333', 'Rodrigo Faro', 'Familia', cfg);
         assert.ok(sessao.mensagemDisparo.includes('Rodrigo Faro'));
-        assert.ok(sessao.documentosSolicitados.includes('CERTIDAO'));
+        assert.ok(sessao.documentosSolicitados.includes('CERTIDAO') || sessao.documentosSolicitados.includes('CERTIDAO_CIVIL'));
     });
 
     // ======================================================================
