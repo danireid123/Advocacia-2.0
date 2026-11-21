@@ -33,10 +33,10 @@
     }
 
     :root {
-      --bg-deep: #090a0d;
-      --bg-surface: #0f1014;
-      --bg-elevated: #15161b;
-      --bg-surface-3: #1a1c22;
+      --bg-deep: #0a0a0b;
+      --bg-surface: #121212;
+      --bg-elevated: #171717;
+      --bg-surface-3: #1e1e1e;
       --gold-primary: #d4af37;
       --gold-deep: #a47c1b;
       --gold-soft: #e8c667;
@@ -46,18 +46,18 @@
       --text-main: #f7f8f8;
       --text-muted: #9499a3;
       --text-tertiary: #7c828d;
-      --card-bg: #0f1014;
+      --card-bg: #121212;
       --border-color: rgba(255, 255, 255, 0.07);
       --border-strong: rgba(255, 255, 255, 0.14);
-      --input-bg: #0c0d10;
-      --inner-box-bg: #0c0d10;
+      --input-bg: #0e0e0e;
+      --inner-box-bg: #0e0e0e;
     }
 
     body.theme-dark {
-      --bg-deep: #090a0d;
-      --bg-surface: #0f1014;
-      --bg-elevated: #15161b;
-      --bg-surface-3: #1a1c22;
+      --bg-deep: #0a0a0b;
+      --bg-surface: #121212;
+      --bg-elevated: #171717;
+      --bg-surface-3: #1e1e1e;
       --gold-primary: #d4af37;
       --gold-deep: #a47c1b;
       --gold-soft: #e8c667;
@@ -67,11 +67,11 @@
       --text-main: #f7f8f8;
       --text-muted: #9499a3;
       --text-tertiary: #7c828d;
-      --card-bg: #0f1014;
+      --card-bg: #121212;
       --border-color: rgba(255, 255, 255, 0.07);
       --border-strong: rgba(255, 255, 255, 0.14);
-      --input-bg: #0c0d10;
-      --inner-box-bg: #0c0d10;
+      --input-bg: #0e0e0e;
+      --inner-box-bg: #0e0e0e;
       background-color: var(--bg-deep);
       background-image:
         radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.05) 0%, transparent 65%);
@@ -799,7 +799,7 @@
       width: 62px;
       min-width: 62px;
       height: 100%;
-      background-color: #07080a;
+      background-color: #080808;
       border-right: 1px solid rgba(255, 255, 255, 0.06);
       margin: 0;
       border-radius: 0;
@@ -1734,31 +1734,45 @@
        (Preserva integralmente #main-sidebar e suas 4 cores por grupo)
        ========================================================================= */
 
-    /* 1. Elevação Sutil de Superfícies (Obsidian Carvão Profundo — escurecido refinado com contraste aveludado) */
+    /* 1. Elevação Sutil de Superfícies (Obsidian Grafite Puro — tom neutro/quente sem matiz azulado) */
     body.theme-dark #main-sidebar {
-      background-color: #07080a !important;
+      background-color: #080808 !important;
       border-right-color: rgba(255, 255, 255, 0.06) !important;
     }
     body.theme-dark #main-content-area {
-      background-color: #090a0d !important;
+      background-color: #0a0a0b !important;
     }
     body.theme-dark #main-content-area .exec-card,
     body.theme-dark #main-content-area .linear-shell,
     body.theme-dark #main-content-area .linear-kpi-card,
     body.theme-dark #main-content-area .bg-\[\#0d0e11\],
     body.theme-dark #main-content-area .bg-\[\#0f1012\],
+    body.theme-dark #main-content-area .bg-\[\#141519\],
+    body.theme-dark #main-content-area .bg-zinc-900,
     body.theme-dark #main-content-area .bg-zinc-900\/50,
     body.theme-dark #main-content-area .bg-zinc-900\/60,
-    body.theme-dark #main-content-area .bg-zinc-900\/40 {
-      background-color: #0f1014 !important;
+    body.theme-dark #main-content-area .bg-zinc-900\/40,
+    body.theme-dark #main-content-area .bg-zinc-900\/70,
+    body.theme-dark #main-content-area .bg-zinc-900\/80 {
+      background-color: #121212 !important;
       border-color: rgba(255, 255, 255, 0.07) !important;
     }
     body.theme-dark #main-content-area .bg-\[\#0b0c0e\],
+    body.theme-dark #main-content-area .bg-\[\#101114\],
+    body.theme-dark #main-content-area .bg-zinc-950,
     body.theme-dark #main-content-area .bg-zinc-950\/60,
     body.theme-dark #main-content-area .bg-zinc-950\/70,
-    body.theme-dark #main-content-area .bg-zinc-950\/80 {
-      background-color: #0c0d10 !important;
+    body.theme-dark #main-content-area .bg-zinc-950\/80,
+    body.theme-dark #main-content-area .bg-zinc-950\/90 {
+      background-color: #0e0e0e !important;
       border-color: rgba(255, 255, 255, 0.06) !important;
+    }
+    body.theme-dark #main-content-area .bg-zinc-800,
+    body.theme-dark #main-content-area .bg-zinc-800\/50,
+    body.theme-dark #main-content-area .bg-zinc-800\/60,
+    body.theme-dark #main-content-area .bg-zinc-800\/70 {
+      background-color: #171717 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
     }
     body.theme-dark .border-\[\#1f2025\],
     body.theme-dark .border-\[\#23252a\] {
