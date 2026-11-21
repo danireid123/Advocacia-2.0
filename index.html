@@ -3659,35 +3659,30 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         </div>
 
-        <!-- ================= ABA 4: FILA DE ESPERA HUMANA ================= -->
+        <!-- ================= ABA 4: FILA DE ESPERA HUMANA (HIGIENIZADO & PADRONIZADO) ================= -->
         <div id="aba-pausados" class="hidden space-y-5 tab-pane-anim">
-          <div id="tour-pausados-card" class="linear-shell relative overflow-hidden p-6 sm:p-7 space-y-5">
-            <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"></div>
-            <div class="border-b border-[#1f2025] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="cohere-eyebrow text-[#d4af37]">Fila Humana &amp; Prioridade</span>
-                  <span class="text-[#3e4047]">•</span>
-                  <span class="text-[11px] font-mono text-[#62666d]">Respostas sugeridas por IA</span>
-                </div>
-                <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-[#f7f8f8]">
-                  Fila de Atendimento do Advogado
-                </h2>
-                <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">Clientes aguardando atendimento humano ou que enviaram áudios/relatos. A IA classifica a urgência e sugere respostas éticas em 1 clique.</p>
-              </div>
+          <!-- Cabeçalho Editorial Limpo -->
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
+            <div class="space-y-1">
+              <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
+                Fila de Atendimento do Advogado
+              </h2>
+              <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">Clientes aguardando atendimento humano ou que enviaram áudios/relatos. A IA classifica a urgência e sugere respostas éticas em 1 clique.</p>
             </div>
+          </div>
 
+          <div id="tour-pausados-card" class="space-y-4">
             <!-- BARRA DE CONTROLE: BUSCA E FILTROS RÁPIDOS NA FILA -->
-            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-[#0d0e11] border border-[#1f2025]">
               <div class="relative flex-1">
-                <input type="text" id="busca-fila-advogado" oninput="filtrarFilaAdvogadoUI()" placeholder="Buscar cliente por nome, telefone ou relato..." class="exec-input w-full rounded-xl pl-9 pr-4 py-2 text-xs bg-zinc-900 border border-zinc-700/80 text-zinc-100 placeholder-zinc-500">
+                <input type="text" id="busca-fila-advogado" oninput="filtrarFilaAdvogadoUI()" placeholder="Buscar cliente por nome, telefone ou relato..." class="exec-input w-full rounded-xl pl-9 pr-4 py-2 text-xs bg-zinc-900/90 border border-zinc-800 text-zinc-100 placeholder-zinc-500">
                 <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
               </div>
               <div class="flex items-center space-x-1.5 overflow-x-auto text-xs shrink-0">
-                <button type="button" onclick="setFiltroUrgenciaFila('TODOS')" id="filtro-fila-todos" class="px-3 py-1.5 rounded-lg font-bold bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 cursor-pointer">Todos</button>
-                <button type="button" onclick="setFiltroUrgenciaFila('CRITICA')" id="filtro-fila-critica" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-rose-300 border border-zinc-800 hover:border-rose-500/40 cursor-pointer">🚨 Crítica</button>
-                <button type="button" onclick="setFiltroUrgenciaFila('ALTA')" id="filtro-fila-alta" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-amber-300 border border-zinc-800 hover:border-amber-500/40 cursor-pointer">⚠️ Alta</button>
-                <button type="button" onclick="setFiltroUrgenciaFila('AUDIO')" id="filtro-fila-audio" class="px-3 py-1.5 rounded-lg font-semibold bg-zinc-900 text-indigo-300 border border-zinc-800 hover:border-indigo-500/40 cursor-pointer">🎙️ Com Áudio</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('TODOS')" id="filtro-fila-todos" class="px-3 py-1.5 rounded-lg font-semibold bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/35 cursor-pointer transition">Todos</button>
+                <button type="button" onclick="setFiltroUrgenciaFila('CRITICA')" id="filtro-fila-critica" class="px-3 py-1.5 rounded-lg font-medium bg-zinc-900/80 text-zinc-300 border border-zinc-800 hover:border-rose-500/40 hover:text-rose-300 inline-flex items-center gap-1.5 cursor-pointer transition"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span><span>Crítica</span></button>
+                <button type="button" onclick="setFiltroUrgenciaFila('ALTA')" id="filtro-fila-alta" class="px-3 py-1.5 rounded-lg font-medium bg-zinc-900/80 text-zinc-300 border border-zinc-800 hover:border-[#d4af37]/40 hover:text-[#d4af37] inline-flex items-center gap-1.5 cursor-pointer transition"><span class="w-1.5 h-1.5 rounded-full bg-[#d4af37]"></span><span>Alta</span></button>
+                <button type="button" onclick="setFiltroUrgenciaFila('AUDIO')" id="filtro-fila-audio" class="px-3 py-1.5 rounded-lg font-medium bg-zinc-900/80 text-zinc-300 border border-zinc-800 hover:border-zinc-700 hover:text-zinc-100 inline-flex items-center gap-1.5 cursor-pointer transition"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>Com Áudio</span></button>
               </div>
             </div>
 
@@ -3814,50 +3809,37 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         </div>
 
-        <!-- ================= ABA 6: CÓPIA DE SEGURANÇA (.JSON) ================= -->
-        <div id="aba-backup" class="hidden space-y-6 tab-pane-anim">
-          <!-- EXECUTIVE SECURITY HEADER -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <!-- ================= ABA 6: CÓPIA DE SEGURANÇA (.JSON) (HIGIENIZADO & PADRONIZADO) ================= -->
+        <div id="aba-backup" class="hidden space-y-5 tab-pane-anim">
+          <!-- Cabeçalho Editorial Limpo -->
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
             <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Backup e Restauração
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
-                  Arquivo Local
-                </span>
-              </div>
-              <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                <svg class="w-6 h-6 text-amber-400"><use href="#icon-database"/></svg>
+              <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
                 Cópia de Segurança dos Dados
               </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+              <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">
                 Exporte uma cópia completa dos dados do escritório ou restaure um arquivo de backup com facilidade.
               </p>
             </div>
             <div class="flex items-center gap-2">
-              <div class="px-3.5 py-2 rounded-xl bg-zinc-900/80 border border-zinc-800 text-right">
-                <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-bold">Armazenamento</span>
-                <span class="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Disco Local Ativo
+              <div class="px-3.5 py-2 rounded-xl bg-[#0d0e11] border border-[#1f2025] text-right">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-semibold">Armazenamento</span>
+                <span class="text-xs font-mono font-semibold text-emerald-400 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Disco Local Ativo
                 </span>
               </div>
             </div>
           </div>
 
           <!-- 2 OPERATIONAL PILLARS: EXPORTAR vs RESTAURAR -->
-          <div id="tour-backup-card" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div id="tour-backup-card" class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <!-- Pillar 1: Exportar Backup -->
-            <div class="exec-card p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/50 flex flex-col justify-between space-y-6 shadow-xl transition-all duration-200 group">
+            <div class="exec-card p-6 rounded-2xl border border-[#1f2025] bg-[#0d0e11] flex flex-col justify-between space-y-6 transition-all duration-200 group">
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
-                  <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/25 transition-all duration-200 shadow-inner">
-                    <svg class="w-6 h-6"><use href="#icon-download"/></svg>
+                  <div class="w-10 h-10 rounded-xl bg-[#d4af37]/10 border border-[#d4af37]/25 flex items-center justify-center text-[#d4af37]">
+                    <svg class="w-5 h-5"><use href="#icon-download"/></svg>
                   </div>
-                  <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                    Cópia de Segurança Imediata
-                  </span>
                 </div>
                 <div>
                   <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
@@ -3881,15 +3863,12 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
 
             <!-- Pillar 2: Restaurar Backup -->
-            <div class="exec-card p-6 sm:p-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/50 hover:border-zinc-700 flex flex-col justify-between space-y-6 shadow-xl transition-all duration-200 group">
+            <div class="exec-card p-6 rounded-2xl border border-[#1f2025] bg-[#0d0e11] hover:border-zinc-700 flex flex-col justify-between space-y-6 transition-all duration-200 group">
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
-                  <div class="w-12 h-12 rounded-2xl bg-zinc-800/80 border border-zinc-700 flex items-center justify-center text-zinc-200 group-hover:scale-105 transition-all duration-200 shadow-inner">
-                    <svg class="w-6 h-6"><use href="#icon-upload"/></svg>
+                  <div class="w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-300">
+                    <svg class="w-5 h-5"><use href="#icon-upload"/></svg>
                   </div>
-                  <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
-                    Recuperação de Emergência
-                  </span>
                 </div>
                 <div>
                   <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
@@ -4030,57 +4009,47 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           </div>
         </div>
 
-        <!-- ================= ABA 8: SIMULADOR DE CHAT WHATSAPP (SANDBOX) ================= -->
-        <div id="aba-simulador" class="hidden space-y-6 tab-pane-anim">
-          <!-- EXECUTIVE SECTION HEADER -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <!-- ================= ABA 8: SIMULADOR DE CHAT WHATSAPP (HIGIENIZADO & PADRONIZADO) ================= -->
+        <div id="aba-simulador" class="hidden space-y-5 tab-pane-anim">
+          <!-- Cabeçalho Editorial Limpo -->
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
             <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700/60 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  Ambiente de Teste
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 font-mono">
-                  Sem Disparo Externo
-                </span>
-              </div>
-              <h2 class="font-serif-legal text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
-                <svg class="w-6 h-6 text-zinc-400"><use href="#icon-message"/></svg>
+              <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
                 Simulador de Atendimento WhatsApp
               </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                Valide fluxos de triagem, respostas do robô, consultas por CPF e transbordo para a fila com segurança local.
+              <p class="text-xs text-[#8a8f98] max-w-2xl leading-relaxed">
+                Valide fluxos de triagem, respostas do robô, consultas por CPF e transbordo para a fila em ambiente local sem disparo externo.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="btn-simulador-testar-ia" class="px-3.5 py-2 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer shadow-sm" title="Testa a conexão com o assistente IA">
-                <svg class="w-3.5 h-3.5 text-amber-400 inline mr-1"><use href="#icon-sparkles"/></svg><span>Testar IA</span>
+              <button type="button" id="btn-simulador-testar-ia" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-medium flex items-center space-x-1.5 cursor-pointer" title="Testa a conexão com o assistente IA">
+                <svg class="w-3.5 h-3.5 text-[#d4af37] inline"><use href="#icon-sparkles"/></svg><span>Testar IA</span>
               </button>
-              <button type="button" id="btn-simulador-reset" onclick="window.resetarConversaSimuladorUI && window.resetarConversaSimuladorUI()" class="px-3.5 py-2 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer" title="Restaura a sessão e reativa o robô">
-                <svg class="w-3.5 h-3.5 text-zinc-400 inline mr-1"><use href="#icon-refresh"/></svg><span>Resetar Conversa</span>
+              <button type="button" id="btn-simulador-reset" onclick="window.resetarConversaSimuladorUI && window.resetarConversaSimuladorUI()" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-medium flex items-center space-x-1.5 cursor-pointer" title="Restaura a sessão e reativa o robô">
+                <svg class="w-3.5 h-3.5 text-zinc-400 inline"><use href="#icon-refresh"/></svg><span>Resetar Conversa</span>
               </button>
-              <button type="button" id="btn-simulador-limpar" onclick="window.limparTelaSimuladorUI && window.limparTelaSimuladorUI()" class="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-semibold active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer">
-                <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
+              <button type="button" id="btn-simulador-limpar" onclick="window.limparTelaSimuladorUI && window.limparTelaSimuladorUI()" class="btn-tactile linear-btn-ghost px-3.5 py-1.5 text-xs font-medium flex items-center space-x-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-zinc-400"><use href="#icon-trash"/></svg>
                 <span>Limpar Tela</span>
               </button>
             </div>
           </div>
 
           <!-- ASYMMETRIC 2-COLUMN STUDIO CONSOLE -->
-          <div class="grid grid-cols-12 gap-6 items-start">
+          <div class="grid grid-cols-12 gap-5 items-start">
             <!-- COLUNA ESQUERDA (4 cols): CONTROLE DE PERSONA & CENÁRIOS RÁPIDOS -->
             <div class="col-span-12 lg:col-span-4 space-y-4">
               <!-- Parâmetros do Contato -->
-              <div class="exec-card p-5 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 space-y-4 shadow-xl">
-                <div class="border-b border-zinc-800/80 pb-3">
-                  <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-amber-400"><use href="#icon-settings"/></svg>
+              <div class="exec-card p-5 rounded-2xl bg-[#0d0e11] border border-[#1f2025] space-y-4">
+                <div class="border-b border-[#1f2025] pb-3">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5 text-[#d4af37]"><use href="#icon-settings"/></svg>
                     Parâmetros da Sessão
                   </span>
                 </div>
                 <div class="space-y-3 text-xs">
                   <div>
-                    <label class="text-[11px] font-bold text-amber-400 block mb-1">Telefone Simulado</label>
+                    <label class="text-[11px] font-medium text-zinc-400 block mb-1">Telefone Simulado</label>
                     <input type="text" id="simulador-tel" value="+55 (11) 98765-4321" class="exec-input w-full rounded-xl px-3.5 py-2 text-xs font-mono">
                   </div>
                   <div>
@@ -4215,27 +4184,21 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         <!-- ================= ABA FINANCEIRO & PIX (RÉGUA SEMANAL + AUDITORIA DE COMPROVANTES) ================= -->
         <div id="aba-financeiro" class="hidden space-y-6 tab-pane-anim">
           <div id="tab-financeiro" class="space-y-6">
-            <!-- EXECUTIVE SECTION HEADER -->
+            <!-- Cabeçalho Editorial Limpo -->
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-1">
               <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="cohere-eyebrow text-[#d4af37]">Controladoria &amp; PIX</span>
-                  <span class="text-[#3e4047]">•</span>
-                  <span class="text-[11px] font-mono text-[#62666d]">Auditoria Automática de Comprovantes</span>
-                </div>
                 <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
                   Gestão de Honorários &amp; Régua PIX
                 </h2>
+                <p class="text-xs text-[#8a8f98]">Controle de parcelas, régua de lembretes e auditoria automática de comprovantes PIX.</p>
               </div>
-              <div>
-                <button type="button" id="btn-exportar-extrato-financeiro" onclick="exportarExtratoFinanceiroUI()" class="btn-tactile px-3.5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-amber-500/40 text-zinc-100 rounded-[10px] text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm">
-                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" id="btn-exportar-extrato-financeiro" onclick="exportarExtratoFinanceiroUI()" class="btn-tactile linear-btn-ghost px-3.5 py-2 text-xs font-medium transition flex items-center space-x-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                   <span>Exportar Extrato (CSV)</span>
                 </button>
-              </div>
-              <div>
-                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2.5 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer" title="Envia lembrete cordial via WhatsApp apenas para clientes com parcelas vencidas ou do dia">
-                  <svg class="w-4 h-4 text-zinc-950 inline"><use href="#icon-flow"/></svg>
+                <button type="button" id="btn-disparar-regua-cobranca" onclick="dispararReguaCobrancaUI()" class="btn-tactile px-4 py-2 champagne-gradient rounded-[10px] text-xs font-bold text-zinc-950 shadow-[0_1px_12px_rgba(212,175,55,0.22)] active:scale-[0.98] flex items-center space-x-2 transition cursor-pointer" title="Envia lembrete cordial via WhatsApp apenas para clientes com parcelas vencidas ou do dia">
+                  <svg class="w-3.5 h-3.5 text-zinc-950 inline"><use href="#icon-flow"/></svg>
                   <span>Enviar Lembretes de Pagamento</span>
                 </button>
               </div>
@@ -4466,19 +4429,14 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
         </div>
 
         <!-- ABA: CONFIGURAÇÕES GERAIS DO SISTEMA -->
-        <div id="aba-configuracoes" class="hidden space-y-6 tab-pane-anim">
-          <!-- Cabeçalho Executivo da Aba -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-800/80">
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span class="text-[11px] font-mono uppercase tracking-wider text-amber-500/90 font-semibold">Sistema & Conexões</span>
-              </div>
-              <h2 class="text-xl sm:text-2xl font-serif-legal font-bold text-zinc-100 mt-1 flex items-center gap-2">
-                <svg class="w-6 h-6 text-amber-400"><use href="#icon-settings"/></svg>
+        <div id="aba-configuracoes" class="hidden space-y-5 tab-pane-anim">
+          <!-- Cabeçalho Editorial Limpo -->
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-1">
+            <div class="space-y-1">
+              <h2 class="font-serif-legal text-2xl sm:text-[28px] font-bold tracking-tight text-[#f7f8f8]">
                 Configurações do Sistema
               </h2>
-              <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">Gerencie a conexão WhatsApp, modo de exibição, inicialização automática e dados da conta.</p>
+              <p class="text-xs text-[#8a8f98]">Gerencie a conexão WhatsApp, motor de IA, modo de exibição, inicialização automática e conformidade LGPD/OAB.</p>
             </div>
             <div class="flex items-center space-x-2">
               <button id="btn-header-update" class="hidden items-center space-x-1.5 px-3 py-1.5 champagne-gradient text-xs font-bold rounded-xl shadow-md active:scale-[0.98] transition-all cursor-pointer" title="Instalar nova atualização disponível agora">
