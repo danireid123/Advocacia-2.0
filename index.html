@@ -33,10 +33,10 @@
     }
 
     :root {
-      --bg-deep: #0a0a0b;
-      --bg-surface: #121212;
-      --bg-elevated: #171717;
-      --bg-surface-3: #1e1e1e;
+      --bg-deep: #08080a;
+      --bg-surface: #0f0f10;
+      --bg-elevated: #151516;
+      --bg-surface-3: #1a1a1b;
       --gold-primary: #d4af37;
       --gold-deep: #a47c1b;
       --gold-soft: #e8c667;
@@ -46,18 +46,18 @@
       --text-main: #f7f8f8;
       --text-muted: #9499a3;
       --text-tertiary: #7c828d;
-      --card-bg: #121212;
-      --border-color: rgba(255, 255, 255, 0.07);
-      --border-strong: rgba(255, 255, 255, 0.14);
-      --input-bg: #0e0e0e;
-      --inner-box-bg: #0e0e0e;
+      --card-bg: #0f0f10;
+      --border-color: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      --input-bg: #09090a;
+      --inner-box-bg: #09090a;
     }
 
     body.theme-dark {
-      --bg-deep: #0a0a0b;
-      --bg-surface: #121212;
-      --bg-elevated: #171717;
-      --bg-surface-3: #1e1e1e;
+      --bg-deep: #08080a;
+      --bg-surface: #0f0f10;
+      --bg-elevated: #151516;
+      --bg-surface-3: #1a1a1b;
       --gold-primary: #d4af37;
       --gold-deep: #a47c1b;
       --gold-soft: #e8c667;
@@ -67,14 +67,14 @@
       --text-main: #f7f8f8;
       --text-muted: #9499a3;
       --text-tertiary: #7c828d;
-      --card-bg: #121212;
-      --border-color: rgba(255, 255, 255, 0.07);
-      --border-strong: rgba(255, 255, 255, 0.14);
-      --input-bg: #0e0e0e;
-      --inner-box-bg: #0e0e0e;
-      background-color: var(--bg-deep);
+      --card-bg: #0f0f10;
+      --border-color: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      --input-bg: #09090a;
+      --inner-box-bg: #09090a;
+      background-color: #08080a;
       background-image:
-        radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.05) 0%, transparent 65%);
+        radial-gradient(ellipse 80% 45% at 50% -10%, rgba(212, 175, 55, 0.04) 0%, transparent 65%);
       color: var(--text-main);
     }
 
@@ -568,12 +568,12 @@
     }
     .exec-input:hover {
       border-color: rgba(212, 175, 55, 0.4);
-      background-color: rgba(24, 24, 27, 0.95);
+      background-color: #0f0f10;
     }
     .exec-input:focus {
       outline: none;
       border-color: #d4af37 !important;
-      background-color: rgba(18, 18, 22, 0.98);
+      background-color: #09090a;
       box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.22), 0 1px 3px 0 rgba(0, 0, 0, 0.25) !important;
     }
     .exec-input:disabled,
@@ -799,8 +799,8 @@
       width: 62px;
       min-width: 62px;
       height: 100%;
-      background-color: #080808;
-      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      background-color: #08080a;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
       margin: 0;
       border-radius: 0;
       box-shadow: none;
@@ -1734,13 +1734,13 @@
        (Preserva integralmente #main-sidebar e suas 4 cores por grupo)
        ========================================================================= */
 
-    /* 1. Elevação Sutil de Superfícies (Obsidian Grafite Puro — tom neutro/quente sem matiz azulado) */
+    /* 1. Elevação Sutil de Superfícies (Obsidian Nobre — 100% calibrado no mesmo preto da barra superior #08080a) */
     body.theme-dark #main-sidebar {
-      background-color: #080808 !important;
-      border-right-color: rgba(255, 255, 255, 0.06) !important;
+      background-color: #08080a !important;
+      border-right-color: rgba(255, 255, 255, 0.05) !important;
     }
     body.theme-dark #main-content-area {
-      background-color: #0a0a0b !important;
+      background-color: #08080a !important;
     }
     body.theme-dark #main-content-area .exec-card,
     body.theme-dark #main-content-area .linear-shell,
@@ -1748,35 +1748,40 @@
     body.theme-dark #main-content-area .bg-\[\#0d0e11\],
     body.theme-dark #main-content-area .bg-\[\#0f1012\],
     body.theme-dark #main-content-area .bg-\[\#141519\],
+    body.theme-dark #main-content-area .bg-\[\#111111\],
     body.theme-dark #main-content-area .bg-zinc-900,
     body.theme-dark #main-content-area .bg-zinc-900\/50,
     body.theme-dark #main-content-area .bg-zinc-900\/60,
     body.theme-dark #main-content-area .bg-zinc-900\/40,
     body.theme-dark #main-content-area .bg-zinc-900\/70,
     body.theme-dark #main-content-area .bg-zinc-900\/80 {
-      background-color: #121212 !important;
-      border-color: rgba(255, 255, 255, 0.07) !important;
+      background-color: #0f0f10 !important;
+      border-color: rgba(255, 255, 255, 0.06) !important;
     }
     body.theme-dark #main-content-area .bg-\[\#0b0c0e\],
     body.theme-dark #main-content-area .bg-\[\#101114\],
+    body.theme-dark #main-content-area .bg-\[\#0a0a0a\],
     body.theme-dark #main-content-area .bg-zinc-950,
     body.theme-dark #main-content-area .bg-zinc-950\/60,
     body.theme-dark #main-content-area .bg-zinc-950\/70,
     body.theme-dark #main-content-area .bg-zinc-950\/80,
     body.theme-dark #main-content-area .bg-zinc-950\/90 {
-      background-color: #0e0e0e !important;
-      border-color: rgba(255, 255, 255, 0.06) !important;
+      background-color: #09090a !important;
+      border-color: rgba(255, 255, 255, 0.05) !important;
     }
     body.theme-dark #main-content-area .bg-zinc-800,
     body.theme-dark #main-content-area .bg-zinc-800\/50,
     body.theme-dark #main-content-area .bg-zinc-800\/60,
     body.theme-dark #main-content-area .bg-zinc-800\/70 {
-      background-color: #171717 !important;
-      border-color: rgba(255, 255, 255, 0.08) !important;
+      background-color: #141415 !important;
+      border-color: rgba(255, 255, 255, 0.06) !important;
     }
     body.theme-dark .border-\[\#1f2025\],
-    body.theme-dark .border-\[\#23252a\] {
-      border-color: rgba(255, 255, 255, 0.07) !important;
+    body.theme-dark .border-\[\#23252a\],
+    body.theme-dark .border-\[\#26282e\],
+    body.theme-dark .border-\[\#262830\],
+    body.theme-dark .border-\[\#1c1d22\] {
+      border-color: rgba(255, 255, 255, 0.06) !important;
     }
 
     /* 2. Unificação de Dourado para Ouro Nobre (#d4af37 / #e8c667) no conteúdo */
@@ -2613,7 +2618,7 @@
       <div class="home-ambient-glow" aria-hidden="true"></div>
 
       <!-- Barra Superior Executiva (3 Zonas: Marca/Aba | Busca Ctrl+K Central | Status + Ícones) -->
-      <div class="relative z-10 h-14 px-5 sm:px-7 flex items-center justify-between gap-4 shrink-0 border-b border-white/[0.04] bg-[#08080a]/35 backdrop-blur-md">
+      <div class="relative z-10 h-14 px-5 sm:px-7 flex items-center justify-between gap-4 shrink-0 border-b border-white/[0.04] bg-[#08080a]">
         <!-- Esquerda: Identidade + Aba Atual -->
         <div class="flex items-center gap-2.5 min-w-0 shrink-0">
           <span class="font-serif-legal text-[17px] font-bold text-[#c59b27] leading-none select-none">A</span>
@@ -2624,41 +2629,41 @@
 
         <!-- Centro: Barra de Busca & Comando Global (Ctrl+K) -->
         <div class="flex-1 flex justify-center max-w-[440px] mx-auto">
-          <button type="button" id="btn-top-spotlight" onclick="toggleSpotlight(true)" class="w-full h-9 px-3.5 rounded-xl bg-[#111216]/85 hover:bg-[#16181e]/95 border border-[#2a2c34]/90 hover:border-[#c59b27]/40 backdrop-blur-md flex items-center justify-between gap-3 text-left transition-all duration-150 shadow-[0_4px_20px_rgba(0,0,0,0.35)] cursor-pointer group" title="Busca Global e Comandos (Ctrl+K)">
+          <button type="button" id="btn-top-spotlight" onclick="toggleSpotlight(true)" class="w-full h-9 px-3.5 rounded-xl bg-[#111111]/90 hover:bg-[#181818]/95 border border-[#262626]/90 hover:border-[#c59b27]/40 backdrop-blur-md flex items-center justify-between gap-3 text-left transition-all duration-150 shadow-[0_4px_20px_rgba(0,0,0,0.35)] cursor-pointer group" title="Busca Global e Comandos (Ctrl+K)">
             <span class="flex items-center gap-2.5 min-w-0">
               <svg class="w-3.5 h-3.5 text-[#7c828d] group-hover:text-[#c59b27] transition-colors shrink-0"><use href="#icon-search"/></svg>
               <span class="text-xs text-[#8a8f98] group-hover:text-[#d0d6e0] truncate transition-colors">Buscar processo, CPF ou acionar IA...</span>
             </span>
-            <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#1c1e25] text-[#a1a6b0] border border-[#2f323c] shrink-0">Ctrl+K</kbd>
+            <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#161616] text-[#a1a6b0] border border-[#262626] shrink-0">Ctrl+K</kbd>
           </button>
         </div>
 
         <!-- Direita: Status Disciplinados + Ícones Compactos -->
         <div class="flex items-center gap-2 shrink-0">
           <!-- Toggle Modo Seguro / Robô Pausado Global -->
-          <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="h-8 flex items-center gap-2 px-3 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-emerald-500/35 text-[11.5px] font-medium transition-all cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
+          <button type="button" id="btn-top-modo-seguro" onclick="toggleModoSeguroGlobalUI()" class="h-8 flex items-center gap-2 px-3 rounded-lg bg-[#111111]/90 hover:bg-[#181818] border border-[#222222] hover:border-emerald-500/35 text-[11.5px] font-medium transition-all cursor-pointer" title="Modo Seguro: quando pausado, nenhuma resposta sai no WhatsApp e os clientes aguardam na Fila">
             <span id="top-modo-seguro-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
             <span id="top-modo-seguro-text" class="text-emerald-400 font-medium text-[11px]">Robô: Ativo</span>
           </button>
 
           <!-- Status WhatsApp -->
-          <button type="button" id="btn-top-whatsapp-status" onclick="abrirModalQrRapido()" class="h-8 flex items-center gap-2 px-3 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#c59b27]/45 text-[11.5px] font-medium transition-all cursor-pointer" title="Ver status da conexão WhatsApp">
+          <button type="button" id="btn-top-whatsapp-status" onclick="abrirModalQrRapido()" class="h-8 flex items-center gap-2 px-3 rounded-lg bg-[#111111]/90 hover:bg-[#181818] border border-[#222222] hover:border-[#c59b27]/45 text-[11.5px] font-medium transition-all cursor-pointer" title="Ver status da conexão WhatsApp">
             <span id="top-bar-status-dot" class="w-1.5 h-1.5 rounded-full bg-[#c59b27]"></span>
             <span id="top-bar-status-text" class="text-[#d0d6e0] font-medium text-[11px]">WhatsApp</span>
           </button>
 
           <!-- Ícones Compactos de Utilidade -->
-          <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="h-8 w-8 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#3a3d47] text-[11px] font-bold text-[#a1a6b0] hover:text-[#f7f8f8] flex items-center justify-center transition-all cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
+          <button type="button" id="btn-top-fonte-conforto" onclick="toggleFonteConfortoUI()" class="h-8 w-8 rounded-lg bg-[#111111]/90 hover:bg-[#181818] border border-[#222222] hover:border-[#2a2a2a] text-[11px] font-bold text-[#a1a6b0] hover:text-[#f7f8f8] flex items-center justify-center transition-all cursor-pointer" title="Alternar para Letra Maior e Leitura Confortável">
             <span>A+</span>
           </button>
 
-          <button type="button" id="btn-toggle-theme" onclick="alternarTemaUI()" class="h-8 w-8 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#3a3d47] text-[#a1a6b0] hover:text-[#f7f8f8] flex items-center justify-center transition-all cursor-pointer" title="Alternar entre Modo Escuro e Modo Claro Executivo" aria-label="Alternar tema" aria-pressed="false">
+          <button type="button" id="btn-toggle-theme" onclick="alternarTemaUI()" class="h-8 w-8 rounded-lg bg-[#111111]/90 hover:bg-[#181818] border border-[#222222] hover:border-[#2a2a2a] text-[#a1a6b0] hover:text-[#f7f8f8] flex items-center justify-center transition-all cursor-pointer" title="Alternar entre Modo Escuro e Modo Claro Executivo" aria-label="Alternar tema" aria-pressed="false">
             <svg id="icon-tema-sol" class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-sun"/></svg>
             <svg id="icon-tema-lua" class="w-3.5 h-3.5 text-sky-400 hidden"><use href="#icon-moon"/></svg>
             <span id="label-toggle-tema" class="hidden">Modo Claro</span>
           </button>
 
-          <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="h-8 w-8 rounded-lg bg-[#14151a]/85 hover:bg-[#1b1d24] border border-[#262830] hover:border-[#c59b27]/45 text-[#a1a6b0] hover:text-[#d4af37] flex items-center justify-center transition-all active:scale-95 cursor-pointer group" title="Configurações do Sistema">
+          <button type="button" id="btn-top-configuracoes" onclick="ativarAba('configuracoes')" class="h-8 w-8 rounded-lg bg-[#111111]/90 hover:bg-[#181818] border border-[#222222] hover:border-[#c59b27]/45 text-[#a1a6b0] hover:text-[#d4af37] flex items-center justify-center transition-all active:scale-95 cursor-pointer group" title="Configurações do Sistema">
             <svg class="w-3.5 h-3.5 transition-colors"><use href="#icon-settings"/></svg>
           </button>
         </div>
@@ -2726,7 +2731,7 @@
                 <span id="home-card-processos" class="font-mono tabular-nums text-[30px] leading-none font-semibold text-[#f7f8f8] tracking-tight">0</span>
                 <span class="text-[11.5px] font-mono text-[#62666d]">pastas</span>
               </div>
-              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1a1a1a]">
                 <span id="home-kpi-processos-sub" class="truncate">Consultas CPF/CNJ ativas</span>
                 <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0">→</span>
               </div>
@@ -2749,7 +2754,7 @@
                 <span id="metric-fila-humana" class="hidden font-mono">0</span>
                 <span class="text-[11.5px] font-mono text-[#62666d]">aguardando</span>
               </div>
-              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1a1a1a]">
                 <span id="home-fila-subtexto" class="truncate">Nenhum cliente aguardando advogado</span>
                 <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0 ml-1">→</span>
               </div>
@@ -2764,7 +2769,7 @@
               <div class="my-3 flex items-baseline gap-2 min-w-0">
                 <span id="home-kpi-financeiro-valor" class="font-mono tabular-nums text-[26px] leading-none font-semibold text-[#f7f8f8] tracking-tight truncate">R$ 0,00</span>
               </div>
-              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1c1d22]">
+              <div class="flex items-center justify-between text-[11.5px] text-[#8a8f98] pt-3 border-t border-[#1a1a1a]">
                 <span id="home-kpi-financeiro-sub" class="truncate font-mono text-[11px]">0 parcelas pendentes</span>
                 <span class="text-[#555963] group-hover:text-[#c59b27] group-hover:translate-x-0.5 transition-all shrink-0">→</span>
               </div>
@@ -2774,7 +2779,7 @@
             <div class="linear-kpi-card p-5 flex flex-col justify-between min-h-[126px]">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#8a8f98]">WhatsApp &amp; Plantão</span>
-                <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#8a8f98] hover:text-[#f7f8f8] px-2 py-0.5 rounded-full bg-[#16171c] border border-[#26282e] transition-colors cursor-pointer" title="Status da Inteligência Artificial">
+                <button type="button" onclick="ativarAba('simulador')" id="home-chip-ia" class="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#8a8f98] hover:text-[#f7f8f8] px-2 py-0.5 rounded-full bg-[#111111] border border-[#222222] transition-colors cursor-pointer" title="Status da Inteligência Artificial">
                   <span id="home-chip-ia-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                   <span id="home-chip-ia-txt">IA Ativa</span>
                 </button>
@@ -2788,12 +2793,12 @@
                   <span id="home-wa-status-label" class="text-[17px] font-semibold text-[#f7f8f8] tracking-tight truncate">Verificando</span>
                   <span id="home-wa-latencia" class="text-[10.5px] font-mono text-[#62666d] shrink-0"></span>
                 </div>
-                <button type="button" onclick="abrirModalQrRapido()" class="btn-tactile shrink-0 px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#2a2c34] hover:border-[#c59b27]/50 text-[10.5px] font-medium text-[#d0d6e0] hover:text-[#d8af37] flex items-center gap-1.5 active:scale-[0.97] transition-all cursor-pointer" title="Abrir QR Code do WhatsApp">
+                <button type="button" onclick="abrirModalQrRapido()" class="btn-tactile shrink-0 px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#141414] border border-[#262626] hover:border-[#c59b27]/50 text-[10.5px] font-medium text-[#d0d6e0] hover:text-[#d8af37] flex items-center gap-1.5 active:scale-[0.97] transition-all cursor-pointer" title="Abrir QR Code do WhatsApp">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h6v6H3V3zm12 0h6v6h-6V3zM3 15h6v6H3v-6zm12 3h2v3h-2v-3zm4-3h2v6h-2v-6zm-4-3h6v2h-6v-2z"/></svg>
                   <span>QR</span>
                 </button>
               </div>
-              <button type="button" onclick="ativarAba('agenda')" class="w-full text-left text-[11.5px] text-[#8a8f98] hover:text-[#d0d6e0] transition-colors pt-3 border-t border-[#1c1d22] cursor-pointer flex items-center justify-between gap-2" title="Configurar horários de expediente e plantão">
+              <button type="button" onclick="ativarAba('agenda')" class="w-full text-left text-[11.5px] text-[#8a8f98] hover:text-[#d0d6e0] transition-colors pt-3 border-t border-[#1a1a1a] cursor-pointer flex items-center justify-between gap-2" title="Configurar horários de expediente e plantão">
                 <span id="home-card-horario-detalhe" class="truncate">Expediente: 08h às 18h</span>
                 <span id="home-card-expediente" class="text-[#d0d6e0] font-medium font-mono text-[10.5px] shrink-0">Verificando...</span>
               </button>
@@ -2877,14 +2882,14 @@
                 </div>
 
                 <!-- Eixo X nítido em HTML -->
-                <div id="home-chart-xaxis-html" class="flex items-center justify-between pt-3 mt-1.5 border-t border-[#1c1d22] text-[11px] font-mono tabular-nums text-[#6e737d] select-none">
+                <div id="home-chart-xaxis-html" class="flex items-center justify-between pt-3 mt-1.5 border-t border-[#1a1a1a] text-[11px] font-mono tabular-nums text-[#6e737d] select-none">
                   <span>08h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span><span>20h</span>
                 </div>
               </div>
 
               <!-- Card 2: Processos Recentes -->
               <div class="linear-shell p-6 flex flex-col">
-                <div class="flex items-center justify-between pb-3.5 mb-2 border-b border-[#1c1d22]">
+                <div class="flex items-center justify-between pb-3.5 mb-2 border-b border-[#1a1a1a]">
                   <div class="flex items-center gap-2">
                     <h3 class="text-[15.5px] font-semibold text-[#f7f8f8] tracking-tight">Processos Recentes</h3>
                     <span class="text-[11.5px] text-[#62666d] hidden sm:inline">· Últimas pastas atualizadas</span>
@@ -2901,7 +2906,7 @@
 
             <!-- COLUNA DIREITA (4 cols): Mensagens em Tempo Real (acompanha altura da esquerda) -->
             <div class="lg:col-span-4 linear-shell p-6 flex flex-col justify-between min-h-[420px]">
-              <div class="flex items-center justify-between pb-3.5 mb-2 border-b border-[#1c1d22] shrink-0">
+              <div class="flex items-center justify-between pb-3.5 mb-2 border-b border-[#1a1a1a] shrink-0">
                 <div class="flex items-center gap-2">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                   <h3 class="text-[15.5px] font-semibold text-[#f7f8f8] tracking-tight">Mensagens em Tempo Real</h3>
@@ -2914,7 +2919,7 @@
 
               <div id="home-ultimos-logs" class="flex-1 overflow-y-auto overflow-x-hidden flex flex-col justify-center">
                 <div class="text-xs text-[#6e737d] text-center py-8 px-3 flex flex-col items-center justify-center gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-[#15161a] border border-[#23252a] flex items-center justify-center text-[#6e737d]">
+                  <div class="w-10 h-10 rounded-xl bg-[#111111] border border-[#202020] flex items-center justify-center text-[#6e737d]">
                     <svg class="w-4 h-4"><use href="#icon-message"/></svg>
                   </div>
                   <div class="space-y-1 max-w-[240px]">
@@ -2928,7 +2933,7 @@
               </div>
 
               <!-- Rodapé de Ações Rápidas da Coluna Lateral -->
-              <div class="pt-4 mt-4 border-t border-[#1c1d22] grid grid-cols-2 gap-2.5 shrink-0">
+              <div class="pt-4 mt-4 border-t border-[#1a1a1a] grid grid-cols-2 gap-2.5 shrink-0">
                 <button type="button" onclick="ativarAba('pausados')" class="linear-btn-ghost py-2.5 px-3 text-xs font-medium text-[#d0d6e0] hover:text-[#f7f8f8] flex items-center justify-center gap-1.5 cursor-pointer">
                   <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-user-clock"/></svg>
                   <span>Fila Humana</span>
@@ -2983,7 +2988,7 @@
           <div class="linear-shell p-4 space-y-3">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-[#16171b] border border-[#26282e] flex items-center justify-center text-[#c59b27] shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-[#111111] border border-[#222222] flex items-center justify-center text-[#c59b27] shrink-0">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
                 <div>
@@ -3011,9 +3016,9 @@
             </div>
 
             <!-- Dropzone Horizontal Compacta -->
-            <div id="dropzone-processos" class="border border-dashed border-[#c59b27]/35 hover:border-[#c59b27]/70 bg-[#0b0c0e] hover:bg-[#c59b27]/[0.03] rounded-xl px-4 py-3 transition-all duration-150 cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-3 group">
+            <div id="dropzone-processos" class="border border-dashed border-[#c59b27]/35 hover:border-[#c59b27]/70 bg-[#0a0a0a] hover:bg-[#c59b27]/[0.03] rounded-xl px-4 py-3 transition-all duration-150 cursor-pointer flex flex-col sm:flex-row items-center justify-between gap-3 group">
               <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-[#141518] border border-[#23252a] group-hover:border-[#c59b27]/40 flex items-center justify-center text-[#8a8f98] group-hover:text-[#c59b27] transition-colors shrink-0">
+                <div class="w-9 h-9 rounded-lg bg-[#101010] border border-[#202020] group-hover:border-[#c59b27]/40 flex items-center justify-center text-[#8a8f98] group-hover:text-[#c59b27] transition-colors shrink-0">
                   <svg class="w-4 h-4 dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
                 <div class="text-xs text-[#8a8f98] text-center sm:text-left">
@@ -3021,10 +3026,10 @@
                 </div>
               </div>
               <div class="flex items-center justify-center flex-wrap gap-1.5">
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.xlsx / .csv</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.pdf PJe/e-SAJ</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.docx</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141518] text-[#8a8f98] border border-[#23252a]">.txt</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#101010] text-[#8a8f98] border border-[#202020]">.xlsx / .csv</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#101010] text-[#8a8f98] border border-[#202020]">.pdf PJe/e-SAJ</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#101010] text-[#8a8f98] border border-[#202020]">.docx</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#101010] text-[#8a8f98] border border-[#202020]">.txt</span>
               </div>
               <input type="file" id="input-file-processos-hidden" multiple accept=".xlsx,.xls,.csv,.ods,.pdf,.docx,.txt,.log" class="hidden">
             </div>
@@ -3053,7 +3058,7 @@
               </div>
               <div class="flex items-center justify-between px-1 mb-2.5 text-[10.5px] text-[#62666d]">
                 <span class="font-medium uppercase tracking-wider text-[10px]">Ordenar</span>
-                <select id="ordem-processos-select" class="exec-input px-2.5 py-1 rounded-lg text-[10.5px] text-[#d4af37] font-medium bg-[#0b0c0e] border border-[#23252a]">
+                <select id="ordem-processos-select" class="exec-input px-2.5 py-1 rounded-lg text-[10.5px] text-[#d4af37] font-medium bg-[#0a0a0a] border border-[#202020]">
                   <option value="recente" selected>Atualização Recente</option>
                   <option value="alfabetica">Ordem Alfabética (A-Z)</option>
                   <option value="alfabetica_desc">Ordem Alfabética (Z-A)</option>
@@ -3070,9 +3075,9 @@
             <div id="box-form-processo" class="col-span-12 lg:col-span-7 linear-shell p-5 sm:p-6 flex flex-col justify-between min-h-[540px] max-h-[calc(100vh-180px)] overflow-y-auto">
               <div class="space-y-4">
                 <!-- Cabeçalho do Cliente -->
-                <div class="flex flex-wrap items-center justify-between border-b border-[#1c1d22] pb-4 gap-3">
+                <div class="flex flex-wrap items-center justify-between border-b border-[#1a1a1a] pb-4 gap-3">
                   <div class="flex items-center space-x-3">
-                    <div id="avatar-ficha-proc" class="w-10 h-10 rounded-xl bg-[#18191e] border border-[#c59b27]/35 flex items-center justify-center text-[#d4af37] font-bold text-xs">
+                    <div id="avatar-ficha-proc" class="w-10 h-10 rounded-xl bg-[#121212] border border-[#c59b27]/35 flex items-center justify-center text-[#d4af37] font-bold text-xs">
                       NP
                     </div>
                     <div>
@@ -3102,22 +3107,22 @@
                       <svg class="w-3.5 h-3.5 shrink-0"><use href="#icon-refresh"/></svg>
                       <span>Liberar Reenvio</span>
                     </button>
-                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-[#141518] hover:bg-rose-500/10 text-[#8a8f98] hover:text-rose-400 border border-[#26282e] hover:border-rose-500/35 rounded-[9px] active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
+                    <button type="button" id="btn-excluir-proc-ficha" class="hidden p-2 bg-[#101010] hover:bg-rose-500/10 text-[#8a8f98] hover:text-rose-400 border border-[#222222] hover:border-rose-500/35 rounded-[9px] active:scale-[0.95] transition cursor-pointer" title="Excluir cadastro">
                       <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
                     </button>
                   </div>
                 </div>
 
                 <!-- SUB-ABAS DO MASTER-DETAIL: PROCESSO VS DOSSIÊ CIVIL -->
-                <div class="flex items-center gap-1 p-1 bg-[#0b0c0e] rounded-xl border border-[#1f2025]">
-                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 flex items-center justify-center gap-1.5 cursor-pointer">
+                <div class="flex items-center gap-1 p-1 bg-[#0a0a0a] rounded-xl border border-[#1c1c1c]">
+                  <button type="button" id="subtab-detalhe-proc" onclick="alternarDetalheProcAba('processo')" class="flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#121212] text-[#f7f8f8] border border-[#c59b27]/40 flex items-center justify-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-folder"/></svg>
                     <span>Ficha do Processo &amp; Andamento</span>
                   </button>
                   <button type="button" id="subtab-detalhe-dossie" onclick="alternarDetalheProcAba('dossie')" class="flex-1 py-2 px-3 rounded-lg text-xs font-medium transition text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent flex items-center justify-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5"><use href="#icon-users"/></svg>
                     <span>Dossiê Civil (CPC Art. 319)</span>
-                    <span id="badge-detalhe-dossie-docs" class="text-[9.5px] px-1.5 py-0.5 rounded bg-[#16171b] text-[#d4af37] border border-[#26282e] font-mono ml-1">0 docs</span>
+                    <span id="badge-detalhe-dossie-docs" class="text-[9.5px] px-1.5 py-0.5 rounded bg-[#111111] text-[#d4af37] border border-[#222222] font-mono ml-1">0 docs</span>
                   </button>
                 </div>
 
@@ -3126,17 +3131,17 @@
                   <input type="hidden" id="proc-id-edit" value="">
 
                   <!-- SELETOR DE TIPO DE PASTA (JUDICIAL VS EXTRAJUDICIAL/CONSULTORIA) -->
-                  <div class="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[#0c0d10] border border-[#1f2025] text-xs">
+                  <div class="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[#0a0a0a] border border-[#1c1c1c] text-xs">
                     <span class="text-[10px] text-[#6e737d] font-semibold uppercase tracking-wider px-2">Tipo de Pasta</span>
-                    <button type="button" id="btn-tipo-pasta-judicial" onclick="setTipoPastaFormulario('JUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer">
+                    <button type="button" id="btn-tipo-pasta-judicial" onclick="setTipoPastaFormulario('JUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#121212] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer">
                       Processo Judicial (CNJ)
                     </button>
-                    <button type="button" id="btn-tipo-pasta-extra" onclick="setTipoPastaFormulario('EXTRAJUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#26282e] cursor-pointer">
+                    <button type="button" id="btn-tipo-pasta-extra" onclick="setTipoPastaFormulario('EXTRAJUDICIAL')" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#222222] cursor-pointer">
                       Extrajudicial / Consultoria / Imobiliário
                     </button>
                   </div>
 
-                  <div class="grid grid-cols-12 gap-3 p-4 rounded-xl bg-[#121316] border border-[#1f2025]">
+                  <div class="grid grid-cols-12 gap-3 p-4 rounded-xl bg-[#101010] border border-[#1c1c1c]">
                     <div class="col-span-12 sm:col-span-4">
                       <label id="label-proc-nome" class="cohere-eyebrow text-[10px] block mb-1.5 font-bold text-zinc-200">Nome do Cliente *</label>
                       <input type="text" id="proc-nome" placeholder="Ex: Roberto Silva" class="exec-input w-full rounded-lg px-3 py-2 text-xs">
@@ -3167,7 +3172,7 @@
                     <textarea id="proc-resumo" rows="5" placeholder="Escreva aqui o resumo do andamento que será enviado ao cliente no WhatsApp..." class="exec-input w-full rounded-xl p-3.5 text-[13px] resize-none leading-relaxed"></textarea>
                   </div>
 
-                  <div class="pt-3.5 border-t border-[#1f2025] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="pt-3.5 border-t border-[#1c1c1c] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <span class="text-[11px] text-[#62666d] font-mono">Fluxo WhatsApp: [1] Encerra • [2] Chama Advogado</span>
                     <button type="button" id="btn-salvar-processo" class="px-5 py-2.5 champagne-gradient font-bold text-xs rounded-[10px] shadow-sm active:scale-[0.98] transition flex items-center justify-center space-x-2 cursor-pointer">
                       <svg class="w-4 h-4"><use href="#icon-save"/></svg>
@@ -3443,12 +3448,12 @@
           </div>
 
           <!-- BARRA DE 2 SUB-ABAS (SEGMENTED CONTROL OBSIDIAN) -->
-          <div class="p-1 rounded-xl bg-[#0c0d10] border border-[#23252a] flex flex-col sm:flex-row gap-1">
-            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-150 bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm cursor-pointer">
+          <div class="p-1 rounded-xl bg-[#0a0a0a] border border-[#202020] flex flex-col sm:flex-row gap-1">
+            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-150 bg-[#121212] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm cursor-pointer">
               <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-flow"/></svg>
               <span>1. Editar Menus &amp; Funções</span>
             </button>
-            <button type="button" id="subtab-fluxo-mensagens" onclick="alternarSubAbaFluxo('mensagens')" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-medium transition-all duration-150 text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent cursor-pointer">
+            <button type="button" id="subtab-fluxo-mensagens" onclick="alternarSubAbaFluxo('mensagens')" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-medium transition-all duration-150 text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#111111] border border-transparent cursor-pointer">
               <svg class="w-3.5 h-3.5"><use href="#icon-folder"/></svg>
               <span>2. Mensagens de CPF &amp; Documentos</span>
             </button>
@@ -3460,11 +3465,11 @@
               <div id="tour-seletor-etapa" class="linear-shell p-4 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 flex-1 min-w-0">
                   <span class="text-xs font-medium text-[#8a8f98] shrink-0">Menu em Edição</span>
-                  <select id="select-etapa" class="flex-1 exec-input rounded-xl px-3.5 py-2 text-xs text-[#f7f8f8] font-semibold bg-[#0b0c0e] border border-[#26282e]">
+                  <select id="select-etapa" class="flex-1 exec-input rounded-xl px-3.5 py-2 text-xs text-[#f7f8f8] font-semibold bg-[#0a0a0a] border border-[#222222]">
                     <option value="raiz">Menu Principal (Boas-Vindas)</option>
                   </select>
                 </div>
-                <button id="btn-excluir-etapa" class="hidden items-center gap-1.5 text-xs text-[#8a8f98] hover:text-rose-400 font-medium px-3 py-2 bg-[#141518] hover:bg-rose-500/10 border border-[#26282e] hover:border-rose-500/35 rounded-xl active:scale-95 transition-all cursor-pointer shrink-0">
+                <button id="btn-excluir-etapa" class="hidden items-center gap-1.5 text-xs text-[#8a8f98] hover:text-rose-400 font-medium px-3 py-2 bg-[#101010] hover:bg-rose-500/10 border border-[#222222] hover:border-rose-500/35 rounded-xl active:scale-95 transition-all cursor-pointer shrink-0">
                   <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
                   <span>Remover</span>
                 </button>
@@ -3486,12 +3491,12 @@
                 </div>
 
                 <div id="format-drawer" class="format-drawer">
-                  <div class="flex flex-wrap items-center gap-1.5 bg-[#0b0c0e] p-2 rounded-xl border border-[#23252a]">
-                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('bold')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#c59b27]/40 rounded-lg text-[11px] font-bold text-[#d4af37] active:scale-95 transition-all cursor-pointer">B *Negrito*</button>
-                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('italic')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#3a3d47] rounded-lg text-[11px] italic text-[#d0d6e0] active:scale-95 transition-all cursor-pointer">I _Itálico_</button>
-                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('strike')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#3a3d47] rounded-lg text-[11px] line-through text-[#8a8f98] active:scale-95 transition-all cursor-pointer">S ~Tachado~</button>
+                  <div class="flex flex-wrap items-center gap-1.5 bg-[#0a0a0a] p-2 rounded-xl border border-[#202020]">
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('bold')" class="btn-tactile px-2.5 py-1 bg-[#111111] hover:bg-[#101010] border border-[#222222] hover:border-[#c59b27]/40 rounded-lg text-[11px] font-bold text-[#d4af37] active:scale-95 transition-all cursor-pointer">B *Negrito*</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('italic')" class="btn-tactile px-2.5 py-1 bg-[#111111] hover:bg-[#101010] border border-[#222222] hover:border-[#2a2a2a] rounded-lg text-[11px] italic text-[#d0d6e0] active:scale-95 transition-all cursor-pointer">I _Itálico_</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('strike')" class="btn-tactile px-2.5 py-1 bg-[#111111] hover:bg-[#101010] border border-[#222222] hover:border-[#2a2a2a] rounded-lg text-[11px] line-through text-[#8a8f98] active:scale-95 transition-all cursor-pointer">S ~Tachado~</button>
                     <div class="h-3.5 w-px bg-[#26282e] mx-0.5"></div>
-                    <button type="button" onmousedown="event.preventDefault()" onclick="inserirSnippet('• ')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#3a3d47] rounded-lg text-[11px] text-[#d0d6e0] active:scale-95 transition-all cursor-pointer">+ Tópico</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="inserirSnippet('• ')" class="btn-tactile px-2.5 py-1 bg-[#111111] hover:bg-[#101010] border border-[#222222] hover:border-[#2a2a2a] rounded-lg text-[11px] text-[#d0d6e0] active:scale-95 transition-all cursor-pointer">+ Tópico</button>
                   </div>
                 </div>
 
@@ -3500,7 +3505,7 @@
               </div>
 
               <div id="tour-options-card" class="linear-shell p-5 space-y-4">
-                <div class="flex items-center justify-between border-b border-[#1c1d22] pb-3.5">
+                <div class="flex items-center justify-between border-b border-[#1a1a1a] pb-3.5">
                   <div>
                     <span class="text-[13.5px] font-semibold text-[#f7f8f8]">Opções do Menu &amp; Funções</span>
                     <p class="text-[11.5px] text-[#8a8f98] mt-0.5">Defina a resposta e o comportamento de cada número.</p>
@@ -3516,7 +3521,7 @@
 
             <div class="col-span-12 lg:col-span-5 space-y-4">
               <div class="linear-shell p-5 flex flex-col justify-between space-y-3.5">
-                <div class="flex items-center justify-between pb-3 border-b border-[#1c1d22]">
+                <div class="flex items-center justify-between pb-3 border-b border-[#1a1a1a]">
                   <span class="text-[13px] font-semibold text-[#f7f8f8] flex items-center gap-2">
                     <span class="relative flex h-2 w-2">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70"></span>
@@ -3526,7 +3531,7 @@
                   </span>
                   <span class="font-mono text-[10px] text-emerald-400/90 tracking-wider">AO VIVO</span>
                 </div>
-                <div class="wa-wallpaper-dark rounded-xl p-3.5 border border-[#1f2228]">
+                <div class="wa-wallpaper-dark rounded-xl p-3.5 border border-[#1c1c1c]">
                   <div class="flex justify-end">
                     <div class="wa-bubble-out p-3.5 max-w-[96%] shadow-md text-xs leading-relaxed">
                       <div id="wa-preview-etapa-real" class="text-xs leading-relaxed whitespace-pre-wrap font-sans"></div>
@@ -3543,7 +3548,7 @@
               </div>
 
               <div id="tour-visual-map" class="linear-shell p-5 space-y-3.5">
-                <div class="flex items-center justify-between border-b border-[#1c1d22] pb-3">
+                <div class="flex items-center justify-between border-b border-[#1a1a1a] pb-3">
                   <div class="flex items-center gap-2">
                     <svg class="w-4 h-4 text-[#c59b27]"><use href="#icon-flow"/></svg>
                     <h3 class="text-[13.5px] font-semibold text-[#f7f8f8]">Mapa do Menu</h3>
@@ -3564,34 +3569,34 @@
                 <p class="text-[11.5px] text-[#8a8f98] mt-0.5">Selecione um cenário abaixo e veja ao lado como o cliente recebe no WhatsApp.</p>
               </div>
               <div id="cenario-msg-tabs" class="flex flex-wrap gap-2">
-                <button type="button" data-cenario="com-atualizacao" onclick="selecionarCenarioMensagem('com-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#181920] text-[#d4af37] border border-[#c59b27]/45 cursor-pointer">1. Processo atualizado</button>
-                <button type="button" data-cenario="ja-visto" onclick="selecionarCenarioMensagem('ja-visto')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">2. Sem novidades</button>
-                <button type="button" data-cenario="sem-atualizacao" onclick="selecionarCenarioMensagem('sem-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">3. Sem resumo ainda</button>
-                <button type="button" data-cenario="nao-encontrado" onclick="selecionarCenarioMensagem('nao-encontrado')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">4. CPF não encontrado</button>
-                <button type="button" data-cenario="encerrar" onclick="selecionarCenarioMensagem('encerrar')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">5. Digitar 1 (Encerrar)</button>
-                <button type="button" data-cenario="advogado-pos" onclick="selecionarCenarioMensagem('advogado-pos')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">6. Digitar 2 (Advogado)</button>
-                <button type="button" data-cenario="onboarding-docs" onclick="selecionarCenarioMensagem('onboarding-docs')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">7. Pedir Documentos</button>
+                <button type="button" data-cenario="com-atualizacao" onclick="selecionarCenarioMensagem('com-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121212] text-[#d4af37] border border-[#c59b27]/45 cursor-pointer">1. Processo atualizado</button>
+                <button type="button" data-cenario="ja-visto" onclick="selecionarCenarioMensagem('ja-visto')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#101010] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#202020] cursor-pointer">2. Sem novidades</button>
+                <button type="button" data-cenario="sem-atualizacao" onclick="selecionarCenarioMensagem('sem-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#101010] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#202020] cursor-pointer">3. Sem resumo ainda</button>
+                <button type="button" data-cenario="nao-encontrado" onclick="selecionarCenarioMensagem('nao-encontrado')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#101010] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#202020] cursor-pointer">4. CPF não encontrado</button>
+                <button type="button" data-cenario="encerrar" onclick="selecionarCenarioMensagem('encerrar')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#101010] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#202020] cursor-pointer">5. Digitar 1 (Encerrar)</button>
+                <button type="button" data-cenario="advogado-pos" onclick="selecionarCenarioMensagem('advogado-pos')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#101010] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#202020] cursor-pointer">6. Digitar 2 (Advogado)</button>
+                <button type="button" data-cenario="onboarding-docs" onclick="selecionarCenarioMensagem('onboarding-docs')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#101010] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#202020] cursor-pointer">7. Pedir Documentos</button>
               </div>
             </div>
 
             <!-- Grid Limpo: Editor (7/12) + Exemplo Real WhatsApp (5/12) -->
             <div class="grid grid-cols-12 gap-5 items-start">
               <div class="col-span-12 lg:col-span-7 linear-shell p-5 space-y-4">
-                <div id="tags-cenario-processo" class="flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#1c1d22]">
+                <div id="tags-cenario-processo" class="flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#1a1a1a]">
                   <span class="text-[11px] text-[#8a8f98] mr-1">Inserir dado automático:</span>
-                  <button type="button" onclick="inserirTagAtiva('{nome}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Nome</button>
-                  <button type="button" onclick="inserirTagAtiva('{cpf}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ CPF</button>
-                  <button type="button" onclick="inserirTagAtiva('{processo}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Nº Processo</button>
-                  <button type="button" onclick="inserirTagAtiva('{resumo}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Resumo</button>
-                  <button type="button" onclick="inserirTagAtiva('{data}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Data</button>
-                  <button type="button" onclick="inserirTagAtiva('{escritorio}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Escritório</button>
+                  <button type="button" onclick="inserirTagAtiva('{nome}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Nome</button>
+                  <button type="button" onclick="inserirTagAtiva('{cpf}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ CPF</button>
+                  <button type="button" onclick="inserirTagAtiva('{processo}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Nº Processo</button>
+                  <button type="button" onclick="inserirTagAtiva('{resumo}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Resumo</button>
+                  <button type="button" onclick="inserirTagAtiva('{data}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Data</button>
+                  <button type="button" onclick="inserirTagAtiva('{escritorio}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Escritório</button>
                 </div>
 
-                <div id="tags-cenario-docs" class="hidden flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#1c1d22]">
+                <div id="tags-cenario-docs" class="hidden flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#1a1a1a]">
                   <span class="text-[11px] text-[#8a8f98] mr-1">Inserir dado automático:</span>
-                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{nome}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Nome do Cliente</button>
-                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{preset}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Área Jurídica</button>
-                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{documentos}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Lista de Documentos</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{nome}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Nome do Cliente</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{preset}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Área Jurídica</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{documentos}')" class="px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#101010] text-[#d4af37] font-mono text-[10.5px] border border-[#222222] transition cursor-pointer">+ Lista de Documentos</button>
                 </div>
 
                 <!-- Cenário 1 -->
@@ -3778,13 +3783,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
 
             <!-- SUB-ABAS DA AGENDA (SEGMENTED CONTROL OBSIDIAN) -->
-            <div class="p-1 rounded-xl bg-[#0c0d10] border border-[#23252a] flex flex-col sm:flex-row gap-1 text-xs">
-              <button type="button" id="subtab-agenda-compromissos" onclick="alternarSubAbaAgenda('compromissos')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+            <div class="p-1 rounded-xl bg-[#0a0a0a] border border-[#202020] flex flex-col sm:flex-row gap-1 text-xs">
+              <button type="button" id="subtab-agenda-compromissos" onclick="alternarSubAbaAgenda('compromissos')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold transition bg-[#121212] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
                 <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-calendar"/></svg>
                 <span>1. Compromissos &amp; Audiências</span>
-                <span id="badge-total-compromissos" class="px-1.5 py-0.5 rounded bg-[#0c0d10] text-[#d4af37] border border-[#26282e] font-mono text-[10px] leading-none">0</span>
+                <span id="badge-total-compromissos" class="px-1.5 py-0.5 rounded bg-[#0a0a0a] text-[#d4af37] border border-[#222222] font-mono text-[10px] leading-none">0</span>
               </button>
-              <button type="button" id="subtab-agenda-horarios" onclick="alternarSubAbaAgenda('horarios')" class="flex-1 py-2.5 px-4 rounded-lg font-medium transition text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent flex items-center justify-center gap-2 cursor-pointer">
+              <button type="button" id="subtab-agenda-horarios" onclick="alternarSubAbaAgenda('horarios')" class="flex-1 py-2.5 px-4 rounded-lg font-medium transition text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#111111] border border-transparent flex items-center justify-center gap-2 cursor-pointer">
                 <svg class="w-3.5 h-3.5"><use href="#icon-coffee"/></svg>
                 <span>2. Horários do Robô &amp; Almoço</span>
               </button>
@@ -3794,7 +3799,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div id="painel-agenda-compromissos" class="space-y-5">
               <!-- Card 1: Formulário Rápido de Novo Compromisso -->
               <div class="linear-shell p-6 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-[#1c1d22]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-[#1a1a1a]">
                   <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight flex items-center gap-2">
                     <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-plus"/></svg>
                     <span>Agendar Nova Audiência ou Reunião</span>
@@ -3824,7 +3829,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
               <!-- Card 2: Lista de Compromissos Agendados -->
               <div class="linear-shell p-6 space-y-4">
-                <div class="flex items-center justify-between pb-3.5 border-b border-[#1c1d22]">
+                <div class="flex items-center justify-between pb-3.5 border-b border-[#1a1a1a]">
                   <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight">Pauta de Compromissos do Escritório</h3>
                 </div>
                 <div id="lista-compromissos-agenda" class="space-y-2.5">
@@ -3839,9 +3844,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div id="painel-agenda-horarios" class="hidden space-y-5">
             <div class="grid grid-cols-12 gap-5">
               <div class="col-span-12 lg:col-span-7 linear-shell p-6 space-y-4">
-                <div class="flex items-center justify-between border-b border-[#1c1d22] pb-3.5">
+                <div class="flex items-center justify-between border-b border-[#1a1a1a] pb-3.5">
                   <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-[#16171c] border border-[#26282e] flex items-center justify-center text-[#c59b27]">
+                    <div class="w-8 h-8 rounded-lg bg-[#111111] border border-[#222222] flex items-center justify-center text-[#c59b27]">
                       <svg class="w-4 h-4"><use href="#icon-coffee"/></svg>
                     </div>
                     <div>
@@ -3900,7 +3905,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
 
             <div class="linear-shell p-6 space-y-3.5">
-              <h3 class="text-[14px] font-semibold text-[#f7f8f8] pb-3 border-b border-[#1c1d22]">Expediente por Dia da Semana</h3>
+              <h3 class="text-[14px] font-semibold text-[#f7f8f8] pb-3 border-b border-[#1a1a1a]">Expediente por Dia da Semana</h3>
               <div id="grade-dias-semana" class="space-y-2.5"></div>
             </div>
             </div>
@@ -3921,7 +3926,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
           <div id="tour-pausados-card" class="space-y-4">
             <!-- BARRA DE CONTROLE: BUSCA E FILTROS RÁPIDOS NA FILA -->
-            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-[#0d0e11] border border-[#1f2025]">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-2xl bg-[#08080a] border border-[#1c1c1c]">
               <div class="relative flex-1">
                 <input type="text" id="busca-fila-advogado" oninput="filtrarFilaAdvogadoUI()" placeholder="Buscar cliente por nome, telefone ou relato..." class="exec-input w-full rounded-xl pl-9 pr-4 py-2 text-xs bg-zinc-900/90 border border-zinc-800 text-zinc-100 placeholder-zinc-500">
                 <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -3965,9 +3970,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <div class="flex items-center gap-2.5 flex-wrap">
                 <span class="text-[11px] font-medium text-[#6e737d] uppercase tracking-wider">Filtrar</span>
                 <div class="flex items-center gap-1.5">
-                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('todos', this)" class="log-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 transition cursor-pointer">Todas</button>
-                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('cliente', this)" class="log-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] bg-[#141519] border border-[#23252a] hover:border-[#343740] transition cursor-pointer flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-users"/></svg>Clientes</button>
-                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('robo', this)" class="log-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] bg-[#141519] border border-[#23252a] hover:border-[#343740] transition cursor-pointer flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>Robô</button>
+                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('todos', this)" class="log-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#121212] text-[#d4af37] border border-[#c59b27]/40 transition cursor-pointer">Todas</button>
+                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('cliente', this)" class="log-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] bg-[#111111] border border-[#202020] hover:border-[#2a2a2a] transition cursor-pointer flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-users"/></svg>Clientes</button>
+                  <button type="button" onclick="window.filtrarLogsLedgerUI && window.filtrarLogsLedgerUI('robo', this)" class="log-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] bg-[#111111] border border-[#202020] hover:border-[#2a2a2a] transition cursor-pointer flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-[#8a8f98]"><use href="#icon-flow"/></svg>Robô</button>
                 </div>
               </div>
               <div class="relative w-full sm:w-80">
@@ -3980,14 +3985,14 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <div class="grid grid-cols-12 gap-5 h-[560px] max-h-[calc(100vh-230px)]">
               <!-- PAINEL MASTER (4 COLUNAS): LISTA DE CLIENTES ATENDIDOS -->
               <div class="col-span-12 lg:col-span-4 linear-shell flex flex-col overflow-hidden">
-                <div class="px-4 py-3 border-b border-[#1c1d22] flex items-center justify-between">
+                <div class="px-4 py-3 border-b border-[#1a1a1a] flex items-center justify-between">
                   <span class="text-[13px] font-semibold text-[#f7f8f8] flex items-center gap-2">
                     <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-users"/></svg>
                     Clientes Recentes
                   </span>
-                  <span id="chat-audit-total-contatos" class="text-[10.5px] font-mono font-semibold px-2 py-0.5 rounded-md bg-[#16171c] text-[#d4af37] border border-[#26282e]">0</span>
+                  <span id="chat-audit-total-contatos" class="text-[10.5px] font-mono font-semibold px-2 py-0.5 rounded-md bg-[#111111] text-[#d4af37] border border-[#222222]">0</span>
                 </div>
-                <div class="p-3 border-b border-[#1c1d22]">
+                <div class="p-3 border-b border-[#1a1a1a]">
                   <div class="relative">
                     <svg class="w-3.5 h-3.5 text-[#62666d] absolute left-2.5 top-2.5"><use href="#icon-search"/></svg>
                     <input type="text" id="input-busca-contatos-chat" oninput="window.filtrarContatosChatAudit && window.filtrarContatosChatAudit(this.value)" placeholder="Filtrar contatos..." class="exec-input w-full rounded-lg pl-8 pr-2.5 py-1.5 text-[11.5px] font-mono">
@@ -3995,7 +4000,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 </div>
                 <!-- Lista de Contatos -->
                 <div id="chat-audit-contatos-lista" class="flex-1 overflow-y-auto p-3 space-y-1.5">
-                  <button type="button" onclick="window.selecionarContatoChatAudit && window.selecionarContatoChatAudit('__todos__')" class="w-full text-left p-3 rounded-xl border border-[#c59b27]/40 bg-[#15161c] shadow-[inset_3px_0_0_#c59b27] flex items-center justify-between transition cursor-pointer contact-audit-btn active" data-contato-id="__todos__">
+                  <button type="button" onclick="window.selecionarContatoChatAudit && window.selecionarContatoChatAudit('__todos__')" class="w-full text-left p-3 rounded-xl border border-[#c59b27]/40 bg-[#111111] shadow-[inset_3px_0_0_#c59b27] flex items-center justify-between transition cursor-pointer contact-audit-btn active" data-contato-id="__todos__">
                     <div class="flex items-center gap-2.5 overflow-hidden">
                       <div class="w-8 h-8 rounded-lg bg-[#1c1e26] border border-[#c59b27]/30 text-[#d4af37] flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4"><use href="#icon-message"/></svg>
@@ -4016,9 +4021,9 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               <!-- PAINEL DETAIL (8 COLUNAS): TIMELINE DA CONVERSA -->
               <div class="col-span-12 lg:col-span-8 linear-shell flex flex-col overflow-hidden">
                 <!-- Cabeçalho do Chat -->
-                <div class="px-5 py-3.5 border-b border-[#1c1d22] flex items-center justify-between">
+                <div class="px-5 py-3.5 border-b border-[#1a1a1a] flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div id="chat-audit-header-avatar" class="w-9 h-9 rounded-lg bg-[#17181e] text-[#d4af37] border border-[#c59b27]/35 flex items-center justify-center font-semibold text-xs">
+                    <div id="chat-audit-header-avatar" class="w-9 h-9 rounded-lg bg-[#121212] text-[#d4af37] border border-[#c59b27]/35 flex items-center justify-center font-semibold text-xs">
                       <svg class="w-4 h-4"><use href="#icon-message"/></svg>
                     </div>
                     <div>
@@ -4043,7 +4048,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 <!-- Box de Mensagens em Balões (Preserva id="logs-box") -->
                 <div id="logs-box" class="flex-1 p-5 overflow-y-auto space-y-3 font-sans text-xs relative">
                   <div id="logs-box-empty" class="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
-                    <div class="w-12 h-12 rounded-xl bg-[#15161a] border border-[#23252a] flex items-center justify-center text-[#6e737d]">
+                    <div class="w-12 h-12 rounded-xl bg-[#111111] border border-[#202020] flex items-center justify-center text-[#6e737d]">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     </div>
                     <div class="space-y-1">
@@ -4070,7 +4075,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
               </p>
             </div>
             <div class="flex items-center gap-2">
-              <div class="px-3.5 py-2 rounded-xl bg-[#0d0e11] border border-[#1f2025] text-right">
+              <div class="px-3.5 py-2 rounded-xl bg-[#08080a] border border-[#1c1c1c] text-right">
                 <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-semibold">Armazenamento</span>
                 <span class="text-xs font-mono font-semibold text-emerald-400 flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Disco Local Ativo
@@ -4082,7 +4087,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
           <!-- 2 OPERATIONAL PILLARS: EXPORTAR vs RESTAURAR -->
           <div id="tour-backup-card" class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <!-- Pillar 1: Exportar Backup -->
-            <div class="exec-card p-6 rounded-2xl border border-[#1f2025] bg-[#0d0e11] flex flex-col justify-between space-y-6 transition-all duration-200 group">
+            <div class="exec-card p-6 rounded-2xl border border-[#1c1c1c] bg-[#08080a] flex flex-col justify-between space-y-6 transition-all duration-200 group">
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
                   <div class="w-10 h-10 rounded-xl bg-[#d4af37]/10 border border-[#d4af37]/25 flex items-center justify-center text-[#d4af37]">
@@ -4111,7 +4116,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             </div>
 
             <!-- Pillar 2: Restaurar Backup -->
-            <div class="exec-card p-6 rounded-2xl border border-[#1f2025] bg-[#0d0e11] hover:border-zinc-700 flex flex-col justify-between space-y-6 transition-all duration-200 group">
+            <div class="exec-card p-6 rounded-2xl border border-[#1c1c1c] bg-[#08080a] hover:border-zinc-700 flex flex-col justify-between space-y-6 transition-all duration-200 group">
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
                   <div class="w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-zinc-300">
@@ -4197,7 +4202,7 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
                 Números protegidos com bloqueio total: nunca receberão disparos automáticos, mensagens de triagem do robô ou lembretes PIX.
               </p>
             </div>
-            <div class="flex items-center gap-2.5 bg-[#121317] border border-[#23252a] px-4 py-2.5 rounded-xl text-xs shrink-0">
+            <div class="flex items-center gap-2.5 bg-[#101010] border border-[#202020] px-4 py-2.5 rounded-xl text-xs shrink-0">
               <span class="text-[#8a8f98] font-medium">Total Bloqueados</span>
               <span class="h-3.5 w-px bg-[#26282e]"></span>
               <span id="contagem-ignorados-topo" class="font-semibold text-[#d4af37] font-mono tabular-nums text-[15px] leading-none">0</span>
@@ -4206,15 +4211,15 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
           <!-- Card 1: Cadastro de Contato Bloqueado -->
           <div class="linear-shell p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#1c1d22]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#1a1a1a]">
               <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight">Cadastrar Novo Contato para Bloquear</h3>
               <!-- Chips Rápidos de Categoria (Uniformes Obsidian) -->
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="text-[11px] text-[#6e737d] mr-1">Preencher motivo:</span>
-                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Sócio / Advogado'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#c59b27]"><use href="#icon-scales"/></svg>Sócio</button>
-                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Vara Judicial / Juiz'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-folder"/></svg>Juiz / Vara</button>
-                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Familiar'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-users"/></svg>Família</button>
-                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Fornecedor'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#16171c] hover:bg-[#1e2027] border border-[#26282e] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-file-text"/></svg>Fornecedor</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Sócio / Advogado'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#141414] border border-[#222222] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#c59b27]"><use href="#icon-scales"/></svg>Sócio</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Vara Judicial / Juiz'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#141414] border border-[#222222] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-folder"/></svg>Juiz / Vara</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Familiar'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#141414] border border-[#222222] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-users"/></svg>Família</button>
+                <button type="button" onclick="document.getElementById('input-ignorado-nome').value = 'Fornecedor'" class="btn-tactile px-2.5 py-1 rounded-lg bg-[#111111] hover:bg-[#141414] border border-[#222222] hover:border-[#c59b27]/45 text-[11px] font-medium text-[#a1a6b0] hover:text-[#f7f8f8] transition flex items-center gap-1.5 cursor-pointer"><svg class="w-3 h-3 text-[#8a8f98]"><use href="#icon-file-text"/></svg>Fornecedor</button>
               </div>
             </div>
 
@@ -4239,13 +4244,13 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
 
           <!-- Card 2: Lista de Contatos e Números Bloqueados -->
           <div class="linear-shell p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-[#1c1d22]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-[#1a1a1a]">
               <h3 class="text-[14.5px] font-semibold text-[#f7f8f8] tracking-tight">Lista de Contatos e Números Bloqueados</h3>
               <span class="text-[11.5px] text-[#6e737d]">Remova a qualquer momento com 1 clique para desbloquear</span>
             </div>
             <div id="lista-ignorados" class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
               <div class="py-10 text-center space-y-2.5">
-                <div class="w-10 h-10 mx-auto rounded-xl bg-[#15161a] border border-[#23252a] flex items-center justify-center text-[#6e737d]">
+                <div class="w-10 h-10 mx-auto rounded-xl bg-[#111111] border border-[#202020] flex items-center justify-center text-[#6e737d]">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </div>
                 <div>
@@ -4288,8 +4293,8 @@ Assim que enviar, nossa Inteligência Artificial conferirá automaticamente os d
             <!-- COLUNA ESQUERDA (4 cols): CONTROLE DE PERSONA & CENÁRIOS RÁPIDOS -->
             <div class="col-span-12 lg:col-span-4 space-y-4">
               <!-- Parâmetros do Contato -->
-              <div class="exec-card p-5 rounded-2xl bg-[#0d0e11] border border-[#1f2025] space-y-4">
-                <div class="border-b border-[#1f2025] pb-3">
+              <div class="exec-card p-5 rounded-2xl bg-[#08080a] border border-[#1c1c1c] space-y-4">
+                <div class="border-b border-[#1c1c1c] pb-3">
                   <span class="text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
                     <svg class="w-3.5 h-3.5 text-[#d4af37]"><use href="#icon-settings"/></svg>
                     Parâmetros da Sessão
@@ -6160,14 +6165,14 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const inNum = document.getElementById('proc-numero');
 
       if (tipo === 'EXTRAJUDICIAL') {
-        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#26282e] cursor-pointer";
-        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer";
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#222222] cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#121212] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer";
         if (lblCpf) lblCpf.innerText = "WhatsApp ou CPF";
         if (lblNum) lblNum.innerText = "Identificador / Assunto";
         if (inNum) inNum.placeholder = "Ex: Contrato Locação / Compra e Venda / Assessoria";
       } else {
-        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer";
-        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#26282e] cursor-pointer";
+        if (btnJud) btnJud.className = "px-3 py-1 rounded-lg text-xs font-semibold transition bg-[#121212] text-[#d4af37] border border-[#c59b27]/40 cursor-pointer";
+        if (btnExt) btnExt.className = "px-3 py-1 rounded-lg text-xs font-medium transition bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent hover:border-[#222222] cursor-pointer";
         if (lblCpf) lblCpf.innerText = "CPF do Cliente *";
         if (lblNum) lblNum.innerText = "Nº do Processo (CNJ) *";
         if (inNum) inNum.placeholder = "0000000-00.2026.8.00.0000";
@@ -6654,7 +6659,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         if (!item.dados) return;
         const isSel = (item.id === etapaSelecionada);
         const card = document.createElement('div');
-        card.className = `p-3.5 rounded-xl border transition-all duration-150 cursor-pointer ${isSel ? 'bg-[#15161c] border-[#c59b27]/45 shadow-[inset_3px_0_0_#c59b27]' : 'bg-[#121317] border-[#23252a] hover:border-[#343740]'}`;
+        card.className = `p-3.5 rounded-xl border transition-all duration-150 cursor-pointer ${isSel ? 'bg-[#111111] border-[#c59b27]/45 shadow-[inset_3px_0_0_#c59b27]' : 'bg-[#101010] border-[#202020] hover:border-[#2a2a2a]'}`;
         card.onclick = () => {
           etapaSelecionada = item.id;
           const selEtapa = document.getElementById('select-etapa');
@@ -6666,7 +6671,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
           let badgeClass = 'bg-emerald-500/10 text-emerald-400/90 border-emerald-500/20';
           let destinoLabel = 'Resposta Automática';
           if (op.tipo === 'submenu') {
-            badgeClass = 'bg-[#1a1b22] text-[#a1a6b0] border-[#2c2f38]';
+            badgeClass = 'bg-[#121212] text-[#a1a6b0] border-[#2c2f38]';
             destinoLabel = `Abre: ${op.destino || 'raiz'}`;
           } else if (op.tipo === 'humano') {
             badgeClass = 'bg-[#c59b27]/12 text-[#d4af37] border-[#c59b27]/25';
@@ -6676,7 +6681,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
             destinoLabel = 'Busca CPF/Processo';
           }
           opHtml += `
-            <div class="flex items-center justify-between text-[11px] bg-[#0b0c0e] border border-[#1f2026] px-2.5 py-1.5 rounded-lg">
+            <div class="flex items-center justify-between text-[11px] bg-[#0a0a0a] border border-[#1c1c1c] px-2.5 py-1.5 rounded-lg">
               <span class="w-5 h-5 rounded-md bg-[#c59b27]/15 text-[#d4af37] border border-[#c59b27]/30 font-mono font-bold flex items-center justify-center text-[10px]">${op.gatilho}</span>
               <span class="truncate mx-2.5 flex-1 text-[#d0d6e0]">${op.rotulo}</span>
               <span class="px-2 py-0.5 rounded-md border text-[10px] font-medium ${badgeClass}">${destinoLabel}</span>
@@ -7162,7 +7167,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         if (temAudio) badgesTexto += ' • Áudio IA';
 
         const card = document.createElement('div');
-        card.className = `p-4 rounded-xl bg-[#121317] space-y-3 border ${temAcaoFila ? 'border-[#c59b27]/35' : 'border-[#23252a]'}`;
+        card.className = `p-4 rounded-xl bg-[#101010] space-y-3 border ${temAcaoFila ? 'border-[#c59b27]/35' : 'border-[#202020]'}`;
         card.innerHTML = `
           <div class="flex items-center space-x-2.5">
             <input type="text" id="op-gatilho-${idx}" class="w-11 exec-input rounded-lg px-2 py-1.5 text-xs text-center font-mono font-bold text-[#d4af37]">
@@ -7178,29 +7183,29 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
           <div id="op-extra-${idx}"></div>
 
           <!-- Funções Embutidas Diretamente na Opção -->
-          <div id="painel-acao-editor-${idx}" class="p-3 bg-[#0c0d10] border border-[#1f2026] rounded-xl space-y-2.5">
+          <div id="painel-acao-editor-${idx}" class="p-3 bg-[#0a0a0a] border border-[#1c1c1c] rounded-xl space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-semibold uppercase tracking-wider text-[#6e737d]">Funções desta opção</span>
               <span class="text-[10px] font-mono ${temQualquerAcao ? 'text-[#d4af37] font-medium' : 'text-[#62666d]'}">${badgesTexto}</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-[#c59b27]/35 cursor-pointer transition">
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#111111] border border-[#202020] hover:border-[#c59b27]/35 cursor-pointer transition">
                 <input type="checkbox" id="check-fila-editor-${idx}" ${op.acoes.encaminharFilaHumana ? 'checked' : ''} class="accent-[#c59b27] w-3.5 h-3.5 rounded cursor-pointer shrink-0">
                 <span class="text-[11px] text-[#d0d6e0] leading-tight">Enviar para Fila do Advogado</span>
               </label>
 
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-[#c59b27]/35 cursor-pointer transition">
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#111111] border border-[#202020] hover:border-[#c59b27]/35 cursor-pointer transition">
                 <input type="checkbox" id="check-relato-editor-${idx}" ${op.acoes.aguardarRelatoLivre ? 'checked' : ''} class="accent-[#c59b27] w-3.5 h-3.5 rounded cursor-pointer shrink-0">
                 <span class="text-[11px] text-[#d0d6e0] leading-tight">Aguardar relato livre após resposta</span>
               </label>
 
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-[#c59b27]/35 cursor-pointer transition">
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#111111] border border-[#202020] hover:border-[#c59b27]/35 cursor-pointer transition">
                 <input type="checkbox" id="check-audio-editor-${idx}" ${op.acoes.aguardarAudioRelato ? 'checked' : ''} class="accent-[#c59b27] w-3.5 h-3.5 rounded cursor-pointer shrink-0">
                 <span class="text-[11px] text-[#d0d6e0] leading-tight">Transcrever áudio com IA</span>
               </label>
 
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-emerald-500/35 cursor-pointer transition">
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#111111] border border-[#202020] hover:border-emerald-500/35 cursor-pointer transition">
                 <input type="checkbox" id="check-alerta-editor-${idx}" ${op.acoes.dispararAlertaSonoro !== false ? 'checked' : ''} class="accent-emerald-500 w-3.5 h-3.5 rounded cursor-pointer shrink-0">
                 <span class="text-[11px] text-[#d0d6e0] leading-tight">Tocar alerta sonoro no PC</span>
               </label>
@@ -7211,11 +7216,11 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
               <input type="text" id="input-motivo-editor-${idx}" placeholder="Ex: Novo Processo / Consulta" value="${op.acoes.motivoFila || ''}" class="w-full exec-input rounded-lg px-2.5 py-1 text-xs">
             </div>
 
-            <div class="pt-2 border-t border-[#1c1d22] flex flex-wrap items-center gap-1.5">
+            <div class="pt-2 border-t border-[#1a1a1a] flex flex-wrap items-center gap-1.5">
               <span class="text-[10px] text-[#62666d] mr-1">Atalhos:</span>
-              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'fila_advogado')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#16171c] hover:bg-[#1e2027] text-[#a1a6b0] hover:text-[#d4af37] border border-[#26282e] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Fila do Advogado</button>
-              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'audio_relato_ia')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#16171c] hover:bg-[#1e2027] text-[#a1a6b0] hover:text-[#d4af37] border border-[#26282e] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Áudio + IA</button>
-              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'solicitar_documentos')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#16171c] hover:bg-[#1e2027] text-[#a1a6b0] hover:text-[#d4af37] border border-[#26282e] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Pedir Documentos</button>
+              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'fila_advogado')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#111111] hover:bg-[#141414] text-[#a1a6b0] hover:text-[#d4af37] border border-[#222222] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Fila do Advogado</button>
+              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'audio_relato_ia')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#111111] hover:bg-[#141414] text-[#a1a6b0] hover:text-[#d4af37] border border-[#222222] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Áudio + IA</button>
+              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'solicitar_documentos')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#111111] hover:bg-[#141414] text-[#a1a6b0] hover:text-[#d4af37] border border-[#222222] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Pedir Documentos</button>
             </div>
           </div>
         `;
@@ -7452,8 +7457,8 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const pnlEd = document.getElementById('painel-fluxo-editor');
       const pnlAc = document.getElementById('painel-fluxo-acoes');
 
-      const activeClass = "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-150 bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm cursor-pointer";
-      const inactiveClass = "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-medium transition-all duration-150 text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent cursor-pointer";
+      const activeClass = "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-150 bg-[#121212] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm cursor-pointer";
+      const inactiveClass = "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-medium transition-all duration-150 text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#111111] border border-transparent cursor-pointer";
 
       if (btnMsg) btnMsg.className = (aba === 'mensagens') ? activeClass : inactiveClass;
       if (btnEd) btnEd.className = (aba === 'editor') ? activeClass : inactiveClass;
@@ -9217,7 +9222,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const btnProc = document.getElementById('subtab-detalhe-proc');
       const btnDossie = document.getElementById('subtab-detalhe-dossie');
 
-      const activeSubTab = "flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
+      const activeSubTab = "flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition bg-[#121212] text-[#f7f8f8] border border-[#c59b27]/40 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm";
       const inactiveSubTab = "flex-1 py-2 px-3 rounded-lg text-xs font-medium transition text-[#8a8f98] hover:text-[#f7f8f8] border border-transparent flex items-center justify-center gap-1.5 cursor-pointer";
 
       if (aba === 'dossie') {
@@ -9600,7 +9605,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
 
         item.innerHTML = `
           <div class="flex items-center space-x-3 overflow-hidden pr-2">
-            <div class="w-9 h-9 rounded-lg ${isSel ? 'champagne-gradient text-zinc-950' : 'bg-[#1a1b20] border border-[#2a2c34] text-[#f3dc8a]'} flex items-center justify-center font-bold text-xs flex-shrink-0 transition-colors">
+            <div class="w-9 h-9 rounded-lg ${isSel ? 'champagne-gradient text-zinc-950' : 'bg-[#121212] border border-[#262626] text-[#f3dc8a]'} flex items-center justify-center font-bold text-xs flex-shrink-0 transition-colors">
               ${iniciais}
             </div>
             <div class="overflow-hidden min-w-0">
@@ -9608,7 +9613,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
                 <span class="text-[12.5px] font-semibold truncate text-[#f7f8f8]">${p.nome || 'Cliente'}</span>
                 ${tagHtml}
                 <span class="w-1.5 h-1.5 rounded-full shrink-0 ${temConteudoAtivo ? (qtdVistos > 0 ? 'bg-sky-400' : 'bg-emerald-400') : 'bg-[#3e4047]'}"></span>
-                ${qtdDocsDossie > 0 ? `<span class="text-[9.5px] px-1.5 py-0.5 rounded bg-[#18191e] text-[#f3dc8a] font-mono border border-[#2a2c34] shrink-0" title="${qtdDocsDossie} documento(s) no Dossiê Civil">${qtdDocsDossie} docs</span>` : ''}
+                ${qtdDocsDossie > 0 ? `<span class="text-[9.5px] px-1.5 py-0.5 rounded bg-[#121212] text-[#f3dc8a] font-mono border border-[#262626] shrink-0" title="${qtdDocsDossie} documento(s) no Dossiê Civil">${qtdDocsDossie} docs</span>` : ''}
               </div>
               <p class="text-[10.5px] font-mono tabular-nums text-[#8a8f98] truncate mt-0.5">
                 <span class="text-[#d4af37]">${p.cpf || '-'}</span> <span class="text-[#3e4047] mx-1">•</span> <span class="text-[#b0b5c0]">${p.numero || '-'}</span>
@@ -9663,8 +9668,8 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const tComp = document.getElementById('subtab-agenda-compromissos');
       const tHor = document.getElementById('subtab-agenda-horarios');
 
-      const activeAgendaTab = "flex-1 py-2.5 px-4 rounded-lg font-semibold transition bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm flex items-center justify-center gap-2 cursor-pointer";
-      const inactiveAgendaTab = "flex-1 py-2.5 px-4 rounded-lg font-medium transition text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent flex items-center justify-center gap-2 cursor-pointer";
+      const activeAgendaTab = "flex-1 py-2.5 px-4 rounded-lg font-semibold transition bg-[#121212] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm flex items-center justify-center gap-2 cursor-pointer";
+      const inactiveAgendaTab = "flex-1 py-2.5 px-4 rounded-lg font-medium transition text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#111111] border border-transparent flex items-center justify-center gap-2 cursor-pointer";
 
       if (subAba === 'compromissos') {
         if (pComp) pComp.classList.remove('hidden');
