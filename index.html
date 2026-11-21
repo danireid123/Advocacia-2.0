@@ -755,8 +755,9 @@
       background-size: 16px 16px;
     }
     .wa-bubble-out {
-      background-color: #005c4b;
+      background-color: #0b4236;
       color: #e9edef;
+      border: 1px solid rgba(52, 211, 153, 0.16);
       border-radius: 12px 12px 2px 12px;
       position: relative;
     }
@@ -3293,92 +3294,83 @@
           </div>
         </div>
 
-        <!-- ================= ABA 2: MENU AUTOMÁTICO (2 SUB-ABAS LIMPAS) ================= -->
+        <!-- ================= ABA 2: MENU AUTOMÁTICO (HIGIENIZADO & PADRONIZADO) ================= -->
         <div id="aba-fluxo" class="hidden space-y-5 tab-pane-anim">
-          <div id="tour-fluxo-header" class="exec-card relative overflow-hidden px-6 py-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"></div>
-            <div class="space-y-1.5">
-              <div class="flex items-center flex-wrap gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Atendimento WhatsApp
-                </span>
-                <span class="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
-                  Salvamento Automático
-                </span>
-              </div>
-              <h2 class="font-serif-legal text-xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-400"><use href="#icon-flow"/></svg>
+          <!-- Compatibilidade invisível para badge-autosave -->
+          <div class="hidden" aria-hidden="true"><span id="badge-autosave"></span></div>
+
+          <!-- Cabeçalho Editorial Limpo (mesmo padrão da Aba Inicial) -->
+          <div id="tour-fluxo-header" class="pt-1 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div class="space-y-1 min-w-0">
+              <h2 class="font-serif-legal text-[28px] sm:text-[32px] font-bold tracking-tight text-[#f7f8f8] leading-tight">
                 Menu Automático do WhatsApp
               </h2>
-              <p class="text-xs text-zinc-400 max-w-2xl leading-relaxed">Configure primeiro os menus e funções de cada opção. Modelos de consulta por CPF e pedido de documentos ficam organizados na segunda aba.</p>
+              <p class="text-[13px] text-[#8a8f98] max-w-2xl leading-relaxed">
+                Configure os menus de atendimento e as funções de cada opção. Modelos de CPF e documentos ficam na segunda aba.
+              </p>
             </div>
-            <div class="flex items-center space-x-2.5 shrink-0">
-              <span id="badge-autosave" class="text-[10px] font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 font-mono">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                ✓ Tudo Salvo
-              </span>
-              <button id="btn-nova-etapa" class="btn-tactile flex items-center space-x-1.5 px-4 py-2.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-800 hover:border-zinc-700 active:scale-[0.98] transition-all duration-150 cursor-pointer shadow-sm">
-                <svg class="w-4 h-4 text-amber-400"><use href="#icon-plus"/></svg>
+            <div class="flex items-center gap-2.5 shrink-0">
+              <button id="btn-nova-etapa" class="btn-tactile linear-btn-ghost flex items-center gap-1.5 px-4 py-2.5 text-xs font-medium rounded-xl active:scale-[0.98] cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-plus"/></svg>
                 <span>Novo Submenu</span>
               </button>
-              <button id="btn-salvar-fluxo" class="btn-tactile flex items-center space-x-1.5 px-5 py-2.5 champagne-gradient text-xs font-bold rounded-xl shadow-lg active:scale-[0.98] transition-all duration-150 cursor-pointer">
-                <svg class="w-4 h-4"><use href="#icon-save"/></svg>
+              <button id="btn-salvar-fluxo" class="btn-tactile flex items-center gap-1.5 px-4 py-2.5 champagne-gradient text-[#08080a] text-xs font-bold rounded-xl active:scale-[0.98] transition-all duration-150 cursor-pointer">
+                <svg class="w-3.5 h-3.5"><use href="#icon-save"/></svg>
                 <span id="label-btn-salvar">Salvar Tudo</span>
               </button>
             </div>
           </div>
 
-          <!-- BARRA DE 2 SUB-ABAS NO TOPO -->
-          <div class="p-1.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/90 flex flex-col sm:flex-row gap-1.5 shadow-inner">
-            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30 shadow-sm cursor-pointer">
-              <svg class="w-4 h-4"><use href="#icon-flow"/></svg>
+          <!-- BARRA DE 2 SUB-ABAS (SEGMENTED CONTROL OBSIDIAN) -->
+          <div class="p-1 rounded-xl bg-[#0c0d10] border border-[#23252a] flex flex-col sm:flex-row gap-1">
+            <button type="button" id="subtab-fluxo-editor" onclick="alternarSubAbaFluxo('editor')" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-150 bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm cursor-pointer">
+              <svg class="w-3.5 h-3.5 text-[#c59b27]"><use href="#icon-flow"/></svg>
               <span>1. Editar Menus &amp; Funções</span>
             </button>
-            <button type="button" id="subtab-fluxo-mensagens" onclick="alternarSubAbaFluxo('mensagens')" class="flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent cursor-pointer">
-              <svg class="w-4 h-4"><use href="#icon-folder"/></svg>
+            <button type="button" id="subtab-fluxo-mensagens" onclick="alternarSubAbaFluxo('mensagens')" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-medium transition-all duration-150 text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent cursor-pointer">
+              <svg class="w-3.5 h-3.5"><use href="#icon-folder"/></svg>
               <span>2. Mensagens de CPF &amp; Documentos</span>
             </button>
           </div>
 
           <!-- SUB-ABA 1: EDITOR DE MENUS + FUNÇÕES EMBUTIDAS + PRÉVIA AO VIVO -->
-          <div id="painel-fluxo-editor" class="grid grid-cols-12 gap-6">
-            <div class="col-span-12 lg:col-span-7 space-y-5">
-              <div id="tour-seletor-etapa" class="exec-card p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex items-center justify-between">
-                <div class="flex items-center space-x-3 flex-1">
-                  <span class="text-xs font-semibold text-zinc-300">Menu em Edição:</span>
-                  <select id="select-etapa" class="flex-1 exec-input rounded-xl px-3.5 py-2 text-xs text-amber-400 font-bold bg-zinc-950 border border-zinc-800">
+          <div id="painel-fluxo-editor" class="grid grid-cols-12 gap-5">
+            <div class="col-span-12 lg:col-span-7 space-y-4">
+              <div id="tour-seletor-etapa" class="linear-shell p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                  <span class="text-xs font-medium text-[#8a8f98] shrink-0">Menu em Edição</span>
+                  <select id="select-etapa" class="flex-1 exec-input rounded-xl px-3.5 py-2 text-xs text-[#f7f8f8] font-semibold bg-[#0b0c0e] border border-[#26282e]">
                     <option value="raiz">Menu Principal (Boas-Vindas)</option>
                   </select>
                 </div>
-                <button id="btn-excluir-etapa" class="hidden ml-3 items-center space-x-1 text-xs text-rose-400 hover:text-rose-300 font-semibold px-3 py-2 bg-rose-950/30 border border-rose-800/40 rounded-xl active:scale-95 transition-all cursor-pointer">
-                  <svg class="w-4 h-4"><use href="#icon-trash"/></svg>
+                <button id="btn-excluir-etapa" class="hidden items-center gap-1.5 text-xs text-[#8a8f98] hover:text-rose-400 font-medium px-3 py-2 bg-[#141518] hover:bg-rose-500/10 border border-[#26282e] hover:border-rose-500/35 rounded-xl active:scale-95 transition-all cursor-pointer shrink-0">
+                  <svg class="w-3.5 h-3.5"><use href="#icon-trash"/></svg>
                   <span>Remover</span>
                 </button>
               </div>
 
-              <div id="tour-editor-card" class="exec-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-2.5">
-                <div class="flex items-center justify-between mb-1">
-                  <label class="text-xs font-bold text-zinc-200">Texto de Boas-Vindas / Mensagem deste Menu</label>
-                  <div class="flex items-center space-x-2.5">
-                    <button type="button" id="btn-melhorar-msg-etapa" onclick="melhorarTextoAtendimentoEtapaComIA()" class="btn-tactile btn-ai-enhance text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1 cursor-pointer">
-                      <svg class="w-3 h-3 text-amber-400"><use href="#icon-sparkles"/></svg>
+              <div id="tour-editor-card" class="linear-shell p-5 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <label class="text-[13px] font-semibold text-[#f7f8f8]">Mensagem de Boas-Vindas / Texto deste Menu</label>
+                  <div class="flex items-center gap-2">
+                    <button type="button" id="btn-melhorar-msg-etapa" onclick="melhorarTextoAtendimentoEtapaComIA()" class="btn-tactile linear-btn-ghost text-[11px] font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 text-[#d0d6e0] hover:text-[#d4af37] hover:border-[#c59b27]/45 cursor-pointer">
+                      <svg class="w-3 h-3 text-[#c59b27]"><use href="#icon-sparkles"/></svg>
                       <span>Melhorar com IA</span>
                     </button>
-                    <button type="button" id="btn-toggle-format" class="text-[11px] font-semibold text-amber-400 hover:underline flex items-center space-x-1 cursor-pointer">
-                      <svg class="w-3.5 h-3.5"><use href="#icon-settings"/></svg>
+                    <button type="button" id="btn-toggle-format" class="linear-btn-ghost text-[11px] font-medium px-2.5 py-1.5 rounded-lg text-[#8a8f98] hover:text-[#f7f8f8] flex items-center gap-1.5 cursor-pointer">
+                      <svg class="w-3 h-3"><use href="#icon-settings"/></svg>
                       <span>Formatação</span>
                     </button>
                   </div>
                 </div>
 
                 <div id="format-drawer" class="format-drawer">
-                  <div class="flex flex-wrap items-center gap-2 bg-zinc-950/80 p-2 rounded-xl border border-zinc-800/80 shadow-inner">
-                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('bold')" class="btn-tactile px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-400/40 rounded-lg text-xs font-bold text-amber-400 active:scale-95 transition-all">B *Negrito*</button>
-                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('italic')" class="btn-tactile px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-400/40 rounded-lg text-xs italic text-zinc-200 active:scale-95 transition-all">I _Itálico_</button>
-                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('strike')" class="btn-tactile px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-400/40 rounded-lg text-xs line-through text-zinc-400 active:scale-95 transition-all">S ~Tachado~</button>
-                    <div class="h-4 w-px bg-zinc-800/80 mx-0.5"></div>
-                    <button type="button" onmousedown="event.preventDefault()" onclick="inserirSnippet('• ')" class="btn-tactile px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[11px] text-zinc-300 active:scale-95 transition-all">+ Tópico</button>
+                  <div class="flex flex-wrap items-center gap-1.5 bg-[#0b0c0e] p-2 rounded-xl border border-[#23252a]">
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('bold')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#c59b27]/40 rounded-lg text-[11px] font-bold text-[#d4af37] active:scale-95 transition-all cursor-pointer">B *Negrito*</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('italic')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#3a3d47] rounded-lg text-[11px] italic text-[#d0d6e0] active:scale-95 transition-all cursor-pointer">I _Itálico_</button>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="formatarTexto('strike')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#3a3d47] rounded-lg text-[11px] line-through text-[#8a8f98] active:scale-95 transition-all cursor-pointer">S ~Tachado~</button>
+                    <div class="h-3.5 w-px bg-[#26282e] mx-0.5"></div>
+                    <button type="button" onmousedown="event.preventDefault()" onclick="inserirSnippet('• ')" class="btn-tactile px-2.5 py-1 bg-[#141519] hover:bg-[#1c1e24] border border-[#26282e] hover:border-[#3a3d47] rounded-lg text-[11px] text-[#d0d6e0] active:scale-95 transition-all cursor-pointer">+ Tópico</button>
                   </div>
                 </div>
 
@@ -3386,13 +3378,13 @@
                 <div id="guardrail-aviso-input-etapa-msg" class="hidden mt-2 p-3 rounded-xl border text-[11px] leading-relaxed transition-all duration-200"></div>
               </div>
 
-              <div id="tour-options-card" class="exec-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-4">
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+              <div id="tour-options-card" class="linear-shell p-5 space-y-4">
+                <div class="flex items-center justify-between border-b border-[#1c1d22] pb-3.5">
                   <div>
-                    <span class="text-xs font-bold text-zinc-200">Opções do Menu &amp; Funções</span>
-                    <p class="text-[11px] text-zinc-400">Defina a resposta e as funções de cada número em um único lugar:</p>
+                    <span class="text-[13.5px] font-semibold text-[#f7f8f8]">Opções do Menu &amp; Funções</span>
+                    <p class="text-[11.5px] text-[#8a8f98] mt-0.5">Defina a resposta e o comportamento de cada número.</p>
                   </div>
-                  <button id="btn-add-opcao" class="flex items-center space-x-1.5 px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 hover:border-zinc-700 text-xs font-semibold rounded-xl active:scale-[0.98] transition-all duration-150 cursor-pointer">
+                  <button id="btn-add-opcao" class="btn-tactile linear-btn-ghost flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-[#d4af37] hover:border-[#c59b27]/45 rounded-xl active:scale-[0.98] cursor-pointer">
                     <svg class="w-3.5 h-3.5"><use href="#icon-plus"/></svg>
                     <span>Nova Opção</span>
                   </button>
@@ -3402,83 +3394,83 @@
             </div>
 
             <div class="col-span-12 lg:col-span-5 space-y-4">
-              <div class="wa-wallpaper-dark rounded-2xl p-4 border border-zinc-800/90 shadow-2xl flex flex-col justify-between space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 text-[10px] text-zinc-400">
-                  <span class="font-bold text-zinc-200 flex items-center gap-2">
+              <div class="linear-shell p-5 flex flex-col justify-between space-y-3.5">
+                <div class="flex items-center justify-between pb-3 border-b border-[#1c1d22]">
+                  <span class="text-[13px] font-semibold text-[#f7f8f8] flex items-center gap-2">
                     <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
                     </span>
                     Como o Cliente Vê no WhatsApp
                   </span>
-                  <span class="font-mono text-[9px] text-emerald-400">AO VIVO</span>
+                  <span class="font-mono text-[10px] text-emerald-400/90 tracking-wider">AO VIVO</span>
                 </div>
-                <div class="flex justify-end py-1">
-                  <div class="wa-bubble-out p-3.5 max-w-[95%] shadow-lg text-xs leading-relaxed">
-                    <div id="wa-preview-etapa-real" class="text-xs leading-relaxed whitespace-pre-wrap font-sans"></div>
-                    <div class="flex items-center justify-end space-x-1 mt-1.5 text-[9px] text-zinc-300 font-mono">
-                      <span>10:42</span>
-                      <span class="text-sky-400 font-bold">✓✓</span>
+                <div class="wa-wallpaper-dark rounded-xl p-3.5 border border-[#1f2228]">
+                  <div class="flex justify-end">
+                    <div class="wa-bubble-out p-3.5 max-w-[96%] shadow-md text-xs leading-relaxed">
+                      <div id="wa-preview-etapa-real" class="text-xs leading-relaxed whitespace-pre-wrap font-sans"></div>
+                      <div class="flex items-center justify-end space-x-1 mt-1.5 text-[9.5px] text-emerald-100/70 font-mono">
+                        <span>10:42</span>
+                        <span class="text-sky-300 font-bold">✓✓</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="text-[10px] text-zinc-400 text-center pt-1 border-t border-zinc-800/50">
-                  Prévia exata da mensagem com texto + opções numeradas.
+                <div class="text-[11px] text-[#6e737d] text-center">
+                  Prévia exata da mensagem com texto e opções numeradas.
                 </div>
               </div>
 
-              <div id="tour-visual-map" class="exec-card p-5 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-4">
-                <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-                  <div class="flex items-center space-x-2">
-                    <svg class="w-4 h-4 text-amber-400"><use href="#icon-flow"/></svg>
-                    <h3 class="text-xs font-bold text-zinc-200">Mapa do Menu</h3>
+              <div id="tour-visual-map" class="linear-shell p-5 space-y-3.5">
+                <div class="flex items-center justify-between border-b border-[#1c1d22] pb-3">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#c59b27]"><use href="#icon-flow"/></svg>
+                    <h3 class="text-[13.5px] font-semibold text-[#f7f8f8]">Mapa do Menu</h3>
                   </div>
-                  <span class="text-[10px] text-zinc-400 bg-zinc-900 px-2.5 py-0.5 rounded-full border border-zinc-800 font-mono">Clique para abrir</span>
+                  <span class="text-[10.5px] text-[#6e737d] font-mono">Clique para abrir</span>
                 </div>
-                <div id="mapa-visual-container" class="space-y-3 max-h-[520px] overflow-y-auto pr-1"></div>
+                <div id="mapa-visual-container" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1"></div>
               </div>
             </div>
           </div>
 
           <!-- SUB-ABA 2: MENSAGENS AUTOMÁTICAS DE CPF & DOCUMENTOS (COM EXEMPLO VISUAL AO LADO) -->
-          <div id="painel-fluxo-mensagens" class="hidden space-y-5">
+          <div id="painel-fluxo-mensagens" class="hidden space-y-4">
             <!-- Seletor de Cenários -->
-            <div class="exec-card p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 space-y-3">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h3 class="text-sm font-bold text-zinc-100">Escolha qual mensagem automática deseja editar</h3>
-                  <p class="text-[11px] text-zinc-400">Selecione um cenário abaixo e veja ao lado exatamente como o cliente recebe no WhatsApp.</p>
-                </div>
+            <div class="linear-shell p-5 space-y-3.5">
+              <div>
+                <h3 class="text-[14px] font-semibold text-[#f7f8f8]">Escolha qual mensagem automática deseja editar</h3>
+                <p class="text-[11.5px] text-[#8a8f98] mt-0.5">Selecione um cenário abaixo e veja ao lado como o cliente recebe no WhatsApp.</p>
               </div>
               <div id="cenario-msg-tabs" class="flex flex-wrap gap-2">
-                <button type="button" data-cenario="com-atualizacao" onclick="selecionarCenarioMensagem('com-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-amber-500/15 text-amber-300 border border-amber-500/35 cursor-pointer">1. Processo atualizado</button>
-                <button type="button" data-cenario="ja-visto" onclick="selecionarCenarioMensagem('ja-visto')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-zinc-950/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800 cursor-pointer">2. Sem novidades</button>
-                <button type="button" data-cenario="sem-atualizacao" onclick="selecionarCenarioMensagem('sem-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-zinc-950/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800 cursor-pointer">3. Sem resumo ainda</button>
-                <button type="button" data-cenario="nao-encontrado" onclick="selecionarCenarioMensagem('nao-encontrado')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-zinc-950/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800 cursor-pointer">4. CPF não encontrado</button>
-                <button type="button" data-cenario="encerrar" onclick="selecionarCenarioMensagem('encerrar')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-zinc-950/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800 cursor-pointer">5. Digitar 1 (Encerrar)</button>
-                <button type="button" data-cenario="advogado-pos" onclick="selecionarCenarioMensagem('advogado-pos')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-zinc-950/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800 cursor-pointer">6. Digitar 2 (Advogado)</button>
-                <button type="button" data-cenario="onboarding-docs" onclick="selecionarCenarioMensagem('onboarding-docs')" class="cenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-[0.98] bg-zinc-950/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800 cursor-pointer">7. Pedir Documentos</button>
+                <button type="button" data-cenario="com-atualizacao" onclick="selecionarCenarioMensagem('com-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#181920] text-[#d4af37] border border-[#c59b27]/45 cursor-pointer">1. Processo atualizado</button>
+                <button type="button" data-cenario="ja-visto" onclick="selecionarCenarioMensagem('ja-visto')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">2. Sem novidades</button>
+                <button type="button" data-cenario="sem-atualizacao" onclick="selecionarCenarioMensagem('sem-atualizacao')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">3. Sem resumo ainda</button>
+                <button type="button" data-cenario="nao-encontrado" onclick="selecionarCenarioMensagem('nao-encontrado')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">4. CPF não encontrado</button>
+                <button type="button" data-cenario="encerrar" onclick="selecionarCenarioMensagem('encerrar')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">5. Digitar 1 (Encerrar)</button>
+                <button type="button" data-cenario="advogado-pos" onclick="selecionarCenarioMensagem('advogado-pos')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">6. Digitar 2 (Advogado)</button>
+                <button type="button" data-cenario="onboarding-docs" onclick="selecionarCenarioMensagem('onboarding-docs')" class="cenario-pill px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-[#121317] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#23252a] cursor-pointer">7. Pedir Documentos</button>
               </div>
             </div>
 
             <!-- Grid Limpo: Editor (7/12) + Exemplo Real WhatsApp (5/12) -->
-            <div class="grid grid-cols-12 gap-6 items-start">
-              <div class="col-span-12 lg:col-span-7 exec-card rounded-2xl p-5 border border-zinc-800/80 bg-zinc-900/40 space-y-4">
-                <div id="tags-cenario-processo" class="flex flex-wrap items-center gap-1.5 pb-3 border-b border-zinc-800/80">
-                  <span class="text-[11px] text-zinc-400 mr-1">Inserir dado automático:</span>
-                  <button type="button" onclick="inserirTagAtiva('{nome}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Nome</button>
-                  <button type="button" onclick="inserirTagAtiva('{cpf}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ CPF</button>
-                  <button type="button" onclick="inserirTagAtiva('{processo}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Nº Processo</button>
-                  <button type="button" onclick="inserirTagAtiva('{resumo}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Resumo</button>
-                  <button type="button" onclick="inserirTagAtiva('{data}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Data</button>
-                  <button type="button" onclick="inserirTagAtiva('{escritorio}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Escritório</button>
+            <div class="grid grid-cols-12 gap-5 items-start">
+              <div class="col-span-12 lg:col-span-7 linear-shell p-5 space-y-4">
+                <div id="tags-cenario-processo" class="flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#1c1d22]">
+                  <span class="text-[11px] text-[#8a8f98] mr-1">Inserir dado automático:</span>
+                  <button type="button" onclick="inserirTagAtiva('{nome}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Nome</button>
+                  <button type="button" onclick="inserirTagAtiva('{cpf}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ CPF</button>
+                  <button type="button" onclick="inserirTagAtiva('{processo}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Nº Processo</button>
+                  <button type="button" onclick="inserirTagAtiva('{resumo}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Resumo</button>
+                  <button type="button" onclick="inserirTagAtiva('{data}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Data</button>
+                  <button type="button" onclick="inserirTagAtiva('{escritorio}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Escritório</button>
                 </div>
 
-                <div id="tags-cenario-docs" class="hidden flex flex-wrap items-center gap-1.5 pb-3 border-b border-zinc-800/80">
-                  <span class="text-[11px] text-zinc-400 mr-1">Inserir dado automático:</span>
-                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{nome}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Nome do Cliente</button>
-                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{preset}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Área Jurídica</button>
-                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{documentos}')" class="px-2.5 py-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 text-amber-300 font-mono text-[10px] border border-zinc-800 transition cursor-pointer">+ Lista de Documentos</button>
+                <div id="tags-cenario-docs" class="hidden flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#1c1d22]">
+                  <span class="text-[11px] text-[#8a8f98] mr-1">Inserir dado automático:</span>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{nome}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Nome do Cliente</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{preset}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Área Jurídica</button>
+                  <button type="button" onclick="inserirTagNoInput('dossie-template-mensagem-docs', '{documentos}')" class="px-2.5 py-1 rounded-lg bg-[#141519] hover:bg-[#1c1e24] text-[#d4af37] font-mono text-[10.5px] border border-[#26282e] transition cursor-pointer">+ Lista de Documentos</button>
                 </div>
 
                 <!-- Cenário 1 -->
@@ -6614,7 +6606,7 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         if (!item.dados) return;
         const isSel = (item.id === etapaSelecionada);
         const card = document.createElement('div');
-        card.className = `p-4 rounded-xl border transition cursor-pointer ${isSel ? 'bg-amber-500/10 border-amber-400 ring-1 ring-amber-400/30' : 'bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700'}`;
+        card.className = `p-3.5 rounded-xl border transition-all duration-150 cursor-pointer ${isSel ? 'bg-[#15161c] border-[#c59b27]/45 shadow-[inset_3px_0_0_#c59b27]' : 'bg-[#121317] border-[#23252a] hover:border-[#343740]'}`;
         card.onclick = () => {
           etapaSelecionada = item.id;
           const selEtapa = document.getElementById('select-etapa');
@@ -6623,31 +6615,31 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         };
         let opHtml = '';
         (item.dados.opcoes || []).forEach(op => {
-          let badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+          let badgeClass = 'bg-emerald-500/10 text-emerald-400/90 border-emerald-500/20';
           let destinoLabel = 'Resposta Automática';
           if (op.tipo === 'submenu') {
-            badgeClass = 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+            badgeClass = 'bg-[#1a1b22] text-[#a1a6b0] border-[#2c2f38]';
             destinoLabel = `Abre: ${op.destino || 'raiz'}`;
           } else if (op.tipo === 'humano') {
-            badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+            badgeClass = 'bg-[#c59b27]/12 text-[#d4af37] border-[#c59b27]/25';
             destinoLabel = 'Chama Advogado';
           } else if (op.tipo === 'processo') {
-            badgeClass = 'bg-[#d4af37]/15 text-[#d4af37] border-[#d4af37]/30';
+            badgeClass = 'bg-[#c59b27]/12 text-[#d4af37] border-[#c59b27]/25';
             destinoLabel = 'Busca CPF/Processo';
           }
           opHtml += `
-            <div class="flex items-center justify-between text-[11px] exec-input px-3 py-1.5 rounded-lg">
-              <span class="w-5 h-5 rounded-md champagne-gradient font-bold flex items-center justify-center text-[10px]">${op.gatilho}</span>
-              <span class="truncate mx-2.5 flex-1">${op.rotulo}</span>
-              <span class="px-2 py-0.5 rounded-md border text-[10px] font-semibold ${badgeClass}">${destinoLabel}</span>
+            <div class="flex items-center justify-between text-[11px] bg-[#0b0c0e] border border-[#1f2026] px-2.5 py-1.5 rounded-lg">
+              <span class="w-5 h-5 rounded-md bg-[#c59b27]/15 text-[#d4af37] border border-[#c59b27]/30 font-mono font-bold flex items-center justify-center text-[10px]">${op.gatilho}</span>
+              <span class="truncate mx-2.5 flex-1 text-[#d0d6e0]">${op.rotulo}</span>
+              <span class="px-2 py-0.5 rounded-md border text-[10px] font-medium ${badgeClass}">${destinoLabel}</span>
             </div>`;
         });
         card.innerHTML = `
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold ${isSel ? 'text-[#d4af37]' : ''}">${item.dados.titulo || item.id}</span>
-            <span class="text-[10px] text-zinc-400">${(item.dados.opcoes || []).length} opções</span>
+            <span class="text-xs font-semibold ${isSel ? 'text-[#d4af37]' : 'text-[#e4e7ec]'}">${item.dados.titulo || item.id}</span>
+            <span class="text-[10px] font-mono text-[#6e737d]">${(item.dados.opcoes || []).length} opções</span>
           </div>
-          <div class="space-y-1.5">${opHtml || '<span class="text-[11px] text-zinc-500 italic">Sem opções cadastradas</span>'}</div>
+          <div class="space-y-1.5">${opHtml || '<span class="text-[11px] text-[#62666d] italic">Sem opções cadastradas</span>'}</div>
         `;
         container.appendChild(card);
       });
@@ -7122,60 +7114,60 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
         if (temAudio) badgesTexto += ' • Áudio IA';
 
         const card = document.createElement('div');
-        card.className = `p-4 exec-card rounded-xl space-y-3 border ${temAcaoFila ? 'border-amber-500/30' : 'border-zinc-800/80'}`;
+        card.className = `p-4 rounded-xl bg-[#121317] space-y-3 border ${temAcaoFila ? 'border-[#c59b27]/35' : 'border-[#23252a]'}`;
         card.innerHTML = `
           <div class="flex items-center space-x-2.5">
-            <input type="text" id="op-gatilho-${idx}" class="w-11 exec-input rounded-lg px-2 py-1.5 text-xs text-center font-bold text-[#d4af37]">
+            <input type="text" id="op-gatilho-${idx}" class="w-11 exec-input rounded-lg px-2 py-1.5 text-xs text-center font-mono font-bold text-[#d4af37]">
             <input type="text" id="op-rotulo-${idx}" placeholder="Título..." class="flex-1 exec-input rounded-lg px-3 py-1.5 text-xs">
-            <select id="op-tipo-${idx}" class="exec-input rounded-lg px-2.5 py-1.5 text-xs text-[#d4af37] font-semibold">
+            <select id="op-tipo-${idx}" class="exec-input rounded-lg px-2.5 py-1.5 text-xs text-[#d0d6e0] font-medium">
               <option value="texto" ${op.tipo === 'texto' ? 'selected' : ''}>Responder Texto</option>
               <option value="submenu" ${op.tipo === 'submenu' ? 'selected' : ''}>Abrir Submenu</option>
               <option value="processo" ${op.tipo === 'processo' ? 'selected' : ''}>Consultar Processo (CPF/CNJ)</option>
               <option value="humano" ${op.tipo === 'humano' ? 'selected' : ''}>Chamar Advogado</option>
             </select>
-            <button type="button" onclick="excluirOpcao(${idx})" class="text-zinc-500 hover:text-rose-400 p-1.5 transition cursor-pointer"><svg class="w-4 h-4"><use href="#icon-trash"/></svg></button>
+            <button type="button" onclick="excluirOpcao(${idx})" class="text-[#62666d] hover:text-rose-400 p-1.5 transition cursor-pointer"><svg class="w-4 h-4"><use href="#icon-trash"/></svg></button>
           </div>
           <div id="op-extra-${idx}"></div>
 
-          <!-- Funções Embutidas Diretamente na Opção (Sem Painel Separado) -->
-          <div id="painel-acao-editor-${idx}" class="p-3 bg-zinc-950/65 border border-zinc-800/75 rounded-xl space-y-2.5">
+          <!-- Funções Embutidas Diretamente na Opção -->
+          <div id="painel-acao-editor-${idx}" class="p-3 bg-[#0c0d10] border border-[#1f2026] rounded-xl space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Funções desta opção</span>
-              <span class="text-[10px] font-mono ${temQualquerAcao ? 'text-amber-400 font-semibold' : 'text-zinc-500'}">${badgesTexto}</span>
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-[#6e737d]">Funções desta opção</span>
+              <span class="text-[10px] font-mono ${temQualquerAcao ? 'text-[#d4af37] font-medium' : 'text-[#62666d]'}">${badgesTexto}</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-900/70 border border-zinc-800/80 hover:border-amber-500/30 cursor-pointer transition">
-                <input type="checkbox" id="check-fila-editor-${idx}" ${op.acoes.encaminharFilaHumana ? 'checked' : ''} class="accent-amber-500 w-3.5 h-3.5 rounded cursor-pointer shrink-0">
-                <span class="text-[11px] text-zinc-200 leading-tight">Enviar para Fila do Advogado</span>
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-[#c59b27]/35 cursor-pointer transition">
+                <input type="checkbox" id="check-fila-editor-${idx}" ${op.acoes.encaminharFilaHumana ? 'checked' : ''} class="accent-[#c59b27] w-3.5 h-3.5 rounded cursor-pointer shrink-0">
+                <span class="text-[11px] text-[#d0d6e0] leading-tight">Enviar para Fila do Advogado</span>
               </label>
 
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-900/70 border border-zinc-800/80 hover:border-amber-500/30 cursor-pointer transition">
-                <input type="checkbox" id="check-relato-editor-${idx}" ${op.acoes.aguardarRelatoLivre ? 'checked' : ''} class="accent-amber-500 w-3.5 h-3.5 rounded cursor-pointer shrink-0">
-                <span class="text-[11px] text-zinc-200 leading-tight">Aguardar relato livre após resposta</span>
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-[#c59b27]/35 cursor-pointer transition">
+                <input type="checkbox" id="check-relato-editor-${idx}" ${op.acoes.aguardarRelatoLivre ? 'checked' : ''} class="accent-[#c59b27] w-3.5 h-3.5 rounded cursor-pointer shrink-0">
+                <span class="text-[11px] text-[#d0d6e0] leading-tight">Aguardar relato livre após resposta</span>
               </label>
 
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-900/70 border border-zinc-800/80 hover:border-amber-500/30 cursor-pointer transition">
-                <input type="checkbox" id="check-audio-editor-${idx}" ${op.acoes.aguardarAudioRelato ? 'checked' : ''} class="accent-amber-500 w-3.5 h-3.5 rounded cursor-pointer shrink-0">
-                <span class="text-[11px] text-zinc-200 leading-tight">Transcrever áudio com IA</span>
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-[#c59b27]/35 cursor-pointer transition">
+                <input type="checkbox" id="check-audio-editor-${idx}" ${op.acoes.aguardarAudioRelato ? 'checked' : ''} class="accent-[#c59b27] w-3.5 h-3.5 rounded cursor-pointer shrink-0">
+                <span class="text-[11px] text-[#d0d6e0] leading-tight">Transcrever áudio com IA</span>
               </label>
 
-              <label class="flex items-center gap-2 p-2 rounded-lg bg-zinc-900/70 border border-zinc-800/80 hover:border-emerald-500/30 cursor-pointer transition">
+              <label class="flex items-center gap-2 p-2 rounded-lg bg-[#14151a] border border-[#23252a] hover:border-emerald-500/35 cursor-pointer transition">
                 <input type="checkbox" id="check-alerta-editor-${idx}" ${op.acoes.dispararAlertaSonoro !== false ? 'checked' : ''} class="accent-emerald-500 w-3.5 h-3.5 rounded cursor-pointer shrink-0">
-                <span class="text-[11px] text-zinc-200 leading-tight">Tocar alerta sonoro no PC</span>
+                <span class="text-[11px] text-[#d0d6e0] leading-tight">Tocar alerta sonoro no PC</span>
               </label>
             </div>
 
             <div id="box-motivo-editor-${idx}" class="${op.acoes.encaminharFilaHumana ? '' : 'hidden'} space-y-1">
-              <label class="text-[10px] text-zinc-400 block font-semibold">Motivo exibido na Fila de Atendimento:</label>
+              <label class="text-[10px] text-[#8a8f98] block font-medium">Motivo exibido na Fila de Atendimento:</label>
               <input type="text" id="input-motivo-editor-${idx}" placeholder="Ex: Novo Processo / Consulta" value="${op.acoes.motivoFila || ''}" class="w-full exec-input rounded-lg px-2.5 py-1 text-xs">
             </div>
 
-            <div class="pt-1.5 border-t border-zinc-800/60 flex flex-wrap items-center gap-1.5">
-              <span class="text-[10px] text-zinc-500 mr-1">Atalhos:</span>
-              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'fila_advogado')" class="btn-tactile px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/25 text-[10px] font-semibold transition cursor-pointer">Fila do Advogado</button>
-              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'audio_relato_ia')" class="btn-tactile px-2 py-0.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/25 text-[10px] font-semibold transition cursor-pointer">Áudio + IA</button>
-              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'solicitar_documentos')" class="btn-tactile px-2 py-0.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 text-[10px] font-semibold transition cursor-pointer">Pedir Documentos</button>
+            <div class="pt-2 border-t border-[#1c1d22] flex flex-wrap items-center gap-1.5">
+              <span class="text-[10px] text-[#62666d] mr-1">Atalhos:</span>
+              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'fila_advogado')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#16171c] hover:bg-[#1e2027] text-[#a1a6b0] hover:text-[#d4af37] border border-[#26282e] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Fila do Advogado</button>
+              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'audio_relato_ia')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#16171c] hover:bg-[#1e2027] text-[#a1a6b0] hover:text-[#d4af37] border border-[#26282e] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Áudio + IA</button>
+              <button type="button" onclick="aplicarPresetAcao(etapaSelecionada, ${idx}, 'solicitar_documentos')" class="btn-tactile px-2.5 py-1 rounded-md bg-[#16171c] hover:bg-[#1e2027] text-[#a1a6b0] hover:text-[#d4af37] border border-[#26282e] hover:border-[#c59b27]/40 text-[10px] font-medium transition cursor-pointer">Pedir Documentos</button>
             </div>
           </div>
         `;
@@ -7412,8 +7404,8 @@ Este canal utiliza assistente digital para triagem inicial e recepção de docum
       const pnlEd = document.getElementById('painel-fluxo-editor');
       const pnlAc = document.getElementById('painel-fluxo-acoes');
 
-      const activeClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] bg-[#d4af37]/15 text-[#d4af37] border border-[#d4af37]/30 shadow-sm cursor-pointer";
-      const inactiveClass = "flex-1 flex items-center justify-center space-x-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-150 active:scale-[0.99] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent cursor-pointer";
+      const activeClass = "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-150 bg-[#17181e] text-[#f7f8f8] border border-[#c59b27]/40 shadow-sm cursor-pointer";
+      const inactiveClass = "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-medium transition-all duration-150 text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-[#14151a] border border-transparent cursor-pointer";
 
       if (btnMsg) btnMsg.className = (aba === 'mensagens') ? activeClass : inactiveClass;
       if (btnEd) btnEd.className = (aba === 'editor') ? activeClass : inactiveClass;
