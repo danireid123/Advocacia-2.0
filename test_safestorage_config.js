@@ -63,7 +63,7 @@ async function executarTestesSafeStorage() {
     };
 
     const mainApp = require('./main.js');
-    const CHAVE_SECRETA_TESTE = 'AIzaSyChaveSecretaSuperConfidencial9876';
+    const CHAVE_SECRETA_TESTE = 'MOCK_SAFE_STORAGE_KEY_SUPER_SECRET_9876';
 
     // 1. Testar helpers cifrarChaveApi e decifrarChaveApi via safeStorage (Base64)
     const cifrada = mainApp.cifrarChaveApi(CHAVE_SECRETA_TESTE);
@@ -117,7 +117,7 @@ async function executarTestesSafeStorage() {
     assert.strictEqual(recarregadoCifrado.gemini_api_key, CHAVE_SECRETA_TESTE, 'Ao carregar do disco, gemini_api_key_cifrada deve popular configEmMemoria.gemini_api_key');
 
     // Simula arquivo legado com gemini_api_key em texto plano no disco
-    const CHAVE_LEGADA_PLANA = 'AIzaSyChaveLegadaTextoPlano11223344';
+    const CHAVE_LEGADA_PLANA = 'MOCK_LEGADA_TEXTO_PLANO_11223344';
     const jsonLegado = JSON.parse(rawDisco);
     delete jsonLegado.gemini_api_key_cifrada;
     jsonLegado.gemini_api_key = CHAVE_LEGADA_PLANA;
@@ -137,7 +137,7 @@ async function executarTestesSafeStorage() {
     assert.ok(typeof handlersIpc['restaurar-backup-completo'] === 'function', 'Handler restaurar-backup-completo deve estar registrado');
 
     // 5.1 Backup legado com chave em texto plano
-    const CHAVE_BACKUP_LEGADO = 'AIzaSyBackupLegadoRestaurado5566';
+    const CHAVE_BACKUP_LEGADO = 'MOCK_BACKUP_LEGADO_RESTAURADO_5566';
     const resBackupLegado = await handlersIpc['restaurar-backup-completo']({}, {
         nomeEscritorio: 'Escritório Backup Legado',
         gemini_api_key: CHAVE_BACKUP_LEGADO
@@ -148,7 +148,7 @@ async function executarTestesSafeStorage() {
     assert.ok(!fs.readFileSync(configPath, 'utf8').includes(CHAVE_BACKUP_LEGADO), 'Backup legado restaurado deve ser salvo cifrado no disco');
 
     // 5.2 Backup moderno com gemini_api_key_cifrada
-    const CHAVE_BACKUP_CIFRADO = 'AIzaSyBackupModernoCifrado7788';
+    const CHAVE_BACKUP_CIFRADO = 'MOCK_BACKUP_MODERNO_CIFRADO_7788';
     const resBackupCifrado = await handlersIpc['restaurar-backup-completo']({}, {
         nomeEscritorio: 'Escritório Backup Cifrado',
         gemini_api_key_cifrada: mainApp.cifrarChaveApi(CHAVE_BACKUP_CIFRADO)
